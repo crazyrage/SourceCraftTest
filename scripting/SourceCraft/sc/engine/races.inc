@@ -303,22 +303,22 @@ bool InitRaceArray()
         return false;
 }
 
-ClearRaceArray()
+void ClearRaceArray()
 {
     TraceInto("Race", "ClearRaceArray");
 
-    if (raceArray == INVALID_HANDLE)
+    if (raceArray != INVALID_HANDLE)
     {
         int raceCount = GetRaceCount();
-        for(new race=1;race<raceCount;race++)
+        for(int race=1;race<raceCount;race++)
         {
-            new Handle:raceHandle=GetArrayCell(raceArray,race);
-            new Handle:upgradeListHandle=GetUpgradeListHandle(raceHandle);
+            Handle raceHandle=GetArrayCell(raceArray,race);
+            Handle upgradeListHandle=GetUpgradeListHandle(raceHandle);
             int upgradeCount = GetArraySize(upgradeListHandle);
-            for(new upgrade=0;upgrade<upgradeCount;upgrade++)
+            for(int upgrade=0;upgrade<upgradeCount;upgrade++)
             {
-                new Handle:upgradeHandle=GetArrayCell(upgradeListHandle,upgrade);
-                new Handle:upgradeStringHandle=GetArrayCell(upgradeHandle,_:UpgradeData_Strings);
+                Handle upgradeHandle=GetArrayCell(upgradeListHandle,upgrade);
+                Handle upgradeStringHandle=GetArrayCell(upgradeHandle,view_as<int>(UpgradeData_Strings));
 
                 ClearArray(upgradeHandle);
                 CloseHandle(upgradeHandle);
@@ -332,11 +332,11 @@ ClearRaceArray()
                          race, upgrade, upgradeStringHandle);
             }
 
-            new Handle:stringsHandle=GetRaceStringHandle(raceHandle);
+            Handle stringsHandle=GetRaceStringHandle(raceHandle);
             ClearArray(stringsHandle);
             CloseHandle(stringsHandle);
 
-            new Handle:messagesHandle=GetRaceMessageHandle(raceHandle);
+            Handle messagesHandle=GetRaceMessageHandle(raceHandle);
             ClearArray(messagesHandle);
             CloseHandle(messagesHandle);
 
@@ -374,21 +374,21 @@ ClearRaceArray()
     TraceReturn();
 }
 
-CreateRace(const String:short[], required_level=0, tech_level=0, max_level=16,
-           Float:initial_energy=30.0, Float:energy_limit=100.0, Float:energy_rate=1.0, Faction:faction=Generic,
-           UnitType:type=GenericUnit, const String:parent[]="", Translation:translation=Translation_Auto,
-           const String:translation_file[]="", const String:name[]="", const String:switch_message[]="",
-           const String:pending_message[]="", const String:desc[]="", const String:image[]="",
-           Handle:plugin=INVALID_HANDLE)
+int CreateRace(const char[] short, int required_level=0, int tech_level=0, int max_level=16,
+           float initial_energy=30.0, float energy_limit=100.0, float energy_rate=1.0, Faction faction=Generic,
+           UnitType type=GenericUnit, const char[] parent="", Translation translation=Translation_Auto,
+           const char[] translation_file="", const char[] name="", const char[] switch_message="",
+           const char[] pending_message="", const char[] desc="", const char[] image="",
+           Handle plugin=INVALID_HANDLE)
 {
-    new Handle:raceConfig;
-    new Handle:raceHandle;
-    new ConfigLoadedStatus:raceLoaded;
+    Handle raceConfig;
+    Handle raceHandle;
+    ConfigLoadedStatus raceLoaded;
 
     TraceInto("Race", "CreateRace", "short=%s, required_level=%d, tech_level=%d, max_level=%d, initial_energy=%f, energy_limit=%f, energy_rate=%f, faction=%d, type=%d, parent=%s, translation=%d, file=%s, name=%s, switch_message=%s, pending_message=%s, desc=%s, image=%s", short, required_level, tech_level, max_level, initial_energy, energy_limit, energy_rate, faction, type, parent, translation, translation_file, name, switch_message, pending_message, desc, image);
 
     // Load translation_file, if any
-    decl String:translation_path[PLATFORM_MAX_PATH];
+    char translation_path[PLATFORM_MAX_PATH];
     if (translation_file[0] != '\0')
     {
         strcopy(translation_path, sizeof(translation_path), translation_file);
@@ -408,10 +408,10 @@ CreateRace(const String:short[], required_level=0, tech_level=0, max_level=16,
         if (raceLoaded == ConfigNotLoaded)
         {
             if (faction == Unassigned)
-                KvSetNum(raceConfig,"faction", _:faction);
+                KvSetNum(raceConfig,"faction", view_as<int>(faction));
 
             if (type == UnassignedUnit)
-                KvSetNum(raceConfig,"unit_type", _:type);
+                KvSetNum(raceConfig,"unit_type", view_as<int>(type));
 
             if (required_level >= 0)
                 KvSetNum(raceConfig,"required_level", required_level);
@@ -665,15 +665,15 @@ CreateRace(const String:short[], required_level=0, tech_level=0, max_level=16,
     return raceId;
 }
 
-RaceComplete(race, const String:desc[]="", const String:image[]="")
+void RaceComplete(int race, const char[] desc="", const char[] image="")
 {
-    new Handle:raceHandle = GetRaceHandle(race);
+    Handle raceHandle = GetRaceHandle(race);
     if (raceHandle != INVALID_HANDLE)
     {
         SetRaceHasBeenCompleted(raceHandle,true);
 
         // Add new Race Data into Race Index.
-        decl String:raceName[NAME_STRING_LENGTH];
+        char raceName[NAME_STRING_LENGTH];
         GetRaceName(raceHandle, raceName, sizeof(raceName));
 
         decl String:raceFactionName[NAME_STRING_LENGTH];
@@ -816,13 +816,13 @@ RaceComplete(race, const String:desc[]="", const String:image[]="")
     }
 }
 
-AddUpgrade(race, Handle:raceHandle, const String:short[], upgrade_category=0, required_level=-1, max_level=4,
-           Float:energy=0.0, Float:recurring_energy=0.0, Float:recurring_interval=0.0, bool:accumulated=false,
-           crystals=0, vespene=0, cost_crystals=-1, cost_vespene=-1, Float:cooldown=0.0,
-           CooldownType:cooldown_type=Cooldown_None, bool:disabled=false, const String:name[]="",
-           const String:desc[]="", const String:invoke[]="", const String:bind[]="", const String:image[]="",
-           const String:p1[]="", const String:p2[]="", const String:p3[]="", const String:p4[]="",
-           const String:p5[]="", const String:p6[]="", const String:p7[]="")
+int AddUpgrade(int race, Handle raceHandle, const char[] short, int upgrade_category=0, int required_level=-1, int max_level=4,
+           float energy=0.0, float recurring_energy=0.0, float recurring_interval=0.0, bool accumulated=false,
+           int crystals=0, int vespene=0, int cost_crystals=-1, int cost_vespene=-1, float cooldown=0.0,
+           CooldownType cooldown_type=Cooldown_None, bool disabled=false, const char[] name="",
+           const char[] desc="", const char[] invoke="", const char[] bind="", const char[] image="",
+           const char[] p1="", const char[] p2="", const char[] p3="", const char[] p4="",
+           const char[] p5="", const char[] p6="", const char[] p7="")
 {
     #if defined _TRACE
         TraceInto("Race", "AddUpgrade", "race=%d, raceHandle=0x%08x, short=%s, upgrade_category=%d, required_level=%d, max_level=%d, energy=%f, recurring_energy=%f, recurring_interval=%f, accumulated=%d, crystals=%d, vespene=%d, cost_crystals=%d, cost_vespene=%d, cooldown=%f, cooldown_type=%d, disabled=%d, name=%s, desc=%s, invoke=%s, bind=%s, image=%s, p1=%s, p2=%s, p3=%s, p4=%s, p5=%s, p6=%s, p7=%s", race, raceHandle, short, upgrade_category, required_level, max_level, energy, recurring_energy, recurring_interval, accumulated, crystals, vespene, cost_crystals, cost_vespene, cooldown, cooldown_type, disabled, name, desc, invoke, bind, image, p1, p2, p3, p4, p5, p6, p7);
@@ -1074,7 +1074,7 @@ AddUpgrade(race, Handle:raceHandle, const String:short[], upgrade_category=0, re
     return upgrade;
 }
 
-SetUpgradeCooldown(race, Handle:raceHandle, upgrade, Float:cooldown, CooldownType:cooldown_type)
+void SetUpgradeCooldown(int race, Handle raceHandle, int upgrade, float cooldown, CooldownType cooldown_type)
 {
     #if defined _TRACE
         TraceInto("Race", "SetUpgradeCooldown", "race=%d, raceHandle=0x%08x, cooldown=%f,cooldown_type=%d", \
@@ -1121,7 +1121,7 @@ Faction:GetRaceFactionId(Handle:raceHandle)
     return (factionId < Generic) ? Generic : factionId;
 }
 
-GetRaceParentId(Handle:raceHandle)
+int GetRaceParentId(Handle raceHandle)
 {
     if (raceHandle != INVALID_HANDLE)
     {
@@ -1141,7 +1141,7 @@ GetRaceParentId(Handle:raceHandle)
     }
 }
 
-GetRaceName(Handle:raceHandle, String:name[], maxlength, lang=LANG_SERVER)
+void GetRaceName(Handle raceHandle, char[] name, int maxlength, int lang=LANG_SERVER)
 {
     GetRaceNameString(raceHandle,name,maxlength);
     if (name[0] == '%')
@@ -1970,13 +1970,13 @@ FormatUpgradeDescription(Handle:raceHandle, upgrade, Translation:translation,
     return category;
 }
 
-GetUpgradeCount(Handle:raceHandle)
+int GetUpgradeCount(Handle raceHandle)
 {
-    new Handle:upgradeListHandle=GetArrayCell(raceHandle,_:RaceData_Upgrades);
+    Handle upgradeListHandle=GetArrayCell(raceHandle,view_as<int>(RaceData_Upgrades));
     return (upgradeListHandle != INVALID_HANDLE) ? GetArraySize(upgradeListHandle) : 0;
 }
 
-FindUpgrade(Handle:raceHandle, const String:short[])
+int FindUpgrade(Handle raceHandle, const char[] short)
 {
     new Handle:upgradeListHandle=GetArrayCell(raceHandle,_:RaceData_Upgrades);
     if (upgradeListHandle != INVALID_HANDLE)
@@ -2001,11 +2001,11 @@ FindUpgrade(Handle:raceHandle, const String:short[])
     return -1;
 }
 
-FindRace(const String:name[])
+int FindRace(const char[] name)
 {
-    decl String:curName[NAME_STRING_LENGTH];
+    char curName[NAME_STRING_LENGTH];
     int size = GetRaceCount();
-    for(new race=1;race<size;race++)
+    for(int race=1;race<size;race++)
     {
         GetRaceShortName(GetRaceHandle(race),curName,sizeof(curName));
         if (StrEqual(name,curName,false))
