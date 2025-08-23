@@ -268,7 +268,7 @@ Handle raceIndex = INVALID_HANDLE;
 
 bool InitRaceArray()
 {
-    if (raceArray == INVALID_HANDLE)
+    if (raceArray != INVALID_HANDLE)
     {
         raceArray = CreateArray();
 
@@ -303,7 +303,7 @@ bool InitRaceArray()
         return false;
 }
 
-void ClearRaceArray()
+void void ClearRaceArray()
 {
     TraceInto("Race", "ClearRaceArray");
 
@@ -442,7 +442,7 @@ int CreateRace(const char[] short, int required_level=0, int tech_level=0, int m
         if (translation_file[0] == '\0')
         {
             // Check for and Load Translations, if any
-            decl String:file[NAME_STRING_LENGTH];
+            char file[NAME_STRING_LENGTH];
 
             switch (translation)
             {
@@ -510,7 +510,7 @@ int CreateRace(const char[] short, int required_level=0, int tech_level=0, int m
         raceHandle=GetRaceHandle(raceId);
 
         // Toss out the old config handle, if any.
-        new Handle:oldConfig = GetRaceConfigHandle(raceHandle);
+        Handle oldConfig = GetRaceConfigHandle(raceHandle);
         if (oldConfig != INVALID_HANDLE)
             CloseHandle(oldConfig);
 
@@ -530,12 +530,12 @@ int CreateRace(const char[] short, int required_level=0, int tech_level=0, int m
         SetRacePlugin(raceHandle,plugin);
         SetRaceId(raceHandle,raceId);
 
-        new Handle:messagesHandle=GetRaceMessageHandle(raceHandle);
+        Handle messagesHandle=GetRaceMessageHandle(raceHandle);
         SetArrayString(messagesHandle, _:RaceMessage_Switch,            switch_message);
         SetArrayString(messagesHandle, _:RaceMessage_SwitchDead,        pending_message);
         SetArrayString(messagesHandle, _:RaceMessage_TranslationFile,   translation_path);
 
-        new Handle:stringsHandle=GetRaceStringHandle(raceHandle);
+        Handle stringsHandle=GetRaceStringHandle(raceHandle);
         SetArrayString(stringsHandle, _:RaceString_Name,       name);
         SetArrayString(stringsHandle, _:RaceString_ShortName,  short);
         SetArrayString(stringsHandle, _:RaceString_ParentName, parent);
@@ -543,19 +543,19 @@ int CreateRace(const char[] short, int required_level=0, int tech_level=0, int m
     else
     {
         // Setup Race Strings.
-        new Handle:messagesHandle=CreateArray(ByteCountToCells(LONG_STRING_LENGTH));
+        Handle messagesHandle=CreateArray(ByteCountToCells(LONG_STRING_LENGTH));
         PushArrayString(messagesHandle,switch_message);
         PushArrayString(messagesHandle,pending_message);
         PushArrayString(messagesHandle,translation_path);
 
         // Setup Race Messages.
-        new Handle:stringsHandle=CreateArray(ByteCountToCells(NAME_STRING_LENGTH));
+        Handle stringsHandle=CreateArray(ByteCountToCells(NAME_STRING_LENGTH));
         PushArrayString(stringsHandle,name);
         PushArrayString(stringsHandle,short);
         PushArrayString(stringsHandle,parent);
 
         // Setup Race Upgrade array.
-        new Handle:upgradeListHandle=CreateArray();
+        Handle upgradeListHandle=CreateArray();
 
         // Setup race_ident and is_new flag
         int raceIdent;
@@ -566,7 +566,7 @@ int CreateRace(const char[] short, int required_level=0, int tech_level=0, int m
         else
             raceIdent = LoadRaceIdent(short);
 
-        new bool:raceIsNew = (raceIdent < 0);
+        bool raceIsNew = (raceIdent < 0);
 
         if (faction <= Unassigned)
             faction = Generic;
@@ -617,13 +617,13 @@ int CreateRace(const char[] short, int required_level=0, int tech_level=0, int m
 
             if (translation > Translation_Auto)
             {
-                decl String:raceName[NAME_STRING_LENGTH];
+                char raceName[NAME_STRING_LENGTH];
                 GetRaceName(raceHandle, raceName, sizeof(raceName));
 
-                decl String:raceDesc[DESCRIPTION_LENGTH];
+                char raceDesc[DESCRIPTION_LENGTH];
                 GetRaceDescription(raceHandle, raceDesc, sizeof(raceDesc), desc);
 
-                decl String:raceImage[NAME_STRING_LENGTH];
+                char raceImage[NAME_STRING_LENGTH];
                 GetRaceImage(raceHandle, raceImage, sizeof(raceImage), image);
 
                 raceIdent = InsertRace(short, raceName, required_level, tech_level,
@@ -641,13 +641,13 @@ int CreateRace(const char[] short, int required_level=0, int tech_level=0, int m
         {
             if (translation > Translation_Auto)
             {
-                decl String:raceName[NAME_STRING_LENGTH];
+                char raceName[NAME_STRING_LENGTH];
                 GetRaceName(raceHandle, raceName, sizeof(raceName));
 
-                decl String:raceDesc[DESCRIPTION_LENGTH];
+                char raceDesc[DESCRIPTION_LENGTH];
                 GetRaceDescription(raceHandle, raceDesc, sizeof(raceDesc), desc);
 
-                decl String:raceImage[NAME_STRING_LENGTH];
+                char raceImage[NAME_STRING_LENGTH];
                 GetRaceImage(raceHandle, raceImage, sizeof(raceImage), image);
 
                 UpdateRace(raceIdent, short, raceName, required_level, tech_level,
@@ -676,10 +676,10 @@ void RaceComplete(int race, const char[] desc="", const char[] image="")
         char raceName[NAME_STRING_LENGTH];
         GetRaceName(raceHandle, raceName, sizeof(raceName));
 
-        decl String:raceFactionName[NAME_STRING_LENGTH];
+        char raceFactionName[NAME_STRING_LENGTH];
         GetFactionName(GetRaceFaction(raceHandle),raceFactionName,sizeof(raceFactionName));
 
-        decl String:raceParent[NAME_STRING_LENGTH];
+        char raceParent[NAME_STRING_LENGTH];
         GetRaceParentName(raceHandle,raceParent,sizeof(raceParent));
         int raceLevel = (raceParent[0] != '\0') ? 32767 : GetRaceRequiredLevel(raceHandle);
         if (raceLevel < 0)
@@ -689,14 +689,14 @@ void RaceComplete(int race, const char[] desc="", const char[] image="")
         new indexCount=GetRaceIndexCount();
         for(;index<indexCount;index++)
         {
-            decl String:indexFactionName[NAME_STRING_LENGTH];
-            new Handle:indexHandle = GetRaceIndexHandle(index);
-            new Faction:indexFaction = GetRaceFaction(indexHandle);
+            char indexFactionName[NAME_STRING_LENGTH];
+            Handle indexHandle = GetRaceIndexHandle(index);
+            Faction indexFaction = GetRaceFaction(indexHandle);
             GetFactionName(indexFaction,indexFactionName,sizeof(indexFactionName));
             int cmpFaction = strcmp(raceFactionName,indexFactionName,false);
             if (cmpFaction <= 0)
             {
-                decl String:indexParent[SHORT_STRING_LENGTH];
+                char indexParent[SHORT_STRING_LENGTH];
                 GetRaceParentName(indexHandle,indexParent,sizeof(indexParent));
                 int indexLevel = (indexParent[0] != '\0') ? 32767 : GetRaceRequiredLevel(indexHandle);
                 if (indexLevel < 0)
@@ -704,7 +704,7 @@ void RaceComplete(int race, const char[] desc="", const char[] image="")
 
                 if (cmpFaction <= 0 || raceLevel <= indexLevel)
                 {
-                    decl String:indexName[NAME_STRING_LENGTH];
+                    char indexName[NAME_STRING_LENGTH];
                     GetRaceName(indexHandle, indexName, sizeof(indexName));
                     if (cmpFaction < 0 || raceLevel < indexLevel ||
                         (cmpFaction == 0 && raceLevel == indexLevel &&
@@ -723,12 +723,12 @@ void RaceComplete(int race, const char[] desc="", const char[] image="")
             PushArrayCell(raceIndex,raceHandle);
 
         // Save and Close the race's config file
-        new Handle:raceConfig = GetRaceConfigHandle(raceHandle);
+        Handle raceConfig = GetRaceConfigHandle(raceHandle);
         if (raceConfig != INVALID_HANDLE)
         {
             if (GetRaceConfigIsLoaded(raceHandle) != ConfigWasLoaded)
             {
-                decl String:short[SHORT_STRING_LENGTH];
+                char short[SHORT_STRING_LENGTH];
                 GetRaceShortName(raceHandle, short, sizeof(short));
                 SaveConfig(raceConfig, short);
             }
@@ -742,20 +742,20 @@ void RaceComplete(int race, const char[] desc="", const char[] image="")
         if (g_bCreate || g_bUpdate)
         {
             int raceIdent = GetRaceIdent(raceHandle);
-            new Faction:faction = GetRaceFaction(raceHandle);
+            Faction faction = GetRaceFaction(raceHandle);
             if (raceIdent > 0 && faction > Unassigned)
             {
                 int tech_level = GetRaceTechLevel(raceHandle);
                 int required_level = GetRaceRequiredLevel(raceHandle);
                 new UnitType:type = GetRaceType(raceHandle);
 
-                decl String:short[SHORT_STRING_LENGTH];
+                char short[SHORT_STRING_LENGTH];
                 GetRaceShortName(raceHandle, short, sizeof(short));
 
-                decl String:raceDesc[DESCRIPTION_LENGTH];
+                char raceDesc[DESCRIPTION_LENGTH];
                 GetRaceDescription(raceHandle, raceDesc, sizeof(raceDesc), desc);
 
-                decl String:raceImage[NAME_STRING_LENGTH];
+                char raceImage[NAME_STRING_LENGTH];
                 GetRaceImage(raceHandle, raceImage, sizeof(raceImage), image);
 
                 UpdateRace(raceIdent, short, raceName, required_level, tech_level,
@@ -763,27 +763,27 @@ void RaceComplete(int race, const char[] desc="", const char[] image="")
 
                 // Update all upgrades that have been modifed since they were created
                 int upgradeCount = GetUpgradeCount(raceHandle);
-                for(new upgrade=0;upgrade<upgradeCount;upgrade++)
+                for(int upgrade=0;upgrade<upgradeCount;upgrade++)
                 {
-                    new Handle:upgradeHandle=GetUpgradeHandle(raceHandle, upgrade);
-                    if (!GetArrayCell(upgradeHandle, _:UpgradeData_Completed))
+                    Handle upgradeHandle=GetUpgradeHandle(raceHandle, upgrade);
+                    if (!GetArrayCell(upgradeHandle, view_as<int>(UpgradeData_Completed)))
                     {
-                        decl String:upgradeShortName[NAME_STRING_LENGTH];
+                        char upgradeShortName[NAME_STRING_LENGTH];
                         GetUpgradeShortName(raceHandle, upgrade, upgradeShortName, sizeof(upgradeShortName));
 
-                        decl String:upgradeName[NAME_STRING_LENGTH];
+                        char upgradeName[NAME_STRING_LENGTH];
                         GetUpgradeName(raceHandle, upgrade, upgradeName, sizeof(upgradeName));
 
-                        decl String:upgradeDesc[DESCRIPTION_LENGTH];
+                        char upgradeDesc[DESCRIPTION_LENGTH];
                         GetUpgradeDescription(raceHandle, upgrade, upgradeDesc, sizeof(upgradeDesc));
 
-                        decl String:upgradeInvoke[DESCRIPTION_LENGTH];
+                        char upgradeInvoke[DESCRIPTION_LENGTH];
                         GetUpgradeInvoke(raceHandle, upgrade, upgradeInvoke, sizeof(upgradeInvoke));
 
-                        decl String:upgradeBind[DESCRIPTION_LENGTH];
+                        char upgradeBind[DESCRIPTION_LENGTH];
                         GetUpgradeBind(raceHandle, upgrade, upgradeBind, sizeof(upgradeBind));
 
-                        decl String:upgradeImage[NAME_STRING_LENGTH];
+                        char upgradeImage[NAME_STRING_LENGTH];
                         GetUpgradeImage(raceHandle, upgrade, upgradeImage, sizeof(upgradeImage));
 
                         new upgrade_category         = GetArrayCell(upgradeHandle, _:UpgradeData_Category);
@@ -1037,22 +1037,22 @@ int AddUpgrade(int race, Handle raceHandle, const char[] short, int upgrade_cate
 
     if (GetRaceIsNew(raceHandle) || g_bCreate || g_bUpdate)
     {
-        decl String:upgradeShortName[SHORT_STRING_LENGTH];
+        char upgradeShortName[SHORT_STRING_LENGTH];
         GetUpgradeShortName(raceHandle, upgrade, upgradeShortName, sizeof(upgradeShortName));
 
-        decl String:upgradeName[NAME_STRING_LENGTH];
+        char upgradeName[NAME_STRING_LENGTH];
         GetUpgradeName(raceHandle, upgrade, upgradeName, sizeof(upgradeName));
 
-        decl String:upgradeDesc[DESCRIPTION_LENGTH];
+        char upgradeDesc[DESCRIPTION_LENGTH];
         GetUpgradeDescription(raceHandle, upgrade, upgradeDesc, sizeof(upgradeDesc));
 
-        decl String:upgradeInvoke[DESCRIPTION_LENGTH];
+        char upgradeInvoke[DESCRIPTION_LENGTH];
         GetUpgradeInvoke(raceHandle, upgrade, upgradeInvoke, sizeof(upgradeInvoke), invoke);
 
-        decl String:upgradeBind[DESCRIPTION_LENGTH];
+        char upgradeBind[DESCRIPTION_LENGTH];
         GetUpgradeBind(raceHandle, upgrade, upgradeBind, sizeof(upgradeBind), bind);
 
-        decl String:upgradeImage[NAME_STRING_LENGTH];
+        char upgradeImage[NAME_STRING_LENGTH];
         GetUpgradeImage(raceHandle, upgrade, upgradeImage, sizeof(upgradeImage), image);
 
         // Update database with upgrade description
@@ -1128,7 +1128,7 @@ int GetRaceParentId(Handle raceHandle)
         int parent = GetArrayCell(raceHandle,_:RaceData_ParentId);
         if (parent == 0)
         {
-            decl String:name[NAME_STRING_LENGTH]; name[0] = '\0';
+            char name[NAME_STRING_LENGTH]; name[0] = '\0';
             GetRaceParentName(raceHandle, name, sizeof(name));
             parent = (name[0] != '\0') ? FindRace(name) : -1;
             SetArrayCell(raceHandle,_:RaceData_ParentId,parent);
@@ -1152,13 +1152,13 @@ void GetRaceName(Handle raceHandle, char[] name, int maxlength, int lang=LANG_SE
         if (translation > Translation_Auto)
         {
             // Translate the short name to get the name
-            decl String:short[NAME_STRING_LENGTH];
+            char short[NAME_STRING_LENGTH];
             GetRaceShortName(raceHandle, short, sizeof(short));
 
             if (translation == Translation_W3S)
             {
                 // Use the War3Source key
-                decl String:key[ITEM_STRING_LENGTH];
+                char key[ITEM_STRING_LENGTH];
                 Format(key,sizeof(key),"%s_RaceName",short);
                 Format(name,maxlength,"%T",key,lang);
             }
@@ -1176,23 +1176,23 @@ GetRaceDescription(Handle:raceHandle, String:desc[], maxlength,
                    bool:query=false)
 {
     // Translate the short name to get the description
-    decl String:short[SHORT_STRING_LENGTH];
+    char short[SHORT_STRING_LENGTH];
     GetRaceShortName(raceHandle, short, sizeof(short));
 
     new Translation:translation = GetRaceTranslation(raceHandle);
     if (translation == Translation_SC)
     {
-        decl String:key[ITEM_STRING_LENGTH];
+        char key[ITEM_STRING_LENGTH];
         Format(key,sizeof(key),"%s_desc",short);
         Format(desc,maxlength,"%T",key,lang);
     }
     else
     {
-        decl String:file[LONG_STRING_LENGTH];
+        char file[LONG_STRING_LENGTH];
         GetRaceTranslationFile(raceHandle, file, sizeof(file));
         if (file[0])
         {
-            decl String:key[ITEM_STRING_LENGTH];
+            char key[ITEM_STRING_LENGTH];
             Format(key,sizeof(key),"%s_Desc",short);
             if (file[0] && FileContains(file, key))
             {
@@ -1219,23 +1219,23 @@ GetRaceImage(Handle:raceHandle, String:image[], maxlength,
              bool:query=false)
 {
     // Translate the short name + _image to get the image 
-    decl String:short[SHORT_STRING_LENGTH];
+    char short[SHORT_STRING_LENGTH];
     GetRaceShortName(raceHandle, short, sizeof(short));
 
     new Translation:translation = GetRaceTranslation(raceHandle);
     if (translation == Translation_SC)
     {
-        decl String:key[ITEM_STRING_LENGTH];
+        char key[ITEM_STRING_LENGTH];
         Format(key,sizeof(key),"%s_image",short);
         Format(image,maxlength,"%T",key,lang);
     }
     else
     {
-        decl String:file[LONG_STRING_LENGTH];
+        char file[LONG_STRING_LENGTH];
         GetRaceTranslationFile(raceHandle, file, sizeof(file));
         if (file[0])
         {
-            decl String:key[ITEM_STRING_LENGTH];
+            char key[ITEM_STRING_LENGTH];
             Format(key,sizeof(key),"%s_Image",short);
             if (FileContains(file, key))
                 Format(image,maxlength,"%T",key,lang);
@@ -1259,23 +1259,23 @@ GetRaceSwitchMessage(Handle:raceHandle, String:message[], maxlength, lang)
     else
     {
         // Translate the short name to get the switch message
-        decl String:short[SHORT_STRING_LENGTH];
+        char short[SHORT_STRING_LENGTH];
         GetRaceShortName(raceHandle, short, sizeof(short));
 
         new Translation:translation = GetRaceTranslation(raceHandle);
         if (translation == Translation_SC)
         {
-            decl String:key[ITEM_STRING_LENGTH];
+            char key[ITEM_STRING_LENGTH];
             Format(key,sizeof(key),"%s_switch",short);
             Format(message,maxlength,"%T",key,lang);
         }
         else
         {
-            decl String:file[LONG_STRING_LENGTH];
+            char file[LONG_STRING_LENGTH];
             GetRaceTranslationFile(raceHandle, file, sizeof(file));
             if (file[0])
             {
-                decl String:key[ITEM_STRING_LENGTH];
+                char key[ITEM_STRING_LENGTH];
                 Format(key,sizeof(key),"%s_Switch",short);
                 if (FileContains(file, key))
                 {
@@ -1287,7 +1287,7 @@ GetRaceSwitchMessage(Handle:raceHandle, String:message[], maxlength, lang)
 
     if (message[0] == '\0')
     {
-        decl String:raceName[NAME_STRING_LENGTH];
+        char raceName[NAME_STRING_LENGTH];
         GetRaceName(raceHandle, raceName, sizeof(raceName));
         Format(message, maxlength, "%T", "RaceChanged", lang, raceName);
     }
@@ -1303,23 +1303,23 @@ GetRaceSwitchMessageDead(Handle:raceHandle, String:message[], maxlength, lang)
     else
     {
         // Translate the short name to get the pending message
-        decl String:short[SHORT_STRING_LENGTH];
+        char short[SHORT_STRING_LENGTH];
         GetRaceShortName(raceHandle, short, sizeof(short));
 
         new Translation:translation = GetRaceTranslation(raceHandle);
         if (translation == Translation_SC)
         {
-            decl String:key[ITEM_STRING_LENGTH];
+            char key[ITEM_STRING_LENGTH];
             Format(key,sizeof(key),"%s_pending",short);
             Format(message,maxlength,"%T",key,lang);
         }
         else
         {
-            decl String:file[LONG_STRING_LENGTH];
+            char file[LONG_STRING_LENGTH];
             GetRaceTranslationFile(raceHandle, file, sizeof(file));
             if (file[0])
             {
-                decl String:key[ITEM_STRING_LENGTH];
+                char key[ITEM_STRING_LENGTH];
                 Format(key,sizeof(key),"%s_Pending",short);
                 if (FileContains(file, key))
                     Format(message,maxlength,"%T",key,lang);
@@ -1329,7 +1329,7 @@ GetRaceSwitchMessageDead(Handle:raceHandle, String:message[], maxlength, lang)
 
     if (message[0] == '\0')
     {
-        decl String:raceName[NAME_STRING_LENGTH];
+        char raceName[NAME_STRING_LENGTH];
         GetRaceName(raceHandle, raceName, sizeof(raceName));
         Format(message, maxlength, "%T", "PendingRaceChange", lang, raceName);
     }
@@ -1347,13 +1347,13 @@ GetUpgradeName(Handle:raceHandle, upgrade, String:name[], maxlength, lang=LANG_S
         new Translation:translation = GetRaceTranslation(raceHandle);
         if (translation > Translation_Auto)
         {
-            decl String:race[NAME_STRING_LENGTH];
+            char race[NAME_STRING_LENGTH];
             GetRaceShortName(raceHandle, race,sizeof(race));
 
-            decl String:short[NAME_STRING_LENGTH];
+            char short[NAME_STRING_LENGTH];
             GetUpgradeShortName(raceHandle,upgrade,short,sizeof(short));
 
-            decl String:key[ITEM_STRING_LENGTH];
+            char key[ITEM_STRING_LENGTH];
             if (translation == Translation_W3S)
             {
                 // Use the War3Source key
@@ -1388,13 +1388,13 @@ GetUpgradeDescription(Handle:raceHandle, upgrade, String:desc[], maxlength, lang
         new Translation:translation = GetRaceTranslation(raceHandle);
         if (translation > Translation_Auto)
         {
-            decl String:race[NAME_STRING_LENGTH];
+            char race[NAME_STRING_LENGTH];
             GetRaceShortName(raceHandle, race,sizeof(race));
 
-            decl String:short[NAME_STRING_LENGTH];
+            char short[NAME_STRING_LENGTH];
             GetUpgradeShortName(raceHandle,upgrade,short,sizeof(short));
 
-            decl String:key[ITEM_STRING_LENGTH];
+            char key[ITEM_STRING_LENGTH];
             if (translation == Translation_W3S)
             {
                 // Use the War3Source key
@@ -1438,17 +1438,17 @@ GetUpgradeImage(Handle:raceHandle, upgrade, String:image[], maxlength,
             new Translation:translation = GetRaceTranslation(raceHandle);
             if (translation > Translation_Auto)
             {
-                decl String:file[LONG_STRING_LENGTH];
+                char file[LONG_STRING_LENGTH];
                 GetRaceTranslationFile(raceHandle, file, sizeof(file));
                 if (file[0])
                 {
-                    decl String:race[NAME_STRING_LENGTH];
+                    char race[NAME_STRING_LENGTH];
                     GetRaceShortName(raceHandle, race,sizeof(race));
 
-                    decl String:short[NAME_STRING_LENGTH];
+                    char short[NAME_STRING_LENGTH];
                     GetUpgradeShortName(raceHandle,upgrade,short,sizeof(short));
 
-                    decl String:key[ITEM_STRING_LENGTH];
+                    char key[ITEM_STRING_LENGTH];
                     if (translation == Translation_W3S)
                     {
                         // Use the War3Source key
@@ -1515,17 +1515,17 @@ GetUpgradeInvoke(Handle:raceHandle, upgrade, String:invoke[], maxlength,
             new Translation:translation = GetRaceTranslation(raceHandle);
             if (translation > Translation_Auto)
             {
-                decl String:file[LONG_STRING_LENGTH];
+                char file[LONG_STRING_LENGTH];
                 GetRaceTranslationFile(raceHandle, file, sizeof(file));
                 if (file[0])
                 {
-                    decl String:race[NAME_STRING_LENGTH];
+                    char race[NAME_STRING_LENGTH];
                     GetRaceShortName(raceHandle, race,sizeof(race));
 
-                    decl String:short[NAME_STRING_LENGTH];
+                    char short[NAME_STRING_LENGTH];
                     GetUpgradeShortName(raceHandle,upgrade,short,sizeof(short));
 
-                    decl String:key[ITEM_STRING_LENGTH];
+                    char key[ITEM_STRING_LENGTH];
                     if (translation == Translation_W3S)
                     {
                         // Use the War3Source key
@@ -1588,17 +1588,17 @@ GetUpgradeBind(Handle:raceHandle, upgrade, String:bind[], maxlength,
             new Translation:translation = GetRaceTranslation(raceHandle);
             if (translation > Translation_Auto)
             {
-                decl String:file[LONG_STRING_LENGTH];
+                char file[LONG_STRING_LENGTH];
                 GetRaceTranslationFile(raceHandle, file, sizeof(file));
                 if (file[0])
                 {
-                    decl String:race[NAME_STRING_LENGTH];
+                    char race[NAME_STRING_LENGTH];
                     GetRaceShortName(raceHandle, race,sizeof(race));
 
-                    decl String:short[NAME_STRING_LENGTH];
+                    char short[NAME_STRING_LENGTH];
                     GetUpgradeShortName(raceHandle,upgrade,short,sizeof(short));
 
-                    decl String:key[ITEM_STRING_LENGTH];
+                    char key[ITEM_STRING_LENGTH];
                     if (translation == Translation_W3S)
                     {
                         // Use the War3Source key
@@ -1655,13 +1655,13 @@ GetUpgradeStrings(Handle:raceHandle, upgrade, String:name[], maxName,
     new Translation:translation = GetRaceTranslation(raceHandle);
     if (translation > Translation_Auto)
     {
-        decl String:race[NAME_STRING_LENGTH];
+        char race[NAME_STRING_LENGTH];
         GetRaceShortName(raceHandle, race,sizeof(race));
 
-        decl String:short[NAME_STRING_LENGTH];
+        char short[NAME_STRING_LENGTH];
         GetUpgradeShortName(raceHandle,upgrade,short,sizeof(short));
 
-        decl String:key[ITEM_STRING_LENGTH];
+        char key[ITEM_STRING_LENGTH];
         if (translation == Translation_W3S)
         {
             // Use the War3Source key
@@ -1688,7 +1688,7 @@ GetUpgradeStrings(Handle:raceHandle, upgrade, String:name[], maxName,
         }
         else if (desc[0] == '\0')
         {
-            decl String:descKey[ITEM_STRING_LENGTH];
+            char descKey[ITEM_STRING_LENGTH];
             if (translation == Translation_W3S)
             {
                 // Use the War3Source key
@@ -1719,11 +1719,11 @@ GetUpgradeStrings(Handle:raceHandle, upgrade, String:name[], maxName,
             }
             else if (invoke[0] == '\0')
             {
-                decl String:file[LONG_STRING_LENGTH];
+                char file[LONG_STRING_LENGTH];
                 GetRaceTranslationFile(raceHandle, file, sizeof(file));
                 if (file[0])
                 {
-                    decl String:invokeKey[ITEM_STRING_LENGTH];
+                    char invokeKey[ITEM_STRING_LENGTH];
                     Format(invokeKey,sizeof(invokeKey),"%s_invoke",key);
                     if (FileContains(file, invokeKey))
                     {
@@ -1757,11 +1757,11 @@ GetUpgradeStrings(Handle:raceHandle, upgrade, String:name[], maxName,
             }
             else if (bind[0] == '\0')
             {
-                decl String:file[LONG_STRING_LENGTH];
+                char file[LONG_STRING_LENGTH];
                 GetRaceTranslationFile(raceHandle, file, sizeof(file));
                 if (file[0])
                 {
-                    decl String:bindKey[ITEM_STRING_LENGTH];
+                    char bindKey[ITEM_STRING_LENGTH];
                     Format(bindKey,sizeof(bindKey),"%s_bind",key);
                     if (FileContains(file, bindKey))
                     {
@@ -1803,7 +1803,7 @@ FormatUpgradeDescription(Handle:raceHandle, upgrade, Translation:translation,
         if (numParms > 0)
         {
             Trace("replace %d parms", numParms);
-            decl String:pkey[ITEM_STRING_LENGTH];
+            char pkey[ITEM_STRING_LENGTH];
             new String:parm[NAME_STRING_LENGTH];
             for (new i=0; i < numParms; i++)
             {
@@ -1981,11 +1981,11 @@ int FindUpgrade(Handle raceHandle, const char[] short)
     new Handle:upgradeListHandle=GetArrayCell(raceHandle,_:RaceData_Upgrades);
     if (upgradeListHandle != INVALID_HANDLE)
     {
-        decl String:curName[NAME_STRING_LENGTH];
+        char curName[NAME_STRING_LENGTH];
         int size = GetArraySize(upgradeListHandle);
-        for(new upgrade=0;upgrade<size;upgrade++)
+        for(int upgrade=0;upgrade<size;upgrade++)
         {
-            new Handle:upgradeHandle=GetArrayCell(upgradeListHandle,upgrade);
+            Handle upgradeHandle=GetArrayCell(upgradeListHandle,upgrade);
             if (upgradeHandle != INVALID_HANDLE)
             {
                 new Handle:upgradeStringHandle=GetArrayCell(upgradeHandle,_:UpgradeData_Strings);
@@ -2017,11 +2017,11 @@ int FindRace(const char[] name)
 FindRaceForIdent(ident)
 {
     int size = GetRaceCount();
-    for(new race=1;race<size;race++)
+    for(int race=1;race<size;race++)
     {
         //if (GetRaceIdent(GetRaceHandle(race)) == ident)
-        new Handle:raceHandle=GetRaceHandle(race);
-        if (GetArrayCell(raceHandle,_:RaceData_Ident) == ident)
+        Handle raceHandle=GetRaceHandle(race);
+        if (GetArrayCell(raceHandle,view_as<int>(RaceData_Ident)) == ident)
             return race;
     }
     return -1;
@@ -2038,7 +2038,7 @@ PendingCheck(client)
     int pendingRace = GetPendingRace(client);
     if (pendingRace > 0)
     {
-        decl String:buf[LONG_STRING_LENGTH];
+        char buf[LONG_STRING_LENGTH];
         SetPendingRace(client,-1);
         SetRace(client, pendingRace, false);
         new Handle:raceHandle=GetRaceHandle(pendingRace);
@@ -2063,7 +2063,7 @@ ChangeRace(client, race, Handle:raceHandle, bool:forceNow=false, bool:check=true
             //     Change to the parent race instead.
             if (forceNow)
             {
-                decl String:parent[NAME_STRING_LENGTH];
+                char parent[NAME_STRING_LENGTH];
                 new Handle:oldHandle = raceHandle;
                 int oldRace = race;
                 parent[0] = '\0';
@@ -2097,7 +2097,7 @@ ChangeRace(client, race, Handle:raceHandle, bool:forceNow=false, bool:check=true
 
             if (techLevel < 0 || reqLevel < 0)
             {
-                decl String:name[NAME_STRING_LENGTH];
+                char name[NAME_STRING_LENGTH];
                 GetRaceName(raceHandle, name, sizeof(name));
                 CPrintToChat(client,"{green}[SC]{default} %t", "IsNotAvailable", name);
                 return;
@@ -2107,7 +2107,7 @@ ChangeRace(client, race, Handle:raceHandle, bool:forceNow=false, bool:check=true
         int level = GetOverallLevel(client);
         if (level < reqLevel)
         {
-            decl String:name[NAME_STRING_LENGTH];
+            char name[NAME_STRING_LENGTH];
             GetRaceName(raceHandle, name, sizeof(name));
             CPrintToChat(client,"{green}[SC]{default} %t", "InsufficientLevels", reqLevel, name);
             return;
@@ -2121,10 +2121,10 @@ ChangeRace(client, race, Handle:raceHandle, bool:forceNow=false, bool:check=true
                 int tlvl = GetTechLevel(client, techId);
                 if (tlvl < techLevel)
                 {
-                    decl String:tech[NAME_STRING_LENGTH];
+                    char tech[NAME_STRING_LENGTH];
                     GetFactionName(techId, tech, sizeof(tech));
 
-                    decl String:name[NAME_STRING_LENGTH];
+                    char name[NAME_STRING_LENGTH];
                     GetRaceName(raceHandle, name, sizeof(name));
                     CPrintToChat(client,"{green}[SC]{default} %t", "InsufficientTechLevels",
                                 techLevel, tech, name, tlvl);
@@ -2188,14 +2188,14 @@ ChangeRace(client, race, Handle:raceHandle, bool:forceNow=false, bool:check=true
 
         if (!forceNow && !g_FirstSpawn[client] && IsPlayerAlive(client))
         {
-            decl String:buf[LONG_STRING_LENGTH];
+            char buf[LONG_STRING_LENGTH];
             GetRaceSwitchMessageDead(raceHandle, buf, sizeof(buf), client);
             CPrintToChat(client, "{green}[SC]{default} %s", buf);
             SetPendingRace(client,race);
         }
         else
         {
-            decl String:buf[LONG_STRING_LENGTH];
+            char buf[LONG_STRING_LENGTH];
             GetRaceSwitchMessage(raceHandle, buf, sizeof(buf), client);
             CPrintToChat(client, "{green}[SC]{default} %s", buf);
             g_FirstSpawn[client]=false;
@@ -2279,7 +2279,7 @@ bool:FileContains(const String:fileName[], const String:string[])
     new Handle:file = OpenFile(fileName, "r");
     if (file != INVALID_HANDLE)
     {
-        decl String:buffer[DESCRIPTION_LENGTH];
+        char buffer[DESCRIPTION_LENGTH];
         while (!IsEndOfFile(file))
         {
             if (ReadFileLine(file, buffer, sizeof(buffer)))
