@@ -303,7 +303,7 @@ bool InitRaceArray()
         return false;
 }
 
-void void ClearRaceArray()
+void ClearRaceArray()
 {
     TraceInto("Race", "ClearRaceArray");
 
@@ -325,11 +325,9 @@ void void ClearRaceArray()
                 ClearArray(upgradeStringHandle);
                 CloseHandle(upgradeStringHandle);
 
-                TraceCat("Array", "CloseArray raceUpgradeHandle[%d,%d]=0x%08x", \
-                         race, upgrade, upgradeHandle);
+                TraceCat("Array", "CloseArray raceUpgradeHandle[%d,%d]=0x%08x", race, upgrade, upgradeHandle);
 
-                TraceCat("Array", "CloseArray raceUpgradeStringHandle[%d,%d]=0x%08x", \
-                         race, upgrade, upgradeStringHandle);
+                TraceCat("Array", "CloseArray raceUpgradeStringHandle[%d,%d]=0x%08x", race, upgrade, upgradeStringHandle);
             }
 
             Handle stringsHandle=GetRaceStringHandle(raceHandle);
@@ -346,17 +344,13 @@ void void ClearRaceArray()
             ClearArray(raceHandle);
             CloseHandle(raceHandle);
 
-            TraceCat("Array", "CloseArray raceStringsHandle[%d]=0x%08x", \
-                     race, stringsHandle);
+            TraceCat("Array", "CloseArray raceStringsHandle[%d]=0x%08x", race, stringsHandle);
 
-            TraceCat("Array", "CloseArray raceMessagesHandle[%d]=0x%08x", \
-                     race, messagesHandle);
+            TraceCat("Array", "CloseArray raceMessagesHandle[%d]=0x%08x", race, messagesHandle);
 
-            TraceCat("Array", "CloseArray raceUpgradeListHandle[%d]=0x%08x", \
-                     race, upgradeListHandle);
+            TraceCat("Array", "CloseArray raceUpgradeListHandle[%d]=0x%08x", race, upgradeListHandle);
 
-            TraceCat("Array", "CloseArray raceHandle[%d]=0x%08x", \
-                     race, raceHandle);
+            TraceCat("Array", "CloseArray raceHandle[%d]=0x%08x", race, raceHandle);
         }
 
         TraceCat("Array", "CloseArray raceArray=0x%08x", raceArray);
@@ -747,7 +741,7 @@ void RaceComplete(int race, const char[] desc="", const char[] image="")
             {
                 int tech_level = GetRaceTechLevel(raceHandle);
                 int required_level = GetRaceRequiredLevel(raceHandle);
-                new UnitType:type = GetRaceType(raceHandle);
+                UnitType type = GetRaceType(raceHandle);
 
                 char short[SHORT_STRING_LENGTH];
                 GetRaceShortName(raceHandle, short, sizeof(short));
@@ -786,18 +780,18 @@ void RaceComplete(int race, const char[] desc="", const char[] image="")
                         char upgradeImage[NAME_STRING_LENGTH];
                         GetUpgradeImage(raceHandle, upgrade, upgradeImage, sizeof(upgradeImage));
 
-                        new upgrade_category         = GetArrayCell(upgradeHandle, _:UpgradeData_Category);
-                        new req_level                = GetArrayCell(upgradeHandle, _:UpgradeData_RequiredLevel);
-                        new max_level                = GetArrayCell(upgradeHandle, _:UpgradeData_MaxLevel);
-                        new Float:energy             = GetArrayCell(upgradeHandle, _:UpgradeData_Energy);
-                        new Float:recurring_energy   = GetArrayCell(upgradeHandle, _:UpgradeData_RecurringEnergy);
-                        new Float:recurring_interval = GetArrayCell(upgradeHandle, _:UpgradeData_RecurringInterval);
-                        new bool:accumulated         = GetArrayCell(upgradeHandle, _:UpgradeData_Accumulated);
-                        new crystals                 = GetArrayCell(upgradeHandle, _:UpgradeData_Crystals);
-                        new vespene                  = GetArrayCell(upgradeHandle, _:UpgradeData_Vespene);
-                        new cost_crystals            = GetArrayCell(upgradeHandle, _:UpgradeData_CostCrystals);
-                        new cost_vespene             = GetArrayCell(upgradeHandle, _:UpgradeData_Vespene);
-                        new Float:cooldown           = GetArrayCell(upgradeHandle, _:UpgradeData_Cooldown);
+                        int upgrade_category         = GetArrayCell(upgradeHandle, view_as<int>(UpgradeData_Category));
+                        int req_level                = GetArrayCell(upgradeHandle, view_as<int>(UpgradeData_RequiredLevel));
+                        int max_level                = GetArrayCell(upgradeHandle, view_as<int>(UpgradeData_MaxLevel));
+                        float energy             = GetArrayCell(upgradeHandle, view_as<int>(UpgradeData_Energy));
+                        float recurring_energy   = GetArrayCell(upgradeHandle, view_as<int>(UpgradeData_RecurringEnergy));
+                        float recurring_interval = GetArrayCell(upgradeHandle, view_as<int>(UpgradeData_RecurringInterval));
+                        bool accumulated         = GetArrayCell(upgradeHandle, view_as<int>(UpgradeData_Accumulated));
+                        int crystals                 = GetArrayCell(upgradeHandle, view_as<int>(UpgradeData_Crystals));
+                        int vespene                  = GetArrayCell(upgradeHandle, view_as<int>(UpgradeData_Vespene));
+                        int cost_crystals            = GetArrayCell(upgradeHandle, view_as<int>(UpgradeData_CostCrystals));
+                        int cost_vespene             = GetArrayCell(upgradeHandle, view_as<int>(UpgradeData_Vespene));
+                        float cooldown           = GetArrayCell(upgradeHandle, view_as<int>(UpgradeData_Cooldown));
 
                         // Update database
                         if (InsertUpgrade(GetRaceIdent(raceHandle), upgrade, upgrade_category,
@@ -830,11 +824,11 @@ int AddUpgrade(int race, Handle raceHandle, const char[] short, int upgrade_cate
         #pragma unused race
     #endif
 
-    new ConfigLoadedStatus:raceLoaded;
-    new Handle:raceConfig = GetRaceConfig(raceHandle, raceLoaded);
+    ConfigLoadedStatus raceLoaded;
+    Handle raceConfig = GetRaceConfig(raceHandle, raceLoaded);
     if (raceConfig != INVALID_HANDLE)
     {
-        new bool:upgradeFound;
+        bool upgradeFound;
         int raceMaxLevel = GetRaceMaxLevel(raceHandle);
         if (raceLoaded != ConfigNotLoaded)
         {
@@ -909,12 +903,12 @@ int AddUpgrade(int race, Handle raceHandle, const char[] short, int upgrade_cate
     if (cost_vespene < 0)
         cost_vespene = g_iUpgradeVespeneCost;
 
-    new Handle:upgradeHandle;
-    new Handle:upgradeStringHandle;
+    Handle upgradeHandle;
+    Handle upgradeStringHandle;
     int upgrade = FindUpgrade(raceHandle, short);
     if (upgrade >= 0)
     {
-        new Handle:upgradeListHandle=GetUpgradeListHandle(raceHandle);
+        Handle upgradeListHandle=GetUpgradeListHandle(raceHandle);
 
         upgradeHandle=GetArrayCell(upgradeListHandle, upgrade);
         SetArrayCell(upgradeHandle, _:UpgradeData_Energy,            energy);
@@ -972,7 +966,7 @@ int AddUpgrade(int race, Handle raceHandle, const char[] short, int upgrade_cate
         PushArrayCell(upgradeHandle,disabled);
         PushArrayCell(upgradeHandle,false);
 
-        new Handle:upgradeListHandle=GetUpgradeListHandle(raceHandle);
+        Handle upgradeListHandle=GetUpgradeListHandle(raceHandle);
         upgrade = PushArrayCell(upgradeListHandle, upgradeHandle); // return index
 
         SetTraceCategory("Array");
@@ -1021,12 +1015,12 @@ int AddUpgrade(int race, Handle raceHandle, const char[] short, int upgrade_cate
     // change the race's energy limit.
     if (energy > 0.0)
     {
-        new Float:limit = GetRaceEnergyLimit(raceHandle);
+        float limit = GetRaceEnergyLimit(raceHandle);
         if (limit >= 0.0 && energy > limit)
             SetRaceEnergyLimit(raceHandle, energy);
 
         // set the race's EnergyFlags
-        new EnergyFlags:energy_flags = GetRaceEnergyFlags(raceHandle) | UsesEnergy;
+        EnergyFlags energy_flags = GetRaceEnergyFlags(raceHandle) | UsesEnergy;
 
         if (accumulated)
             energy_flags |= UsesAccumulated;
@@ -1083,30 +1077,29 @@ void SetUpgradeCooldown(int race, Handle raceHandle, int upgrade, float cooldown
         #pragma unused race
     #endif
 
-    new Handle:upgradeHandle=GetUpgradeHandle(raceHandle,   upgrade);
-    SetArrayCell(upgradeHandle, _:UpgradeData_Cooldown,     cooldown);
-    SetArrayCell(upgradeHandle, _:UpgradeData_CooldownType, cooldown_type);
-    SetArrayCell(upgradeHandle, _:UpgradeData_Completed,    false);
+    Handle upgradeHandle=GetUpgradeHandle(raceHandle,   upgrade);
+    SetArrayCell(upgradeHandle, view_as<int>(UpgradeData_Cooldown),     cooldown);
+    SetArrayCell(upgradeHandle, view_as<int>(UpgradeData_CooldownType), cooldown_type);
+    SetArrayCell(upgradeHandle, view_as<int>(UpgradeData_Completed),    false);
 
     #if defined _TRACE
         TraceReturn();
     #endif
 }
 
-Float:GetUpgradeCooldown(race, Handle:raceHandle, upgrade, &CooldownType:cooldown_type)
+float GetUpgradeCooldown(int race, Handle raceHandle, int upgrade, CooldownType &cooldown_type)
 {
     #if defined _TRACE
-        TraceInto("Race", "GetUpgradeCooldown", "race=%d, raceHandle=0x%08x", \
-                  race, raceHandle);
+        TraceInto("Race", "GetUpgradeCooldown", "race=%d, raceHandle=0x%08x", race, raceHandle);
     #else
         #pragma unused race
     #endif
 
-    new Handle:upgradeListHandle=GetArrayCell(raceHandle,    _:RaceData_Upgrades);
-    new Handle:upgradeHandle=GetArrayCell(upgradeListHandle, upgrade);
+    Handle upgradeListHandle=GetArrayCell(raceHandle,    view_as<int>(RaceData_Upgrades));
+    Handle upgradeHandle=GetArrayCell(upgradeListHandle, upgrade);
 
-    cooldown_type = CooldownType:GetArrayCell(upgradeHandle, _:UpgradeData_CooldownType);
-    new Float:cooldown = Float:GetArrayCell(upgradeHandle,   _:UpgradeData_Cooldown);
+    cooldown_type = view_as<CooldownType>(GetArrayCell(upgradeHandle, view_as<int>(UpgradeData_CooldownType)));
+    float cooldown = view_as<float>(GetArrayCell(upgradeHandle,   view_as<int>(UpgradeData_Cooldown)));
 
     #if defined _TRACE
         TraceReturn("cooldown=%f,cooldown_type=%d", cooldown, cooldown_type);
@@ -1804,8 +1797,8 @@ FormatUpgradeDescription(Handle:raceHandle, upgrade, Translation:translation,
         {
             Trace("replace %d parms", numParms);
             char pkey[ITEM_STRING_LENGTH];
-            new String:parm[NAME_STRING_LENGTH];
-            for (new i=0; i < numParms; i++)
+            char parm[NAME_STRING_LENGTH];
+            for (int i=0; i < numParms; i++)
             {
                 Format(pkey,sizeof(pkey),"#%d#",i+1);
                 GetUpgradeParameter(raceHandle,upgrade,i,parm,sizeof(parm));
@@ -2275,8 +2268,8 @@ ResetUpgradesNow(client, race, bool:show=true)
 
 bool:FileContains(const String:fileName[], const String:string[])
 {
-    new bool:found = false;
-    new Handle:file = OpenFile(fileName, "r");
+    bool found = false;
+    Handle file = OpenFile(fileName, "r");
     if (file != INVALID_HANDLE)
     {
         char buffer[DESCRIPTION_LENGTH];

@@ -10,17 +10,17 @@
 #endif
 #define _cooldown_included
 
-enum CooldownType (<<= 1)
+enum CooldownType
 {
     Cooldown_None = 0,
     Cooldown_TimerOnly = 0,
     Cooldown_AutoReset = 1,
-    Cooldown_ResetOnChange,
-    Cooldown_ResetOnDeath,
-    Cooldown_ResetOnSpawn,
-    Cooldown_CreateNotify,
-    Cooldown_ExpireNotify,
-    Cooldown_AlwaysNotify,
-    Cooldown_CreateOnSpawn,
-    Cooldown_SpecifiesBaseValue
+    Cooldown_ResetOnChange = 2,
+    Cooldown_ResetOnDeath = 4,
+    Cooldown_ResetOnSpawn = 8,
+    Cooldown_CreateNotify = 16,
+    Cooldown_ExpireNotify = 32,
+    Cooldown_AlwaysNotify = 64,
+    Cooldown_CreateOnSpawn = 128,
+    Cooldown_SpecifiesBaseValue = 256
 };
