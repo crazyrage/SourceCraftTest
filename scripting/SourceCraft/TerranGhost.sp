@@ -6,6 +6,7 @@
  */
  
 #pragma semicolon 1
+#pragma newdecls required
 
 #include <sourcemod>
 #include <sdktools>
@@ -53,7 +54,7 @@
 #define WhiteSprite()      PrepareModel(g_whiteModel, g_whiteSprite)
 
 // Following are model indexes for temp entities
-new g_whiteSprite;
+int g_whiteSprite;
 
 stock const String:g_whiteModel[]   = "materials/sprites/white.vmt";
 
@@ -73,43 +74,43 @@ new const String:explosionsWav[][]  = { "items/cart_explode.wav",
                                         "sc/explosions_sparks.wav",
                                         "sc/usat_bomb.wav" };
 
-new Float:g_InitialArmor[]          = { 0.0 };
-new Float:g_ArmorPercent[][2]       = { {0.0, 0.0} };
+float g_InitialArmor[]          = { 0.0 };
+float g_ArmorPercent[][2]       = { {0.0, 0.0} };
 
-new Float:g_BunkerPercent[]         = { 0.00, 0.10, 0.20, 0.30, 0.40 };
+float g_BunkerPercent[]         = { 0.00, 0.10, 0.20, 0.30, 0.40 };
 
 new g_LockdownChance[]              = { 0, 15, 21, 37, 52 };
 
-new Float:g_OcularImplantRange[]    = { 0.0, 300.0, 450.0, 650.0, 800.0 };
+float g_OcularImplantRange[]    = { 0.0, 300.0, 450.0, 650.0, 800.0 };
 
 new g_NukeDamage[]                  = { 0,   1000,  1500,  2000,   3000   };
 new g_NukeMagnitude[]               = { 0,   600,   1000,  1500,   2000   };
-new Float:g_NukeRadius[]            = { 0.0, 500.0, 800.0, 1000.0, 1500.0 };
+float g_NukeRadius[]            = { 0.0, 500.0, 800.0, 1000.0, 1500.0 };
 
-new cfgNuclearEffects               = 10;
-new Float:cfgNuclearLaunchTime      = 15.0;
-new Float:cfgNuclearLockTime        = 10.0;
+int cfgNuclearEffects = 10;
+float cfgNuclearLaunchTime      = 15.0;
+float cfgNuclearLockTime        = 10.0;
 
-new Float:cfgLockdownFactor         = 0.5;
-new Float:cfgLockdownMechMult       = 2.0;
-new Float:cfgLockdownDuration       = 1.0;
+float cfgLockdownFactor         = 0.5;
+float cfgLockdownMechMult       = 2.0;
+float cfgLockdownDuration       = 1.0;
 
 enum NuclearStatus { Ready, Tracking, LaunchInitiated, LockedOn, Exploding};
 
 new raceID, cloakID, lockdownID, detectorID, nukeID, reactorID, bunkerID;
 new ultlockdownID, vesselID;
 
-new g_scienceVesselRace = -1;
+int g_scienceVesselRace = -1;
 
 new m_NuclearDuration[MAXPLAYERS+1];
-new Handle:m_NuclearTimer[MAXPLAYERS+1];
-new Float:m_NuclearAimPos[MAXPLAYERS+1][3];
+Handle m_NuclearTimer[MAXPLAYERS+1];
+float m_NuclearAimPos[MAXPLAYERS+1][3];
 new NuclearStatus:m_NuclearLaunchStatus[MAXPLAYERS+1];
 
-new Float:gNuclearParticleTime;
-new Float:gLockdownTime[MAXPLAYERS+1];
+float gNuclearParticleTime;
+float gLockdownTime[MAXPLAYERS+1];
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Terran Ghost",
     author = "-=|JFH|=-Naris",
@@ -118,7 +119,7 @@ public Plugin:myinfo =
     url = "http://jigglysfunhouse.net/"
 };
 
-public OnPluginStart()
+public void OnPluginStart()
 {
     LoadTranslations("sc.detector.phrases.txt");
     LoadTranslations("sc.common.phrases.txt");
@@ -147,7 +148,7 @@ public OnPluginStart()
         OnSourceCraftReady();
 }
 
-public OnSourceCraftReady()
+public void OnSourceCraftReady()
 {
     raceID      = CreateRace("ghost", 32, 0, 25, 150.0, 1000.0, 1.0,
                              Terran, Biological);
@@ -224,7 +225,7 @@ public OnSourceCraftReady()
 
 }
 
-public OnLibraryAdded(const String:name[])
+public void OnLibraryAdded(const String:name[])
 {
     if (StrEqual(name, "ubershield"))
         IsUberShieldAvailable(true);
@@ -232,7 +233,7 @@ public OnLibraryAdded(const String:name[])
         IsSidewinderAvailable(true);
 }
 
-public OnLibraryRemoved(const String:name[])
+public void OnLibraryRemoved(const String:name[])
 {
     if (StrEqual(name, "ubershield"))
         m_UberShieldAvailable = false;
@@ -240,7 +241,7 @@ public OnLibraryRemoved(const String:name[])
         m_SidewinderAvailable = false;
 }
 
-public OnMapStart()
+public void OnMapStart()
 {
     SetupCloak();
     SetupRedGlow();
@@ -265,29 +266,29 @@ public OnMapStart()
     //SetupSound(airRaidWav);
 
     //Don't download explosions[0,1] since they are built in hl2/tf2 sounds
-    for (new i = 0; i < sizeof(explosionsWav); i++)
+    for (int i = 0; i < sizeof(explosionsWav); i++)
         SetupSound(explosionsWav[i], false, (i > 1));
 }
 
-public OnMapEnd()
+public void OnMapEnd()
 {
     ResetAllClientTimers();
 }
 
-public OnPlayerAuthed(client)
+public void OnPlayerAuthed(client)
 {
     gLockdownTime[client] = 0.0;
     m_NuclearLaunchStatus[client] = Ready;
     m_NuclearTimer[client] = INVALID_HANDLE;
 }
 
-public OnClientDisconnect(client)
+public void OnClientDisconnect(client)
 {
     KillClientTimer(client);
     ResetDetection(client);
     ResetDetected(client);
 
-    new Handle:timer = m_NuclearTimer[client];
+    Handle timer = m_NuclearTimer[client];
     if (timer != INVALID_HANDLE)
     {
         m_NuclearTimer[client] = INVALID_HANDLE;
@@ -295,7 +296,7 @@ public OnClientDisconnect(client)
     }
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -328,7 +329,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
     }
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
@@ -336,20 +337,20 @@ public Action:OnRaceSelected(client,oldrace,newrace)
 
         SetupArmor(client, 0, g_InitialArmor, g_ArmorPercent);
 
-        new reactor_level = GetUpgradeLevel(client,raceID,reactorID);
+        int reactor_level = GetUpgradeLevel(client,raceID,reactorID);
         if (reactor_level > 0)
             SetInitialEnergy(client, float(reactor_level+1)*30.0);
 
-        new cloak_level = GetUpgradeLevel(client,raceID,cloakID);
+        int cloak_level = GetUpgradeLevel(client,raceID,cloakID);
         AlphaCloak(client, cloak_level, true);
 
-        new ult_level = GetUpgradeLevel(client,raceID,ultlockdownID);
+        int ult_level = GetUpgradeLevel(client,raceID,ultlockdownID);
         if (ult_level > 0)
             SetupUberShield(client, ult_level);
 
         if (IsValidClientAlive(client))
         {
-            new detecting_level = GetUpgradeLevel(client,raceID,detectorID);
+            int detecting_level = GetUpgradeLevel(client,raceID,detectorID);
             if (detecting_level > 0)
             {
                 CreateClientTimer(client, 0.5, OcularImplants,
@@ -363,7 +364,7 @@ public Action:OnRaceSelected(client,oldrace,newrace)
         return Plugin_Continue;
 }
 
-public OnUpgradeLevelChanged(client,race,upgrade,new_level)
+public void OnUpgradeLevelChanged(client,race,upgrade,new_level)
 {
     if (race == raceID && GetRace(client) == raceID)
     {
@@ -392,7 +393,7 @@ public OnUpgradeLevelChanged(client,race,upgrade,new_level)
     }
 }
 
-public OnItemPurchase(client,item)
+public void OnItemPurchase(client,item)
 {
     if (GetRace(client) == raceID && IsValidClientAlive(client))
     {
@@ -401,13 +402,13 @@ public OnItemPurchase(client,item)
 
         if (item == g_cloakItem)
         {
-            new cloak_level=GetUpgradeLevel(client,raceID,cloakID);
+            int cloak_level =GetUpgradeLevel(client,raceID,cloakID);
             AlphaCloak(client, cloak_level, true);
         }
     }
 }
 
-public OnUltimateCommand(client,race,bool:pressed,arg)
+public void OnUltimateCommand(client,race,bool:pressed,arg)
 {
     if (race==raceID && IsValidClientAlive(client))
     {
@@ -415,7 +416,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
         {
             case 4:
             {
-                new vessel_level=GetUpgradeLevel(client,race,vesselID);
+                int vessel_level =GetUpgradeLevel(client,race,vesselID);
                 if (vessel_level > 0)
                 {
                     if (!pressed)
@@ -424,7 +425,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
             }
             case 3:
             {
-                new ult_level=GetUpgradeLevel(client,race,ultlockdownID);
+                int ult_level =GetUpgradeLevel(client,race,ultlockdownID);
                 if (ult_level > 0)
                 {
                     if (pressed)
@@ -432,7 +433,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                 }
                 else
                 {
-                    new vessel_level=GetUpgradeLevel(client,race,vesselID);
+                    int vessel_level =GetUpgradeLevel(client,race,vesselID);
                     if (vessel_level > 0)
                     {
                         if (!pressed)
@@ -442,12 +443,12 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
             }
             case 2:
             {
-                new bunker_level = GetUpgradeLevel(client,race,bunkerID);
+                int bunker_level = GetUpgradeLevel(client,race,bunkerID);
                 if (bunker_level > 0)
                 {
                     if (pressed)
                     {
-                        new armor = RoundToNearest(float(GetPlayerMaxHealth(client))
+                        int armor = RoundToNearest(float(GetPlayerMaxHealth(client))
                                                    * g_BunkerPercent[bunker_level]);
 
                         EnterBunker(client, armor, raceID, bunkerID);
@@ -455,7 +456,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                 }
                 else
                 {
-                    new ult_level=GetUpgradeLevel(client,race,ultlockdownID);
+                    int ult_level =GetUpgradeLevel(client,race,ultlockdownID);
                     if (ult_level > 0)
                     {
                         if (pressed)
@@ -463,7 +464,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                     }
                     else
                     {
-                        new vessel_level=GetUpgradeLevel(client,race,vesselID);
+                        int vessel_level =GetUpgradeLevel(client,race,vesselID);
                         if (vessel_level > 0)
                         {
                             if (!pressed)
@@ -474,7 +475,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
             }
             default:
             {
-                new ult_level=GetUpgradeLevel(client,race,nukeID);
+                int ult_level =GetUpgradeLevel(client,race,nukeID);
                 if (ult_level > 0)
                 {
                     if (m_NuclearLaunchStatus[client] == Tracking)
@@ -484,7 +485,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                 }
                 else
                 {
-                    new lockdown_level=GetUpgradeLevel(client,race,ultlockdownID);
+                    int lockdown_level =GetUpgradeLevel(client,race,ultlockdownID);
                     if (lockdown_level > 0)
                     {
                         if (pressed)
@@ -492,12 +493,12 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                     }
                     else
                     {
-                        new bunker_level = GetUpgradeLevel(client,race,bunkerID);
+                        int bunker_level = GetUpgradeLevel(client,race,bunkerID);
                         if (bunker_level > 0)
                         {
                             if (pressed)
                             {
-                                new armor = RoundToNearest(float(GetPlayerMaxHealth(client))
+                                int armor = RoundToNearest(float(GetPlayerMaxHealth(client))
                                                            * g_BunkerPercent[bunker_level]);
 
                                 EnterBunker(client, armor, raceID, bunkerID);
@@ -505,7 +506,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                         }
                         else
                         {
-                            new vessel_level=GetUpgradeLevel(client,race,vesselID);
+                            int vessel_level =GetUpgradeLevel(client,race,vesselID);
                             if (vessel_level > 0)
                             {
                                 if (!pressed)
@@ -520,7 +521,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
 }
 
 // Events
-public OnPlayerSpawnEvent(Handle:event, client, race)
+public void OnPlayerSpawnEvent(Handle:event, client, race)
 {
     if (race == raceID)
     {
@@ -528,23 +529,23 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
 
         SetupArmor(client, 0, g_InitialArmor, g_ArmorPercent);
 
-        new cloak_level=GetUpgradeLevel(client,raceID,cloakID);
+        int cloak_level =GetUpgradeLevel(client,raceID,cloakID);
         AlphaCloak(client, cloak_level, true);
 
-        new ult_level=GetUpgradeLevel(client,raceID,ultlockdownID);
+        int ult_level =GetUpgradeLevel(client,raceID,ultlockdownID);
         if (ult_level > 0)
             SetupUberShield(client, ult_level);
 
-        new reactor_level = GetUpgradeLevel(client,raceID,reactorID);
+        int reactor_level = GetUpgradeLevel(client,raceID,reactorID);
         if (reactor_level > 0)
         {
-            new Float:initial = float(reactor_level+1) * 30.0;
+            float initial = float(reactor_level+1) * 30.0;
             SetInitialEnergy(client, initial);
             if (GetEnergy(client, true) < initial)
                 SetEnergy(client, initial, true);
         }
 
-        new detecting_level=GetUpgradeLevel(client,raceID,detectorID);
+        int detecting_level =GetUpgradeLevel(client,raceID,detectorID);
         if (detecting_level > 0)
         {
             CreateClientTimer(client, 0.5, OcularImplants,
@@ -553,7 +554,7 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
     }
 }
 
-public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
+public void OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
                           attacker_race, assister_index, assister_race, damage,
                           const String:weapon[], bool:is_equipment, customkill,
                           bool:headshot, bool:backstab, bool:melee)
@@ -591,7 +592,7 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     if (!from_sc && IsClient(attacker_index) &&
@@ -610,7 +611,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
     return Plugin_Continue;
 }
 
-public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
+public Action OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
                                   assister_index, assister_race, damage,
                                   absorbed)
 {
@@ -625,7 +626,7 @@ public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
 
 public EventRoundOver(Handle:event,const String:name[],bool:dontBroadcast)
 {
-    for(new index=1;index<=MaxClients;index++)
+    for(int index =1;index<=MaxClients;index++)
     {
         if (IsClientInGame(index))
         {
@@ -648,14 +649,14 @@ bool:Lockdown(victim_index, index)
         !GetImmunity(victim_index,Immunity_Restore) &&
         !IsBurrowed(victim_index))
     {
-        new lockdown_level=GetUpgradeLevel(index, raceID, lockdownID);
+        int lockdown_level =GetUpgradeLevel(index, raceID, lockdownID);
         if (lockdown_level > 0)
         {
-            new Float:lastTime = gLockdownTime[victim_index];
+            float lastTime = gLockdownTime[victim_index];
             if (lastTime == 0.0 || (GetGameTime() - lastTime > 2.0))
             {
-                new Float:duration = cfgLockdownDuration;
-                new chance = g_LockdownChance[lockdown_level];
+                float duration = cfgLockdownDuration;
+                int chance = g_LockdownChance[lockdown_level];
 
                 // Lockdown effects Mechanical and Robotic units differently.
                 if (GetAttribute(index,Attribute_IsMechanical) ||
@@ -669,7 +670,7 @@ bool:Lockdown(victim_index, index)
                 {
                     if (CanInvokeUpgrade(index, raceID, lockdownID, .notify=false))
                     {
-                        new Float:Origin[3];
+                        float Origin[3];
                         GetClientAbsOrigin(victim_index, Origin);
                         TE_SetupGlowSprite(Origin, PhysCannonGlow(), 1.0, 2.3, 90);
                         TE_SendEffectToAll();
@@ -704,9 +705,9 @@ bool:Lockdown(victim_index, index)
     return false;
 }
 
-public Action:RestoreSpeed(Handle:timer,any:userid)
+public Action RestoreSpeed(Handle:timer,any:userid)
 {
-    new client = GetClientOfUserId(userid);
+    int client = GetClientOfUserId(userid);
     if (client > 0)
     {
         SetRestriction(client, Restriction_Grounded, false);
@@ -715,14 +716,14 @@ public Action:RestoreSpeed(Handle:timer,any:userid)
     return Plugin_Stop;
 }
 
-public Action:OcularImplants(Handle:timer, any:userid)
+public Action OcularImplants(Handle:timer, any:userid)
 {
-    new client = GetClientOfUserId(userid);
+    int client = GetClientOfUserId(userid);
     if (IsValidClientAlive(client))
     {
         if (GetRace(client) == raceID)
         {
-            new detecting_level = GetUpgradeLevel(client,raceID,detectorID);
+            int detecting_level = GetUpgradeLevel(client,raceID,detectorID);
             if (detecting_level <= 0 || GetRestriction(client, Restriction_NoUpgrades) ||
                 GetRestriction(client, Restriction_Stunned))
             {
@@ -730,22 +731,22 @@ public Action:OcularImplants(Handle:timer, any:userid)
             }
             else
             {
-                new bool:detect;
-                new Float:indexLoc[3];
-                new Float:clientLoc[3];
+                bool detect;
+                float indexLoc[3];
+                float clientLoc[3];
                 GetClientAbsOrigin(client, clientLoc);
                 clientLoc[2] += 50.0; // Adjust trace position to the middle of the person instead of the feet.
 
-                decl String:upgradeName[64];
+                char upgradeName[64];
                 GetUpgradeName(raceID, detectorID, upgradeName, sizeof(upgradeName), client);
 
-                new count=0;
-                new alt_count=0;
+                int count =0;
+                int alt_count =0;
                 new list[MaxClients+1];
                 new alt_list[MaxClients+1];
-                new team = GetClientTeam(client);
-                new Float:detecting_range = g_OcularImplantRange[detecting_level];
-                for (new index=1;index<=MaxClients;index++)
+                int team = GetClientTeam(client);
+                float detecting_range = g_OcularImplantRange[detecting_level];
+                for (int index =1;index<=MaxClients;index++)
                 {
                     if (index != client && IsClientInGame(index))
                     {
@@ -772,7 +773,7 @@ public Action:OcularImplants(Handle:timer, any:userid)
 
                             if (detect)
                             {
-                                new bool:uncloaked = false;
+                                bool uncloaked = false;
                                 if (GameType == tf2 &&
                                     !GetImmunity(index,Immunity_Uncloaking) &&
                                     TF2_GetPlayerClass(index) == TFClass_Spy)
@@ -780,7 +781,7 @@ public Action:OcularImplants(Handle:timer, any:userid)
                                     //TF2_RemovePlayerDisguise(index);
                                     TF2_RemoveCondition(client,TFCond_Cloaked);
 
-                                    new Float:cloakMeter = TF2_GetCloakMeter(index);
+                                    float cloakMeter = TF2_GetCloakMeter(index);
                                     if (cloakMeter > 0.0 && cloakMeter <= 100.0)
                                         TF2_SetCloakMeter(index, 0.0);
 
@@ -875,7 +876,7 @@ TargetNuclearDevice(client)
     {
         PrepareAndEmitSoundToClient(client,deniedWav);
 
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, nukeID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "NotAsMole", upgradeName);
     }
@@ -934,7 +935,7 @@ TargetNuclearDevice(client)
 
 LaunchNuclearDevice(client)
 {
-    new Handle:timer = m_NuclearTimer[client];
+    Handle timer = m_NuclearTimer[client];
     if (timer != INVALID_HANDLE)
     {
         m_NuclearTimer[client] = INVALID_HANDLE;
@@ -969,7 +970,7 @@ LaunchNuclearDevice(client)
                  TF2_IsPlayerDeadRingered(client))
         {
             TF2_RemoveCondition(client,TFCond_Cloaked);
-            new Float:cloakMeter = TF2_GetCloakMeter(client);
+            float cloakMeter = TF2_GetCloakMeter(client);
             if (cloakMeter > 0.0 && cloakMeter <= 100.0)
                 TF2_SetCloakMeter(client, 0.0);
         }
@@ -995,9 +996,9 @@ LaunchNuclearDevice(client)
                                          TIMER_FLAG_NO_MAPCHANGE);
 }
 
-public Action:TrackNuclearTarget(Handle:timer,any:userid)
+public Action TrackNuclearTarget(Handle:timer,any:userid)
 {
-    new index = GetClientOfUserId(userid);
+    int index = GetClientOfUserId(userid);
     if (IsValidClientAlive(index) &&
         m_NuclearLaunchStatus[index] == Tracking)
     {
@@ -1032,7 +1033,7 @@ public Action:TrackNuclearTarget(Handle:timer,any:userid)
                      TF2_IsPlayerDeadRingered(index))
             {
                 TF2_RemoveCondition(index,TFCond_Cloaked);
-                new Float:cloakMeter = TF2_GetCloakMeter(index);
+                float cloakMeter = TF2_GetCloakMeter(index);
                 if (cloakMeter > 0.0 && cloakMeter <= 100.0)
                     TF2_SetCloakMeter(index, 0.0);
             }
@@ -1040,12 +1041,12 @@ public Action:TrackNuclearTarget(Handle:timer,any:userid)
                 TF2_RemovePlayerDisguise(index);
         }
 
-        new Float:indexLoc[3], Float:targetLoc[3];
+        float indexLoc[3], Float:targetLoc[3];
         GetClientEyePosition(index, indexLoc);
         TraceAimPosition(index, targetLoc, true);
 
         new color[4] = { 0, 0, 0, 150 };
-        new team = GetClientTeam(index);
+        int team = GetClientTeam(index);
         if (team == 3)
             color[2] = 255; // Blue
         else
@@ -1066,9 +1067,9 @@ public Action:TrackNuclearTarget(Handle:timer,any:userid)
     }
 }
 
-public Action:NuclearLockOn(Handle:timer,any:userid)
+public Action NuclearLockOn(Handle:timer,any:userid)
 {
-    new client = GetClientOfUserId(userid);
+    int client = GetClientOfUserId(userid);
     if (client > 0)
     {
         if (m_NuclearLaunchStatus[client] == LaunchInitiated)
@@ -1092,7 +1093,7 @@ public Action:NuclearLockOn(Handle:timer,any:userid)
             }
             */
 
-            new Handle:NuclearPack;
+            Handle NuclearPack;
             m_NuclearTimer[client] = CreateDataTimer(cfgNuclearLockTime,NuclearImpact,NuclearPack,
                                                      TIMER_FLAG_NO_MAPCHANGE);
             WritePackCell(NuclearPack, userid);
@@ -1102,7 +1103,7 @@ public Action:NuclearLockOn(Handle:timer,any:userid)
         {
             m_NuclearTimer[client] = INVALID_HANDLE;
 
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, nukeID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "WithoutEffect", upgradeName);
             CreateCooldown(client, raceID, nukeID,
@@ -1112,22 +1113,22 @@ public Action:NuclearLockOn(Handle:timer,any:userid)
     return Plugin_Stop;
 }
 
-public Action:NuclearImpact(Handle:timer,Handle:pack)
+public Action NuclearImpact(Handle:timer,Handle:pack)
 {
     if (pack != INVALID_HANDLE)
     {
         ResetPack(pack);
-        new userid = ReadPackCell(pack);
-        new client = GetClientOfUserId(userid);
+        int userid = ReadPackCell(pack);
+        int client = GetClientOfUserId(userid);
         if (client > 0)
         {
-            new ult_level=ReadPackCell(pack);
+            int ult_level =ReadPackCell(pack);
             if (m_NuclearLaunchStatus[client] == LockedOn)
             {
                 m_NuclearLaunchStatus[client] = Exploding;
                 m_NuclearDuration[client] = ult_level*3;
 
-                new Handle:NuclearPack;
+                Handle NuclearPack;
                 m_NuclearTimer[client] = CreateDataTimer(0.4, NuclearExplosion, NuclearPack,TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
                 WritePackCell(NuclearPack, userid);
                 WritePackCell(NuclearPack, ult_level);
@@ -1140,30 +1141,30 @@ public Action:NuclearImpact(Handle:timer,Handle:pack)
     return Plugin_Stop;
 }
 
-public Action:NuclearExplosion(Handle:timer,Handle:pack)
+public Action NuclearExplosion(Handle:timer,Handle:pack)
 {
     if (pack != INVALID_HANDLE)
     {
         ResetPack(pack);
-        new userid = ReadPackCell(pack);
-        new client = GetClientOfUserId(userid);
+        int userid = ReadPackCell(pack);
+        int client = GetClientOfUserId(userid);
         if (client > 0)
         {
-            new ult_level=ReadPackCell(pack);
-            new iteration = (--m_NuclearDuration[client]);
+            int ult_level =ReadPackCell(pack);
+            int iteration = (--m_NuclearDuration[client]);
             if (iteration > 0 && IsClientInGame(client))
             {
-                new amt;
-                new Float:indexLoc[3];
-                new Float:radius = g_NukeRadius[ult_level];
-                new damage = g_NukeDamage[ult_level];
+                int amt;
+                float indexLoc[3];
+                float radius = g_NukeRadius[ult_level];
+                int damage = g_NukeDamage[ult_level];
 
                 switch (iteration % 8)
                 {
                     case 1:
                     {
-                        new Float:rorigin[3],sb;
-                        for(new i = 1 ;i < 50; ++i)
+                        float rorigin[3],sb;
+                        for(int i = 1 ;i < 50; ++i)
                         {
                             rorigin[0] = GetRandomFloat(0.0,3000.0);
                             rorigin[1] = GetRandomFloat(0.0,3000.0);
@@ -1200,10 +1201,10 @@ public Action:NuclearExplosion(Handle:timer,Handle:pack)
                         {
                             if (cfgNuclearEffects > 0)
                             {
-                                new entities = EntitiesAvailable(200, .message="Reducing Nuke Effects");
+                                int entities = EntitiesAvailable(200, .message="Reducing Nuke Effects");
                                 if (entities > 50)
                                 {
-                                    new Float:rorigin[3];
+                                    float rorigin[3];
                                     rorigin[0] = GetRandomFloat(0.0,3000.0);
                                     rorigin[1] = GetRandomFloat(0.0,3000.0);
                                     rorigin[2] = GetRandomFloat(0.0,2000.0);
@@ -1246,7 +1247,7 @@ public Action:NuclearExplosion(Handle:timer,Handle:pack)
                                           g_NukeMagnitude[ult_level]);
                         TE_SendEffectToAll();
 
-                        new Float:dir[3];
+                        float dir[3];
                         dir[0] = 0.0;
                         dir[1] = 0.0;
                         dir[2] = 2.0;
@@ -1256,7 +1257,7 @@ public Action:NuclearExplosion(Handle:timer,Handle:pack)
                         if (GameType == tf2 && GetMode() != MvM && GetParticleCount() < 25 &&
                             gNuclearParticleTime == 0.0 || (GetGameTime() - gNuclearParticleTime > 2.0))
                         {
-                            new entities = (cfgNuclearEffects > 0) ? EntitiesAvailable(200, .message="Reducing Nuke Effects") : 0;
+                            int entities = (cfgNuclearEffects > 0) ? EntitiesAvailable(200, .message="Reducing Nuke Effects") : 0;
                             if (cfgNuclearEffects >= 5 && entities > 200)
                             {
                                 gNuclearParticleTime = GetGameTime();
@@ -1289,24 +1290,24 @@ public Action:NuclearExplosion(Handle:timer,Handle:pack)
                     }
                 }
 
-                new num = GetRandomInt((GameType == tf2) ? 1 : 0,sizeof(explosionsWav)-1);
+                int num = GetRandomInt((GameType == tf2) ? 1 : 0,sizeof(explosionsWav)-1);
                 PrepareAndEmitSoundToAll(explosionsWav[num], SOUND_FROM_WORLD,
                                          .origin=m_NuclearAimPos[client]);
 
-                new total = 0;
-                new altTotal = 0;
+                int total = 0;
+                int altTotal = 0;
                 new clients[MaxClients];
                 new altClients[MaxClients];
 
-                new minDmg=iteration;
-                new maxDmg=iteration*ult_level;
-                for(new index=1;index<=MaxClients;index++)
+                int minDmg =iteration;
+                int maxDmg =iteration*ult_level;
+                for(int index =1;index<=MaxClients;index++)
                 {
                     if (IsClientInGame(index) && IsPlayerAlive(index))
                     {
-                        new bool:canBlind  = !GetImmunity(index,Immunity_Blindness);
+                        bool canBlind  = !GetImmunity(index,Immunity_Blindness);
 
-                        new bool:canDamage = (!GetImmunity(index,Immunity_Ultimates) &&
+                        bool canDamage = (!GetImmunity(index,Immunity_Ultimates) &&
                                               !GetImmunity(index,Immunity_Explosion) &&
                                               !GetImmunity(index,Immunity_HealthTaking) &&
                                               !IsInvulnerable(index));
@@ -1356,15 +1357,15 @@ public Action:NuclearExplosion(Handle:timer,Handle:pack)
                     Fade(altClients, altTotal, 600,600,black,FFADE_IN);
                 }
 
-                new maxents = GetMaxEntities();
-                for (new ent = MaxClients; ent < maxents; ent++)
+                int maxents = GetMaxEntities();
+                for (int ent = MaxClients; ent < maxents; ent++)
                 {
                     if (IsValidEdict(ent) && IsValidEntity(ent))
                     {
                         if (TF2_GetExtObjectType(ent) != TFExtObject_Unknown)
                         {
                             GetEntPropVector(ent, Prop_Send, "m_vecOrigin", indexLoc);
-                            new dmg=PowerOfRange(m_NuclearAimPos[client],radius,indexLoc,damage);
+                            int dmg =PowerOfRange(m_NuclearAimPos[client],radius,indexLoc,damage);
                             if (dmg > 0)
                             {
                                 if (TraceTargetEntity(client, ent, m_NuclearAimPos[client], indexLoc))
@@ -1398,7 +1399,7 @@ public Action:NuclearExplosion(Handle:timer,Handle:pack)
     return Plugin_Stop;
 }
 
-public OnCooldownExpired(client,race,upgrade,bool:expiredByTime)
+public void OnCooldownExpired(client,race,upgrade,bool:expiredByTime)
 {
     if (race == raceID && upgrade == nukeID)
     {
@@ -1420,7 +1421,7 @@ ExplodeAll(Float:vec1[3])
     TE_SetupExplosion(vec1, Fire2Sprite(), 10.0, 1, 0, 0, 5000); // 600
     TE_SendEffectToAll();
 
-    new entities = (GameType == tf2 && GetMode() != MvM && cfgNuclearEffects > 0)
+    int entities = (GameType == tf2 && GetMode() != MvM && cfgNuclearEffects > 0)
                    ? EntitiesAvailable(100, .message="Reducing Nuke Effects") : 0;
 
     if (entities < 50 || cfgNuclearEffects < 1 || GetParticleCount() > 10 ||
@@ -1466,7 +1467,7 @@ BuildScienceVessel(client)
 
     if (g_scienceVesselRace < 0)
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, vesselID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "IsNotAvailable", upgradeName);
         LogError("***The Terran Science Vessel race is not Available!");
@@ -1481,7 +1482,7 @@ BuildScienceVessel(client)
     }
     else if (CanInvokeUpgrade(client, raceID, vesselID))
     {
-        new Float:clientLoc[3];
+        float clientLoc[3];
         GetClientAbsOrigin(client, clientLoc);
         clientLoc[2] += 40.0; // Adjust position to the middle
 
@@ -1517,53 +1518,53 @@ UltimateLockdown(client, ult_level)
 {
     if (!m_UberShieldAvailable)
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, ultlockdownID, upgradeName, sizeof(upgradeName), client);
         PrintHintText(client, "%t", "IsNotAvailable", upgradeName);
     }
     else if (GetRestriction(client,Restriction_NoUltimates) ||
              GetRestriction(client,Restriction_Stunned))
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, ultlockdownID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
         PrepareAndEmitSoundToClient(client,deniedWav);
     }
     else if (IsMole(client))
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, nukeID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "NotAsMole", upgradeName);
         PrepareAndEmitSoundToClient(client,deniedWav);
     }
     else if (GameType == tf2 && TF2_HasTheFlag(client))
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, ultlockdownID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "CantUseWithFlag", upgradeName);
         PrepareAndEmitSoundToClient(client,deniedWav);
     }
     else if (CanInvokeUpgrade(client, raceID, ultlockdownID, false))
     {
-        new Float:duration = float(ult_level) + 1.0;
+        float duration = float(ult_level) + 1.0;
         UberShieldTarget(client, duration, Shield_Immobilize | Shield_Target_Enemy |
                                            Shield_Target_Location | Shield_DisableStopSound);
 
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, ultlockdownID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client,Display_Ultimate,"%t", "Invoked", upgradeName);
         CreateCooldown(client, raceID, ultlockdownID);
     }
 }
 
-public Action:OnDeployUberShield(client, target)
+public Action OnDeployUberShield(client, target)
 {
     if (GetRace(client) == raceID)
     {
         if (GetRestriction(client,Restriction_NoUltimates) ||
             GetRestriction(client,Restriction_Stunned))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, ultlockdownID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -1571,7 +1572,7 @@ public Action:OnDeployUberShield(client, target)
         }
         else if (IsMole(client))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, ultlockdownID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "NotAsMole", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -1579,7 +1580,7 @@ public Action:OnDeployUberShield(client, target)
         }
         else if (GameType == tf2 && TF2_HasTheFlag(client))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, ultlockdownID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "CantUseWithFlag", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -1588,7 +1589,7 @@ public Action:OnDeployUberShield(client, target)
         else if (target > 0 && target != client &&
                  GameType == tf2 && TF2_HasTheFlag(target))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, ultlockdownID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "CantUseOnFlagCarrier", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);

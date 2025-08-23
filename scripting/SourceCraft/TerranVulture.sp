@@ -6,6 +6,7 @@
  */
  
 #pragma semicolon 1
+#pragma newdecls required
 
 #include <sourcemod>
 #include <sdktools>
@@ -45,18 +46,18 @@ new const String:deathWav[]     = "sc/tvudth00.wav";  // Death sound
 new raceID, supplyID, thrustersID, platingID, weaponsID, mineID, tripmineID, nadeID;
 
 new const String:g_ArmorName[]  = "Plating";
-new Float:g_InitialArmor[]      = { 0.0, 0.10, 0.25, 0.50, 0.75 };
-new Float:g_ArmorPercent[][2]   = { {0.00, 0.00},
+float g_InitialArmor[]      = { 0.0, 0.10, 0.25, 0.50, 0.75 };
+float g_ArmorPercent[][2]   = { {0.00, 0.00},
                                     {0.00, 0.10},
                                     {0.00, 0.30},
                                     {0.10, 0.40},
                                     {0.20, 0.50} };
 
-new Float:g_SpeedLevels[]       = { -1.0, 1.15, 1.20, 1.25, 1.30 };
+float g_SpeedLevels[]       = { -1.0, 1.15, 1.20, 1.25, 1.30 };
 
-new Float:g_WeaponsPercent[]    = { 0.0, 0.15, 0.30, 0.40, 0.50 };
+float g_WeaponsPercent[]    = { 0.0, 0.15, 0.30, 0.40, 0.50 };
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Terran Vulture",
     author = "-=|JFH|=-Naris",
@@ -65,7 +66,7 @@ public Plugin:myinfo =
     url = "http://jigglysfunhouse.net/"
 };
 
-public OnPluginStart()
+public void OnPluginStart()
 {
     LoadTranslations("sc.ammopack.phrases.txt");
     LoadTranslations("sc.tripmine.phrases.txt");
@@ -80,7 +81,7 @@ public OnPluginStart()
         OnSourceCraftReady();
 }
 
-public OnSourceCraftReady()
+public void OnSourceCraftReady()
 {
     raceID      = CreateRace("vulture", 32, 0, 24, .faction=Terran,
                              .type=BioMechanical);
@@ -124,9 +125,9 @@ public OnSourceCraftReady()
     GetConfigFloatArray("armor_amount", g_InitialArmor, sizeof(g_InitialArmor),
                         g_InitialArmor, raceID, platingID);
 
-    for (new level=0; level < sizeof(g_ArmorPercent); level++)
+    for (int level =0; level < sizeof(g_ArmorPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "armor_percent_level_%d", level);
         GetConfigFloatArray(key, g_ArmorPercent[level], sizeof(g_ArmorPercent[]),
                             g_ArmorPercent[level], raceID, platingID);
@@ -139,7 +140,7 @@ public OnSourceCraftReady()
                         g_WeaponsPercent, raceID, weaponsID);
 }
 
-public OnLibraryAdded(const String:name[])
+public void OnLibraryAdded(const String:name[])
 {
     if (StrEqual(name, "firemines"))
         IsFireminesAvailable(true);
@@ -151,7 +152,7 @@ public OnLibraryAdded(const String:name[])
         IsInfiniteAmmoAvailable(true);
 }
 
-public OnLibraryRemoved(const String:name[])
+public void OnLibraryRemoved(const String:name[])
 {
     if (StrEqual(name, "firemines"))
         m_FireminesAvailable = false;
@@ -163,7 +164,7 @@ public OnLibraryRemoved(const String:name[])
         m_InfiniteAmmoAvailable = false;
 }
 
-public OnMapStart()
+public void OnMapStart()
 {
     SetupSpeed();
 
@@ -173,17 +174,17 @@ public OnMapStart()
     SetupSound(deathWav);
 }
 
-public OnMapEnd()
+public void OnMapEnd()
 {
     ResetAllClientTimers();
 }
 
-public OnClientDisconnect(client)
+public void OnClientDisconnect(client)
 {
     KillClientTimer(client);
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -206,32 +207,32 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
         return Plugin_Continue;
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
-        new plating_level = GetUpgradeLevel(client,raceID,platingID);
+        int plating_level = GetUpgradeLevel(client,raceID,platingID);
         SetupArmor(client, plating_level, g_InitialArmor,
                    g_ArmorPercent, g_ArmorName);
 
-        new thrusters_level = GetUpgradeLevel(client,raceID,thrustersID);
+        int thrusters_level = GetUpgradeLevel(client,raceID,thrustersID);
         SetSpeedBoost(client, thrusters_level, true, g_SpeedLevels);
 
         if (m_FireminesAvailable)
         {
-            new mine_level=GetUpgradeLevel(client,raceID,mineID);
+            int mine_level =GetUpgradeLevel(client,raceID,mineID);
             GiveMines(client, mine_level*3, mine_level*3, mine_level*2);
         }
 
         if (m_TripminesAvailable)
         {
-            new tripmine_level=GetUpgradeLevel(client,raceID,tripmineID);
+            int tripmine_level =GetUpgradeLevel(client,raceID,tripmineID);
             GiveTripmines(client, tripmine_level, tripmine_level, tripmine_level);
         }
 
         if (m_NadesAvailable)
         {
-            new nade_level=GetUpgradeLevel(client,raceID,nadeID);
+            int nade_level =GetUpgradeLevel(client,raceID,nadeID);
             GiveNades(client, nade_level*2, nade_level*2,
                       nade_level*2, nade_level*2, false,
                       DefaultNade, _:DamageFrom_Ultimates);
@@ -241,7 +242,7 @@ public Action:OnRaceSelected(client,oldrace,newrace)
         {
             PrepareAndEmitSoundToAll(spawnWav,client);
 
-            new supply_level=GetUpgradeLevel(client,raceID,supplyID);
+            int supply_level =GetUpgradeLevel(client,raceID,supplyID);
             if (supply_level > 0)
             {
                 CreateClientTimer(client, 5.0, SupplyDepot,
@@ -255,7 +256,7 @@ public Action:OnRaceSelected(client,oldrace,newrace)
         return Plugin_Continue;
 }
 
-public OnUpgradeLevelChanged(client,race,upgrade,new_level)
+public void OnUpgradeLevelChanged(client,race,upgrade,new_level)
 {
     if (race == raceID && GetRace(client) == raceID)
     {
@@ -302,7 +303,7 @@ public OnUpgradeLevelChanged(client,race,upgrade,new_level)
     }
 }
 
-public OnItemPurchase(client,item)
+public void OnItemPurchase(client,item)
 {
     if (GetRace(client) == raceID && IsValidClientAlive(client))
     {
@@ -311,14 +312,14 @@ public OnItemPurchase(client,item)
 
         if (item == g_bootsItem)
         {
-            new thrusters_level = GetUpgradeLevel(client,raceID,thrustersID);
+            int thrusters_level = GetUpgradeLevel(client,raceID,thrustersID);
             if (thrusters_level > 0)
                 SetSpeedBoost(client, thrusters_level, true, g_SpeedLevels);
         }
     }
 }
 
-public OnUltimateCommand(client,race,bool:pressed,arg)
+public void OnUltimateCommand(client,race,bool:pressed,arg)
 {
     if (race==raceID && IsValidClientAlive(client))
     {
@@ -326,7 +327,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
         {
             case 4:
             {
-                new nade_level = GetUpgradeLevel(client,race,nadeID);
+                int nade_level = GetUpgradeLevel(client,race,nadeID);
                 if (nade_level > 0)
                 {
                     if (m_NadesAvailable)
@@ -343,7 +344,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                     }
                     else if (pressed)
                     {
-                        decl String:upgradeName[64];
+                        char upgradeName[64];
                         GetUpgradeName(raceID, nadeID, upgradeName, sizeof(upgradeName), client);
                         PrintHintText(client,"%t", "IsNotAvailable", upgradeName);
                     }
@@ -351,7 +352,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
             }
             case 3:
             {
-                new nade_level = GetUpgradeLevel(client,race,nadeID);
+                int nade_level = GetUpgradeLevel(client,race,nadeID);
                 if (nade_level > 0)
                 {
                     if (m_NadesAvailable)
@@ -368,7 +369,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                     }
                     else if (pressed)
                     {
-                        decl String:upgradeName[64];
+                        char upgradeName[64];
                         GetUpgradeName(raceID, nadeID, upgradeName, sizeof(upgradeName), client);
                         PrintHintText(client,"%t", "IsNotAvailable", upgradeName);
                     }
@@ -376,7 +377,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
             }
             case 2:
             {
-                new tripmine_level = GetUpgradeLevel(client,race,tripmineID);
+                int tripmine_level = GetUpgradeLevel(client,race,tripmineID);
                 if (tripmine_level > 0)
                 {
                     if (pressed)
@@ -385,7 +386,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                         {
                             PrepareAndEmitSoundToClient(client,deniedWav);
 
-                            decl String:upgradeName[64];
+                            char upgradeName[64];
                             GetUpgradeName(raceID, tripmineID, upgradeName, sizeof(upgradeName), client);
                             DisplayMessage(client, Display_Ultimate, "%t", "NotAsMole", upgradeName);
                         }
@@ -402,7 +403,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                         }
                         else
                         {
-                            decl String:upgradeName[64];
+                            char upgradeName[64];
                             GetUpgradeName(raceID, tripmineID, upgradeName, sizeof(upgradeName), client);
                             PrintHintText(client,"%t", "IsNotAvailable", upgradeName);
                         }
@@ -410,7 +411,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                 }
                 else
                 {
-                    new nade_level = GetUpgradeLevel(client,race,nadeID);
+                    int nade_level = GetUpgradeLevel(client,race,nadeID);
                     if (nade_level > 0)
                     {
                         if (m_NadesAvailable)
@@ -427,7 +428,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                         }
                         else if (pressed)
                         {
-                            decl String:upgradeName[64];
+                            char upgradeName[64];
                             GetUpgradeName(raceID, nadeID, upgradeName, sizeof(upgradeName), client);
                             PrintHintText(client,"%t", "IsNotAvailable", upgradeName);
                         }
@@ -436,7 +437,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
             }
             default:
             {
-                new mine_level = GetUpgradeLevel(client,race,mineID);
+                int mine_level = GetUpgradeLevel(client,race,mineID);
                 if (mine_level > 0)
                 {
                     if (!pressed)
@@ -447,7 +448,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                             {
                                 PrepareAndEmitSoundToClient(client,deniedWav);
 
-                                decl String:upgradeName[64];
+                                char upgradeName[64];
                                 GetUpgradeName(raceID, mineID, upgradeName, sizeof(upgradeName), client);
                                 DisplayMessage(client, Display_Ultimate, "%t", "NotAsMole", upgradeName);
                             }
@@ -463,7 +464,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                         }
                         else
                         {
-                            decl String:upgradeName[64];
+                            char upgradeName[64];
                             GetUpgradeName(raceID, mineID, upgradeName, sizeof(upgradeName), client);
                             PrintHintText(client,"%t", "IsNotAvailable", upgradeName);
                         }
@@ -475,20 +476,20 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
 }
 
 // Events
-public OnPlayerSpawnEvent(Handle:event, client, race)
+public void OnPlayerSpawnEvent(Handle:event, client, race)
 {
     if (race == raceID)
     {
         PrepareAndEmitSoundToAll(spawnWav,client);
 
-        new plating_level = GetUpgradeLevel(client,raceID,platingID);
+        int plating_level = GetUpgradeLevel(client,raceID,platingID);
         SetupArmor(client, plating_level, g_InitialArmor,
                    g_ArmorPercent, g_ArmorName);
 
-        new thrusters_level = GetUpgradeLevel(client,raceID,thrustersID);
+        int thrusters_level = GetUpgradeLevel(client,raceID,thrustersID);
         SetSpeedBoost(client, thrusters_level, true, g_SpeedLevels);
 
-        new supply_level=GetUpgradeLevel(client,raceID,supplyID);
+        int supply_level =GetUpgradeLevel(client,raceID,supplyID);
         if (supply_level > 0)
         {
             CreateClientTimer(client, 5.0, SupplyDepot,
@@ -497,7 +498,7 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     if (!from_sc && attacker_index > 0 &&
@@ -510,7 +511,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
     return Plugin_Continue;
 }
 
-public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
+public Action OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
                                   assister_index, assister_race, damage,
                                   absorbed)
 {
@@ -523,7 +524,7 @@ public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
     return Plugin_Continue;
 }
 
-public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
+public void OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
                           attacker_race, assister_index, assister_race, damage,
                           const String:weapon[], bool:is_equipment, customkill,
                           bool:headshot, bool:backstab, bool:melee)
@@ -538,7 +539,7 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
 
 bool:VehicleWeapons(damage, victim_index, index)
 {
-    new weapons_level = GetUpgradeLevel(index, raceID, weaponsID);
+    int weapons_level = GetUpgradeLevel(index, raceID, weaponsID);
     if (weapons_level > 0 &&
         !GetRestriction(index,Restriction_NoUpgrades) &&
         !GetRestriction(index,Restriction_Stunned) &&
@@ -548,7 +549,7 @@ bool:VehicleWeapons(damage, victim_index, index)
     {
         if (GetRandomInt(1,100) <= GetRandomInt(30,60))
         {
-            new dmgamt = RoundFloat(float(damage)*g_WeaponsPercent[weapons_level]);
+            int dmgamt = RoundFloat(float(damage)*g_WeaponsPercent[weapons_level]);
             if (dmgamt > 0 && CanInvokeUpgrade(index, raceID, weaponsID, .notify=false))
             {
                 HurtPlayer(victim_index, dmgamt, index,
@@ -557,7 +558,7 @@ bool:VehicleWeapons(damage, victim_index, index)
 
                 if (IsClient(victim_index))
                 {
-                    new Float:Origin[3];
+                    float Origin[3];
                     GetEntityAbsOrigin(victim_index, Origin);
                     Origin[2] += 5;
 
@@ -574,16 +575,16 @@ bool:VehicleWeapons(damage, victim_index, index)
     return false;
 }
 
-public Action:SupplyDepot(Handle:timer, any:userid)
+public Action SupplyDepot(Handle:timer, any:userid)
 {
-    new client = GetClientOfUserId(userid);
+    int client = GetClientOfUserId(userid);
     if (IsValidClientAlive(client))
     {
         if (GetRace(client) == raceID &&
             !GetRestriction(client, Restriction_NoUpgrades) ||
             !GetRestriction(client, Restriction_Stunned))
         {
-            new supply_level = GetUpgradeLevel(client,raceID,supplyID);
+            int supply_level = GetUpgradeLevel(client,raceID,supplyID);
             if (supply_level > 0)
             {
                 SupplyAmmo(client, supply_level,

@@ -1,18 +1,19 @@
 #pragma semicolon 1
+#pragma newdecls required
 
 #include <sourcemod>
 #include <tf2>
 #include <tf2_stocks>
 #include "W3SIncs/War3Source_Interface"  
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "War3Source - Race - Dragonborn",
     author = "War3Source Team",
     description = "The Dragonborn race for War3Source."
 };
 
-new thisRaceID;
+int thisRaceID;
 
 public LoadCheck(){
     return GameTF();
@@ -42,22 +43,22 @@ Cool things learned this race:
 **new const SkillColor[4] = {255, 255, 255, 155} changing skill colors via array, neato.
 **That max health in tf2 is stupid.
 */
-new Float:RoarRadius=300.0;
-new Float:RoarDuration[5]={0.0,0.2,0.4,0.6,0.7};
-new Float:RoarCooldownTime=25.0;
-new Float:ScalesPhysical[5]={0.0,1.0,1.66,2.33,3.0};
-new Float:ImmunityChance=0.15;
-new Float:dragvec[3]={0.0,0.0,0.0};
-new Float:victimvec[3]={0.0,0.0,0.0};
-new Float:DragonBreathRange[5]={0.0,400.0,500.0,600.0,700.0};
+float RoarRadius=300.0;
+float RoarDuration[5]={0.0,0.2,0.4,0.6,0.7};
+float RoarCooldownTime=25.0;
+float ScalesPhysical[5]={0.0,1.0,1.66,2.33,3.0};
+float ImmunityChance=0.15;
+float dragvec[3]={0.0,0.0,0.0};
+float victimvec[3]={0.0,0.0,0.0};
+float DragonBreathRange[5]={0.0,400.0,500.0,600.0,700.0};
 
 // Sounds
-new String:roarsound[256]; //="war3source/dragonborn/roar.mp3";
-new String:ultsndblue[256]; //="war3source/dragonborn/ultblue.mp3";
-new String:ultsndred[256]; //="war3source/dragonborn/ultred.mp3";
+char roarsound[256]; //="war3source/dragonborn/roar.mp3";
+char ultsndblue[256]; //="war3source/dragonborn/ultblue.mp3";
+char ultsndred[256]; //="war3source/dragonborn/ultred.mp3";
 
 
-public OnWar3LoadRaceOrItemOrdered(num)
+public void OnWar3LoadRaceOrItemOrdered(num)
 {
     if(num==200)
     {
@@ -109,13 +110,13 @@ public OnWar3LoadRaceOrItemOrdered(num)
     }
 }
 
-public OnPluginStart()
+public void OnPluginStart()
 {
     CreateTimer(0.5,HalfSecondTimer,_,TIMER_REPEAT); //The footstep effect
     LoadTranslations("w3s.race.dragonborn_o.phrases");
 }
 
-public OnMapStart()
+public void OnMapStart()
 {
     War3_AddSoundFolder(roarsound, sizeof(roarsound), "dragonborn/roar.mp3");
     War3_AddSoundFolder(ultsndblue, sizeof(ultsndblue), "dragonborn/ultblue.mp3");
@@ -134,20 +135,20 @@ public OnMapStart()
     War3_AddCustomSound(ultsndred);
 }
 
-public OnUltimateCommand(client,race,bool:pressed)
+public void OnUltimateCommand(client,race,bool:pressed)
 {
-    new userid=GetClientUserId(client);
+    int userid =GetClientUserId(client);
     if(race==thisRaceID && pressed && userid>1 && IsPlayerAlive(client) )
     {
-        new ult_level=War3_GetSkillLevel(client,race,ULTIMATE_DRAGONBREATH);
+        int ult_level =War3_GetSkillLevel(client,race,ULTIMATE_DRAGONBREATH);
         if(ult_level>0)
         {
             if(!Silenced(client)&&War3_SkillNotInCooldown(client,thisRaceID,ULTIMATE_DRAGONBREATH,true))
             {
-                new Float:breathrange= DragonBreathRange[ult_level];
+                float breathrange= DragonBreathRange[ult_level];
                 //War3_GetTargetInViewCone(client,Float:max_distance=0.0,bool:include_friendlys=false,Float:cone_angle=23.0,Function:FilterFunction=INVALID_FUNCTION);
-                new target = War3_GetTargetInViewCone(client,breathrange,false,23.0,DragonFilter);
-                //new Float:duration = DarkorbDuration[ult_level];
+                int target = War3_GetTargetInViewCone(client,breathrange,false,23.0,DragonFilter);
+                //float duration = DarkorbDuration[ult_level];
                 if(target>0)
                 {
                     EmitSoundToAll(ultsndblue,client);
@@ -156,7 +157,7 @@ public OnUltimateCommand(client,race,bool:pressed)
                     TF2_AddCondition(target, TFCond_Jarated, 5.0);
                     AttachThrowAwayParticle(target, "waterfall_bottomwaves", victimvec, "", 2.0);
 #if defined SOURCECRAFT
-                    new Float:cooldown= GetUpgradeCooldown(thisRaceID,ULTIMATE_DRAGONBREATH);
+                    float cooldown= GetUpgradeCooldown(thisRaceID,ULTIMATE_DRAGONBREATH);
                     War3_CooldownMGR(client,cooldown,thisRaceID,ULTIMATE_DRAGONBREATH);
 #else
                     War3_CooldownMGR(client,25.0,thisRaceID,ULTIMATE_DRAGONBREATH,_,_);
@@ -176,9 +177,9 @@ public bool:DragonFilter(client)
     return (!W3HasImmunity(client,Immunity_Ultimates));
 }
 
-public Action:HalfSecondTimer(Handle:timer,any:clientz) //footsy flame/water effects only on ground yay!
+public Action HalfSecondTimer(Handle:timer,any:clientz) //footsy flame/water effects only on ground yay!
 {
-    for(new client=1; client <= MaxClients; client++)
+    for(int client =1; client <= MaxClients; client++)
     {
         if(ValidPlayer(client, true))
         {
@@ -193,12 +194,12 @@ public Action:HalfSecondTimer(Handle:timer,any:clientz) //footsy flame/water eff
     }
 }
 
-public Action:stopspeed(Handle:t,any:client){
+public Action stopspeed(Handle:t,any:client){
 //W3ResetBuffRace(client,fMaxSpeed,thisRaceID);
 //TF2_StunPlayer(client,0.0, 0.0,TF_STUNFLAGS_LOSERSTATE,0);
 }
 //Roar - If it's too overpowered I might add in an adrenaline effect to all clients effect afterward (Increased speed during thirdperson stun animation)
-public OnAbilityCommand(client,ability,bool:pressed)
+public void OnAbilityCommand(client,ability,bool:pressed)
 {
     //TF2_StunPlayer(client,5.0, 0.0,TF_STUNFLAG_SLOWDOWN|TF_STUNFLAG_THIRDPERSON,0);
     //War3_SetBuff(client,fMaxSpeed,thisRaceID,2.0);
@@ -207,14 +208,14 @@ public OnAbilityCommand(client,ability,bool:pressed)
     {
         if(!Silenced(client)&&War3_SkillNotInCooldown(client,thisRaceID,SKILL_ROAR,true))
         {
-            new skilllvl = War3_GetSkillLevel(client,thisRaceID,SKILL_ROAR);
+            int skilllvl = War3_GetSkillLevel(client,thisRaceID,SKILL_ROAR);
             if(skilllvl > 0)
             {
-                new Float:AttackerPos[3];
+                float AttackerPos[3];
                 GetClientAbsOrigin(client,AttackerPos);
-                new AttackerTeam = GetClientTeam(client);
-                new Float:VictimPos[3];
-                for(new i=1;i<=MaxClients;i++)
+                int AttackerTeam = GetClientTeam(client);
+                float VictimPos[3];
+                for(int i =1;i<=MaxClients;i++)
                 {
                     if(ValidPlayer(i,true))
                     {
@@ -254,8 +255,8 @@ public InitPassiveSkills(client)
     if(War3_GetRace(client)==thisRaceID)
     {
         //dragonborn
-        new skilllvl = War3_GetSkillLevel(client,thisRaceID,SKILL_DRAGONBORN);
-        new bool:value=(GetRandomFloat(0.0,1.0)<=ImmunityChance&&!Hexed(client,false));
+        int skilllvl = War3_GetSkillLevel(client,thisRaceID,SKILL_DRAGONBORN);
+        bool value=(GetRandomFloat(0.0,1.0)<=ImmunityChance&&!Hexed(client,false));
         if(value && skilllvl > 0)
         {
             War3_SetBuff(client,bImmunityWards,thisRaceID,1);
@@ -283,7 +284,7 @@ RemoveImmunity(client){
     War3_SetBuff(client,bSlowImmunity,thisRaceID,0);
     War3_SetBuff(client,bImmunityUltimates,thisRaceID,0);
 }
-public OnRaceChanged(client,oldrace,newrace)
+public void OnRaceChanged(client,oldrace,newrace)
 {
     if(newrace==thisRaceID)
     {    

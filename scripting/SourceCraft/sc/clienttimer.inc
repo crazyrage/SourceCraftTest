@@ -27,7 +27,7 @@ stock KillClientTimer(client)
 {
     if (IsClient(client))
     {
-        new Handle:timer=g_ClientTimers[client];
+        Handle timer=g_ClientTimers[client];
         if (timer != INVALID_HANDLE)
         {
             ResetClientTimer(client);	
@@ -38,12 +38,12 @@ stock KillClientTimer(client)
 
 stock KillAllClientTimers()
 {
-    for (new i = 1; i <= MaxClients; i++)
+    for (int i = 1; i <= MaxClients; i++)
         KillClientTimer(i);
 }
 
 stock ResetAllClientTimers()
 {
-    for (new i = 1; i <= MaxClients; i++)
+    for (int i = 1; i <= MaxClients; i++)
         ResetClientTimer(i);
 }

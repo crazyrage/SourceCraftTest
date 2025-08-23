@@ -1,63 +1,64 @@
 #pragma semicolon 1
+#pragma newdecls required
 
 #include <sourcemod>
 #include "W3SIncs/War3Source_Interface" 
 #include <sdktools>
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "War3Source - Race - Chronos",
     author = "War3Source Team",
     description = "The Chronos race for War3Source."
 };
 
-new thisRaceID;
+int thisRaceID;
 
 new m_vecVelocity_0, m_vecVelocity_1, m_vecBaseVelocity; //offsets
 
-new bool:bTrapped[MAXPLAYERSCUSTOM];
+bool bTrapped[MAXPLAYERSCUSTOM];
 
 new SKILL_LEAP, SKILL_REWIND, SKILL_TIMELOCK, ULT_SPHERE;
 ////we add stuff later
 
 //leap
-new Float:leapPower[5]={0.0,350.0,400.0,450.0,500.0};
-new Float:leapPowerTF[5]={0.0,500.0,550.0,600.0,650.0};
+float leapPower[5]={0.0,350.0,400.0,450.0,500.0};
+float leapPowerTF[5]={0.0,500.0,550.0,600.0,650.0};
 
 //rewind
-new Float:RewindChance[5]={0.0,0.1,0.15,0.2,0.25}; 
+float RewindChance[5]={0.0,0.1,0.15,0.2,0.25}; 
 new RewindHPAmount[MAXPLAYERSCUSTOM];
 
 //bash
-new Float:TimeLockChance[5]={0.0,0.1,0.15,0.2,0.25};
+float TimeLockChance[5]={0.0,0.1,0.15,0.2,0.25};
 
 //sphere
-new Float:ultRange=200.0;
+float ultRange=200.0;
 
 #if !defined SOURCECRAFT
-new Handle:ultCooldownCvar;
+Handle ultCooldownCvar;
 #endif
 
-new Float:SphereTime[5]={0.0,3.0,3.5,4.0,4.5};
+float SphereTime[5]={0.0,3.0,3.5,4.0,4.5};
 
-new String:leapsnd[256]; //="war3source/chronos/timeleap.mp3";
-new String:spheresnd[256]; //="war3source/chronos/sphere.mp3";
+char leapsnd[256]; //="war3source/chronos/timeleap.mp3";
+char spheresnd[256]; //="war3source/chronos/sphere.mp3";
 
-new Float:sphereRadius=150.0;
+float sphereRadius=150.0;
 
-new bool:hasSphere[MAXPLAYERSCUSTOM];
-new Float:SphereLocation[MAXPLAYERSCUSTOM][3];
-new Float:SphereEndTime[MAXPLAYERSCUSTOM];
+bool hasSphere[MAXPLAYERSCUSTOM];
+float SphereLocation[MAXPLAYERSCUSTOM][3];
+float SphereEndTime[MAXPLAYERSCUSTOM];
 
 
-new BeamSprite;
-new HaloSprite;
+int BeamSprite;
+int HaloSprite;
 
 
 stock oldbuttons[MAXPLAYERSCUSTOM];
-new bool:lastframewasground[MAXPLAYERSCUSTOM];
+bool lastframewasground[MAXPLAYERSCUSTOM];
 
-public OnPluginStart()
+public void OnPluginStart()
 {
 #if !defined SOURCECRAFT
     ultCooldownCvar=CreateConVar("war3_chronos_ult_cooldown","20");
@@ -73,13 +74,13 @@ public OnPluginStart()
     RegConsoleCmd("bashme",Cmdbashme);
     LoadTranslations("w3s.race.chronos.phrases");
 }
-public Action:Cmdbashme(client,args){
+public Action Cmdbashme(client,args){
     static bool:foo=false;
     War3_SetBuff(client,bStunned,thisRaceID,foo);
     foo=(!foo);
 }
-new glowsprite;
-public OnMapStart()
+int glowsprite;
+public void OnMapStart()
 {
     War3_AddSoundFolder(leapsnd, sizeof(leapsnd), "chronos/timeleap.mp3");
     War3_AddSoundFolder(spheresnd, sizeof(spheresnd), "chronos/sphere.mp3");
@@ -92,7 +93,7 @@ public OnMapStart()
     HaloSprite=War3_PrecacheHaloSprite();
 }
 
-public OnWar3LoadRaceOrItemOrdered(num)
+public void OnWar3LoadRaceOrItemOrdered(num)
 {    
     if(num==140)
     {
@@ -152,22 +153,22 @@ public OnWar3LoadRaceOrItemOrdered(num)
 
 public PlayerJumpEvent(Handle:event,const String:name[],bool:dontBroadcast)
 {
-    new client=GetClientOfUserId(GetEventInt(event,"userid"));
+    int client =GetClientOfUserId(GetEventInt(event,"userid"));
 
     if(ValidPlayer(client,true)){
-        new race=War3_GetRace(client);
+        int race =War3_GetRace(client);
         if (race==thisRaceID)
         {
             
-            new sl=War3_GetSkillLevel(client,race,SKILL_LEAP);
+            int sl =War3_GetSkillLevel(client,race,SKILL_LEAP);
             
             if(!Hexed(client)&&sl>0&&SkillAvailable(client,thisRaceID,SKILL_LEAP,false))
             {
                 
-                new Float:velocity[3]={0.0,0.0,0.0};
+                float velocity[3]={0.0,0.0,0.0};
                 velocity[0]= GetEntDataFloat(client,m_vecVelocity_0);
                 velocity[1]= GetEntDataFloat(client,m_vecVelocity_1);
-                new Float:len=GetVectorLength(velocity);
+                float len=GetVectorLength(velocity);
                 if(len>3.0){
                     //PrintToChatAll("pre  vec %f %f %f",velocity[0],velocity[1],velocity[2]);
                     ScaleVector(velocity,leapPower[sl]/len);
@@ -177,7 +178,7 @@ public PlayerJumpEvent(Handle:event,const String:name[],bool:dontBroadcast)
                     W3EmitSoundToAll(leapsnd,client);
                     W3EmitSoundToAll(leapsnd,client);
 #if defined SOURCECRAFT
-                    new Float:cooldown= GetUpgradeCooldown(thisRaceID,SKILL_LEAP);
+                    float cooldown= GetUpgradeCooldown(thisRaceID,SKILL_LEAP);
                     War3_CooldownMGR(client,cooldown,thisRaceID,SKILL_LEAP,_,_);
 #else
                     War3_CooldownMGR(client,10.0,thisRaceID,SKILL_LEAP,_,_);
@@ -188,19 +189,19 @@ public PlayerJumpEvent(Handle:event,const String:name[],bool:dontBroadcast)
     }
 }
 
-public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:angles[3], &weapon)
+public Action OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:angles[3], &weapon)
 {
 
     if (!GAMECSANY && (buttons & IN_JUMP)) //assault for non CS games
     {
         if (War3_GetRace(client) == thisRaceID)
         {
-            new skill_SKILL_ASSAULT=War3_GetSkillLevel(client,thisRaceID,SKILL_LEAP);
+            int skill_SKILL_ASSAULT =War3_GetSkillLevel(client,thisRaceID,SKILL_LEAP);
             if (skill_SKILL_ASSAULT)
             {
                 //assaultskip[client]--;
                 //if(assaultskip[client]<1&&
-                new bool:lastwasgroundtemp=lastframewasground[client];
+                bool lastwasgroundtemp=lastframewasground[client];
                 lastframewasground[client]=bool:(GetEntityFlags(client) & FL_ONGROUND);
                 if(!Hexed(client)&&War3_SkillNotInCooldown(client,thisRaceID,SKILL_LEAP) &&  lastwasgroundtemp &&   !(GetEntityFlags(client) & FL_ONGROUND) )
                 {
@@ -220,7 +221,7 @@ public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:ang
                     /*if he is not in speed ult
                     if (!(GetEntityFlags(client) & FL_ONGROUND))
                     {
-                        new Float:absvel = velocity[0];
+                        float absvel = velocity[0];
                         if (absvel < 0.0)
                             absvel *= -1.0;
                         
@@ -229,17 +230,17 @@ public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:ang
                         else
                             absvel += velocity[1];
                         
-                        new Float:maxvel = m_IsULT_TRANSFORMformed[client] ? 1000.0 : 500.0;
+                        float maxvel = m_IsULT_TRANSFORMformed[client] ? 1000.0 : 500.0;
                         if (absvel > maxvel)
                             return Plugin_Continue;
                     }*/
                     
                     
-                    new Float:oldz=velocity[2];
+                    float oldz=velocity[2];
                     velocity[2]=0.0; //zero z
-                    new Float:len=GetVectorLength(velocity);
+                    float len=GetVectorLength(velocity);
                     if(len>3.0){
-                    //    new Float:amt = 1.2 + (float(skill_SKILL_ASSAULT)*0.20);
+                    //    float amt = 1.2 + (float(skill_SKILL_ASSAULT)*0.20);
                         //velocity[0]*=amt;
                     //    velocity[1]*=amt;
                         ScaleVector(velocity,leapPowerTF[skill_SKILL_ASSAULT]/len);
@@ -253,13 +254,13 @@ public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:ang
                     W3EmitSoundToAll(leapsnd,client);
                     
                     
-                    //new Float:amt = 1.0 + (float(skill_SKILL_ASSAULT)*0.2);
+                    //float amt = 1.0 + (float(skill_SKILL_ASSAULT)*0.2);
                     //velocity[0]*=amt;
                     //velocity[1]*=amt;
                     //TeleportEntity(client, NULL_VECTOR, NULL_VECTOR, velocity);
                     
 #if defined SOURCECRAFT
-                    new Float:cooldown= GetUpgradeCooldown(thisRaceID,SKILL_LEAP);
+                    float cooldown= GetUpgradeCooldown(thisRaceID,SKILL_LEAP);
                     War3_CooldownMGR(client,cooldown,thisRaceID,SKILL_LEAP,_,_);
 #else
                     War3_CooldownMGR(client,10.0,thisRaceID,SKILL_LEAP,_,_);
@@ -273,20 +274,20 @@ public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:ang
     return Plugin_Continue;
 }
 
-public OnUltimateCommand(client,race,bool:pressed)
+public void OnUltimateCommand(client,race,bool:pressed)
 {
     if(race==thisRaceID && IsPlayerAlive(client) && pressed)
     {
-        new skill_level=War3_GetSkillLevel(client,race,ULT_SPHERE);
+        int skill_level =War3_GetSkillLevel(client,race,ULT_SPHERE);
         if(skill_level>0)
         {
             
             if(!Silenced(client)&&War3_SkillNotInCooldown(client,thisRaceID,ULT_SPHERE,true)){
                 
-                new Float:endpos[3];
+                float endpos[3];
                 War3_GetAimTraceMaxLen(client,endpos,ultRange);
                 
-                new Float:down[3];
+                float down[3];
                 down[0]=endpos[0];
                 down[1]=endpos[1];
                 down[2]=endpos[2]-200;
@@ -297,27 +298,27 @@ public OnUltimateCommand(client,race,bool:pressed)
                 W3EmitSoundToAll(spheresnd,0,_,_,_,_,_,_,endpos);
                 W3EmitSoundToAll(spheresnd,0,_,_,_,_,_,_,endpos);
                 
-                new Float:life=SphereTime[skill_level];
+                float life=SphereTime[skill_level];
                 
-                for(new i=0;i<3;i++)
+                for(int i =0;i<3;i++)
                     SphereLocation[client][i]=endpos[i];
                 
                 SphereEndTime[client]=GetGameTime()+life;
                 hasSphere[client]=true;
                 CreateTimer(0.1,sphereLoop,client);
                 
-                //new Float:angles[10]={
+                //float angles[10]={
                 //TE_SetupBeamRingPoint(effect_vec,45.0,44.0,BeamSprite,HaloSprite,0,15,entangle_time,5.0,0.0,{0,255,0,255},10,0);
                 
-                new Float:tempdiameter;
-                for(new i=-1;i<=8;i++){
-                    new Float:rad=float(i*10)/360.0*(3.14159265*2);
+                float tempdiameter;
+                for(int i =-1;i<=8;i++){
+                    float rad=float(i*10)/360.0*(3.14159265*2);
                     tempdiameter=sphereRadius*Cosine(rad)*2;
-                    new Float:heightoffset=sphereRadius*Sine(rad);
+                    float heightoffset=sphereRadius*Sine(rad);
                     
                     //PrintToChatAll("degree %d rad %f sin %f cos %f radius %f offset %f",i*10,rad,Sine(rad),Cosine(rad),radius,heightoffset);
                     
-                    new Float:origin[3];
+                    float origin[3];
                     origin[0]=endpos[0];
                     origin[1]=endpos[1];
                     origin[2]=endpos[2]+heightoffset;
@@ -335,7 +336,7 @@ public OnUltimateCommand(client,race,bool:pressed)
                 TE_SetupGlowSprite(endpos,glowsprite,life,3.57,255);
                 TE_SendToAll();
 #if defined SOURCECRAFT
-                new Float:cooldown= GetUpgradeCooldown(thisRaceID,ULT_SPHERE);
+                float cooldown= GetUpgradeCooldown(thisRaceID,ULT_SPHERE);
                 War3_CooldownMGR(client,cooldown,thisRaceID,ULT_SPHERE,_,_);
 #else
                 War3_CooldownMGR(client,GetConVarFloat(ultCooldownCvar),thisRaceID,ULT_SPHERE,_,_);
@@ -348,11 +349,11 @@ public OnUltimateCommand(client,race,bool:pressed)
         }
     }
 }
-public Action:sphereLoop(Handle:h,any:client){
+public Action sphereLoop(Handle:h,any:client){
     if(hasSphere[client]&&SphereEndTime[client]>GetGameTime()){
-        new Float:victimpos[3];
-        new team=GetClientTeam(client);
-        for(new i=1;i<=MaxClients;i++){
+        float victimpos[3];
+        int team =GetClientTeam(client);
+        for(int i =1;i<=MaxClients;i++){
             if(ValidPlayer(i,true)&&GetClientTeam(i)!=team&&!bTrapped[i]&&!W3HasImmunity(i,Immunity_Ultimates)){
                 GetClientEyePosition(i,victimpos);
                 if(GetVectorDistance(SphereLocation[client],victimpos)<sphereRadius+10)
@@ -385,7 +386,7 @@ public Action:sphereLoop(Handle:h,any:client){
 
     
 }
-public Action:unBashUlt(Handle:h,any:client){
+public Action unBashUlt(Handle:h,any:client){
     War3_SetBuff(client,bBashed,thisRaceID,false);
     War3_SetBuff(client,fAttackSpeed,thisRaceID,1.0);
     bTrapped[client]=false;
@@ -393,17 +394,17 @@ public Action:unBashUlt(Handle:h,any:client){
     War3_SetBuff(client,bImmunityUltimates,thisRaceID,false);
     
 }
-public Action:sphereend(Handle:h,any:client){
+public Action sphereend(Handle:h,any:client){
     hasSphere[client]=false;
     
 }
 
-public OnW3TakeDmgAllPre(victim,attacker,Float:damage){
+public void OnW3TakeDmgAllPre(victim,attacker,Float:damage){
     if(bTrapped[victim]){ ///trapped people can only be damaged with knife
         if(ValidPlayer(attacker,true)){
-            new wpnent = W3GetCurrentWeaponEnt(attacker);
+            int wpnent = W3GetCurrentWeaponEnt(attacker);
             if(wpnent>0&&IsValidEdict(wpnent)){
-                decl String:WeaponName[32];
+                char WeaponName[32];
                 GetEdictClassname(wpnent, WeaponName, 32);
                 if(StrContains(WeaponName,"weapon_knife",false)<0&&!W3IsDamageFromMelee(WeaponName)){
                     
@@ -424,9 +425,9 @@ public OnW3TakeDmgAllPre(victim,attacker,Float:damage){
     }
     if(ValidPlayer(attacker)&&bTrapped[attacker]){ //trapped people can only use knife
         if(War3_GetGame()==CS){
-            new wpnent = W3GetCurrentWeaponEnt(attacker);
+            int wpnent = W3GetCurrentWeaponEnt(attacker);
             if(wpnent>0&&IsValidEdict(wpnent)){
-                decl String:WeaponName[32];
+                char WeaponName[32];
                 GetEdictClassname(wpnent, WeaponName, 32);
                 if(StrContains(WeaponName,"weapon_knife",false)<0){
                     
@@ -449,7 +450,7 @@ public OnW3TakeDmgAllPre(victim,attacker,Float:damage){
 }
 IsInOwnSphere(client){
     if(hasSphere[client]){
-        new Float:pos[3];
+        float pos[3];
         GetClientEyePosition(client,pos);
         if(GetVectorDistance(SphereLocation[client],pos)<sphereRadius+10.0){ //chronos is in his sphere
             return true;
@@ -458,12 +459,12 @@ IsInOwnSphere(client){
     return false;
 }
 
-public OnWar3EventPostHurt(victim, attacker, Float:damage, const String:weapon[32], bool:isWarcraft)
+public void OnWar3EventPostHurt(victim, attacker, Float:damage, const String:weapon[32], bool:isWarcraft)
 {
     if(ValidPlayer(victim,true)&&ValidPlayer(attacker,true))
     {    
         
-        new skilllevel=War3_GetSkillLevel(victim,thisRaceID,SKILL_REWIND);
+        int skilllevel =War3_GetSkillLevel(victim,thisRaceID,SKILL_REWIND);
         //we do a chance roll here, and if its less than our limit (RewindChance) we proceede i a with u
         // allow self damage rewind
         if(War3_GetRace(victim)==thisRaceID && skilllevel>0&& War3_Chance(RewindChance[skilllevel]) && !W3HasImmunity(attacker,Immunity_Skills)&&!Hexed(victim)) //chance roll, and attacker isnt immune to skills
@@ -481,7 +482,7 @@ public OnWar3EventPostHurt(victim, attacker, Float:damage, const String:weapon[3
         }
         
         
-        new race_attacker=War3_GetRace(attacker);
+        int race_attacker =War3_GetRace(attacker);
         skilllevel=War3_GetSkillLevel(attacker,thisRaceID,SKILL_TIMELOCK);
         if(race_attacker==thisRaceID && skilllevel > 0 && victim!=attacker)
         {
@@ -509,19 +510,19 @@ public OnWar3EventPostHurt(victim, attacker, Float:damage, const String:weapon[3
 }
 
 
-public Action:UnfreezeStun(Handle:h,any:client) //always keep timer data generic
+public Action UnfreezeStun(Handle:h,any:client) //always keep timer data generic
 {
     War3_SetBuff(client,bStunned,thisRaceID,false);
 }
-public OnWar3EventDeath(victim, attacker, deathrace){
+public void OnWar3EventDeath(victim, attacker, deathrace){
     RewindHPAmount[victim]=0;
 }
-new skip;
-public OnGameFrame() //this is a sourcemod forward?, every game frame it is called. forwards if u implement it sourcemod will call you
+int skip;
+public void OnGameFrame() //this is a sourcemod forward?, every game frame it is called. forwards if u implement it sourcemod will call you
 {
     if(skip==0){
     
-        for(new i=1;i<=MaxClients;i++){
+        for(int i =1;i<=MaxClients;i++){
             if(ValidPlayer(i,true))//valid (in game and shit) and alive (true parameter)k
             {
                 if(RewindHPAmount[i]>0){

@@ -29,7 +29,7 @@ stock SupplyAmmo(client, amount, const String:source[],
                  SupplyTypes:types=SupplyDefault,
                  heavyFactor=10, bool:full=false)
 {
-    new ammoSupplied = 0;
+    int ammoSupplied = 0;
     if (amount > 0)
     {
         if (GameType == tf2)
@@ -49,8 +49,8 @@ stock SupplyAmmo(client, amount, const String:source[],
                             (types & SupplyDefault) == SupplyDefault ||
                             (types & SupplyPrimary) == SupplyPrimary)
                         {
-                            new weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Primary);
-                            new ammo = TF2_GetAmmoAmount(client, Primary, weapon);
+                            int weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Primary);
+                            int ammo = TF2_GetAmmoAmount(client, Primary, weapon);
                             if (ammo >= 0 && ammo < 64.0)
                             {
                                 TF2_SetAmmoAmount(client, ammo + amount, Primary, weapon);
@@ -62,8 +62,8 @@ stock SupplyAmmo(client, amount, const String:source[],
 
                         if (full || (types & SupplySecondary) == SupplySecondary)
                         {
-                            new weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary);
-                            new ammo = TF2_GetAmmoAmount(client, Secondary, weapon);
+                            int weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary);
+                            int ammo = TF2_GetAmmoAmount(client, Secondary, weapon);
                             if (ammo >= 0 && ammo < 72.0)
                             {
                                 TF2_SetAmmoAmount(client, ammo + amount, Secondary, weapon);
@@ -79,8 +79,8 @@ stock SupplyAmmo(client, amount, const String:source[],
                             (types & SupplyDefault) == SupplyDefault ||
                             (types & SupplyPrimary) == SupplyPrimary)
                         {
-                            new weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Primary);
-                            new ammo = TF2_GetAmmoAmount(client, Primary, weapon);
+                            int weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Primary);
+                            int ammo = TF2_GetAmmoAmount(client, Primary, weapon);
                             if (ammo >= 0 && ammo < 50.0)
                             {
                                 TF2_SetAmmoAmount(client, ammo + amount, Primary, weapon);
@@ -92,8 +92,8 @@ stock SupplyAmmo(client, amount, const String:source[],
 
                         if ( full || (types & SupplySecondary) == SupplySecondary)
                         {
-                            new weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary);
-                            new ammo = TF2_GetAmmoAmount(client, Secondary, weapon);
+                            int weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary);
+                            int ammo = TF2_GetAmmoAmount(client, Secondary, weapon);
                             if (ammo >= 0 && ammo < 150.0)
                             {
                                 TF2_SetAmmoAmount(client, ammo + amount, Secondary, weapon);
@@ -107,8 +107,8 @@ stock SupplyAmmo(client, amount, const String:source[],
                             (types & SupplyDefault) == SupplyDefault ||
                             (types & SupplyPrimary) == SupplyPrimary)
                         {
-                            new weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Primary);
-                            new ammo = TF2_GetAmmoAmount(client, Primary, weapon);
+                            int weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Primary);
+                            int ammo = TF2_GetAmmoAmount(client, Primary, weapon);
                             if (ammo >= 0 && ammo < 40.0)
                             {
                                 TF2_SetAmmoAmount(client, ammo + amount, Primary, weapon);
@@ -120,8 +120,8 @@ stock SupplyAmmo(client, amount, const String:source[],
 
                         if (full || (types & SupplySecondary) == SupplySecondary)
                         {
-                            new weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary);
-                            new ammo = TF2_GetAmmoAmount(client, Secondary, weapon);
+                            int weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary);
+                            int ammo = TF2_GetAmmoAmount(client, Secondary, weapon);
                             if (ammo >= 0 && ammo < 64.0)
                             {
                                 TF2_SetAmmoAmount(client, ammo + amount, Secondary, weapon);
@@ -135,8 +135,8 @@ stock SupplyAmmo(client, amount, const String:source[],
                             (types & SupplyDefault) == SupplyDefault ||
                             (types & SupplyPrimary) == SupplyPrimary)
                         {
-                            new weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Primary);
-                            new ammo = TF2_GetAmmoAmount(client, Primary, weapon);
+                            int weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Primary);
+                            int ammo = TF2_GetAmmoAmount(client, Primary, weapon);
                             if (ammo >= 0 && ammo < 60.0)
                             {
                                 TF2_SetAmmoAmount(client, ammo + amount, Primary, weapon);
@@ -148,8 +148,8 @@ stock SupplyAmmo(client, amount, const String:source[],
 
                         if (full || (types & SupplySecondary) == SupplySecondary)
                         {
-                            new weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary);
-                            new ammo = TF2_GetAmmoAmount(client, Secondary, weapon);
+                            int weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary);
+                            int ammo = TF2_GetAmmoAmount(client, Secondary, weapon);
                             if (ammo >= 0 && ammo < 80.0)
                             {
                                 TF2_SetAmmoAmount(client, ammo + amount, Secondary, weapon);
@@ -163,8 +163,8 @@ stock SupplyAmmo(client, amount, const String:source[],
                             (types & SupplyDefault) == SupplyDefault ||
                             (types & SupplyPrimary) == SupplyPrimary)
                         {
-                            new weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Primary);
-                            new ammo = TF2_GetAmmoAmount(client, Primary, weapon);
+                            int weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Primary);
+                            int ammo = TF2_GetAmmoAmount(client, Primary, weapon);
                             if (ammo >= 0 && ammo < 300.0)
                             {
                                 TF2_SetAmmoAmount(client, ammo + (amount * heavyFactor), Primary, weapon);
@@ -178,8 +178,8 @@ stock SupplyAmmo(client, amount, const String:source[],
                             (types & SupplyDefault) == SupplyDefault ||
                             (types & SupplyPrimary) == SupplyPrimary)
                         {
-                            new weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Primary);
-                            new ammo = TF2_GetAmmoAmount(client, Primary, weapon);
+                            int weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Primary);
+                            int ammo = TF2_GetAmmoAmount(client, Primary, weapon);
                             if (ammo >= 0 && ammo < 400.0)
                             {
                                 TF2_SetAmmoAmount(client, ammo + (amount * heavyFactor), Primary, weapon);
@@ -191,8 +191,8 @@ stock SupplyAmmo(client, amount, const String:source[],
 
                         if (full || (types & SupplySecondary) == SupplySecondary)
                         {
-                            new weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary);
-                            new ammo = TF2_GetAmmoAmount(client, Secondary, weapon);
+                            int weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary);
+                            int ammo = TF2_GetAmmoAmount(client, Secondary, weapon);
                             if (ammo >= 0 && ammo < 64.0)
                             {
                                 TF2_SetAmmoAmount(client, ammo + amount, Secondary, weapon);
@@ -207,8 +207,8 @@ stock SupplyAmmo(client, amount, const String:source[],
                             (types & SupplyDefault) == SupplyDefault ||
                             (types & SupplyPrimary) == SupplyPrimary)
                         {
-                            new weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Primary);
-                            new ammo = TF2_GetAmmoAmount(client, Primary, weapon);
+                            int weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Primary);
+                            int ammo = TF2_GetAmmoAmount(client, Primary, weapon);
                             if (ammo >= 0 && ammo < 400.0)
                             {
                                 TF2_SetAmmoAmount(client, ammo + (amount * heavyFactor), Primary, weapon);
@@ -220,8 +220,8 @@ stock SupplyAmmo(client, amount, const String:source[],
 
                         if (full || (types & SupplySecondary) == SupplySecondary)
                         {
-                            new weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary);
-                            new ammo = TF2_GetAmmoAmount(client, Secondary, weapon);
+                            int weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary);
+                            int ammo = TF2_GetAmmoAmount(client, Secondary, weapon);
                             if (ammo >= 0 && ammo < 64.0)
                             {
                                 TF2_SetAmmoAmount(client, ammo + amount, Secondary, weapon);
@@ -235,8 +235,8 @@ stock SupplyAmmo(client, amount, const String:source[],
                             (types & SupplyDefault) == SupplyDefault ||
                             (types & SupplyPrimary) == SupplyPrimary)
                         {
-                            new weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Primary);
-                            new ammo = TF2_GetAmmoAmount(client, Primary, weapon);
+                            int weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Primary);
+                            int ammo = TF2_GetAmmoAmount(client, Primary, weapon);
                             if (ammo >= 0 && ammo < 48.0)
                             {
                                 TF2_SetAmmoAmount(client, ammo + amount, Primary, weapon);
@@ -250,7 +250,7 @@ stock SupplyAmmo(client, amount, const String:source[],
                             (types & SupplyDefault) == SupplyDefault ||
                             (types & SupplyMetal)   == SupplyMetal)
                         {
-                            new ammo = TF2_GetAmmoAmount(client, Metal);
+                            int ammo = TF2_GetAmmoAmount(client, Metal);
                             if (ammo >= 0 && ammo < 400.0)
                             {
                                 TF2_SetAmmoAmount(client, ammo + (amount * heavyFactor), Metal);
@@ -262,8 +262,8 @@ stock SupplyAmmo(client, amount, const String:source[],
 
                         if (full || (types & SupplyPrimary) == SupplyPrimary)
                         {
-                            new weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Primary);
-                            new ammo = TF2_GetAmmoAmount(client, Primary, weapon);
+                            int weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Primary);
+                            int ammo = TF2_GetAmmoAmount(client, Primary, weapon);
                             if (ammo >= 0 && ammo < 64.0)
                             {
                                 TF2_SetAmmoAmount(client, ammo + amount, Primary, weapon);
@@ -275,8 +275,8 @@ stock SupplyAmmo(client, amount, const String:source[],
 
                         if (full || (types & SupplySecondary) == SupplySecondary)
                         {
-                            new weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary);
-                            new ammo = TF2_GetAmmoAmount(client, Secondary, weapon);
+                            int weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary);
+                            int ammo = TF2_GetAmmoAmount(client, Secondary, weapon);
                             if (ammo >= 0 && ammo < 200.0)
                             {
                                 TF2_SetAmmoAmount(client, ammo + amount, Secondary, weapon);
@@ -290,8 +290,8 @@ stock SupplyAmmo(client, amount, const String:source[],
                             (types & SupplyDefault) == SupplyDefault ||
                             (types & SupplyPrimary) == SupplyPrimary)
                         {
-                            new weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Primary);
-                            new ammo = TF2_GetAmmoAmount(client, Primary, weapon);
+                            int weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Primary);
+                            int ammo = TF2_GetAmmoAmount(client, Primary, weapon);
                             if (ammo >= 0 && ammo < 100.0)
                             {
                                 TF2_SetAmmoAmount(client, ammo + amount, Primary, weapon);
@@ -303,8 +303,8 @@ stock SupplyAmmo(client, amount, const String:source[],
 
                         if (full || (types & SupplySecondary) == SupplySecondary)
                         {
-                            new weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary);
-                            new ammo = TF2_GetAmmoAmount(client, Secondary, weapon);
+                            int weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary);
+                            int ammo = TF2_GetAmmoAmount(client, Secondary, weapon);
                             if (ammo >= 0 && ammo < 100.0)
                             {
                                 TF2_SetAmmoAmount(client, ammo + amount, Secondary, weapon);
@@ -474,9 +474,9 @@ stock SupplyAmmo(client, amount, const String:source[],
                 }
             }
 
-            new m_iAmmo; // = FindSendPropOffs("CDODPlayer", "m_iAmmo");
+            int m_iAmmo; // = FindSendPropOffs("CDODPlayer", "m_iAmmo");
             FindSendPropInfo("CDODPlayer", "m_iAmmo", .local_offset=m_iAmmo);
-            for (new i=0; i < sizeof(Slot); i++)
+            for (int i =0; i < sizeof(Slot); i++)
             {
                 if (i == 0 && !(!types || (types & SupplyDefault) || (types & SupplyPrimary)))
                     continue;
@@ -491,8 +491,8 @@ stock SupplyAmmo(client, amount, const String:source[],
                     new DODWeapon:weapon = Slot[i];
                     if (weapon > DODWeapon_None)
                     {
-                        new offset = m_iAmmo + DOD_AmmoOffset[weapon];
-                        new ammo = GetEntData(client, offset);
+                        int offset = m_iAmmo + DOD_AmmoOffset[weapon];
+                        int ammo = GetEntData(client, offset);
                         if (ammo < Max[i])
                         {
                             SetEntData(client, offset, ammo + amount, 4, true);
@@ -504,7 +504,7 @@ stock SupplyAmmo(client, amount, const String:source[],
         }
         else
         {
-            new curWeapon = GetActiveWeapon(client);
+            int curWeapon = GetActiveWeapon(client);
             if (curWeapon > 0)
             {
                 SetClip(curWeapon, 5);
@@ -515,7 +515,7 @@ stock SupplyAmmo(client, amount, const String:source[],
 
     if (ammoSupplied > 0)
     {
-        decl String:type[64];
+        char type[64];
         type[0] = '\0';
 
         if (GameType == tf2)

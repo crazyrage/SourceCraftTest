@@ -131,9 +131,9 @@ stock Respawned(client,bool:reposition)
     TraceReturn();
 }
 
-public Action:RespawnPlayerHandler(Handle:timer,any:userid)
+public Action RespawnPlayerHandler(Handle:timer,any:userid)
 {
-    new client = GetClientOfUserId(userid);
+    int client = GetClientOfUserId(userid);
     if (client)
     {
         RespawnPlayer(client);
@@ -141,9 +141,9 @@ public Action:RespawnPlayerHandler(Handle:timer,any:userid)
     return Plugin_Stop;
 }
 
-public Action:RespawnedPlayerHandler(Handle:timer,any:userid)
+public Action RespawnedPlayerHandler(Handle:timer,any:userid)
 {
-    new client = GetClientOfUserId(userid);
+    int client = GetClientOfUserId(userid);
     if (IsValidClient(client))
     {
         TeleportEntity(client,m_DeathLoc[client], m_DeathAng[client], NULL_VECTOR);

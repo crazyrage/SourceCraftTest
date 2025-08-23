@@ -30,7 +30,7 @@ stock ValveGameEnum:War3_GetGame()
 stock DetermineGameMode() 
 {
     //DETERMINE GAME TYPE: CS TF ETC
-    new String:gameDir[64];
+    char gameDir[64];
     GetGameFolderName(gameDir, sizeof(gameDir));
 
     if (StrContains(gameDir, "cstrike", false) == 0) 

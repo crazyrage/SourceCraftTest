@@ -10,23 +10,23 @@
 #endif
 #define _menumode_included
 
-enum MenuMode (<<= 1)
+enum MenuMode
 {
     NoMode = 0,
     InfoMode = 1,
-    AdminMode,
-    QueryMode,
-    UpgradeMode,
-    ChangeRaceMode,
-    PurchaseItemMode,
-    FromAdminMenu,
-    FromMainMenu,
-    FromShopMenu,
-    FromRaceMenu,
-    FromFactionMenu,
-    FromPlayerInfoMenu,
-    FromPlayerInfo,
-    FromUpgradeMenu
+    AdminMode = 2,
+    QueryMode = 4,
+    UpgradeMode = 8,
+    ChangeRaceMode = 16,
+    PurchaseItemMode = 32,
+    FromAdminMenu = 64,
+    FromMainMenu = 128,
+    FromShopMenu = 256,
+    FromRaceMenu = 512,
+    FromFactionMenu = 1024,
+    FromPlayerInfoMenu = 2048,
+    FromPlayerInfo = 4096,
+    FromUpgradeMenu = 8192
 };
 
 #define EnableMenuExitBack (FromAdminMenu|FromMainMenu|FromShopMenu|FromRaceMenu|FromFactionMenu|FromPlayerInfoMenu|FromPlayerInfo)

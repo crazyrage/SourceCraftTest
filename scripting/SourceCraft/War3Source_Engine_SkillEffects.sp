@@ -1,7 +1,7 @@
 #include <sourcemod>
 #include "W3SIncs/War3Source_Interface"
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "War3Source - Engine - Notifications",
     author = "War3Source Team",
@@ -9,11 +9,11 @@ public Plugin:myinfo =
 };
 
 new iMaskSoundDelay[MAXPLAYERSCUSTOM];
-new String:sMaskSound[256];
+char sMaskSound[256];
 
 
-new BeamSprite = -1;
-new HaloSprite = -1;
+int BeamSprite = -1;
+int HaloSprite = -1;
 
 public bool:InitNativesForwards()
 {
@@ -26,19 +26,19 @@ public bool:InitNativesForwards()
     return true;
 }
 
-public OnPluginStart()
+public void OnPluginStart()
 {
     // Yes, this should be a "skilleffects" translation file later ;)
     LoadTranslations("w3s.race.undead.phrases");
     LoadTranslations("w3s.race.human.phrases");
     
-    for(new i=1; i <= MaxClients; i++)
+    for(int i =1; i <= MaxClients; i++)
     {
         iMaskSoundDelay[i] = War3_RegisterDelayTracker();
     }
 }
 
-public OnMapStart()
+public void OnMapStart()
 {
     War3_AddSoundFolder(sMaskSound, sizeof(sMaskSound), "mask.mp3");
     War3_AddCustomSound(sMaskSound);
@@ -47,10 +47,10 @@ public OnMapStart()
     HaloSprite = War3_PrecacheHaloSprite();
 }
 
-public Native_EvadeDamage(Handle:plugin, numParams)
+public int Native_EvadeDamage(Handle plugin, int numParams)
 {
-    new victim = GetNativeCell(1);
-    new attacker = GetNativeCell(2);
+    int victim = GetNativeCell(1);
+    int attacker = GetNativeCell(2);
 
     War3_DamageModPercent(0.0);
 
@@ -74,22 +74,22 @@ public Native_EvadeDamage(Handle:plugin, numParams)
     }
 }
 
-public Native_EffectReturnDamage(Handle:plugin, numParams)
+public int Native_EffectReturnDamage(Handle plugin, int numParams)
 {
     // Victim: The guy getting shot
     // Attacker: The guy who takes damage
-    new victim = GetNativeCell(1);
-    new attacker = GetNativeCell(2);
-    new damage = GetNativeCell(3);
-    new skill = GetNativeCell(4);
+    int victim = GetNativeCell(1);
+    int attacker = GetNativeCell(2);
+    int damage = GetNativeCell(3);
+    int skill = GetNativeCell(4);
 
     if (attacker == ATTACKER_WORLD)
     {
         return;
     }
     
-    new beamSprite = War3_PrecacheBeamSprite();
-    new haloSprite = War3_PrecacheHaloSprite();
+    int beamSprite = War3_PrecacheBeamSprite();
+    int haloSprite = War3_PrecacheHaloSprite();
     
     decl Float:f_AttackerPos[3];
     decl Float:f_VictimPos[3];
@@ -126,11 +126,11 @@ public Native_EffectReturnDamage(Handle:plugin, numParams)
     War3_NotifyPlayerTookDamageFromSkill(victim, attacker, damage, skill);
 }
 
-public Native_VampirismEffect(Handle:plugin, numParams)
+public int Native_VampirismEffect(Handle plugin, int numParams)
 {
-    new victim = GetNativeCell(1);
-    new attacker = GetNativeCell(2);
-    new leechhealth = GetNativeCell(3);
+    int victim = GetNativeCell(1);
+    int attacker = GetNativeCell(2);
+    int leechhealth = GetNativeCell(3);
         
     if (leechhealth <= 0)
     {
@@ -161,10 +161,10 @@ public Native_VampirismEffect(Handle:plugin, numParams)
     PrintToConsole(attacker, "%T", "Leeched +{amount} HP", attacker, leechhealth);
 }
 
-public Native_BashEffect(Handle:plugin, numParams)
+public int Native_BashEffect(Handle plugin, int numParams)
 {
-    new victim = GetNativeCell(1);
-    new attacker = GetNativeCell(2);
+    int victim = GetNativeCell(1);
+    int attacker = GetNativeCell(2);
     
     W3FlashScreen(victim, RGBA_COLOR_RED);
 
@@ -172,21 +172,21 @@ public Native_BashEffect(Handle:plugin, numParams)
     W3Hint(attacker, HINT_SKILL_STATUS, 1.0, "%T", "Bashed", attacker);
 }
 
-public Native_WardVisualEffect(Handle:plugin, numParams)
+public int Native_WardVisualEffect(Handle plugin, int numParams)
 {
-    new wardindex = GetNativeCell(1);
+    int wardindex = GetNativeCell(1);
     decl beamcolor[4];
     GetNativeArray(2, beamcolor, sizeof(beamcolor));
     
     decl Float:fWardLocation[3];
     War3_GetWardLocation(wardindex, fWardLocation);
-    new Float:fInterval = War3_GetWardInterval(wardindex);
-    new wardRadius = War3_GetWardRadius(wardindex);
+    float fInterval = War3_GetWardInterval(wardindex);
+    int wardRadius = War3_GetWardRadius(wardindex);
 
-    new Float:fStartPos[3];
-    new Float:fEndPos[3];
-    new Float:tempVec1[] = {0.0, 0.0, WARDBELOW};
-    new Float:tempVec2[] = {0.0, 0.0, WARDABOVE};
+    float fStartPos[3];
+    float fEndPos[3];
+    float tempVec1[] = {0.0, 0.0, WARDBELOW};
+    float tempVec2[] = {0.0, 0.0, WARDABOVE};
     
     AddVectors(fWardLocation, tempVec1, fStartPos);
     AddVectors(fWardLocation, tempVec2, fEndPos);
@@ -194,8 +194,8 @@ public Native_WardVisualEffect(Handle:plugin, numParams)
     TE_SetupBeamPoints(fStartPos, fEndPos, BeamSprite, HaloSprite, 0, GetRandomInt(30, 100), fInterval, 70.0, 70.0, 0, 30.0, beamcolor, 10);
     TE_SendToAll();
     
-    new Float:StartRadius = wardRadius / 2.0;
-    new Speed = RoundToFloor((wardRadius - StartRadius) / fInterval);
+    float StartRadius = wardRadius / 2.0;
+    int Speed = RoundToFloor((wardRadius - StartRadius) / fInterval);
     
     TE_SetupBeamRingPoint(fWardLocation, StartRadius, float(wardRadius), BeamSprite, HaloSprite, 0,1, fInterval, 20.0, 1.5, beamcolor, Speed, 0);
     TE_SendToAll();

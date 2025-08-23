@@ -7,9 +7,9 @@
 
 #include <string_to>
 
-new Handle:vecLevelConfiguration                    = INVALID_HANDLE;
-new Handle:g_SourceCraftConfigHandle                = INVALID_HANDLE;
-new Handle:g_ItemConfigHandle                       = INVALID_HANDLE;
+Handle vecLevelConfiguration                    = INVALID_HANDLE;
+Handle g_SourceCraftConfigHandle                = INVALID_HANDLE;
+Handle g_ItemConfigHandle                       = INVALID_HANDLE;
 new ConfigLoadedStatus:g_SourceCraftConfigLoaded    = ConfigNotLoaded;
 new ConfigLoadedStatus:g_ItemConfigLoaded           = ConfigNotLoaded;
 
@@ -19,13 +19,13 @@ GetConfigNum(const String:key[], defvalue=0, fileId=MAIN,
     TraceInto("Config", "GetConfigNum", "file=%d, node=%d, section=%s, key=%s, def=%d", \
               fileId, node, section, key, defvalue);
 
-    new value;
+    int value;
     if (fileId >= SHOPITEM)
     {
         new ConfigLoadedStatus:configLoaded;
-        new Handle:raceHandle;
-        new Handle:configHandle;
-        decl String:nodeName[SHORT_STRING_LENGTH];
+        Handle raceHandle;
+        Handle configHandle;
+        char nodeName[SHORT_STRING_LENGTH];
 
         if (fileId == SHOPITEM)
         {
@@ -33,7 +33,7 @@ GetConfigNum(const String:key[], defvalue=0, fileId=MAIN,
 
             if (node >= 0)
             {
-                new Handle:itemHandle = GetShopItemHandle(node);
+                Handle itemHandle = GetShopItemHandle(node);
                 GetItemShortName(itemHandle,nodeName,sizeof(nodeName));
             }
             else
@@ -56,7 +56,7 @@ GetConfigNum(const String:key[], defvalue=0, fileId=MAIN,
         {
             if (node >= 0)
             {
-                new bool:nodeFound;
+                bool nodeFound;
                 if (configLoaded == ConfigNotLoaded)
                     nodeFound = false;
                 else
@@ -65,8 +65,8 @@ GetConfigNum(const String:key[], defvalue=0, fileId=MAIN,
                     nodeFound = KvJumpToKey(configHandle, nodeName, false);
                     if (nodeFound)
                     {
-                        new bool:updateConfig = false;
-                        new bool:sectionFound;
+                        bool updateConfig = false;
+                        bool sectionFound;
                         if (section[0] != '\0')
                         {
                             sectionFound = KvJumpToKey(configHandle, section, false);
@@ -153,8 +153,8 @@ GetConfigNum(const String:key[], defvalue=0, fileId=MAIN,
                 }
                 else
                 {
-                    new bool:updateConfig = false;
-                    new bool:sectionFound;
+                    bool updateConfig = false;
+                    bool sectionFound;
                     if (section[0] != '\0')
                     {
                         sectionFound = KvJumpToKey(configHandle, section, false);
@@ -192,7 +192,7 @@ GetConfigNum(const String:key[], defvalue=0, fileId=MAIN,
         }
 
         #if defined _TRACE
-            decl String:short[SHORT_STRING_LENGTH];
+            char short[SHORT_STRING_LENGTH];
             if (raceHandle != INVALID_HANDLE)
                 GetRaceShortName(raceHandle,short,sizeof(short));
             else
@@ -240,7 +240,7 @@ GetConfigNum(const String:key[], defvalue=0, fileId=MAIN,
         LoadSettings();
         KvRewind(g_SourceCraftConfigHandle);
 
-        new bool:sectionFound;
+        bool sectionFound;
         if (section[0] != '\0')
         {
             if (g_SourceCraftConfigLoaded == ConfigWasLoaded)
@@ -281,13 +281,13 @@ Float:GetConfigFloat(const String:key[], Float:defvalue=0.0, fileId=MAIN,
     TraceInto("Config", "GetConfigFloat", "file=%d, node=%d, section=%s, key=%s, def=%f", \
               fileId, node, section, key, defvalue);
 
-    new Float:value;
+    float value;
     if (fileId >= SHOPITEM)
     {
-        new Handle:raceHandle;
-        new Handle:configHandle;
+        Handle raceHandle;
+        Handle configHandle;
         new ConfigLoadedStatus:configLoaded;
-        decl String:nodeName[SHORT_STRING_LENGTH];
+        char nodeName[SHORT_STRING_LENGTH];
 
         if (fileId == SHOPITEM)
         {
@@ -295,7 +295,7 @@ Float:GetConfigFloat(const String:key[], Float:defvalue=0.0, fileId=MAIN,
 
             if (node >= 0)
             {
-                new Handle:itemHandle = GetShopItemHandle(node);
+                Handle itemHandle = GetShopItemHandle(node);
                 GetItemShortName(itemHandle,nodeName,sizeof(nodeName));
             }
         }
@@ -314,7 +314,7 @@ Float:GetConfigFloat(const String:key[], Float:defvalue=0.0, fileId=MAIN,
         {
             if (node >= 0)
             {
-                new bool:nodeFound;
+                bool nodeFound;
                 if (configLoaded == ConfigNotLoaded)
                     nodeFound = false;
                 else
@@ -323,8 +323,8 @@ Float:GetConfigFloat(const String:key[], Float:defvalue=0.0, fileId=MAIN,
                     nodeFound = KvJumpToKey(configHandle, nodeName, false);
                     if (nodeFound)
                     {
-                        new bool:updateConfig = false;
-                        new bool:sectionFound;
+                        bool updateConfig = false;
+                        bool sectionFound;
                         if (section[0] != '\0')
                         {
                             sectionFound = KvJumpToKey(configHandle, section, false);
@@ -420,8 +420,8 @@ Float:GetConfigFloat(const String:key[], Float:defvalue=0.0, fileId=MAIN,
                 }
                 else
                 {
-                    new bool:updateConfig = false;
-                    new bool:sectionFound;
+                    bool updateConfig = false;
+                    bool sectionFound;
                     if (section[0] != '\0')
                     {
                         sectionFound = KvJumpToKey(configHandle, section, false);
@@ -462,7 +462,7 @@ Float:GetConfigFloat(const String:key[], Float:defvalue=0.0, fileId=MAIN,
         }
 
         #if !defined _TRACE
-            decl String:short[SHORT_STRING_LENGTH];
+            char short[SHORT_STRING_LENGTH];
             GetRaceShortName(raceHandle,short,sizeof(short));
             Trace("file=%d:%s, node=%s, section=%s, key=%s, value=%f, def=%f, raceHandle=0x%08x, IsLoaded=%d", \
                   fileId, short, nodeName, section, key, value, defvalue, raceHandle, \
@@ -488,7 +488,7 @@ Float:GetConfigFloat(const String:key[], Float:defvalue=0.0, fileId=MAIN,
         LoadSettings();
         KvRewind(g_SourceCraftConfigHandle);
 
-        new bool:sectionFound;
+        bool sectionFound;
         if (section[0] != '\0')
         {
             if (g_SourceCraftConfigLoaded == ConfigWasLoaded)
@@ -532,10 +532,10 @@ GetConfigString(const String:key[], String:value[], maxlength,
 
     if (fileId >= SHOPITEM)
     {
-        new Handle:raceHandle;
-        new Handle:configHandle;
+        Handle raceHandle;
+        Handle configHandle;
         new ConfigLoadedStatus:configLoaded;
-        decl String:nodeName[SHORT_STRING_LENGTH];
+        char nodeName[SHORT_STRING_LENGTH];
 
         if (fileId == SHOPITEM)
         {
@@ -543,7 +543,7 @@ GetConfigString(const String:key[], String:value[], maxlength,
 
             if (node >= 0)
             {
-                new Handle:itemHandle = GetShopItemHandle(node);
+                Handle itemHandle = GetShopItemHandle(node);
                 GetItemShortName(itemHandle,nodeName,sizeof(nodeName));
             }
         }
@@ -562,7 +562,7 @@ GetConfigString(const String:key[], String:value[], maxlength,
         {
             if (node >= 0)
             {
-                new bool:nodeFound;
+                bool nodeFound;
                 if (configLoaded == ConfigNotLoaded)
                     nodeFound = false;
                 else
@@ -571,8 +571,8 @@ GetConfigString(const String:key[], String:value[], maxlength,
                     nodeFound = KvJumpToKey(configHandle, nodeName, false);
                     if (nodeFound)
                     {
-                        new bool:updateConfig = false;
-                        new bool:sectionFound;
+                        bool updateConfig = false;
+                        bool sectionFound;
                         if (section[0] != '\0')
                         {
                             sectionFound = KvJumpToKey(configHandle, section, false);
@@ -663,8 +663,8 @@ GetConfigString(const String:key[], String:value[], maxlength,
                 }
                 else
                 {
-                    new bool:updateConfig = false;
-                    new bool:sectionFound;
+                    bool updateConfig = false;
+                    bool sectionFound;
                     if (section[0] != '\0')
                     {
                         sectionFound = KvJumpToKey(configHandle, section, false);
@@ -703,7 +703,7 @@ GetConfigString(const String:key[], String:value[], maxlength,
         }
 
         #if !defined _TRACE
-            decl String:short[SHORT_STRING_LENGTH];
+            char short[SHORT_STRING_LENGTH];
             GetRaceShortName(raceHandle,short,sizeof(short));
             Trace("file=%d:%s, node=%s, section=%s, key=%s, value=%s, def=%s, raceHandle=0x%08x, IsLoaded=%d", \
                   fileId, short, nodeName, section, key, value, defvalue, raceHandle, \
@@ -715,7 +715,7 @@ GetConfigString(const String:key[], String:value[], maxlength,
         LoadSettings();
         KvRewind(g_SourceCraftConfigHandle);
 
-        new bool:sectionFound;
+        bool sectionFound;
         if (section[0] != '\0')
         {
             if (g_SourceCraftConfigLoaded == ConfigWasLoaded)
@@ -758,12 +758,12 @@ GetConfigArray(const String:key[], any:value[], size, const any:defvalue[],
     TraceInto("Config", "GetConfigArray", "file=%d, node=%d, section=%s, key=%s", \
               fileId, node, section, key);
 
-    new count = size;
-    decl String:buffer[LONG_STRING_LENGTH];
-    decl String:defstring[LONG_STRING_LENGTH];
+    int count = size;
+    char buffer[LONG_STRING_LENGTH];
+    char defstring[LONG_STRING_LENGTH];
 
     // Build the default string
-    for (new i = 0; i < size; i++)
+    for (int i = 0; i < size; i++)
     {
         if (i == 0)
             Format(defstring, sizeof(defstring), "%d", defvalue[i]);
@@ -773,10 +773,10 @@ GetConfigArray(const String:key[], any:value[], size, const any:defvalue[],
 
     if (fileId >= SHOPITEM)
     {
-        new Handle:raceHandle;
-        new Handle:configHandle;
+        Handle raceHandle;
+        Handle configHandle;
         new ConfigLoadedStatus:configLoaded;
-        decl String:nodeName[SHORT_STRING_LENGTH];
+        char nodeName[SHORT_STRING_LENGTH];
 
         if (fileId == SHOPITEM)
         {
@@ -784,7 +784,7 @@ GetConfigArray(const String:key[], any:value[], size, const any:defvalue[],
 
             if (node >= 0)
             {
-                new Handle:itemHandle = GetShopItemHandle(node);
+                Handle itemHandle = GetShopItemHandle(node);
                 GetItemShortName(itemHandle,nodeName,sizeof(nodeName));
             }
         }
@@ -803,7 +803,7 @@ GetConfigArray(const String:key[], any:value[], size, const any:defvalue[],
         {
             if (node >= 0)
             {
-                new bool:nodeFound;
+                bool nodeFound;
                 if (configLoaded == ConfigNotLoaded)
                     nodeFound = false;
                 else
@@ -812,8 +812,8 @@ GetConfigArray(const String:key[], any:value[], size, const any:defvalue[],
                     nodeFound = KvJumpToKey(configHandle, nodeName, false);
                     if (nodeFound)
                     {
-                        new bool:updateConfig = false;
-                        new bool:sectionFound;
+                        bool updateConfig = false;
+                        bool sectionFound;
                         if (section[0] != '\0')
                         {
                             sectionFound = KvJumpToKey(configHandle, section, false);
@@ -842,7 +842,7 @@ GetConfigArray(const String:key[], any:value[], size, const any:defvalue[],
                         if (updateConfig)
                         {
                             KvSetString(configHandle, key, defstring);
-                            for (new i=0; i < size; i++)
+                            for (int i =0; i < size; i++)
                                 value[i] = defvalue[i];
 
                             if (fileId == SHOPITEM)
@@ -874,7 +874,7 @@ GetConfigArray(const String:key[], any:value[], size, const any:defvalue[],
                             }
                         }
                         KvSetString(configHandle, key, defstring);
-                        for (new i=0; i < size; i++)
+                        for (int i =0; i < size; i++)
                             value[i] = defvalue[i];
                     }
                     else
@@ -898,7 +898,7 @@ GetConfigArray(const String:key[], any:value[], size, const any:defvalue[],
                     }
 
                     KvSetString(configHandle, key, defstring);
-                    for (new i=0; i < size; i++)
+                    for (int i =0; i < size; i++)
                         value[i] = defvalue[i];
 
                     if (fileId == SHOPITEM)
@@ -908,8 +908,8 @@ GetConfigArray(const String:key[], any:value[], size, const any:defvalue[],
                 }
                 else
                 {
-                    new bool:updateConfig = false;
-                    new bool:sectionFound;
+                    bool updateConfig = false;
+                    bool sectionFound;
                     if (section[0] != '\0')
                     {
                         sectionFound = KvJumpToKey(configHandle, section, false);
@@ -938,7 +938,7 @@ GetConfigArray(const String:key[], any:value[], size, const any:defvalue[],
                     if (updateConfig)
                     {
                         KvSetString(configHandle, key, defstring);
-                        for (new i=0; i < size; i++)
+                        for (int i =0; i < size; i++)
                             value[i] = defvalue[i];
 
                         if (fileId == SHOPITEM)
@@ -951,7 +951,7 @@ GetConfigArray(const String:key[], any:value[], size, const any:defvalue[],
         }
 
         #if !defined _TRACE
-            decl String:short[SHORT_STRING_LENGTH];
+            char short[SHORT_STRING_LENGTH];
             GetRaceShortName(raceHandle,short,sizeof(short));
             Trace("file=%d:%s, node=%s, section=%s, key=%s, value=%s, def=%s, raceHandle=0x%08x, IsLoaded=%d", \
                   fileId, short, nodeName, section, key, buffer, defstring, raceHandle, \
@@ -963,7 +963,7 @@ GetConfigArray(const String:key[], any:value[], size, const any:defvalue[],
         LoadSettings();
         KvRewind(g_SourceCraftConfigHandle);
 
-        new bool:sectionFound;
+        bool sectionFound;
         if (section[0] != '\0')
         {
             if (g_SourceCraftConfigLoaded == ConfigWasLoaded)
@@ -991,7 +991,7 @@ GetConfigArray(const String:key[], any:value[], size, const any:defvalue[],
         if (g_SourceCraftConfigLoaded == ConfigNotLoaded || !sectionFound)
         {
             KvSetString(g_SourceCraftConfigHandle, key, defstring);
-            for (new i=0; i < size; i++)
+            for (int i =0; i < size; i++)
                 value[i] = defvalue[i];
         }
         else
@@ -1012,12 +1012,12 @@ GetConfigFloatArray(const String:key[], Float:value[], size,
     TraceInto("Config", "GetConfigFloatArray", "file=%d, node=%d, section=%s, key=%s", \
               fileId, node, section, key);
 
-    new count = size;
-    decl String:buffer[LONG_STRING_LENGTH];
-    decl String:defstring[LONG_STRING_LENGTH];
+    int count = size;
+    char buffer[LONG_STRING_LENGTH];
+    char defstring[LONG_STRING_LENGTH];
 
     // Build the default string
-    for (new i = 0; i < size; i++)
+    for (int i = 0; i < size; i++)
     {
         if (i == 0)
             Format(defstring, sizeof(defstring), "%f", defvalue[i]);
@@ -1027,10 +1027,10 @@ GetConfigFloatArray(const String:key[], Float:value[], size,
 
     if (fileId >= SHOPITEM)
     {
-        new Handle:raceHandle;
-        new Handle:configHandle;
+        Handle raceHandle;
+        Handle configHandle;
         new ConfigLoadedStatus:configLoaded;
-        decl String:nodeName[SHORT_STRING_LENGTH];
+        char nodeName[SHORT_STRING_LENGTH];
 
         if (fileId == SHOPITEM)
         {
@@ -1038,7 +1038,7 @@ GetConfigFloatArray(const String:key[], Float:value[], size,
 
             if (node >= 0)
             {
-                new Handle:itemHandle = GetShopItemHandle(node);
+                Handle itemHandle = GetShopItemHandle(node);
                 GetItemShortName(itemHandle,nodeName,sizeof(nodeName));
             }
         }
@@ -1057,7 +1057,7 @@ GetConfigFloatArray(const String:key[], Float:value[], size,
         {
             if (node >= 0)
             {
-                new bool:nodeFound;
+                bool nodeFound;
                 if (configLoaded == ConfigNotLoaded)
                     nodeFound = false;
                 else
@@ -1066,8 +1066,8 @@ GetConfigFloatArray(const String:key[], Float:value[], size,
                     nodeFound = KvJumpToKey(configHandle, nodeName, false);
                     if (nodeFound)
                     {
-                        new bool:updateConfig = false;
-                        new bool:sectionFound;
+                        bool updateConfig = false;
+                        bool sectionFound;
                         if (section[0] != '\0')
                         {
                             sectionFound = KvJumpToKey(configHandle, section, false);
@@ -1096,7 +1096,7 @@ GetConfigFloatArray(const String:key[], Float:value[], size,
                         if (updateConfig)
                         {
                             KvSetString(configHandle, key, defstring);
-                            for (new i=0; i < size; i++)
+                            for (int i =0; i < size; i++)
                                 value[i] = defvalue[i];
 
                             if (fileId == SHOPITEM)
@@ -1128,7 +1128,7 @@ GetConfigFloatArray(const String:key[], Float:value[], size,
                             }
                         }
                         KvSetString(configHandle, key, defstring);
-                        for (new i=0; i < size; i++)
+                        for (int i =0; i < size; i++)
                             value[i] = defvalue[i];
                     }
                     else
@@ -1149,7 +1149,7 @@ GetConfigFloatArray(const String:key[], Float:value[], size,
                     }
 
                     KvSetString(configHandle, key, defstring);
-                    for (new i=0; i < size; i++)
+                    for (int i =0; i < size; i++)
                         value[i] = defvalue[i];
 
                     if (fileId == SHOPITEM)
@@ -1159,8 +1159,8 @@ GetConfigFloatArray(const String:key[], Float:value[], size,
                 }
                 else
                 {
-                    new bool:updateConfig = false;
-                    new bool:sectionFound;
+                    bool updateConfig = false;
+                    bool sectionFound;
                     if (section[0] != '\0')
                     {
                         sectionFound = KvJumpToKey(configHandle, section, false);
@@ -1189,7 +1189,7 @@ GetConfigFloatArray(const String:key[], Float:value[], size,
                     if (updateConfig)
                     {
                         KvSetString(configHandle, key, defstring);
-                        for (new i=0; i < size; i++)
+                        for (int i =0; i < size; i++)
                             value[i] = defvalue[i];
 
                         if (fileId == SHOPITEM)
@@ -1202,7 +1202,7 @@ GetConfigFloatArray(const String:key[], Float:value[], size,
         }
 
         #if !defined _TRACE
-            decl String:short[SHORT_STRING_LENGTH];
+            char short[SHORT_STRING_LENGTH];
             GetRaceShortName(raceHandle,short,sizeof(short));
             Trace("file=%d:%s, node=%s, section=%s, key=%s, value=%s, def=%s, raceHandle=0x%08x, IsLoaded=%d", \
                   fileId, short, nodeName, section, key, buffer, defstring, raceHandle, \
@@ -1214,7 +1214,7 @@ GetConfigFloatArray(const String:key[], Float:value[], size,
         LoadSettings();
         KvRewind(g_SourceCraftConfigHandle);
 
-        new bool:sectionFound;
+        bool sectionFound;
         if (section[0] != '\0')
         {
             if (g_SourceCraftConfigLoaded == ConfigWasLoaded)
@@ -1242,7 +1242,7 @@ GetConfigFloatArray(const String:key[], Float:value[], size,
         if (g_SourceCraftConfigLoaded == ConfigNotLoaded || !sectionFound)
         {
             KvSetString(g_SourceCraftConfigHandle, key, defstring);
-            for (new i=0; i < size; i++)
+            for (int i =0; i < size; i++)
                 value[i] = defvalue[i];
         }
         else
@@ -1390,11 +1390,11 @@ bool:ParseSettings()
         }
     };
 
-    decl String:temp[512];
-    new Handle:longterm_required=CreateArray();
-    new Handle:longterm_killxp=CreateArray();
-    new Handle:shortterm_required=CreateArray();
-    new Handle:shortterm_killxp=CreateArray();
+    char temp[512];
+    Handle longterm_required=CreateArray();
+    Handle longterm_killxp=CreateArray();
+    Handle shortterm_required=CreateArray();
+    Handle shortterm_killxp=CreateArray();
 
     SetTraceCategory("Array");
     Trace("CreateArray longterm_required=%x",longterm_required);
@@ -1404,8 +1404,8 @@ bool:ParseSettings()
 
     KvRewind(g_SourceCraftConfigHandle);
 
-    new bool:termFound;
-    new bool:levelsFound = KvJumpToKey(g_SourceCraftConfigHandle,"levels");
+    bool termFound;
+    bool levelsFound = KvJumpToKey(g_SourceCraftConfigHandle,"levels");
     if (levelsFound)
         termFound = KvJumpToKey(g_SourceCraftConfigHandle, "long_term");
     else
@@ -1434,7 +1434,7 @@ bool:ParseSettings()
         KvSetString(g_SourceCraftConfigHandle,"required_xp", defaultLevels[0][0]);
     }
 
-    new count = StringToIntegerArray(temp, longterm_required);
+    int count = StringToIntegerArray(temp, longterm_required);
     if (count < DEFAULT_MAX_LEVELS+1)
     {
         LogError("Insufficient levels defined for long_term required_xp in configs/sourcecraft.cfg, %d of 16!",
@@ -1546,7 +1546,7 @@ bool:ParseSettings()
     TraceCat("Array", "vecLevelConfiguration=%x",vecLevelConfiguration);
 
     // Load URLs
-    new bool:urlFound;
+    bool urlFound;
     if (g_SourceCraftConfigLoaded)
     {
         KvRewind(g_SourceCraftConfigHandle);
@@ -1577,7 +1577,7 @@ bool:ParseSettings()
     }
 
     //Ensure the config/sc directory exists
-    decl String:dir[PLATFORM_MAX_PATH];
+    char dir[PLATFORM_MAX_PATH];
     BuildPath(Path_SM,dir,sizeof(dir),"configs/sc");
     if (!DirExists(dir))
     {
@@ -1593,10 +1593,10 @@ Handle:GetRaceConfig(Handle:raceHandle, &ConfigLoadedStatus:loaded)
 {
     TraceInto("Config", "GetRaceConfig", "raceHandle=0x%08x, loaded=%d", raceHandle, loaded);
 
-    new Handle:configHandle = GetRaceConfigHandle(raceHandle);
+    Handle configHandle = GetRaceConfigHandle(raceHandle);
     if (configHandle == INVALID_HANDLE)
     {
-        decl String:short[SHORT_STRING_LENGTH];
+        char short[SHORT_STRING_LENGTH];
         GetRaceShortName(raceHandle,short,sizeof(short));
 
         configHandle = LoadRaceConfig(short, loaded);
@@ -1614,9 +1614,9 @@ Handle:LoadRaceConfig(const String:short[], &ConfigLoadedStatus:loaded)
 {
     TraceInto("Config", "LoadRaceConfig", "short=%s, loaded=%d", short, loaded);
 
-    new Handle:config = CreateKeyValues(short);
+    Handle config = CreateKeyValues(short);
 
-    decl String:path[PLATFORM_MAX_PATH];
+    char path[PLATFORM_MAX_PATH];
     BuildPath(Path_SM,path,sizeof(path),"configs/sc/%s.cfg", short);
 
     loaded = ConfigLoadedStatus:FileToKeyValues(config,path);
@@ -1631,7 +1631,7 @@ Handle:LoadItemConfig(&ConfigLoadedStatus:loaded)
     {
         g_ItemConfigHandle = CreateKeyValues("shopitems");
 
-        decl String:path[PLATFORM_MAX_PATH];
+        char path[PLATFORM_MAX_PATH];
         BuildPath(Path_SM,path,sizeof(path),"configs/sc/shopitems.cfg");
 
         g_ItemConfigLoaded = ConfigLoadedStatus:FileToKeyValues(g_ItemConfigHandle,path);
@@ -1650,7 +1650,7 @@ SaveConfig(Handle:configHandle, const String:name[])
 {
     TraceInto("Config", "SaveConfig", "configHandle=0x%08x, name=%s", configHandle, name);
 
-    decl String:path[PLATFORM_MAX_PATH];
+    char path[PLATFORM_MAX_PATH];
     BuildPath(Path_SM,path,sizeof(path),"configs/sc/%s.cfg", name);
 
     KvRewind(configHandle);
@@ -1664,7 +1664,7 @@ LoadSettings()
 {
     if (g_SourceCraftConfigHandle == INVALID_HANDLE)
     {
-        decl String:path[PLATFORM_MAX_PATH];
+        char path[PLATFORM_MAX_PATH];
         BuildPath(Path_SM,path,sizeof(path),"configs/sourcecraft.cfg");
 
         g_SourceCraftConfigHandle=CreateKeyValues("SourceCraft");
@@ -1677,10 +1677,10 @@ CompleteConfigs()
     TraceInto("Config", "CompleteConfigs");
 
     // Ensure all races are marked complete and saved.
-    new size = GetRaceCount();
-    for(new race=1;race<size;race++)
+    int size = GetRaceCount();
+    for(int race =1;race<size;race++)
     {
-        new Handle:raceHandle=GetRaceHandle(race);
+        Handle raceHandle=GetRaceHandle(race);
         if (!GetRaceHasBeenCompleted(raceHandle))
             RaceComplete(race);
     }
@@ -1701,7 +1701,7 @@ CompleteConfigs()
     {
         if (g_SourceCraftConfigLoaded != ConfigWasLoaded)
         {
-            decl String:path[PLATFORM_MAX_PATH];
+            char path[PLATFORM_MAX_PATH];
             BuildPath(Path_SM,path,sizeof(path),"configs/sourcecraft.cfg");
 
             KvRewind(g_SourceCraftConfigHandle);

@@ -9,6 +9,7 @@
  */
 
 #pragma semicolon 1
+#pragma newdecls required
 
 // Pump up the memory!
 #pragma dynamic 262144
@@ -59,72 +60,72 @@
 #define DEFAULT_MAX_LEVELS          16
 
 // Models
-new const String:mdlPackage[][] = { "models/items/crystal_ball_pickup.mdl", "models/items/currencypack_small.mdl",
+char mdlPackage[][] = { "models/items/crystal_ball_pickup.mdl", "models/items/currencypack_small.mdl",
                                     "models/items/currencypack_medium.mdl", "models/items/currencypack_large.mdl",
                                     "models/items/tf_gift.mdl" };
 
 // Sound Files
-new const String:sndPickup[]  = "items/gift_pickup.wav";
-new const String:sndPain[][]  = { "player/pl_pain5.wav", "player/pl_pain6.wav",
+char sndPickup[]  = "items/gift_pickup.wav";
+char sndPain[][]  = { "player/pl_pain5.wav", "player/pl_pain6.wav",
                                   "player/pl_pain7.wav", "player/pain.wav" };
 
-new String:g_InfoURL[LONG_STRING_LENGTH]     = "http://http://www.jigglysfunhouse.net/sc/player/show/steamid/%s";
-new String:g_InfoBaseURL[LONG_STRING_LENGTH] = "http://http://www.jigglysfunhouse.net/sc/";
-new String:g_UpdateURL[LONG_STRING_LENGTH]   = "https://bitbucket.org/sourcecraft/sourcecraft/commits/all";
-new String:g_WikiURL[LONG_STRING_LENGTH]     = "https://bitbucket.org/sourcecraft/sourcecraft/wiki/Home";
-new String:g_BugURL[LONG_STRING_LENGTH]      = "https://bitbucket.org/sourcecraft/sourcecraft/issues";
+char g_InfoURL[LONG_STRING_LENGTH]     = "http://http://www.jigglysfunhouse.net/sc/player/show/steamid/%s";
+char g_InfoBaseURL[LONG_STRING_LENGTH] = "http://http://www.jigglysfunhouse.net/sc/";
+char g_UpdateURL[LONG_STRING_LENGTH]   = "https://bitbucket.org/sourcecraft/sourcecraft/commits/all";
+char g_WikiURL[LONG_STRING_LENGTH]     = "https://bitbucket.org/sourcecraft/sourcecraft/wiki/Home";
+char g_BugURL[LONG_STRING_LENGTH]      = "https://bitbucket.org/sourcecraft/sourcecraft/issues";
 
-new bool:g_bSourceCraftLoaded           = false;
-new bool:g_bDatabaseConnected           = false;
-new bool:g_bUseMoney                    = false;
-new bool:g_bUpdate                      = false;
-new bool:g_bCreate                      = false;
-new bool:g_bChargeForUpgrades           = false;
-new bool:g_bSaveUpgrades                = true;
-new bool:g_bSaveXP                      = true;
+bool g_bSourceCraftLoaded           = false;
+bool g_bDatabaseConnected           = false;
+bool g_bUseMoney                    = false;
+bool g_bUpdate                      = false;
+bool g_bCreate                      = false;
+bool g_bChargeForUpgrades           = false;
+bool g_bSaveUpgrades                = true;
+bool g_bSaveXP                      = true;
 
-new bool:g_bShowUpgradeInfo             = true;
-new bool:g_bShowDisabledRaces           = false;
-new Float:g_fMaxPackageEnergy           = 100.0;
-new Float:g_fMinPackageEnergy           = 20.0;
-new Float:g_fReqPackageEnergy           = 40.0;
-new Float:g_fEnergyPackageAmt           = 60.0;
-new g_iRaceMenuThreshold                = 16;
+bool g_bShowUpgradeInfo             = true;
+bool g_bShowDisabledRaces           = false;
+float g_fMaxPackageEnergy           = 100.0;
+float g_fMinPackageEnergy           = 20.0;
+float g_fReqPackageEnergy           = 40.0;
+float g_fEnergyPackageAmt           = 60.0;
+int g_iRaceMenuThreshold            = 16;
 
-new g_iMaxCrystals                      = 100;
-new g_iMaxVespene                       = 5000;
-new g_iMinPlayers                       = 4;
-new g_iMinUltimate                      = 8;
+int g_iMaxCrystals                  = 100;
+int g_iMaxVespene                   = 5000;
+int g_iMinPlayers                   = 4;
+int g_iMinUltimate                  = 8;
 
-new g_iUpgradeCrystalsCost              = 25;
-new g_iUpgradeVespeneCost               = 0;
+int g_iUpgradeCrystalsCost          = 25;
+int g_iUpgradeVespeneCost           = 0;
 
-new Float:g_fEnergyFactor               = 0.1;
-new Float:g_fEnergyRate                 = 1.0;
+float g_fEnergyFactor               = 0.1;
+float g_fEnergyRate                 = 1.0;
 
-new Float:g_fMvMEnergyFactor            = 0.1;
-new Float:g_fMvMEnergyRate              = 1.0;
+float g_fMvMEnergyFactor            = 0.1;
+float g_fMvMEnergyRate              = 1.0;
 
-new Float:g_fCrystalSellRate            = 5.0;
-new Float:g_fCrystalBuyRate             = 1.0;
+float g_fCrystalSellRate            = 5.0;
+float g_fCrystalBuyRate             = 1.0;
 
-new Float:g_fXPMultiplier               = 1.0;
+float g_fXPMultiplier               = 1.0;
 
-new g_iMaxDropXP                        = 500;
-new g_iDropXPBias                       = -50;
-new g_iMaxDropMoney                     = 500;
-new g_iDropMoneyBias                    = -50;
-new g_iMaxDropCrystals                  = 50;
-new g_iDropCrystalBias                  = -5;
-new g_iMaxDropPCrystals                 = 500;
-new g_iDropPCrystalsBias                = -10;
-new g_iMaxPackages                      = 50;
-new Float:g_fPackageDuration            = 30.0;
+int g_iMaxDropXP                    = 500;
+int g_iDropXPBias                   = -50;
+int g_iMaxDropMoney                 = 500;
+int g_iDropMoneyBias                = -50;
+int g_iMaxDropCrystals              = 50;
+int g_iDropCrystalBias              = -5;
+int g_iMaxDropPCrystals             = 500;
+int g_iDropPCrystalsBias            = -10;
+int g_iMaxPackages                  = 50;
+float g_fPackageDuration            = 30.0;
 
-Handle g_cvXPMultiplier                 = INVALID_HANDLE;
+ConVar g_cvXPMultiplier             = null;
 
-new bool:g_IsInSpawn[MAXPLAYERS+1]      = { false, ... };
-new bool:g_FirstSpawn[MAXPLAYERS + 1]   = { true,  ... };
+bool g_IsInSpawn[MAXPLAYERS+1]      = { false, ... };
+bool g_FirstSpawn[MAXPLAYERS + 1]   = { true,  ... };
 
 // SourceCraft Includes
 #include "sc/menuitemt"
@@ -162,7 +163,7 @@ new bool:g_FirstSpawn[MAXPLAYERS + 1]   = { true,  ... };
 #include "sc/engine/events_dod"
 #include "sc/engine/events_cstrike"
 
-public Plugin:myinfo= 
+public Plugin myinfo = 
 {
     name="SourceCraft",
     author = "-=|JFH|=-Naris",
@@ -171,7 +172,7 @@ public Plugin:myinfo=
     url="http://www.jigglysfunhouse.net/"
 };
 
-public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
     InitNatives();
     InitForwards();
@@ -185,7 +186,7 @@ public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
         return APLRes_Success;
 }
 
-public OnPluginStart()
+public void OnPluginStart()
 {
     LogMessage("[SC] Plugin loading...\n-------------------------------------------------------------------------");
     PrintToServer("[SC] Plugin loading...\n-------------------------------------------------------------------------");
@@ -256,7 +257,7 @@ public OnPluginStart()
     LogMessage("[SC] Plugin finished loading.\n-------------------------------------------------------------------------");
 }
 
-public OnConfigsExecuted()
+public void OnConfigsExecuted()
 {
     TraceInto("SourceCraft", "OnConfigsExecuted");
 
@@ -264,7 +265,7 @@ public OnConfigsExecuted()
 
     if (!g_bSourceCraftLoaded)
     {
-        new res;
+        int res;
         Call_StartForward(g_OnSourceCraftReadyHandle);
         Call_Finish(res);
         g_bSourceCraftLoaded=true;
@@ -275,7 +276,7 @@ public OnConfigsExecuted()
     TraceReturn();
 }
 
-public OnPluginEnd()
+public void OnPluginEnd()
 {
     ClearPlayerArray();
     ClearShopVector();
@@ -288,7 +289,7 @@ public OnPluginEnd()
     PrintToServer("[SC] Plugin shutdown.\n-------------------------------------------------------------------------");
 }
 
-public OnMapStart()
+public void OnMapStart()
 {
     TraceInto("SourceCraft", "OnMapStart");
 
@@ -296,7 +297,7 @@ public OnMapStart()
     g_PackageCount = 0;
     SetupLevelUpEffect();
 
-    for (new i = 0; i < sizeof(mdlPackage); i++)
+    for (int i = 0; i < sizeof(mdlPackage); i++)
         SetupModel(mdlPackage[i]);
     
     SetupDeniedSound();
@@ -305,8 +306,8 @@ public OnMapStart()
 
     SetupSound(sndPickup, true, DONT_DOWNLOAD, true, true);
 
-    decl String:factionWav[NAME_STRING_LENGTH];
-    for (new Faction:f = Generic; f < Faction; f++)
+    char factionWav[NAME_STRING_LENGTH];
+    for (Faction f = Generic; f < Faction; f++)
     {
         GetFactionLevelSound(f, factionWav, sizeof(factionWav));
         SetupSound(factionWav, true, ALWAYS_DOWNLOAD, true, true);
@@ -321,7 +322,7 @@ public OnMapStart()
         SetupSound(factionWav, true, ALWAYS_DOWNLOAD, true, true);
     }
 
-    for (new i = 0; i < sizeof(sndPain); i++)
+    for (int i = 0; i < sizeof(sndPain); i++)
         SetupSound(sndPain[i], false, DONT_DOWNLOAD, false, false);
 
     // If the database is not available
@@ -336,7 +337,7 @@ public OnMapStart()
     TraceReturn();
 }
 
-public OnMapEnd()
+public void OnMapEnd()
 {
     TraceInto("SourceCraft", "OnMapEnd");
 
@@ -356,7 +357,7 @@ public OnMapEnd()
     TraceReturn();
 }
 
-public OnClientPutInServer(client)
+public void OnClientPutInServer(int client)
 {
     SetTraceCategory("Connect");
     TraceInto("SourceCraft", "OnClientPutInServer", "client=%d:%L", \
@@ -375,7 +376,7 @@ public OnClientPutInServer(client)
     TraceReturn();
 }
 
-public Action:OnClientPreAdminCheck(client)
+public Action OnClientPreAdminCheck(int client)
 {
     SetTraceCategory("Connect");
     TraceInto("SourceCraft", "OnClientPreAdminCheck", "client=%d:%L", \
@@ -386,16 +387,16 @@ public Action:OnClientPreAdminCheck(client)
 
     if (client > 0)
     {
-        new last_race = GetRaceCount()-1;
+        int last_race = GetRaceCount()-1;
         if (last_race > 0)
         {
             if (IsFakeClient(client))
             {
                 // Assign bots a random race and level
-                new race;
-                new required;
-                new Handle:raceHandle;
-                new overall = GetRandomInt(1,200);
+                int race;
+                int required;
+                Handle raceHandle;
+                int overall = GetRandomInt(1,200);
 
                 do
                 {
@@ -407,7 +408,7 @@ public Action:OnClientPreAdminCheck(client)
                 SetOverallLevel(client,overall);
                 SetRace(client,race);
 
-                new max = GetRaceMaxLevel(raceHandle);
+                int max = GetRaceMaxLevel(raceHandle);
                 if (required > 0)
                 {
                     max -= required;

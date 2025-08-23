@@ -17,7 +17,7 @@
 
 #include "sc/plugins"
 
-new Float:g_AmpRange[][][] =
+float g_AmpRange[][][] =
 {
     {   // Slow, Undisguise, Decloak, Really Slow
         { 0.0,    0.0,   0.0,   0.0 },
@@ -59,7 +59,7 @@ WarpInAmplifier(client, amp_level, raceId, upgradeId, bool:allowKrit)
         {
             PrepareAndEmitSoundToClient(client,deniedWav);
 
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceId, upgradeId, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "NotAsMole", upgradeName);
         }
@@ -75,11 +75,11 @@ WarpInAmplifier(client, amp_level, raceId, upgradeId, bool:allowKrit)
             if (TF2_IsPlayerDisguised(client))
                 TF2_RemovePlayerDisguise(client);
 
-            new Handle:menu=CreateMenu(Amplifier_Selected);
+            Handle menu=CreateMenu(Amplifier_Selected);
             SetMenuTitle(menu,"[SC] %T", "ChooseAmplifier", client);
 
-            new count = CountConvertedBuildings(client, TFExtObject_Amplifier);
-            new level = GetLevel(client, raceId);
+            int count = CountConvertedBuildings(client, TFExtObject_Amplifier);
+            int level = GetLevel(client, raceId);
             AddMenuItemT(menu,"0","SlowAmplifier",client, (count < amp_level && amp_level >= 3) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED);
             AddMenuItemT(menu,"1","JarAmplifier",client, (count < amp_level && amp_level >= 2) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED);
             AddMenuItemT(menu,"9","MilkAmplifier",client, (count < amp_level && amp_level >= 2) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED);
@@ -139,10 +139,10 @@ public Amplifier_Selected(Handle:menu,MenuAction:action,client,selection)
         
         if (GetRace(client) == m_warpInRaceId)
         {
-            decl String:SelectionInfo[12];
+            char SelectionInfo[12];
             GetMenuItem(menu,selection,SelectionInfo,sizeof(SelectionInfo));
 
-            new item = StringToInt(SelectionInfo);
+            int item = StringToInt(SelectionInfo);
             if (item == 13)
             {
                 if (!DestroyBuildingMenu(client))
@@ -158,7 +158,7 @@ public Amplifier_Selected(Handle:menu,MenuAction:action,client,selection)
                 {
                     PrepareAndEmitSoundToClient(client,deniedWav);
 
-                    decl String:upgradeName[64];
+                    char upgradeName[64];
                     GetUpgradeName(m_warpInRaceId, m_warpInUpgradeId, upgradeName, sizeof(upgradeName), client);
                     DisplayMessage(client, Display_Ultimate,
                                    "%t", "YouHaveDied", upgradeName);
@@ -167,7 +167,7 @@ public Amplifier_Selected(Handle:menu,MenuAction:action,client,selection)
                 {
                     PrepareAndEmitSoundToClient(client,deniedWav);
 
-                    decl String:upgradeName[64];
+                    char upgradeName[64];
                     GetUpgradeName(m_warpInRaceId, m_warpInUpgradeId, upgradeName, sizeof(upgradeName), client);
                     DisplayMessage(client, Display_Ultimate, "%t", "NotAsMole", upgradeName);
                 }
@@ -202,11 +202,11 @@ public Amplifier_Selected(Handle:menu,MenuAction:action,client,selection)
                     else if (TF2_IsPlayerDisguised(client))
                         TF2_RemovePlayerDisguise(client);
 
-                    new obj = BuildObject(client, TFExtObject_Dispenser, 1, .check=false);
+                    int obj = BuildObject(client, TFExtObject_Dispenser, 1, .check=false);
                     if (m_AmpNodeAvailable)
                     {
                         new percent, ri;
-                        new level = GetUpgradeLevel(client,m_warpInRaceId,m_warpInUpgradeId);
+                        int level = GetUpgradeLevel(client,m_warpInRaceId,m_warpInUpgradeId);
                         switch (item)
                         {
                             case 0,13: // Slow, Really Slow
@@ -242,7 +242,7 @@ public Amplifier_Selected(Handle:menu,MenuAction:action,client,selection)
 
                     PrepareAndEmitSoundToAll(recallDstWav,client);
 
-                    decl String:ampName[64];
+                    char ampName[64];
                     Format(ampName, sizeof(ampName), "%T", typeName[item], client);
                     DisplayMessage(client,Display_Ultimate, "%t", "WarpedIn", ampName);
                     CreateCooldown(client, m_warpInRaceId, m_warpInUpgradeId);

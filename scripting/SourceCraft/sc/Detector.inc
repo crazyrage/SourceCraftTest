@@ -11,15 +11,15 @@ stock bool:m_Detected[MAXPLAYERS+1][MAXPLAYERS+1];
 
 stock ClearDetectedHud(client)
 {
-    decl String:message[64];
+    char message[64];
     GetHudMessage(client, message, sizeof(message));
 
-    decl String:detected[64];
+    char detected[64];
     Format(message, sizeof(message), "%T", "DetectedHud", client);
     ReplaceString(message, sizeof(message), "*", "");
     ReplaceString(message, sizeof(message), " ", "");
 
-    decl String:uncloaked[64];
+    char uncloaked[64];
     Format(message, sizeof(message), "%T", "UncloakedHud", client);
     ReplaceString(message, sizeof(message), "*", "");
     ReplaceString(message, sizeof(message), " ", "");
@@ -33,7 +33,7 @@ stock ClearDetectedHud(client)
 
 stock ResetDetection(client)
 {
-    for (new index=1;index<=MaxClients;index++)
+    for (int index =1;index<=MaxClients;index++)
     {
         if (IsClientInGame(index))
         {
@@ -58,7 +58,7 @@ stock ResetDetected(index)
         if (m_SidewinderAvailable && IsClientInGame(index))
             SidewinderDetectClient(index, false);
 
-        for (new client=1;client<=MaxClients;client++)
+        for (int client =1;client<=MaxClients;client++)
         {
             if (m_Detected[client][index])
             {

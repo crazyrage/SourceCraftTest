@@ -45,7 +45,7 @@ stock ShowHealthParticle(client)
 
 stock DeleteHealthParticle(client)
 {
-    new particle = g_HealthParticle[client];
+    int particle = g_HealthParticle[client];
 	if (particle != 0)
 	{
 		DeleteParticle(particle);
@@ -53,11 +53,11 @@ stock DeleteHealthParticle(client)
 	}
 }
 
-public Action:DeleteHealthParticles(Handle:timer, any:particle)
+public Action DeleteHealthParticles(Handle:timer, any:particle)
 {
     DeleteParticle(particle);
 
-    for (new i = 1; i <= MAXPLAYERS; i++)
+    for (int i = 1; i <= MAXPLAYERS; i++)
     {
         if (g_HealthParticle[i] == particle)
         {

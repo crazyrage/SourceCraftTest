@@ -12,14 +12,14 @@
 
 enum ClientInfo
 {
-    Immunity:ClientInfo_Immunities = 0,
-    Restriction:ClientInfo_Restrictions,
-    Attribute:ClientInfo_Attributes,
+    ClientInfo_Immunities = 0,
+    ClientInfo_Restrictions,
+    ClientInfo_Attributes,
     ClientInfo_Race,
-    Float:ClientInfo_Energy,
-    Float:ClientInfo_EnergyRate,
-    Float:ClientInfo_EnergyLimit,
-    Float:ClientInfo_InitialEnergy,
+    ClientInfo_Energy,
+    ClientInfo_EnergyRate,
+    ClientInfo_EnergyLimit,
+    ClientInfo_InitialEnergy,
     ClientInfo_EnergyFlags,
     ClientInfo_Crystals,
     ClientInfo_Vespene,
@@ -28,26 +28,26 @@ enum ClientInfo
     ClientInfo_PendingUpgradeReset,
     ClientInfo_OverallLevel,
     ClientInfo_DatabaseIdent,
-    DataStatus:ClientInfo_DatabaseLoaded,
-    bool:ClientInfo_DatabaseSaved,
-    Float:ClientInfo_DatabaseSaveTime,
-    PlayerStatus:ClientInfo_PlayerStatus,
-    Handle:ClientInfo_Properties,
-    Handle:ClientInfo_ShopItems,
-    Handle:ClientInfo_RaceData,
-    Handle:ClientInfo_TechData
+    ClientInfo_DatabaseLoaded,
+    ClientInfo_DatabaseSaved,
+    ClientInfo_DatabaseSaveTime,
+    ClientInfo_PlayerStatus,
+    ClientInfo_Properties,
+    ClientInfo_ShopItems,
+    ClientInfo_RaceData,
+    ClientInfo_TechData
 };
 
 enum RaceInfo
 {
     RaceInfo_XP = 0,
     RaceInfo_Level,
-    Float:RaceInfo_AccumulatedEnergy,
+    RaceInfo_AccumulatedEnergy,
     RaceInfo_ActiveUltimate1,
     RaceInfo_ActiveUltimate2,
     RaceInfo_ActiveUltimate3,
     RaceInfo_ActiveUltimate4,
-    DataStatus:RaceInfo_DatabaseLoaded,
+    RaceInfo_DatabaseLoaded,
     RaceInfo_SavedXP
 };
 
@@ -74,7 +74,7 @@ enum TechInfo
 {
     TechInfo_Count = 0,
     TechInfo_Level,
-    DataStatus:TechInfo_DatabaseLoaded
+    TechInfo_DatabaseLoaded
 };
 
 #define TECHINFO_SIZE   _:TechInfo
@@ -82,35 +82,35 @@ enum TechInfo
 
 enum PropInfo
 {
-    Handle:PropInfo_PluginHandle = 0,
+    PropInfo_PluginHandle = 0,
     PropInfo_Identifier,
-    Float:PropInfo_OverrideSpeed,
-    Float:PropInfo_OverrideGravity,
+    PropInfo_OverrideSpeed,
+    PropInfo_OverrideGravity,
     PropInfo_OverrideVisibility,
-    Float:PropInfo_Speed,
-    Float:PropInfo_Gravity,
+    PropInfo_Speed,
+    PropInfo_Gravity,
     PropInfo_Visibility,
-    VisibilityType:PropInfo_VisibilityType,
-    Float:PropInfo_VisibilityFactor1,
-    Float:PropInfo_VisibilityFactor2,
-    RenderMode:PropInfo_VisibilityMode,
-    RenderFx:PropInfo_Visibility_FX,
+    PropInfo_VisibilityType,
+    PropInfo_VisibilityFactor1,
+    PropInfo_VisibilityFactor2,
+    PropInfo_VisibilityMode,
+    PropInfo_Visibility_FX,
     PropInfo_Visibility_R,
     PropInfo_Visibility_G,
     PropInfo_Visibility_B,
     PropInfo_Weapon_VisAlpha,
-    bool:PropInfo_VisibilityWeapons,
-    VisibilityPriority:PropInfo_VisibilityPriority,
-    Float:PropInfo_VisibilityTime,
-    Immunity:PropInfo_Immunities,
-    Restriction:PropInfo_Restrictions,
-    MoveType:PropInfo_MoveType,
-    RegenFlags:PropInfo_RegenHealthFlags,
-    RegenFlags:PropInfo_RegenShieldFlags,
-    Float:PropInfo_RegenHealth,
-    Float:PropInfo_RegenShield,
-    Float:PropInfo_PhysicalArmor,
-    Float:PropInfo_MagicalArmor
+    PropInfo_VisibilityWeapons,
+    PropInfo_VisibilityPriority,
+    PropInfo_VisibilityTime,
+    PropInfo_Immunities,
+    PropInfo_Restrictions,
+    PropInfo_MoveType,
+    PropInfo_RegenHealthFlags,
+    PropInfo_RegenShieldFlags,
+    PropInfo_RegenHealth,
+    PropInfo_RegenShield,
+    PropInfo_PhysicalArmor,
+    PropInfo_MagicalArmor
 };
 
 enum DataStatus
@@ -130,21 +130,21 @@ enum PlayerStatus
     PlayerActive
 }
 
-new playerArray[MAXPLAYERS+1][ClientInfo];
-new String:playerPrevName[MAXPLAYERS+1][NAME_STRING_LENGTH];
-new String:playerName[MAXPLAYERS+1][NAME_STRING_LENGTH];
-new String:playerID[MAXPLAYERS+1][CLASS_STRING_LENGTH];
+int playerArray[MAXPLAYERS+1][ClientInfo];
+char playerPrevName[MAXPLAYERS+1][NAME_STRING_LENGTH];
+char playerName[MAXPLAYERS+1][NAME_STRING_LENGTH];
+char playerID[MAXPLAYERS+1][CLASS_STRING_LENGTH];
 
-new Display:g_ClientDisplayBits[MAXPLAYERS+1];
-new Settings:g_ClientSettingsBits[MAXPLAYERS+1];
+Display g_ClientDisplayBits[MAXPLAYERS+1];
+Settings g_ClientSettingsBits[MAXPLAYERS+1];
 
-new bool:m_IsChangingClass[MAXPLAYERS+1];
+bool m_IsChangingClass[MAXPLAYERS+1];
 
 new m_Armor[MAXPLAYERS+1];
 new m_MaxShields[MAXPLAYERS+1];
-new Float:m_ArmorPercent[MAXPLAYERS+1][2];
+float m_ArmorPercent[MAXPLAYERS+1][2];
 new ArmorFlags:m_ArmorFlags[MAXPLAYERS+1];
-new String:m_ArmorName[MAXPLAYERS+1][NAME_STRING_LENGTH];
+char m_ArmorName[MAXPLAYERS+1][NAME_STRING_LENGTH];
 
 // Accessor Macros for IsChangingClass
 #define IsChangingClass(%1)                     m_IsChangingClass[%1]
@@ -428,15 +428,15 @@ stock Handle:GetRaceInfoHandle(client,race)
     TraceInto("PlayerInfo", "GetRaceInfo", "client=%d:%N, race=%d", \
               client, ValidClientIndex(client), race);
 
-    new Handle:raceInfo = INVALID_HANDLE;
+    Handle raceInfo = INVALID_HANDLE;
     if (race >= 0) // && GetRaceCount() > 1)
     {
-        new Handle:raceData = GetRaceData(client);
+        Handle raceData = GetRaceData(client);
         if (raceData != INVALID_HANDLE)
             raceInfo=GetArrayCell(raceData,race);
         else
         {
-            //decl String:rname[64]; GetRaceName(GetRaceHandle(race),rname,sizeof(rname));
+            //char rname[64]; GetRaceName(GetRaceHandle(race),rname,sizeof(rname));
             //LogError("ERROR: Player %d:%N's race %s(%d) data is missing!",
             //         client, ValidClientIndex(client), rname, race);
             LogError("ERROR: Player %d:%N's race %d data is missing!",
@@ -462,10 +462,10 @@ stock Handle:GetTechInfoHandle(client,Faction:techId)
     TraceInto("PlayerInfo", "GetTechInfo", "client=%d:%N, techId=%d", \
               client, ValidClientIndex(client), techId);
 
-    new Handle:techInfo = INVALID_HANDLE;
+    Handle techInfo = INVALID_HANDLE;
     if (techId >= Generic)
     {
-        new Handle:techData = GetTechData(client);
+        Handle techData = GetTechData(client);
         if (techData != INVALID_HANDLE)
         techInfo = GetArrayCell(techData,_:techId);
     }

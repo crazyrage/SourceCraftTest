@@ -6,6 +6,7 @@
  */
  
 #pragma semicolon 1
+#pragma newdecls required
 
 #include <sourcemod>
 #include <sdktools>
@@ -31,27 +32,27 @@
 #include "effect/FlashScreen"
 
 new const String:g_ArmorName[]      = "Armor";
-new Float:g_InitialArmor[]          = { 0.0, 0.10, 0.20, 0.30, 0.40 };
-new Float:g_ArmorPercent[][2]       = { {0.00, 0.00},
+float g_InitialArmor[]          = { 0.0, 0.10, 0.20, 0.30, 0.40 };
+float g_ArmorPercent[][2]       = { {0.00, 0.00},
                                         {0.00, 0.10},
                                         {0.00, 0.20},
                                         {0.10, 0.40},
                                         {0.20, 0.50} };
 
-new Float:g_SpeedLevels[]           = { -1.0, 1.05, 1.07, 1.10, 1.13 };
+float g_SpeedLevels[]           = { -1.0, 1.05, 1.07, 1.10, 1.13 };
 
-new Float:g_BunkerPercent[]         = { 0.00, 0.10, 0.20, 0.30, 0.40 };
+float g_BunkerPercent[]         = { 0.00, 0.10, 0.20, 0.30, 0.40 };
 
-new Float:g_U238Percent[]           = { 0.0, 0.15, 0.30, 0.40, 0.50 };
+float g_U238Percent[]           = { 0.0, 0.15, 0.30, 0.40, 0.50 };
 
-new Float:g_CombatShieldHealth[]    = { 0.0, 0.10, 0.20, 0.30, 0.40 };
+float g_CombatShieldHealth[]    = { 0.0, 0.10, 0.20, 0.30, 0.40 };
 
 new raceID, u238ID, armorID, stimpacksID, bunkerID, combatShieldID, firebatID, marauderID;
 
-new g_firebatRace = -1;
-new g_marauderRace = -1;
+int g_firebatRace = -1;
+int g_marauderRace = -1;
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Unit - Terran Marine",
     author = "-=|JFH|=-Naris",
@@ -60,7 +61,7 @@ public Plugin:myinfo =
     url = "http://jigglysfunhouse.net/"
 };
 
-public OnPluginStart()
+public void OnPluginStart()
 {
     LoadTranslations("sc.common.phrases.txt");
     LoadTranslations("sc.marine.phrases.txt");
@@ -70,7 +71,7 @@ public OnPluginStart()
         OnSourceCraftReady();
 }
 
-public OnSourceCraftReady()
+public void OnSourceCraftReady()
 {
     raceID          = CreateRace("marine", 16, 0, 22, .faction=Terran,
                                  .type=Biological);
@@ -96,9 +97,9 @@ public OnSourceCraftReady()
     GetConfigFloatArray("armor_amount", g_InitialArmor, sizeof(g_InitialArmor),
                         g_InitialArmor, raceID, armorID);
 
-    for (new level=0; level < sizeof(g_ArmorPercent); level++)
+    for (int level =0; level < sizeof(g_ArmorPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "armor_percent_level_%d", level);
         GetConfigFloatArray(key, g_ArmorPercent[level], sizeof(g_ArmorPercent[]),
                             g_ArmorPercent[level], raceID, armorID);
@@ -117,7 +118,7 @@ public OnSourceCraftReady()
                         g_CombatShieldHealth, raceID, combatShieldID);
 }
 
-public OnMapStart()
+public void OnMapStart()
 {
     SetupSmokeSprite();
     SetupHaloSprite();
@@ -131,7 +132,7 @@ public OnMapStart()
     SetupDeniedSound();
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -166,18 +167,18 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
     }
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
-        new armor_level = GetUpgradeLevel(client,raceID,armorID);
-        new armor = SetupArmor(client, armor_level, g_InitialArmor,
+        int armor_level = GetUpgradeLevel(client,raceID,armorID);
+        int armor = SetupArmor(client, armor_level, g_InitialArmor,
                                g_ArmorPercent, g_ArmorName);
 
-        new shield_level=GetUpgradeLevel(client,raceID,combatShieldID);
+        int shield_level =GetUpgradeLevel(client,raceID,combatShieldID);
         CombatShield(client, shield_level, armor);
 
-        new stimpacks_level = GetUpgradeLevel(client,raceID,stimpacksID);
+        int stimpacks_level = GetUpgradeLevel(client,raceID,stimpacksID);
         SetSpeedBoost(client, stimpacks_level, true, g_SpeedLevels);
 
         return Plugin_Handled;
@@ -186,7 +187,7 @@ public Action:OnRaceSelected(client,oldrace,newrace)
         return Plugin_Continue;
 }
 
-public OnUpgradeLevelChanged(client,race,upgrade,new_level)
+public void OnUpgradeLevelChanged(client,race,upgrade,new_level)
 {
     if (race == raceID && GetRace(client) == raceID)
     {
@@ -201,7 +202,7 @@ public OnUpgradeLevelChanged(client,race,upgrade,new_level)
     }
 }
 
-public OnItemPurchase(client,item)
+public void OnItemPurchase(client,item)
 {
     if (GetRace(client) == raceID && IsValidClientAlive(client))
     {
@@ -210,14 +211,14 @@ public OnItemPurchase(client,item)
 
         if (item == g_bootsItem)
         {
-            new level=GetUpgradeLevel(client,raceID,stimpacksID);
+            int level =GetUpgradeLevel(client,raceID,stimpacksID);
             if (level > 0)
                 SetSpeedBoost(client, level, true, g_SpeedLevels);
         }
     }
 }
 
-public OnUltimateCommand(client,race,bool:pressed,arg)
+public void OnUltimateCommand(client,race,bool:pressed,arg)
 {
     if (pressed && race==raceID && IsValidClientAlive(client))
     {
@@ -225,22 +226,22 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
         {
             case 4:
             {
-                new firebat_level=GetUpgradeLevel(client,race,firebatID);
+                int firebat_level =GetUpgradeLevel(client,race,firebatID);
                 if (firebat_level > 0)
                     FirebatTraining(client);
             }
             case 3:
             {
-                new marauder_level=GetUpgradeLevel(client,race,marauderID);
+                int marauder_level =GetUpgradeLevel(client,race,marauderID);
                 if (marauder_level > 0)
                     MarauderTraining(client);
             }
             default:
             {
-                new bunker_level = GetUpgradeLevel(client,race,bunkerID);
+                int bunker_level = GetUpgradeLevel(client,race,bunkerID);
                 if (bunker_level > 0)
                 {
-                    new armor = RoundToNearest(float(GetPlayerMaxHealth(client))
+                    int armor = RoundToNearest(float(GetPlayerMaxHealth(client))
                                                * g_BunkerPercent[bunker_level]);
 
                     EnterBunker(client, armor, raceID, bunkerID);
@@ -251,15 +252,15 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
 }
 
 // Events
-public OnPlayerSpawnEvent(Handle:event, client, race)
+public void OnPlayerSpawnEvent(Handle:event, client, race)
 {
     if (race == raceID)
     {
-        new stimpacks_level = GetUpgradeLevel(client,raceID,stimpacksID);
+        int stimpacks_level = GetUpgradeLevel(client,raceID,stimpacksID);
         if (stimpacks_level > 0)
             SetSpeedBoost(client, stimpacks_level, true, g_SpeedLevels);
 
-        new shield_level=GetUpgradeLevel(client,raceID,combatShieldID);
+        int shield_level =GetUpgradeLevel(client,raceID,combatShieldID);
         if (shield_level > 0)
         {
             CreateTimer(0.1,DoCombatShield,GetClientUserId(client),
@@ -267,14 +268,14 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
         }
         else
         {
-            new armor_level = GetUpgradeLevel(client,raceID,armorID);
+            int armor_level = GetUpgradeLevel(client,raceID,armorID);
             SetupArmor(client, armor_level, g_InitialArmor,
                        g_ArmorPercent, g_ArmorName);
         }
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     if (!from_sc && attacker_index > 0 &&
@@ -288,7 +289,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
     return Plugin_Continue;
 }
 
-public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
+public Action OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
                                   assister_index, assister_race, damage,
                                   absorbed)
 {
@@ -301,7 +302,7 @@ public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
     return Plugin_Continue;
 }
 
-public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
+public void OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
                           attacker_race, assister_index, assister_race, damage,
                           const String:weapon[], bool:is_equipment, customkill,
                           bool:headshot, bool:backstab, bool:melee)
@@ -330,7 +331,7 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
 
 bool:U238Shells(Handle:event, damage, victim_index, index)
 {
-    new u238_level = GetUpgradeLevel(index,raceID,u238ID);
+    int u238_level = GetUpgradeLevel(index,raceID,u238ID);
     if (u238_level > 0)
     {
         if (!GetRestriction(index,Restriction_NoUpgrades) &&
@@ -341,11 +342,11 @@ bool:U238Shells(Handle:event, damage, victim_index, index)
         {
             if (GetRandomInt(1,100)<=25)
             {
-                decl String:weapon[64];
-                new bool:is_equipment=GetWeapon(event,index,weapon,sizeof(weapon));
+                char weapon[64];
+                bool is_equipment=GetWeapon(event,index,weapon,sizeof(weapon));
                 if (!IsMelee(weapon, is_equipment,index,victim_index))
                 {
-                    new health_take = RoundFloat(float(damage)*g_U238Percent[u238_level]);
+                    int health_take = RoundFloat(float(damage)*g_U238Percent[u238_level]);
                     if (health_take > 0 && CanInvokeUpgrade(index, raceID, u238ID, .notify=false))
                     {
                         HurtPlayer(victim_index, health_take, index,
@@ -354,11 +355,11 @@ bool:U238Shells(Handle:event, damage, victim_index, index)
 
                         if (IsClient(index))
                         {
-                            new Float:indexLoc[3];
+                            float indexLoc[3];
                             GetClientAbsOrigin(index, indexLoc);
                             indexLoc[2] += 50.0;
 
-                            new Float:victimLoc[3];
+                            float victimLoc[3];
                             GetEntityAbsOrigin(victim_index, victimLoc);
                             victimLoc[2] += 50.0;
 
@@ -377,17 +378,17 @@ bool:U238Shells(Handle:event, damage, victim_index, index)
     return false;
 }
 
-public Action:DoCombatShield(Handle:timer,any:userid)
+public Action DoCombatShield(Handle:timer,any:userid)
 {
-    new client = GetClientOfUserId(userid);
+    int client = GetClientOfUserId(userid);
     if (client > 0)
     {
         if (GetRace(client) == raceID)
         {
-            new armor_level = GetUpgradeLevel(client,raceID,armorID);
-            new armor = SetupArmor(client, armor_level, g_InitialArmor, g_ArmorPercent);
+            int armor_level = GetUpgradeLevel(client,raceID,armorID);
+            int armor = SetupArmor(client, armor_level, g_InitialArmor, g_ArmorPercent);
 
-            new shield_level=GetUpgradeLevel(client,raceID,combatShieldID);
+            int shield_level =GetUpgradeLevel(client,raceID,combatShieldID);
             CombatShield(client, shield_level, armor);
         }
     }
@@ -400,12 +401,12 @@ CombatShield(client, level, armor)
         !GetRestriction(client, Restriction_NoUpgrades) &&
         !GetRestriction(client, Restriction_Stunned))
     {
-        new classmax = GetPlayerMaxHealth(client);
-        new maxhp = GetMaxHealth(client);
+        int classmax = GetPlayerMaxHealth(client);
+        int maxhp = GetMaxHealth(client);
         if (maxhp > classmax)
             maxhp = classmax;
 
-        new hpadd=RoundFloat(float(maxhp)*g_CombatShieldHealth[level]);
+        int hpadd =RoundFloat(float(maxhp)*g_CombatShieldHealth[level]);
         if (GetClientHealth(client) < classmax + hpadd)
         {
             SetIncreasedHealth(client, hpadd, armor);
@@ -422,7 +423,7 @@ FirebatTraining(client)
 
     if (g_firebatRace < 0)
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, firebatID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "IsNotAvailable", upgradeName);
         PrepareAndEmitSoundToClient(client,deniedWav);
@@ -436,7 +437,7 @@ FirebatTraining(client)
     }
     else if (CanInvokeUpgrade(client, raceID, firebatID))
     {
-        new Float:clientLoc[3];
+        float clientLoc[3];
         GetClientAbsOrigin(client, clientLoc);
         clientLoc[2] += 40.0; // Adjust position to the middle
 
@@ -458,7 +459,7 @@ MarauderTraining(client)
 
     if (g_marauderRace < 0)
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, marauderID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "IsNotAvailable", upgradeName);
         PrepareAndEmitSoundToClient(client,deniedWav);
@@ -472,7 +473,7 @@ MarauderTraining(client)
     }
     else if (CanInvokeUpgrade(client, raceID, marauderID))
     {
-        new Float:clientLoc[3];
+        float clientLoc[3];
         GetClientAbsOrigin(client, clientLoc);
         clientLoc[2] += 40.0; // Adjust position to the middle
 

@@ -6,6 +6,7 @@
  */
  
 #pragma semicolon 1
+#pragma newdecls required
 
 #include <sourcemod>
 #include <sdktools>
@@ -40,27 +41,27 @@ new const String:poisonExpireWav[]       = "sc/zhywht01.wav";
 
 new const String:g_MissileAttackSound[]  = "sc/spooghit.wav";
 new g_MissileAttackChance[]              = { 0, 5, 15, 25, 35 };
-new Float:g_MissileAttackPercent[]       = { 0.0, 0.15, 0.30, 0.40, 0.50 };
+float g_MissileAttackPercent[]       = { 0.0, 0.15, 0.30, 0.40, 0.50 };
 
 new const String:g_ArmorName[]           = "Carapace";
-new Float:g_InitialArmor[]               = { 0.0, 0.10, 0.20, 0.30, 0.40 };
-new Float:g_ArmorPercent[][2]            = { {0.00, 0.00},
+float g_InitialArmor[]               = { 0.0, 0.10, 0.20, 0.30, 0.40 };
+float g_ArmorPercent[][2]            = { {0.00, 0.00},
                                              {0.00, 0.05},
                                              {0.00, 0.10},
                                              {0.05, 0.15},
                                              {0.10, 0.20} };
 
-new Float:g_SpeedLevels[]                = { -1.0, 1.10, 1.15, 1.20, 1.25 };
-//new Float:g_SpeedLevels[]              = { -1.0, 1.20, 1.28, 1.36, 1.50 };
+float g_SpeedLevels[]                = { -1.0, 1.10, 1.15, 1.20, 1.25 };
+//float g_SpeedLevels[]              = { -1.0, 1.20, 1.28, 1.36, 1.50 };
 
-new g_lurkerRace = -1;
+int g_lurkerRace = -1;
 
 new raceID, carapaceID, regenerationID, augmentsID;
 new burrowID, missileID, spinesID, poisonID, lurkerID;
 
-new bool:m_PoisonActive[MAXPLAYERS+1];
+bool m_PoisonActive[MAXPLAYERS+1];
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Zerg Hydralisk",
     author = "-=|JFH|=-Naris",
@@ -69,7 +70,7 @@ public Plugin:myinfo =
     url = "http://jigglysfunhouse.net/"
 };
 
-public OnPluginStart()
+public void OnPluginStart()
 {
     LoadTranslations("sc.common.phrases.txt");
     LoadTranslations("sc.hydralisk.phrases.txt");
@@ -80,7 +81,7 @@ public OnPluginStart()
         OnSourceCraftReady();
 }
 
-public OnSourceCraftReady()
+public void OnSourceCraftReady()
 {
     raceID          = CreateRace("hydralisk", 48, 0, 26, .faction=Zerg,
                                  .type=Biological);
@@ -111,9 +112,9 @@ public OnSourceCraftReady()
     GetConfigFloatArray("armor_amount", g_InitialArmor, sizeof(g_InitialArmor),
                         g_InitialArmor, raceID, carapaceID);
 
-    for (new level=0; level < sizeof(g_ArmorPercent); level++)
+    for (int level =0; level < sizeof(g_ArmorPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "armor_percent_level_%d", level);
         GetConfigFloatArray(key, g_ArmorPercent[level], sizeof(g_ArmorPercent[]),
                             g_ArmorPercent[level], raceID, carapaceID);
@@ -129,7 +130,7 @@ public OnSourceCraftReady()
                         g_MissileAttackPercent, raceID, missileID);
 }
 
-public OnMapStart()
+public void OnMapStart()
 {
     SetupSpeed();
     SetupRedGlow();
@@ -144,17 +145,17 @@ public OnMapStart()
     SetupMissileAttack(g_MissileAttackSound);
 }
 
-public OnPlayerAuthed(client)
+public void OnPlayerAuthed(client)
 {
     m_PoisonActive[client] = false;
 }
 
-public OnClientDisconnect(client)
+public void OnClientDisconnect(client)
 {
     m_PoisonActive[client] = false;
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -183,19 +184,19 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
     }
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
         m_PoisonActive[client] = false;
 
-        new augments_level = GetUpgradeLevel(client,raceID,augmentsID);
+        int augments_level = GetUpgradeLevel(client,raceID,augmentsID);
         SetSpeedBoost(client, augments_level, true, g_SpeedLevels);
 
-        new regeneration_level=GetUpgradeLevel(client,raceID,regenerationID);
+        int regeneration_level =GetUpgradeLevel(client,raceID,regenerationID);
         SetHealthRegen(client, float(regeneration_level));
 
-        new carapace_level = GetUpgradeLevel(client,raceID,carapaceID);
+        int carapace_level = GetUpgradeLevel(client,raceID,carapaceID);
         SetupArmor(client, carapace_level, g_InitialArmor,
                    g_ArmorPercent, g_ArmorName);
 
@@ -205,7 +206,7 @@ public Action:OnRaceSelected(client,oldrace,newrace)
         return Plugin_Continue;
 }
 
-public OnUpgradeLevelChanged(client,race,upgrade,new_level)
+public void OnUpgradeLevelChanged(client,race,upgrade,new_level)
 {
     if (race == raceID && GetRace(client) == raceID)
     {
@@ -227,9 +228,9 @@ public OnUpgradeLevelChanged(client,race,upgrade,new_level)
     }
 }
 
-public OnItemPurchase(client,item)
+public void OnItemPurchase(client,item)
 {
-    new race=GetRace(client);
+    int race =GetRace(client);
     if (race == raceID && IsValidClientAlive(client))
     {
         if (g_bootsItem < 0)
@@ -237,14 +238,14 @@ public OnItemPurchase(client,item)
 
         if (item == g_bootsItem)
         {
-            new augments_level = GetUpgradeLevel(client,race,augmentsID);
+            int augments_level = GetUpgradeLevel(client,race,augmentsID);
             if (augments_level > 0)
                 SetSpeedBoost(client, augments_level, true, g_SpeedLevels);
         }
     }
 }
 
-public OnUltimateCommand(client,race,bool:pressed,arg)
+public void OnUltimateCommand(client,race,bool:pressed,arg)
 {
     if (race==raceID && IsValidClientAlive(client))
     {
@@ -252,7 +253,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
         {
             case 4,3:
             {
-                new lurker_level=GetUpgradeLevel(client,race,lurkerID);
+                int lurker_level =GetUpgradeLevel(client,race,lurkerID);
                 if (lurker_level > 0)
                 {
                     if (!pressed)
@@ -260,12 +261,12 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                 }
                 else if (pressed)
                 {
-                    new burrow_level=GetUpgradeLevel(client,race,burrowID);
+                    int burrow_level =GetUpgradeLevel(client,race,burrowID);
                     if (burrow_level > 0)
                         Burrow(client, burrow_level);
                     else
                     {
-                        new poison_level=GetUpgradeLevel(client,race,poisonID);
+                        int poison_level =GetUpgradeLevel(client,race,poisonID);
                         if (poison_level > 0)
                             Poison(client, poison_level);
                     }
@@ -273,7 +274,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
             }
             case 2:
             {
-                new burrow_level=GetUpgradeLevel(client,race,burrowID);
+                int burrow_level =GetUpgradeLevel(client,race,burrowID);
                 if (burrow_level > 0)
                 {
                     if (pressed)
@@ -281,7 +282,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                 }
                 else
                 {
-                    new poison_level=GetUpgradeLevel(client,race,poisonID);
+                    int poison_level =GetUpgradeLevel(client,race,poisonID);
                     if (poison_level > 0)
                     {
                         if (pressed)
@@ -289,7 +290,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                     }
                     else if (!pressed)
                     {
-                        new lurker_level=GetUpgradeLevel(client,race,lurkerID);
+                        int lurker_level =GetUpgradeLevel(client,race,lurkerID);
                         if (lurker_level > 0)
                             LurkerAspect(client);
                     }
@@ -297,7 +298,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
             }
             default:
             {
-                new poison_level=GetUpgradeLevel(client,race,poisonID);
+                int poison_level =GetUpgradeLevel(client,race,poisonID);
                 if (poison_level > 0)
                 {
                     if (pressed)
@@ -305,7 +306,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                 }
                 else
                 {
-                    new burrow_level=GetUpgradeLevel(client,race,burrowID);
+                    int burrow_level =GetUpgradeLevel(client,race,burrowID);
                     if (burrow_level > 0)
                     {
                         if (pressed)
@@ -313,7 +314,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                     }
                     else if (!pressed)
                     {
-                        new lurker_level=GetUpgradeLevel(client,race,lurkerID);
+                        int lurker_level =GetUpgradeLevel(client,race,lurkerID);
                         if (lurker_level > 0)
                             LurkerAspect(client);
                     }
@@ -324,25 +325,25 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
 }
 
 // Events
-public OnPlayerSpawnEvent(Handle:event, client, race)
+public void OnPlayerSpawnEvent(Handle:event, client, race)
 {
     if (race == raceID)
     {
         m_PoisonActive[client] = false;
 
-        new augments_level = GetUpgradeLevel(client,raceID,augmentsID);
+        int augments_level = GetUpgradeLevel(client,raceID,augmentsID);
         SetSpeedBoost(client, augments_level, true, g_SpeedLevels);
 
-        new regeneration_level=GetUpgradeLevel(client,raceID,regenerationID);
+        int regeneration_level =GetUpgradeLevel(client,raceID,regenerationID);
         SetHealthRegen(client, float(regeneration_level));
 
-        new carapace_level = GetUpgradeLevel(client,raceID,carapaceID);
+        int carapace_level = GetUpgradeLevel(client,raceID,carapaceID);
         SetupArmor(client, carapace_level, g_InitialArmor,
                    g_ArmorPercent, g_ArmorName);
     }
 }
 
-public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
+public void OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
                           attacker_race, assister_index, assister_race, damage,
                           const String:weapon[], bool:is_equipment, customkill,
                           bool:headshot, bool:backstab, bool:melee)
@@ -367,19 +368,19 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
-    new bool:handled=false;
+    bool handled=false;
 
     if (!from_sc && attacker_index > 0 &&
         attacker_index != victim_index &&
         attacker_race == raceID)
     {
-        new bool:used=false;
+        bool used=false;
         if (m_PoisonActive[attacker_index])
         {
-            new poison_level=GetUpgradeLevel(attacker_index,raceID,poisonID);
+            int poison_level =GetUpgradeLevel(attacker_index,raceID,poisonID);
             if (poison_level > 0)
             {
                 if (!GetRestriction(attacker_index, Restriction_NoUltimates) &&
@@ -408,8 +409,8 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
         {
             damage += absorbed;
 
-            new spines_level=GetUpgradeLevel(attacker_index,raceID,spinesID);
-            new missile_level=GetUpgradeLevel(attacker_index,raceID,missileID);
+            int spines_level =GetUpgradeLevel(attacker_index,raceID,spinesID);
+            int missile_level =GetUpgradeLevel(attacker_index,raceID,missileID);
             if (missile_level > 0)
             {
                 handled |= (used = MissileAttack(raceID, missileID, missile_level, event,
@@ -433,18 +434,18 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
     return handled ? Plugin_Handled : Plugin_Continue;
 }
 
-public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
+public Action OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
                                   assister_index, assister_race, damage,
                                   absorbed)
 {
-    new bool:handled=false;
+    bool handled=false;
 
     if (assister_race == raceID)
     {
-        new bool:used=false;
+        bool used=false;
         if (m_PoisonActive[assister_index])
         {
-            new poison_level=GetUpgradeLevel(assister_index,raceID,poisonID);
+            int poison_level =GetUpgradeLevel(assister_index,raceID,poisonID);
             if (poison_level > 0)
             {
                 if (!GetRestriction(assister_index, Restriction_NoUltimates) &&
@@ -473,8 +474,8 @@ public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
         {
             damage += absorbed;
 
-            new spines_level=GetUpgradeLevel(assister_index,raceID,spinesID);
-            new missile_level=GetUpgradeLevel(assister_index,raceID,missileID);
+            int spines_level =GetUpgradeLevel(assister_index,raceID,spinesID);
+            int missile_level =GetUpgradeLevel(assister_index,raceID,missileID);
             if (missile_level > 0)
             {
                 handled |= (used = MissileAttack(raceID, missileID, missile_level, event,
@@ -506,8 +507,8 @@ bool:GroovedSpines(damage, victim_index, index, level)
         !GetImmunity(victim_index,Immunity_Upgrades) &&
         !IsInvulnerable(victim_index))
     {
-        new Float:percent;
-        new Float:distance = TargetRange(index, victim_index);
+        float percent;
+        float distance = TargetRange(index, victim_index);
         if (distance > 1000.0)
         {
             if (GameType == tf2)
@@ -553,7 +554,7 @@ bool:GroovedSpines(damage, victim_index, index, level)
 
         if (percent > 0.0)
         {
-            new health_take=RoundFloat(float(damage)*percent);
+            int health_take =RoundFloat(float(damage)*percent);
             if (health_take > 0 && CanInvokeUpgrade(index, raceID, spinesID, .notify=false))
             {
                 FlashScreen(victim_index,RGBA_COLOR_RED);
@@ -575,7 +576,7 @@ LurkerAspect(client)
 
     if (g_lurkerRace < 0)
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, lurkerID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "IsNotAvailable", upgradeName);
         LogError("***The Zerg Lurker race is not Available!");
@@ -590,7 +591,7 @@ LurkerAspect(client)
     }
     else if (CanInvokeUpgrade(client, raceID, lurkerID))
     {
-            new Float:clientLoc[3];
+            float clientLoc[3];
             GetClientAbsOrigin(client, clientLoc);
             clientLoc[2] += 40.0; // Adjust position to the middle
 
@@ -614,7 +615,7 @@ Poison(client, level)
         {
             PrepareAndEmitSoundToClient(client,deniedWav);
 
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, poisonID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
         }
@@ -631,9 +632,9 @@ Poison(client, level)
     }
 }
 
-public Action:EndPoison(Handle:timer,any:userid)
+public Action EndPoison(Handle:timer,any:userid)
 {
-    new client = GetClientOfUserId(userid);
+    int client = GetClientOfUserId(userid);
     if (client > 0 && m_PoisonActive[client])
     {
         if (IsClientInGame(client) && IsPlayerAlive(client))

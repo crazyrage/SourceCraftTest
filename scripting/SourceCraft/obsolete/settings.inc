@@ -9,13 +9,13 @@
 
 ChangeSettings(client, bool:fromMain)
 {
-    new Handle:SettingsMenu=CreateMenu(Settings_Select);
+    Handle SettingsMenu=CreateMenu(Settings_Select);
     SetMenuTitle(SettingsMenu,"[SourceCraft] Choose a setting.");
     SetMenuExitButton(SettingsMenu,true);
     if (fromMain)
         SetMenuExitBackButton(SettingsMenu,true);
 
-    new flags = g_DisplayFlags[client];
+    int flags = g_DisplayFlags[client];
     AddSetting(SettingsMenu,"0","Display defense", (flags & SC_DISPLAY_DEFENSE) == 0);
     AddSetting(SettingsMenu,"1","Display damage done", (flags & SC_DISPLAY_DAMAGE_DONE) == 0);
     AddSetting(SettingsMenu,"2","Display kills", (flags & SC_DISPLAY_KILLS) == 0);
@@ -71,7 +71,7 @@ public Settings_Select(Handle:menu,MenuAction:action,client,selection)
 
 AddSetting(Handle:SettingsMenu, const String:info[], const String:setting[], bool:value)
 {
-    decl String:buffer[64];
+    char buffer[64];
     Format(buffer, sizeof(buffer), "[%s] %s", value ? "Y" : "N", setting);
     AddMenuItem(SettingsMenu,info,buffer);
 }

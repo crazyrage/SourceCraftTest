@@ -6,6 +6,8 @@
  * Credits: Anthony Iacono  
  */
 
+#pragma newdecls required
+
 #include <damage>
 #include <tolower>
 
@@ -14,31 +16,31 @@
 #include "sc/maxhealth"
 
 // Handles
-new Handle:g_OnSourceCraftReadyHandle = INVALID_HANDLE;
-new Handle:g_OnPlayerAuthedHandle = INVALID_HANDLE;
-new Handle:g_OnPlayerRestoredHandle = INVALID_HANDLE;
-new Handle:g_OnCrystalsGivenHandle = INVALID_HANDLE;
-new Handle:g_OnVespeneGivenHandle = INVALID_HANDLE;
-new Handle:g_OnXPGivenHandle = INVALID_HANDLE;
-new Handle:g_OnPlayerTakeDamageHandle = INVALID_HANDLE;
-new Handle:g_OnPlayerHurtEventHandle = INVALID_HANDLE;
-new Handle:g_OnPlayerAssistEventHandle = INVALID_HANDLE;
-new Handle:g_OnPlayerDeathEventHandle = INVALID_HANDLE;
-new Handle:g_OnEntityTakeDamageHandle = INVALID_HANDLE;
-new Handle:g_OnEntityHurtEventHandle = INVALID_HANDLE;
-new Handle:g_OnEntityAssistEventHandle = INVALID_HANDLE;
-new Handle:g_OnEntityStunnedEventHandle = INVALID_HANDLE;
-new Handle:g_OnEntityDeathEventHandle = INVALID_HANDLE;
-new Handle:g_OnObjectTakeDamageHandle = INVALID_HANDLE;
-new Handle:g_OnPlayerSpawnEventHandle = INVALID_HANDLE;
-new Handle:g_OnPlayerBuiltObject = INVALID_HANDLE;
-new Handle:g_OnCabinetUsedHandle = INVALID_HANDLE;
-new Handle:g_OnHealthUsedHandle = INVALID_HANDLE;
-new Handle:g_OnUltimateCommandHandle = INVALID_HANDLE;
-new Handle:g_OnImmunityInvokedHandle = INVALID_HANDLE;
+Handle g_OnSourceCraftReadyHandle = INVALID_HANDLE;
+Handle g_OnPlayerAuthedHandle = INVALID_HANDLE;
+Handle g_OnPlayerRestoredHandle = INVALID_HANDLE;
+Handle g_OnCrystalsGivenHandle = INVALID_HANDLE;
+Handle g_OnVespeneGivenHandle = INVALID_HANDLE;
+Handle g_OnXPGivenHandle = INVALID_HANDLE;
+Handle g_OnPlayerTakeDamageHandle = INVALID_HANDLE;
+Handle g_OnPlayerHurtEventHandle = INVALID_HANDLE;
+Handle g_OnPlayerAssistEventHandle = INVALID_HANDLE;
+Handle g_OnPlayerDeathEventHandle = INVALID_HANDLE;
+Handle g_OnEntityTakeDamageHandle = INVALID_HANDLE;
+Handle g_OnEntityHurtEventHandle = INVALID_HANDLE;
+Handle g_OnEntityAssistEventHandle = INVALID_HANDLE;
+Handle g_OnEntityStunnedEventHandle = INVALID_HANDLE;
+Handle g_OnEntityDeathEventHandle = INVALID_HANDLE;
+Handle g_OnObjectTakeDamageHandle = INVALID_HANDLE;
+Handle g_OnPlayerSpawnEventHandle = INVALID_HANDLE;
+Handle g_OnPlayerBuiltObject = INVALID_HANDLE;
+Handle g_OnCabinetUsedHandle = INVALID_HANDLE;
+Handle g_OnHealthUsedHandle = INVALID_HANDLE;
+Handle g_OnUltimateCommandHandle = INVALID_HANDLE;
+Handle g_OnImmunityInvokedHandle = INVALID_HANDLE;
 
-new bool:g_bDamageFromPlayerHurt = false;
-new bool:g_bSupressOnPlayerTakeDamage = false;
+bool g_bDamageFromPlayerHurt = false;
+bool g_bSupressOnPlayerTakeDamage = false;
 
 /**
  * Retrieves the SourceCraftLoaded flag.
@@ -46,7 +48,7 @@ new bool:g_bSupressOnPlayerTakeDamage = false;
  *
  * native bool:IsSourceCraftLoaded();
  */
-public Native_IsSourceCraftLoaded(Handle:plugin,numParams)
+public int Native_IsSourceCraftLoaded(Handle plugin, int numParams)
 {
    return g_bSourceCraftLoaded;
 }
@@ -57,9 +59,9 @@ public Native_IsSourceCraftLoaded(Handle:plugin,numParams)
  *
  * native RoundStates:GetRoundState();
  */
-public Native_GetRoundState(Handle:plugin,numParams)
+public int Native_GetRoundState(Handle plugin, int numParams)
 {
-   return _:g_RoundState;
+   return view_as<int>(g_RoundState);
 }
 
 /**

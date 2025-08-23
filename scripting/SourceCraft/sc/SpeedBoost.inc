@@ -39,7 +39,7 @@ stock SpeedBoost(client, Float:speed, bool:apply)
 
         if (IsValidClientAlive(client))
         {
-            new Float:start[3];
+            float start[3];
             GetClientAbsOrigin(client, start);
 
             static const color[4] = { 255, 100, 0, 255 };

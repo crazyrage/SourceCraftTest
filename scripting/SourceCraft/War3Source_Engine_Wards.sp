@@ -1,7 +1,7 @@
 #include <sourcemod>
 #include "W3SIncs/War3Source_Interface"
 
-public Plugin:myinfo =
+public Plugin myinfo =
 {
     name = "War3Source - Engine - Wards",
     author = "War3Source Team",
@@ -9,40 +9,40 @@ public Plugin:myinfo =
 };
 
 // Ward data structure
-new Handle:g_hWardOwner = INVALID_HANDLE; // Who owns this ward?
-new Handle:g_hWardRadius = INVALID_HANDLE; // How big is the ward radius?
-new Handle:g_hWardLocation = INVALID_HANDLE; // Where is this ward?
-new Handle:g_hWardTarget = INVALID_HANDLE; // What does this ward target?
-new Handle:g_hWardInterval = INVALID_HANDLE; // In which interval does this ward pulse?
-new Handle:g_hWardDisableOnDeath = INVALID_HANDLE; // Bool: Should this ward be disabled when the owner dies?
+Handle g_hWardOwner = INVALID_HANDLE; // Who owns this ward?
+Handle g_hWardRadius = INVALID_HANDLE; // How big is the ward radius?
+Handle g_hWardLocation = INVALID_HANDLE; // Where is this ward?
+Handle g_hWardTarget = INVALID_HANDLE; // What does this ward target?
+Handle g_hWardInterval = INVALID_HANDLE; // In which interval does this ward pulse?
+Handle g_hWardDisableOnDeath = INVALID_HANDLE; // Bool: Should this ward be disabled when the owner dies?
 
 // Modular ward data
-new Handle:g_hWardBehavior = INVALID_HANDLE; // What is the ward behavior ID?
-new Handle:g_hWardSkill = INVALID_HANDLE; // What skill does this ward come from?
-new Handle:g_hWardData = INVALID_HANDLE; // Optional array of data to go with the ward
-new Handle:g_hWardUseDefaultColors = INVALID_HANDLE; // Bool: Should the ward use the default colors?
-new Handle:g_hWardColor2 = INVALID_HANDLE; // Alternate colors for Team 2
-new Handle:g_hWardColor3 = INVALID_HANDLE; // Alternate colors for Team 3
+Handle g_hWardBehavior = INVALID_HANDLE; // What is the ward behavior ID?
+Handle g_hWardSkill = INVALID_HANDLE; // What skill does this ward come from?
+Handle g_hWardData = INVALID_HANDLE; // Optional array of data to go with the ward
+Handle g_hWardUseDefaultColors = INVALID_HANDLE; // Bool: Should the ward use the default colors?
+Handle g_hWardColor2 = INVALID_HANDLE; // Alternate colors for Team 2
+Handle g_hWardColor3 = INVALID_HANDLE; // Alternate colors for Team 3
 
 // Internal ward data
-new Handle:g_hWardNextTick = INVALID_HANDLE; // Internal: When is the next ward pulse?
-new Handle:g_hWardExpireTime = INVALID_HANDLE; // Internal: When will the ward expire?
-new Handle:g_hWardEnabled = INVALID_HANDLE; // Internal: Is this ward enabled?
+Handle g_hWardNextTick = INVALID_HANDLE; // Internal: When is the next ward pulse?
+Handle g_hWardExpireTime = INVALID_HANDLE; // Internal: When will the ward expire?
+Handle g_hWardEnabled = INVALID_HANDLE; // Internal: Is this ward enabled?
 
 // Event handles
-new Handle:g_OnWardCreatedHandle = INVALID_HANDLE;
-new Handle:g_OnWardPulseHandle = INVALID_HANDLE;
-new Handle:g_OnWardTriggerHandle = INVALID_HANDLE;
-new Handle:g_OnWardExpireHandle = INVALID_HANDLE;
+Handle g_OnWardCreatedHandle = INVALID_HANDLE;
+Handle g_OnWardPulseHandle = INVALID_HANDLE;
+Handle g_OnWardTriggerHandle = INVALID_HANDLE;
+Handle g_OnWardExpireHandle = INVALID_HANDLE;
 
 new g_iPlayerWardCount[MAXPLAYERSCUSTOM];
 
-public OnPluginStart()
+public void OnPluginStart()
 {
     HookEvent("round_end", Event_RoundEnd);
 }
 
-public OnClientConnected(client)
+public void OnClientConnected(client)
 {
     g_iPlayerWardCount[client] = 0;
 }
@@ -90,63 +90,63 @@ public bool:InitNativesForwards()
 }
 
 // Native getters to access the data structure
-public Native_War3_GetWardCount(Handle:plugin, numParams)
+public int Native_War3_GetWardCount(Handle plugin, int numParams)
 {
     return g_iPlayerWardCount[GetNativeCell(1)];
 }
 
-public Native_War3_GetWardUseDefaultColor(Handle:plugin, numParams)
+public int Native_War3_GetWardUseDefaultColor(Handle plugin, int numParams)
 {
     return bool:GetArrayCell(g_hWardUseDefaultColors, GetNativeCell(1));
 }
 
-public Native_War3_GetWardSkill(Handle:plugin, numParams)
+public int Native_War3_GetWardSkill(Handle plugin, int numParams)
 {
     return GetArrayCell(g_hWardSkill, GetNativeCell(1));
 }
 
-public Native_War3_GetWardColor2(Handle:plugin, numParams)
+public int Native_War3_GetWardColor2(Handle plugin, int numParams)
 {
     new color[4];
     GetArrayArray(g_hWardColor2, GetNativeCell(1), color);
     SetNativeArray(2, color, sizeof(color));
 }
 
-public Native_War3_GetWardColor3(Handle:plugin, numParams)
+public int Native_War3_GetWardColor3(Handle plugin, int numParams)
 {
     new color[4];
     GetArrayArray(g_hWardColor3, GetNativeCell(1), color);
     SetNativeArray(2, color, sizeof(color));
 }
 
-public Native_War3_GetWardBehavior(Handle:plugin, numParams)
+public int Native_War3_GetWardBehavior(Handle plugin, int numParams)
 {
     return GetArrayCell(g_hWardBehavior, GetNativeCell(1));
 }
 
-public Native_War3_GetWardLocation(Handle:plugin, numParams)
+public int Native_War3_GetWardLocation(Handle plugin, int numParams)
 {
-    new Float:location[3];
+    float location[3];
     GetArrayArray(g_hWardLocation, GetNativeCell(1), location);
     SetNativeArray(2,location,3);
 }
 
-public Native_War3_GetWardInterval(Handle:plugin, numParams)
+public int Native_War3_GetWardInterval(Handle plugin, int numParams)
 {
     return GetArrayCell(g_hWardInterval, GetNativeCell(1));
 }
 
-public Native_War3_GetWardRadius(Handle:plugin, numParams)
+public int Native_War3_GetWardRadius(Handle plugin, int numParams)
 {
     return GetArrayCell(g_hWardRadius,GetNativeCell(1));
 }
 
-public Native_War3_GetWardOwner(Handle:plugin, numParams)
+public int Native_War3_GetWardOwner(Handle plugin, int numParams)
 {
     return GetArrayCell(g_hWardOwner, GetNativeCell(1));
 }
 
-public Native_War3_GetWardData(Handle:plugin, numParams)
+public int Native_War3_GetWardData(Handle plugin, int numParams)
 {
     new data[MAXWARDDATA];
     GetArrayArray(g_hWardData, GetNativeCell(1), data);
@@ -155,30 +155,30 @@ public Native_War3_GetWardData(Handle:plugin, numParams)
 
 // Constructors
 
-public Native_War3_CreateWard(Handle:plugin, numParams)
+public int Native_War3_CreateWard(Handle plugin, int numParams)
 {
-    new client = GetNativeCell(1);
+    int client = GetNativeCell(1);
 
     if(W3Denyable(DN_CanPlaceWard, client))
     {
-        new id = PushArrayCell(g_hWardOwner, client);
+        int id = PushArrayCell(g_hWardOwner, client);
 
-        new Float:fWardLocation[3];
+        float fWardLocation[3];
         GetNativeArray(2, fWardLocation, 3);
         PushArrayArray(g_hWardLocation, fWardLocation);
         
-        new iRadius = GetNativeCell(3);
+        int iRadius = GetNativeCell(3);
         PushArrayCell(g_hWardRadius, iRadius);
         
-        new Float:fDuration = GetNativeCell(4);
+        float fDuration = GetNativeCell(4);
                
-        new Float:fPulseInterval = GetNativeCell(5);
+        float fPulseInterval = GetNativeCell(5);
         PushArrayCell(g_hWardInterval, fPulseInterval);
 
-        new iTarget = GetNativeCell(6);
+        int iTarget = GetNativeCell(6);
         PushArrayCell(g_hWardTarget, iTarget);
 
-        new bool:bDisableOnDeath = GetNativeCell(7);
+        bool bDisableOnDeath = GetNativeCell(7);
         PushArrayCell(g_hWardDisableOnDeath, bDisableOnDeath);
 
         g_iPlayerWardCount[client]++;
@@ -214,44 +214,44 @@ public Native_War3_CreateWard(Handle:plugin, numParams)
     return INVALID_WARD;
 }
 
-public Native_War3_CreateWardMod(Handle:plugin, numParams)
+public int Native_War3_CreateWardMod(Handle plugin, int numParams)
 {
-    new client = GetNativeCell(1);
+    int client = GetNativeCell(1);
 
     if(W3Denyable(DN_CanPlaceWard, client))
     {
-        new id = PushArrayCell(g_hWardOwner, client);
+        int id = PushArrayCell(g_hWardOwner, client);
 
-        new Float:fWardLocation[3];
+        float fWardLocation[3];
         GetNativeArray(2, fWardLocation, 3);
         PushArrayArray(g_hWardLocation, fWardLocation);
         
-        new iRadius = GetNativeCell(3);
+        int iRadius = GetNativeCell(3);
         PushArrayCell(g_hWardRadius, iRadius);
         
-        new Float:fDuration = GetNativeCell(4);
+        float fDuration = GetNativeCell(4);
                
-        new Float:fPulseInterval = GetNativeCell(5);
+        float fPulseInterval = GetNativeCell(5);
         PushArrayCell(g_hWardInterval, fPulseInterval);
         
-        new String:sBehavior[WARDSNAMELEN];
+        char sBehavior[WARDSNAMELEN];
         GetNativeString(6, sBehavior, sizeof(sBehavior));
         PushArrayCell(g_hWardBehavior, War3_GetWardBehaviorByShortname(sBehavior));
         
-        new iWardSkill = GetNativeCell(7);
+        int iWardSkill = GetNativeCell(7);
         PushArrayCell(g_hWardSkill, iWardSkill);
 
         new any:data[MAXWARDDATA];
         GetNativeArray(8, data ,MAXWARDDATA);
         PushArrayArray(g_hWardData, data);
         
-        new iTarget = GetNativeCell(9);
+        int iTarget = GetNativeCell(9);
         PushArrayCell(g_hWardTarget, iTarget);
 
-        new bool:bDisableOnDeath = GetNativeCell(10);
+        bool bDisableOnDeath = GetNativeCell(10);
         PushArrayCell(g_hWardDisableOnDeath, bDisableOnDeath);
         
-        new bool:bUseDefaultColors = GetNativeCell(11);
+        bool bUseDefaultColors = GetNativeCell(11);
         PushArrayCell(g_hWardUseDefaultColors, bUseDefaultColors);
         
         new color[4];
@@ -289,32 +289,32 @@ public Native_War3_CreateWardMod(Handle:plugin, numParams)
 // WardPulse is only called for enabled wards
 public WardPulse(id)
 {
-    new owner = GetArrayCell(g_hWardOwner, id);
+    int owner = GetArrayCell(g_hWardOwner, id);
 
     Call_StartForward(g_OnWardPulseHandle);
     Call_PushCell(id);
     Call_PushCell(GetArrayCell(g_hWardBehavior, id));
     Call_Finish();
 
-    new Float:fStartPos[3];
-    new Float:fWardLocation[3];
+    float fStartPos[3];
+    float fWardLocation[3];
     GetArrayArray(g_hWardLocation, id, fWardLocation);
 
-    new Float:tempvec[3] = {0.0, 0.0, WARDBELOW};
+    float tempvec[3] = {0.0, 0.0, WARDBELOW};
     AddVectors(fWardLocation, tempvec, fStartPos);
     
-    new Float:BeamXY[3];
-    for(new x=0; x < 3; x++)
+    float BeamXY[3];
+    for(int x =0; x < 3; x++)
     {
         BeamXY[x] = fStartPos[x]; //only compare xy
     }
-    new Float:BeamZ= BeamXY[2];
+    float BeamZ= BeamXY[2];
     BeamXY[2] = 0.0;
-    new Float:VictimPos[3];
-    new Float:tempZ;
+    float VictimPos[3];
+    float tempZ;
 
-    new iWardTarget = GetArrayCell(g_hWardTarget, id);
-    for(new i=1; i <= MaxClients; i++)
+    int iWardTarget = GetArrayCell(g_hWardTarget, id);
+    for(int i =1; i <= MaxClients; i++)
     {
         if(ValidPlayer(i, true))
         {
@@ -354,7 +354,7 @@ public WardPulse(id)
 
 // Cleanup
 
-public Native_War3_RemoveWard(Handle:plugin, numParams)
+public int Native_War3_RemoveWard(Handle plugin, int numParams)
 {
     return bool:RemoveWard(GetNativeCell(1));
 }
@@ -384,7 +384,7 @@ public bool:RemoveWard(id)
 
 public RemoveWards(client)
 {
-    for(new id=0; id < GetArraySize(g_hWardOwner); id++)
+    for(int id =0; id < GetArraySize(g_hWardOwner); id++)
     {
         if(GetArrayCell(g_hWardOwner, id) == client)
         {
@@ -393,10 +393,10 @@ public RemoveWards(client)
     }
 }
 
-public  OnWar3EventDeath(victim, attacker)
+public void OnWar3EventDeath(victim, attacker)
 {
-    new bool:bDisableWard;
-    for(new i=0; i < GetArraySize(g_hWardOwner); i++)
+    bool bDisableWard;
+    for(int i =0; i < GetArraySize(g_hWardOwner); i++)
     {
         if (GetArrayCell(g_hWardOwner, i) == victim)
         {
@@ -409,19 +409,19 @@ public  OnWar3EventDeath(victim, attacker)
     }
 }
 
-public OnClientDisconnect(client)
+public void OnClientDisconnect(client)
 {
     RemoveWards(client);
 }
 
-public OnWar3EventSpawn(client)
+public void OnWar3EventSpawn(client)
 {
     RemoveWards(client);
 }
 
 public Event_RoundEnd(Handle:event, const String:name[], bool:dontBroadcast)
 {
-    for(new i=0; i < GetArraySize(g_hWardOwner); i++)
+    for(int i =0; i < GetArraySize(g_hWardOwner); i++)
     {
         RemoveWard(i);
     }
@@ -445,15 +445,15 @@ public Event_RoundEnd(Handle:event, const String:name[], bool:dontBroadcast)
 
 // FOR GALLIFREY, err, OnGameFrame, I mean...
 
-public OnGameFrame()
+public void OnGameFrame()
 {
-    new Float:now = GetEngineTime();
-    new bool:bEnabled;
-    new Float:fNextTick;
-    new Float:fInterval;
-    new Float:fExpires;
+    float now = GetEngineTime();
+    bool bEnabled;
+    float fNextTick;
+    float fInterval;
+    float fExpires;
     
-    for(new i = 0; i < GetArraySize(g_hWardOwner); i++)
+    for(int i = 0; i < GetArraySize(g_hWardOwner); i++)
     {
         bEnabled = GetArrayCell(g_hWardEnabled, i);
         if (!bEnabled)

@@ -6,6 +6,7 @@
  */
 
 #pragma semicolon 1
+#pragma newdecls required
 
 #include <sourcemod>
 #include <sdktools>
@@ -50,20 +51,20 @@ new String:g_MissileAttackSound[]   = "sc/pdrfir00.wav";
 new raceID, immunityID, speedID, shieldsID, missileID, hardenedShieldsID,  collosusID;
 
 new g_MissileAttackChance[]         = { 5, 10, 15, 25, 35 };
-new Float:g_MissileAttackPercent[]  = { 0.15, 0.30, 0.40, 0.50, 0.70 };
+float g_MissileAttackPercent[]  = { 0.15, 0.30, 0.40, 0.50, 0.70 };
 
-new Float:g_SpeedLevels[]           = { 0.80, 0.90, 0.95, 1.00, 1.05 };
+float g_SpeedLevels[]           = { 0.80, 0.90, 0.95, 1.00, 1.05 };
 
-new Float:g_InitialShields[]        = { 0.05, 0.10, 0.25, 0.50, 0.75 };
-new Float:g_ShieldsPercent[][2]     = { {0.05, 0.10},
+float g_InitialShields[]        = { 0.05, 0.10, 0.25, 0.50, 0.75 };
+float g_ShieldsPercent[][2]     = { {0.05, 0.10},
                                         {0.10, 0.20},
                                         {0.15, 0.30},
                                         {0.20, 0.40},
                                         {0.25, 0.50} };
 
-new g_collosusRace = -1;
+int g_collosusRace = -1;
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Protoss Immortal",
     author = "-=|JFH|=-Naris",
@@ -72,7 +73,7 @@ public Plugin:myinfo =
     url = "http://jigglysfunhouse.net/"
 };
 
-public OnPluginStart()
+public void OnPluginStart()
 {
     LoadTranslations("sc.common.phrases.txt");
     LoadTranslations("sc.immortal.phrases.txt");
@@ -82,7 +83,7 @@ public OnPluginStart()
         OnSourceCraftReady();
 }
 
-public OnSourceCraftReady()
+public void OnSourceCraftReady()
 {
     raceID      = CreateRace("immortal", -1, -1, 21, .energy_rate=2.0,
                              .faction=Protoss, .type=Cybernetic,
@@ -115,9 +116,9 @@ public OnSourceCraftReady()
     GetConfigFloatArray("shields_amount", g_InitialShields, sizeof(g_InitialShields),
                         g_InitialShields, raceID, shieldsID);
 
-    for (new level=0; level < sizeof(g_ShieldsPercent); level++)
+    for (int level =0; level < sizeof(g_ShieldsPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "shields_percent_level_%d", level);
         GetConfigFloatArray(key, g_ShieldsPercent[level], sizeof(g_ShieldsPercent[]),
                             g_ShieldsPercent[level], raceID, shieldsID);
@@ -133,7 +134,7 @@ public OnSourceCraftReady()
                         g_MissileAttackPercent, raceID, missileID);
 }
 
-public OnLibraryAdded(const String:name[])
+public void OnLibraryAdded(const String:name[])
 {
     if (StrEqual(name, "hgrsource"))
         IsHGRSourceAvailable(true);
@@ -141,7 +142,7 @@ public OnLibraryAdded(const String:name[])
         IsUberShieldAvailable(true);
 }
 
-public OnLibraryRemoved(const String:name[])
+public void OnLibraryRemoved(const String:name[])
 {
     if (StrEqual(name, "hgrsource"))
         m_HGRSourceAvailable = false;
@@ -149,7 +150,7 @@ public OnLibraryRemoved(const String:name[])
         m_UberShieldAvailable = false;
 }
 
-public OnMapStart()
+public void OnMapStart()
 {
     SetupSmokeSprite();
     SetupHaloSprite();
@@ -169,7 +170,7 @@ public OnMapStart()
     SetupMissileAttack(g_MissileAttackSound);
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -180,7 +181,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
             TakeUberShield(client);
 
         // Turn off Immunities
-        new immunity_level=GetUpgradeLevel(client,raceID,immunityID);
+        int immunity_level =GetUpgradeLevel(client,raceID,immunityID);
         DoImmunity(client, immunity_level, false);
     }
     else
@@ -199,7 +200,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
     return Plugin_Continue;
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
@@ -208,17 +209,17 @@ public Action:OnRaceSelected(client,oldrace,newrace)
             PrepareAndEmitSoundToAll(spawnWav, client);
 
             // Turn on Immunities
-            new immunity_level=GetUpgradeLevel(client,raceID,immunityID);
+            int immunity_level =GetUpgradeLevel(client,raceID,immunityID);
             DoImmunity(client, immunity_level, true);
 
-            new speed_level = GetUpgradeLevel(client,raceID,speedID);
+            int speed_level = GetUpgradeLevel(client,raceID,speedID);
             SetSpeedBoost(client, speed_level, true, g_SpeedLevels);
 
-            new hard_shields_level=GetUpgradeLevel(client,raceID,hardenedShieldsID);
+            int hard_shields_level =GetUpgradeLevel(client,raceID,hardenedShieldsID);
             if (hard_shields_level > 0)
                 SetupUberShield(client, hard_shields_level);
 
-            new shields_level = GetUpgradeLevel(client,raceID,shieldsID);
+            int shields_level = GetUpgradeLevel(client,raceID,shieldsID);
             SetupShields(client, shields_level, g_InitialShields, g_ShieldsPercent);
         }
         return Plugin_Handled;
@@ -227,7 +228,7 @@ public Action:OnRaceSelected(client,oldrace,newrace)
         return Plugin_Continue;
 }
 
-public OnUpgradeLevelChanged(client,race,upgrade,new_level)
+public void OnUpgradeLevelChanged(client,race,upgrade,new_level)
 {
     if (race == raceID && GetRace(client) == raceID)
     {
@@ -245,9 +246,9 @@ public OnUpgradeLevelChanged(client,race,upgrade,new_level)
     }
 }
 
-public OnItemPurchase(client,item)
+public void OnItemPurchase(client,item)
 {
-    new race=GetRace(client);
+    int race =GetRace(client);
     if (race == raceID && IsValidClientAlive(client))
     {
         if (g_bootsItem < 0)
@@ -255,13 +256,13 @@ public OnItemPurchase(client,item)
 
         if (item == g_bootsItem)
         {
-            new speed_level = GetUpgradeLevel(client,race,speedID);
+            int speed_level = GetUpgradeLevel(client,race,speedID);
             SetSpeedBoost(client, speed_level, true, g_SpeedLevels);
         }
     }
 }
 
-public OnUltimateCommand(client,race,bool:pressed,arg)
+public void OnUltimateCommand(client,race,bool:pressed,arg)
 {
     if (pressed && race==raceID && IsValidClientAlive(client))
     {
@@ -269,19 +270,19 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
         {
             case 4,3,2:
             {
-                new collosus_level = GetUpgradeLevel(client,race,collosusID);
+                int collosus_level = GetUpgradeLevel(client,race,collosusID);
                 if (collosus_level > 0)
                     SummonCollosus(client);
                 else
                 {
-                    new hard_shields_level=GetUpgradeLevel(client,race,hardenedShieldsID);
+                    int hard_shields_level =GetUpgradeLevel(client,race,hardenedShieldsID);
                     if (hard_shields_level)
                         HardenedShields(client, hard_shields_level);
                 }
             }
             default:
             {
-                new hard_shields_level=GetUpgradeLevel(client,race,hardenedShieldsID);
+                int hard_shields_level =GetUpgradeLevel(client,race,hardenedShieldsID);
                 if (hard_shields_level)
                     HardenedShields(client, hard_shields_level);
             }
@@ -289,31 +290,31 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
     }
 }
 
-public OnPlayerSpawnEvent(Handle:event, client, race)
+public void OnPlayerSpawnEvent(Handle:event, client, race)
 {
     if (race == raceID)
     {
         PrepareAndEmitSoundToAll(spawnWav, client);
 
-        new immunity_level=GetUpgradeLevel(client,raceID,immunityID);
+        int immunity_level =GetUpgradeLevel(client,raceID,immunityID);
         DoImmunity(client, immunity_level, true);
 
-        new speed_level = GetUpgradeLevel(client,raceID,speedID);
+        int speed_level = GetUpgradeLevel(client,raceID,speedID);
         SetSpeedBoost(client, speed_level, true, g_SpeedLevels);
 
-        new shields_level = GetUpgradeLevel(client,raceID,shieldsID);
+        int shields_level = GetUpgradeLevel(client,raceID,shieldsID);
         SetupShields(client, shields_level, g_InitialShields, g_ShieldsPercent);
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     if (!from_sc && attacker_index > 0 &&
         attacker_index != victim_index &&
         attacker_race == raceID)
     {
-        new weapons_level=GetUpgradeLevel(attacker_index,raceID,missileID);
+        int weapons_level =GetUpgradeLevel(attacker_index,raceID,missileID);
         if (weapons_level > 0)
         {
             if (MissileAttack(raceID, missileID, weapons_level, event, damage + absorbed, victim_index,
@@ -328,7 +329,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
     return Plugin_Continue;
 }
 
-public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
+public void OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
                           attacker_race, assister_index, assister_race, damage,
                           const String:weapon[], bool:is_equipment, customkill,
                           bool:headshot, bool:backstab, bool:melee)
@@ -362,7 +363,7 @@ DoImmunity(client, level, bool:value)
 
     if (value && IsValidClientAlive(client))
     {
-        new Float:start[3];
+        float start[3];
         GetClientAbsOrigin(client, start);
 
         static const color[4] = { 0, 255, 50, 128 };
@@ -379,7 +380,7 @@ SummonCollosus(client)
 
     if (g_collosusRace < 0)
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, collosusID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "IsNotAvailable", upgradeName);
         LogError("***The Protoss Collosus race is not Available!");
@@ -394,7 +395,7 @@ SummonCollosus(client)
     }
     else if (CanInvokeUpgrade(client, raceID, collosusID))
     {
-        new Float:clientLoc[3];
+        float clientLoc[3];
         GetClientAbsOrigin(client, clientLoc);
         clientLoc[2] += 40.0; // Adjust position to the middle
 
@@ -416,7 +417,7 @@ SetupUberShield(client, level)
     {
         if (level > 0)
         {
-            new num = level * 3;
+            int num = level * 3;
             GiveUberShield(client, num, num,
                            GetShieldFlags(level));
         }
@@ -448,7 +449,7 @@ ShieldFlags:GetShieldFlags(level)
 
 HardenedShields(client, hard_shields_level)
 {
-    decl String:upgradeName[64];
+    char upgradeName[64];
     GetUpgradeName(raceID, hardenedShieldsID, upgradeName, sizeof(upgradeName), client);
 
     if (!m_UberShieldAvailable)
@@ -481,7 +482,7 @@ HardenedShields(client, hard_shields_level)
         }
         else if (CanInvokeUpgrade(client, raceID, hardenedShieldsID, false))
         {
-            new Float:duration = float(hard_shields_level) * 3.0;
+            float duration = float(hard_shields_level) * 3.0;
             UberShieldTarget(client, duration, GetShieldFlags(hard_shields_level));
             DisplayMessage(client,Display_Ultimate,"%t", "Invoked", upgradeName);
             CreateCooldown(client, raceID, hardenedShieldsID);
@@ -489,14 +490,14 @@ HardenedShields(client, hard_shields_level)
     }
 }
 
-public Action:OnDeployUberShield(client, target)
+public Action OnDeployUberShield(client, target)
 {
     if (GetRace(client) == raceID)
     {
         if (GetRestriction(client,Restriction_NoUltimates) ||
             GetRestriction(client,Restriction_Stunned))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, hardenedShieldsID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -504,7 +505,7 @@ public Action:OnDeployUberShield(client, target)
         }
         else if (IsMole(client))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, hardenedShieldsID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "CantUseAsMole", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -512,7 +513,7 @@ public Action:OnDeployUberShield(client, target)
         }
         else if (target > 0 && GameType == tf2 && TF2_HasTheFlag(target))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, hardenedShieldsID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "CantUseOnFlagCarrier", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -520,7 +521,7 @@ public Action:OnDeployUberShield(client, target)
         }
         else if (target > 0 && m_HGRSourceAvailable && IsGrabbed(target))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, hardenedShieldsID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "CantUseOnSomeoneBeingHeld", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);

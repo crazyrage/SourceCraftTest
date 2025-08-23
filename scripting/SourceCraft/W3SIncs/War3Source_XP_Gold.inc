@@ -19,8 +19,8 @@ native W3GetReqXP(level); //get required xp for leveling to the level, use (leve
 #else
 stock W3GetKillXP(client,leveldifference=0)
 {
-    new xp=GetKillXP(client)+leveldifference;
-    new max=GetReqLevelXP(GetLevel(client)+1);
+    int xp =GetKillXP(client)+leveldifference;
+    int max =GetReqLevelXP(GetLevel(client)+1);
     return (xp < max) ? xp : max;
 }
 

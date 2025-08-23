@@ -94,12 +94,12 @@ enum ItemStringInfo
 #define SetItemTranslationFile(%1,%2)       SetArrayString(GetItemStringHandle(%1),_:ItemString_TranslationFile,%2)
 
 // A vector of shopmenu infomation
-new Handle:shopVector = INVALID_HANDLE;
-new Handle:shopIndex = INVALID_HANDLE;
+Handle shopVector = INVALID_HANDLE;
+Handle shopIndex = INVALID_HANDLE;
 
-new Handle:g_OnItemPurchaseExHandle = INVALID_HANDLE;
-new Handle:g_OnItemPurchaseHandle = INVALID_HANDLE;
-new Handle:g_OnItemLostHandle = INVALID_HANDLE;
+Handle g_OnItemPurchaseExHandle = INVALID_HANDLE;
+Handle g_OnItemPurchaseHandle = INVALID_HANDLE;
+Handle g_OnItemLostHandle = INVALID_HANDLE;
 
 bool:InitShopVector()
 {
@@ -124,11 +124,11 @@ ClearShopVector()
 
     if (shopVector == INVALID_HANDLE)
     {
-        new itemCount = GetShopItemCount();
-        for(new x=0;x<itemCount;x++)
+        int itemCount = GetShopItemCount();
+        for(int x =0;x<itemCount;x++)
         {
-            new Handle:item=GetArrayCell(shopVector,x);
-            new Handle:stringsHandle=GetArrayCell(item,_:ItemInfo_Strings);
+            Handle item=GetArrayCell(shopVector,x);
+            Handle stringsHandle=GetArrayCell(item,_:ItemInfo_Strings);
             ClearArray(stringsHandle);
             CloseHandle(stringsHandle);
 
@@ -163,7 +163,7 @@ CreateShopItem(const String:short[], crystals=0, vespene=0, money=0, bool:use_pc
 {
     TraceInto("ShopItems", "CreateShopItem", "name=%s", name);
 
-    decl String:translation_path[PLATFORM_MAX_PATH];
+    char translation_path[PLATFORM_MAX_PATH];
     if (translation_file[0] != '\0')
     {
         strcopy(translation_path, sizeof(translation_path), translation_file);
@@ -177,9 +177,9 @@ CreateShopItem(const String:short[], crystals=0, vespene=0, money=0, bool:use_pc
     // Load shop item config, if any
     if (short[0] != '\0')
     {
-        new bool:itemFound;
+        bool itemFound;
         new ConfigLoadedStatus:itemLoaded;
-        new Handle:itemConfig = LoadItemConfig(itemLoaded);
+        Handle itemConfig = LoadItemConfig(itemLoaded);
         if (itemLoaded == ConfigNotLoaded)
         {
             KvRewind(itemConfig);
@@ -235,7 +235,7 @@ CreateShopItem(const String:short[], crystals=0, vespene=0, money=0, bool:use_pc
         if (translation_file[0] == '\0')
         {
             // Check for and Load Translations, if any
-            decl String:file[NAME_STRING_LENGTH];
+            char file[NAME_STRING_LENGTH];
 
             switch (translation)
             {
@@ -317,10 +317,10 @@ CreateShopItem(const String:short[], crystals=0, vespene=0, money=0, bool:use_pc
         }
     }
 
-    new shopId = FindShopItem(short);
+    int shopId = FindShopItem(short);
     if (shopId > 0)
     {
-        new Handle:itemHandle=GetShopItemHandle(shopId);
+        Handle itemHandle=GetShopItemHandle(shopId);
 
         SetItemCrystals(itemHandle,crystals);
         SetItemVespene(itemHandle,vespene);
@@ -334,7 +334,7 @@ CreateShopItem(const String:short[], crystals=0, vespene=0, money=0, bool:use_pc
         SetItemPlugin(itemHandle,plugin);
         SetItemId(itemHandle,shopId);
 
-        new Handle:stringsHandle=GetItemStringHandle(itemHandle);
+        Handle stringsHandle=GetItemStringHandle(itemHandle);
         SetArrayString(stringsHandle,_:ItemString_ShortName,short);
         SetArrayString(stringsHandle,_:ItemString_Category,category);
         SetArrayString(stringsHandle,_:ItemString_Name,name);
@@ -343,14 +343,14 @@ CreateShopItem(const String:short[], crystals=0, vespene=0, money=0, bool:use_pc
     }
     else
     {
-        new Handle:stringsHandle=CreateArray(ByteCountToCells(LONG_STRING_LENGTH));
+        Handle stringsHandle=CreateArray(ByteCountToCells(LONG_STRING_LENGTH));
         PushArrayString(stringsHandle,short);
         PushArrayString(stringsHandle,category);
         PushArrayString(stringsHandle,name);
         PushArrayString(stringsHandle,desc);
         PushArrayString(stringsHandle,translation_path);
 
-        new Handle:newItem=CreateArray();
+        Handle newItem=CreateArray();
         PushArrayCell(newItem,stringsHandle);
         PushArrayCell(newItem,crystals);
         PushArrayCell(newItem,vespene);
@@ -372,29 +372,29 @@ CreateShopItem(const String:short[], crystals=0, vespene=0, money=0, bool:use_pc
         Trace("CreateArray item[%d]=0x%08x", shopId, newItem);
         Trace("CreateArray itemStringsHandle[%d]=0x%08x", shopId, stringsHandle);
 
-        decl String:newCategory[NAME_STRING_LENGTH];
+        char newCategory[NAME_STRING_LENGTH];
         GetItemCategory(newItem, newCategory, sizeof(newCategory));
 
-        decl String:newName[NAME_STRING_LENGTH];
+        char newName[NAME_STRING_LENGTH];
         GetItemName(newItem, newName, sizeof(newName));
 
-        new item=0;
-        new indexCount=GetArraySize(shopIndex);
+        int item =0;
+        int indexCount =GetArraySize(shopIndex);
         for(;item<indexCount;item++)
         {
-            new Handle:itemHandle = GetItemIndexHandle(item);
-            decl String:itemCategory[NAME_STRING_LENGTH];
+            Handle itemHandle = GetItemIndexHandle(item);
+            char itemCategory[NAME_STRING_LENGTH];
             GetItemCategory(itemHandle, itemCategory, sizeof(itemCategory));
 
-            new cmpCategory = strcmp(newCategory,itemCategory,false);
+            int cmpCategory = strcmp(newCategory,itemCategory,false);
             if (cmpCategory <= 0)
             {
-                new itemLevel = GetItemRequiredLevel(itemHandle);
+                int itemLevel = GetItemRequiredLevel(itemHandle);
                 if (itemLevel < 0)
                     itemLevel = 65535;
                 if (cmpCategory <= 0 || required_level <= itemLevel)
                 {
-                    decl String:itemName[NAME_STRING_LENGTH];
+                    char itemName[NAME_STRING_LENGTH];
                     GetItemName(itemHandle, itemName, sizeof(itemName));
                     if (cmpCategory < 0 || required_level < itemLevel ||
                         (cmpCategory == 0 && required_level == itemLevel &&
@@ -413,13 +413,13 @@ CreateShopItem(const String:short[], crystals=0, vespene=0, money=0, bool:use_pc
             PushArrayCell(shopIndex,newItem);
 
         // Find item_ident
-        new itemIdent = LoadItemIdent(short);
+        int itemIdent = LoadItemIdent(short);
         if (itemIdent < 0 || g_bCreate || g_bUpdate)
         {
-            decl String:itemDesc[DESCRIPTION_LENGTH];
+            char itemDesc[DESCRIPTION_LENGTH];
             GetItemDescription(newItem, itemDesc, sizeof(itemDesc));
 
-            decl String:itemImage[NAME_STRING_LENGTH];
+            char itemImage[NAME_STRING_LENGTH];
             GetItemImage(newItem, itemImage, sizeof(itemImage), image);
 
             itemIdent = InsertItem(short, newName, itemDesc, newCategory,
@@ -436,12 +436,12 @@ CreateShopItem(const String:short[], crystals=0, vespene=0, money=0, bool:use_pc
 
 FindShopItem(const String:name[])
 {
-    decl String:curName[64];
-    new size = GetShopItemCount();
-    for(new x=0;x<size;x++)
+    char curName[64];
+    int size = GetShopItemCount();
+    for(int x =0;x<size;x++)
     {
-        new Handle:itemHandle=GetArrayCell(shopVector,x);
-        new Handle:stringsHandle=GetArrayCell(itemHandle,_:ItemInfo_Strings);
+        Handle itemHandle=GetArrayCell(shopVector,x);
+        Handle stringsHandle=GetArrayCell(itemHandle,_:ItemInfo_Strings);
         GetArrayString(stringsHandle,_:ItemString_ShortName,curName,sizeof(curName));
         if (StrEqual(name,curName,false))
             return x;
@@ -467,16 +467,16 @@ bool:PurchaseShopItem(client,item)
     else
     {
         // Purchase
-        new Handle:itemHandle=GetShopItemHandle(item);
+        Handle itemHandle=GetShopItemHandle(item);
         if (itemHandle != INVALID_HANDLE)
         {
-            decl String:itemName[64];
+            char itemName[64];
             GetItemName(itemHandle, itemName, sizeof(itemName),client);
 
-            new xp = GetItemXP(itemHandle);
-            new gas = GetItemVespene(itemHandle);
-            new bool:use_pcrystals = GetItemCanUsePCrystals(itemHandle);
-            new pcrystals = (use_pcrystals) ? GetPCrystals(client) : 0;
+            int xp = GetItemXP(itemHandle);
+            int gas = GetItemVespene(itemHandle);
+            bool use_pcrystals = GetItemCanUsePCrystals(itemHandle);
+            int pcrystals = (use_pcrystals) ? GetPCrystals(client) : 0;
 
             new cost, funds;
             if (g_bUseMoney)
@@ -496,15 +496,15 @@ bool:PurchaseShopItem(client,item)
 
             if (funds + pcrystals >= cost)
             {
-                new vespene = GetVespene(client);
+                int vespene = GetVespene(client);
                 if (vespene >= gas)
                 {
-                    new race = GetRace(client);
-                    new experience = GetXP(client, race);
+                    int race = GetRace(client);
+                    int experience = GetXP(client, race);
                     if (experience >= xp)
                     {
-                        new num = GetOwnsItem(client,item);
-                        new max = GetItemMax(itemHandle);
+                        int num = GetOwnsItem(client,item);
+                        int max = GetItemMax(itemHandle);
                         if (num < max || max < 0)
                         {
                             new Action:result = Plugin_Continue;
@@ -599,7 +599,7 @@ bool:PurchaseShopItem(client,item)
                         new Faction:faction;
                         if (race >= 0)
                         {
-                            new Handle:raceHandle=GetRaceHandle(race);
+                            Handle raceHandle=GetRaceHandle(race);
                             faction=GetRaceFactionId(raceHandle);
                         }
                         else
@@ -612,10 +612,10 @@ bool:PurchaseShopItem(client,item)
                 else if (IsClientInGame(client) && !IsFakeClient(client))
                 {
                     new Faction:faction;
-                    new race = GetRace(client);
+                    int race = GetRace(client);
                     if (race >= 0)
                     {
-                        new Handle:raceHandle=GetRaceHandle(race);
+                        Handle raceHandle=GetRaceHandle(race);
                         faction=GetRaceFactionId(raceHandle);
                     }
                     else
@@ -628,10 +628,10 @@ bool:PurchaseShopItem(client,item)
             else if (IsClientInGame(client) && !IsFakeClient(client))
             {
                 new Faction:faction;
-                new race = GetRace(client);
+                int race = GetRace(client);
                 if (race >= 0)
                 {
-                    new Handle:raceHandle=GetRaceHandle(race);
+                    Handle raceHandle=GetRaceHandle(race);
                     faction=GetRaceFactionId(raceHandle);
                 }
                 else
@@ -669,13 +669,13 @@ GetItemName(Handle:itemHandle, String:name[], maxlength, lang=LANG_SERVER)
         if (translation > Translation_Auto)
         {
             // Translate the short name to get the name
-            decl String:short[NAME_STRING_LENGTH];
+            char short[NAME_STRING_LENGTH];
             GetItemShortName(itemHandle, short, sizeof(short));
 
             if (translation == Translation_W3S)
             {
                 // Use the War3Source key
-                decl String:key[NAME_STRING_LENGTH];
+                char key[NAME_STRING_LENGTH];
                 Format(key,sizeof(key),"%s_ItemName",short);
                 Format(name,maxlength,"%T",key,lang);
             }
@@ -700,20 +700,20 @@ GetItemCategory(Handle:itemHandle, String:category[], maxlength, lang=LANG_SERVE
         new Translation:translation = GetItemTranslation(itemHandle);
         if (translation > Translation_Auto)
         {
-            decl String:short[NAME_STRING_LENGTH];
+            char short[NAME_STRING_LENGTH];
             GetItemShortName(itemHandle, short, sizeof(short));
 
             if (translation == Translation_W3S)
             {
                 // Use the War3Source key
-                decl String:key[NAME_STRING_LENGTH];
+                char key[NAME_STRING_LENGTH];
                 Format(key,sizeof(key),"%s_ItemCat",short);
                 Format(category,maxlength,"%T",key,lang);
             }
             else
             {
                 // Translate the key to get the category
-                decl String:key[NAME_STRING_LENGTH];
+                char key[NAME_STRING_LENGTH];
                 Format(key,sizeof(key),"%s_category",short);
                 Format(category,maxlength,"%T",key,lang);
             }
@@ -734,19 +734,19 @@ GetItemDescription(Handle:itemHandle, String:description[], maxlength, lang=LANG
         if (translation > Translation_Auto)
         {
             // Translate the key to get the description
-            decl String:short[DESCRIPTION_LENGTH];
+            char short[DESCRIPTION_LENGTH];
             GetItemShortName(itemHandle, short, sizeof(short));
 
             if (translation == Translation_W3S)
             {
                 // Use the War3Source key
-                decl String:key[NAME_STRING_LENGTH];
+                char key[NAME_STRING_LENGTH];
                 Format(key,sizeof(key),"%s_ItemDesc",short);
                 Format(description,maxlength,"%T",key,lang);
             }
             else
             {
-                decl String:key[NAME_STRING_LENGTH];
+                char key[NAME_STRING_LENGTH];
                 Format(key,sizeof(key),"%s_desc",short);
                 Format(description,maxlength,"%T",key,lang);
             }
@@ -766,17 +766,17 @@ GetItemImage(Handle:itemHandle, String:image[], maxlength,
         new Translation:translation = GetItemTranslation(itemHandle);
         if (translation > Translation_Auto)
         {
-            decl String:file[LONG_STRING_LENGTH];
+            char file[LONG_STRING_LENGTH];
             GetItemTranslationFile(itemHandle, file, sizeof(file));
             if (file[0])
             {
-                decl String:short[SHORT_STRING_LENGTH];
+                char short[SHORT_STRING_LENGTH];
                 GetItemShortName(itemHandle, short, sizeof(short));
 
                 if (translation == Translation_W3S)
                 {
                     // Translate the short name + _ItemImage to get the image 
-                    decl String:key[ITEM_STRING_LENGTH];
+                    char key[ITEM_STRING_LENGTH];
                     Format(key,sizeof(key),"%s_ItemImage",short);
                     if (FileContains(file, key))
                         Format(image,maxlength,"%T",key,lang);
@@ -788,7 +788,7 @@ GetItemImage(Handle:itemHandle, String:image[], maxlength,
                 else
                 {
                     // Translate the short name + _image to get the image 
-                    decl String:key[ITEM_STRING_LENGTH];
+                    char key[ITEM_STRING_LENGTH];
                     Format(key,sizeof(key),"%s_image",short);
                     if (FileContains(file, key))
                         Format(image,maxlength,"%T",key,lang);

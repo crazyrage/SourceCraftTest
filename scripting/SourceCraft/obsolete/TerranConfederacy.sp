@@ -6,6 +6,7 @@
  */
  
 #pragma semicolon 1
+#pragma newdecls required
 
 #include <sourcemod>
 #include <sdktools>
@@ -23,13 +24,13 @@
 
 new raceID, u238ID, armorID, stimpackID, jetpackID;
 
-new g_haloSprite;
-new g_smokeSprite;
-new g_lightningSprite;
+int g_haloSprite;
+int g_smokeSprite;
+int g_lightningSprite;
 
 new m_Armor[MAXPLAYERS+1];
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Terran Confederacy",
     author = "-=|JFH|=-Naris",
@@ -38,14 +39,14 @@ public Plugin:myinfo =
     url = "http://jigglysfunhouse.net/"
 };
 
-public OnPluginStart()
+public void OnPluginStart()
 {
     GetGameType();
 
     HookEvent("player_spawn",PlayerSpawnEvent);
 }
 
-public OnSourceCraftReady()
+public void OnSourceCraftReady()
 {
     raceID      = CreateRace("Terran Confederacy", "terran",
                              "You are now part of the Terran Confederacy.",
@@ -62,7 +63,7 @@ public OnSourceCraftReady()
     SetJetpackFuel(0,100);
 }
 
-public OnMapStart()
+public void OnMapStart()
 {
     g_haloSprite = SetupModel("materials/sprites/halo01.vmt", true);
     if (g_haloSprite == -1)
@@ -77,7 +78,7 @@ public OnMapStart()
         SetFailState("Couldn't find lghtning Model");
 }
 
-public OnRaceSelected(client,Handle:player,oldrace,race)
+public void OnRaceSelected(client,Handle:player,oldrace,race)
 {
     if (race != oldrace)
     {
@@ -88,22 +89,22 @@ public OnRaceSelected(client,Handle:player,oldrace,race)
         }
         else if (race == raceID)
         {
-            new armor_level = GetUpgradeLevel(player,raceID,armorID);
+            int armor_level = GetUpgradeLevel(player,raceID,armorID);
             if (armor_level)
                 SetupArmor(client, armor_level);
 
-            new stimpacks_level = GetUpgradeLevel(player,race,stimpackID);
+            int stimpacks_level = GetUpgradeLevel(player,race,stimpackID);
             if (stimpacks_level)
                 Stimpacks(client, player, stimpacks_level);
 
-            new jetpack_level=GetUpgradeLevel(player,race,jetpackID);
+            int jetpack_level =GetUpgradeLevel(player,race,jetpackID);
             if (jetpack_level)
                 Jetpack(client, jetpack_level);
         }
     }
 }
 
-public OnUltimateCommand(client,Handle:player,race,bool:pressed)
+public void OnUltimateCommand(client,Handle:player,race,bool:pressed)
 {
     if (race==raceID && IsPlayerAlive(client))
     {
@@ -114,7 +115,7 @@ public OnUltimateCommand(client,Handle:player,race,bool:pressed)
     }
 }
 
-public OnUpgradeLevelChanged(client,Handle:player,race,upgrade,old_level,new_level)
+public void OnUpgradeLevelChanged(client,Handle:player,race,upgrade,old_level,new_level)
 {
     if (race == raceID && GetRace(player) == raceID)
     {
@@ -127,15 +128,15 @@ public OnUpgradeLevelChanged(client,Handle:player,race,upgrade,old_level,new_lev
     }
 }
 
-public OnItemPurchase(client,Handle:player,item)
+public void OnItemPurchase(client,Handle:player,item)
 {
-    new race=GetRace(player);
+    int race =GetRace(player);
     if (race == raceID && IsPlayerAlive(client))
     {
-        new boots = FindShopItem("boots");
+        int boots = FindShopItem("boots");
         if (boots == item)
         {
-            new level=GetUpgradeLevel(player,race,stimpackID);
+            int level =GetUpgradeLevel(player,race,stimpackID);
             Stimpacks(client, player, level);
         }
     }
@@ -144,25 +145,25 @@ public OnItemPurchase(client,Handle:player,item)
 // Events
 public PlayerSpawnEvent(Handle:event,const String:name[],bool:dontBroadcast)
 {
-    new userid=GetEventInt(event,"userid");
-    new client=GetClientOfUserId(userid);
+    int userid =GetEventInt(event,"userid");
+    int client =GetClientOfUserId(userid);
     if (client)
     {
-        new Handle:player=GetPlayerHandle(client);
+        Handle player=GetPlayerHandle(client);
         if (player != INVALID_HANDLE)
         {
-            new race = GetRace(player);
+            int race = GetRace(player);
             if (race == raceID)
             {
-                new armor_level = GetUpgradeLevel(player,raceID,armorID);
+                int armor_level = GetUpgradeLevel(player,raceID,armorID);
                 if (armor_level)
                     SetupArmor(client, armor_level);
 
-                new stimpacks_level = GetUpgradeLevel(player,race,stimpackID);
+                int stimpacks_level = GetUpgradeLevel(player,race,stimpackID);
                 if (stimpacks_level)
                     Stimpacks(client, player, stimpacks_level);
 
-                new jetpack_level=GetUpgradeLevel(player,race,jetpackID);
+                int jetpack_level =GetUpgradeLevel(player,race,jetpackID);
                 if (jetpack_level)
                     Jetpack(client, jetpack_level);
             }
@@ -170,12 +171,12 @@ public PlayerSpawnEvent(Handle:event,const String:name[],bool:dontBroadcast)
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event,victim_index,Handle:victim_player,victim_race,
+public Action OnPlayerHurtEvent(Handle:event,victim_index,Handle:victim_player,victim_race,
                                 attacker_index,Handle:attacker_player,attacker_race,
                                 assister_index,Handle:assister_player,assister_race,
                                 damage)
 {
-    new bool:changed=false;
+    bool changed=false;
 
     if (victim_race == raceID)
         changed = Armor(damage, victim_index, victim_player);
@@ -209,10 +210,10 @@ SetupArmor(client, level)
 
 bool:Armor(damage, victim_index, Handle:victim_player)
 {
-    new armor_level = GetUpgradeLevel(victim_player,raceID,armorID);
+    int armor_level = GetUpgradeLevel(victim_player,raceID,armorID);
     if (armor_level)
     {
-        new Float:from_percent,Float:to_percent;
+        float from_percent,Float:to_percent;
         switch(armor_level)
         {
             case 1:
@@ -236,14 +237,14 @@ bool:Armor(damage, victim_index, Handle:victim_player)
                 to_percent=0.80;
             }
         }
-        new amount=RoundFloat(float(damage)*GetRandomFloat(from_percent,to_percent));
-        new armor=m_Armor[victim_index];
+        int amount =RoundFloat(float(damage)*GetRandomFloat(from_percent,to_percent));
+        int armor =m_Armor[victim_index];
         if (amount > armor)
             amount = armor;
         if (amount > 0)
         {
-            new newhp=GetClientHealth(victim_index)+amount;
-            new maxhp=GetMaxHealth(victim_index);
+            int newhp =GetClientHealth(victim_index)+amount;
+            int maxhp =GetMaxHealth(victim_index);
             if (newhp > maxhp)
                 newhp = maxhp;
 
@@ -251,7 +252,7 @@ bool:Armor(damage, victim_index, Handle:victim_player)
 
             m_Armor[victim_index] = armor - amount;
 
-            decl String:victimName[64];
+            char victimName[64];
             GetClientName(victim_index,victimName,63);
 
             DisplayMessage(victim_index,SC_DISPLAY_DEFENSE,
@@ -265,7 +266,7 @@ bool:Armor(damage, victim_index, Handle:victim_player)
 
 bool:U238Shells(Handle:event, damage, victim_index, Handle:victim_player, index, Handle:player)
 {
-    new u238_level = GetUpgradeLevel(player,raceID,u238ID);
+    int u238_level = GetUpgradeLevel(player,raceID,u238ID);
     if (u238_level > 0)
     {
         if (!GetImmunity(victim_player,Immunity_HealthTake) &&
@@ -273,11 +274,11 @@ bool:U238Shells(Handle:event, damage, victim_index, Handle:victim_player, index,
         {
             if(GetRandomInt(1,100)<=25)
             {
-                decl String:weapon[64];
-                new bool:is_equipment=GetWeapon(event,index,weapon,sizeof(weapon));
+                char weapon[64];
+                bool is_equipment=GetWeapon(event,index,weapon,sizeof(weapon));
                 if (!IsMelee(weapon, is_equipment,index,victim_index))
                 {
-                    new Float:percent;
+                    float percent;
                     switch(u238_level)
                     {
                         case 1:
@@ -290,8 +291,8 @@ bool:U238Shells(Handle:event, damage, victim_index, Handle:victim_player, index,
                             percent=1.00;
                     }
 
-                    new health_take=RoundFloat(float(damage)*percent);
-                    new new_health=GetClientHealth(victim_index)-health_take;
+                    int health_take =RoundFloat(float(damage)*percent);
+                    int new_health =GetClientHealth(victim_index)-health_take;
                     if (new_health <= 0)
                     {
                         new_health=0;
@@ -318,7 +319,7 @@ Stimpacks(client, Handle:player, level)
 {
     if (level > 0)
     {
-        new Float:speed=1.0;
+        float speed=1.0;
         switch (level)
         {
             case 1: speed=1.10;
@@ -330,13 +331,13 @@ Stimpacks(client, Handle:player, level)
         /* If the Player also has the Boots of Speed,
          * Increase the speed further
          */
-        new boots = FindShopItem("boots");
+        int boots = FindShopItem("boots");
         if (boots != -1 && GetOwnsItem(player,boots))
         {
             speed *= 1.1;
         }
 
-        new Float:start[3];
+        float start[3];
         GetClientAbsOrigin(client, start);
 
         new color[4] = { 255, 100, 0, 255 };

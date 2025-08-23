@@ -62,18 +62,18 @@ InitHooks()
     RegConsoleCmd("-ultimate9",UltimateCommand,"use SourceCraft ultimate/ability 9 (keyup)",FCVAR_GAMEDLL);
 }
 
-public Action:SayCommand(client, const String:command[], argc)
+public Action SayCommand(client, const String:command[], argc)
 {
     TraceInto("Hooks", "SayCommand", "client=%d:%L, argc=%d, command=%s", \
               client, ValidClientIndex(client), argc, command);
 
     if (IsValidClient(client))
     {
-        decl String:text[128];
+        char text[128];
         GetCmdArg(1,text,sizeof(text));
 
-        decl String:arg[2][64];
-        new argCount = ExplodeString(text, " ", arg, 2, 64);
+        char arg[2][64];
+        int argCount = ExplodeString(text, " ", arg, 2, 64);
 
         new String:firstChar[] = " ";
         firstChar[0] = arg[0][0];
@@ -94,7 +94,7 @@ public Action:SayCommand(client, const String:command[], argc)
         {
             if (argCount > 1 && strlen(arg[1]) > 0)
             {
-                new item = FindShopItem(arg[1]);
+                int item = FindShopItem(arg[1]);
                 if (item >= 0)
                     PurchaseShopItem(client, item);
                 else
@@ -109,10 +109,10 @@ public Action:SayCommand(client, const String:command[], argc)
         {
             if (argCount > 1 && strlen(arg[1]) > 0)
             {
-                new race = FindRace(arg[1]);
+                int race = FindRace(arg[1]);
                 if (race >= 0)
                 {
-                    new Handle:raceHandle=GetRaceHandle(race);
+                    Handle raceHandle=GetRaceHandle(race);
                     if (raceHandle != INVALID_HANDLE)
                         ChangeRace(client, race, raceHandle, false, true, false);
                     else
@@ -144,7 +144,7 @@ public Action:SayCommand(client, const String:command[], argc)
                  StrEqual(arg[0],"spendupgrades", false) ||
                  StrEqual(arg[0],"spendskills", false))
         {
-            new race=GetRace(client);
+            int race =GetRace(client);
             if (GetUpgradeLevelCount(client, race) < GetLevel(client, race))
                 UpgradeMenu(client, UpgradeMode, true);
             else
@@ -268,9 +268,9 @@ public Action:SayCommand(client, const String:command[], argc)
         }
         else if (StrEqual(arg[0],"entities", false))
         {
-            new max = GetMaxEntities();
-            new count = GetEntityCount();
-            new remaining = max - count;
+            int max = GetMaxEntities();
+            int count = GetEntityCount();
+            int remaining = max - count;
 
             LogMessage("There are %d of %d entities available, %d are used.",
                        remaining,max,count);
@@ -289,7 +289,7 @@ public Action:SayCommand(client, const String:command[], argc)
     return Plugin_Continue;
 }
 
-public Action:UltimateCommand(client,args)
+public Action UltimateCommand(client,args)
 {
     TraceInto("Hooks", "UltimateCommand");
 
@@ -324,14 +324,14 @@ public Action:UltimateCommand(client,args)
             }
         }
 
-        new result;
-        new race=GetRace(client);
+        int result;
+        int race =GetRace(client);
 
-        decl String:command[CLASS_STRING_LENGTH];
+        char command[CLASS_STRING_LENGTH];
         GetCmdArg(0,command,sizeof(command));
-        new bool:pressed=(command[0] == '+');
+        bool pressed=(command[0] == '+');
 
-        new arg;
+        int arg;
         if (IsCharNumeric(command[9]))
         {
             arg = command[9]-'0';
@@ -341,7 +341,7 @@ public Action:UltimateCommand(client,args)
         }
         else if (args > 1) // (GetCmdArgs() > 1)
         {
-            decl String:argString[16];
+            char argString[16];
             GetCmdArg(1,argString,sizeof(argString));
             arg = StringToInt(argString);
 
@@ -370,20 +370,20 @@ public Action:UltimateCommand(client,args)
     return Plugin_Handled;
 }
 
-public Action:SCMenuCommand(client,args)
+public Action SCMenuCommand(client,args)
 {
     MainMenu(client);
     return Plugin_Handled;
 }
 
-public Action:BuyCommand(client,args)
+public Action BuyCommand(client,args)
 {
     if (IsValidClient(client))
     {
-        decl String:arg[64];
+        char arg[64];
         if (GetCmdArg(1,arg,sizeof(arg)) > 0)
         {
-            new item = FindShopItem(arg);
+            int item = FindShopItem(arg);
             if (item >= 0)
                 PurchaseShopItem(client, item);
             else
@@ -395,17 +395,17 @@ public Action:BuyCommand(client,args)
     return Plugin_Handled;
 }
 
-public Action:ChangeRaceCommand(client,args)
+public Action ChangeRaceCommand(client,args)
 {
     if (IsValidClient(client))
     {
-        decl String:arg[64];
+        char arg[64];
         if (GetCmdArg(1,arg,sizeof(arg)) > 0)
         {
-            new race = FindRace(arg);
+            int race = FindRace(arg);
             if (race >= 0)
             {
-                new Handle:raceHandle=GetRaceHandle(race);
+                Handle raceHandle=GetRaceHandle(race);
                 if (raceHandle != INVALID_HANDLE)
                     ChangeRace(client, race, raceHandle, false, true, false);
                 else
@@ -420,25 +420,25 @@ public Action:ChangeRaceCommand(client,args)
     return Plugin_Handled;
 }
 
-public Action:ChangeSettingsCommand(client,args)
+public Action ChangeSettingsCommand(client,args)
 {
     ChangeSettings(client, false);
     return Plugin_Handled;
 }
 
-public Action:ChangeDisplaySettingsCommand(client,args)
+public Action ChangeDisplaySettingsCommand(client,args)
 {
     ChangeDisplaySettings(client, false);
     return Plugin_Handled;
 }
 
-public Action:ChangeGameSettingsCommand(client,args)
+public Action ChangeGameSettingsCommand(client,args)
 {
     ChangeGameSettings(client, false);
     return Plugin_Handled;
 }
 
-public Action:InfoCommand(client,args)
+public Action InfoCommand(client,args)
 {
     ShowInfo(client);
     return Plugin_Handled;
@@ -446,8 +446,8 @@ public Action:InfoCommand(client,args)
 
 ShowInfo(client)
 {
-    decl String:url[128];
-    decl String:steamid[CLASS_STRING_LENGTH];
+    char url[128];
+    char steamid[CLASS_STRING_LENGTH];
     if (GetClientAuthId(client, AuthId_Steam2, steamid, sizeof(steamid)))
         Format(url, sizeof(url), g_InfoURL, steamid);
     else
@@ -456,7 +456,7 @@ ShowInfo(client)
     ShowMOTDPanel(client, "SourceCraft Information", url, MOTDPANEL_TYPE_URL);
 }
 
-public Action:WikiCommand(client,args)
+public Action WikiCommand(client,args)
 {
     ShowWiki(client);
     return Plugin_Handled;
@@ -467,7 +467,7 @@ ShowWiki(client)
     ShowMOTDPanel(client, "SourceCraft Wiki", g_WikiURL, MOTDPANEL_TYPE_URL);
 }
 
-public Action:UpdatesCommand(client,args)
+public Action UpdatesCommand(client,args)
 {
     ShowUpdates(client);
     return Plugin_Handled;
@@ -478,7 +478,7 @@ ShowUpdates(client)
     ShowMOTDPanel(client, "SourceCraft Updates", g_UpdateURL, MOTDPANEL_TYPE_URL);
 }
 
-public Action:BugCommand(client,args)
+public Action BugCommand(client,args)
 {
     ReportBugs(client);
     return Plugin_Handled;
@@ -489,7 +489,7 @@ ReportBugs(client)
     ShowMOTDPanel(client, "SourceCraft Bugs", g_BugURL, MOTDPANEL_TYPE_URL);
 }
 
-public Action:ChangelevelCommand(client, const String:command[], argc)
+public Action ChangelevelCommand(client, const String:command[], argc)
 {
     g_MapChanging = true;
     return Plugin_Continue;

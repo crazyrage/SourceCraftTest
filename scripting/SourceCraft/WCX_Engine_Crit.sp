@@ -1,14 +1,14 @@
 #include <sdkhooks>
 #include "W3SIncs/War3Source_Interface"
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "War3Source - Warcraft Extended - Crit",
     author = "War3Source Team",
     description="Generic crit skill"
 };
 
-public OnWar3EventPostHurt(victim, attacker, Float:damage, const String:weapon[32], bool:isWarcraft)
+public void OnWar3EventPostHurt(victim, attacker, Float:damage, const String:weapon[32], bool:isWarcraft)
 {
     // not written to be compatible with left4dead
     if((victim == attacker) || (!ValidPlayer(victim) || !ValidPlayer(attacker)) || (GetClientTeam(victim) == GetClientTeam(attacker)))
@@ -23,15 +23,15 @@ public OnWar3EventPostHurt(victim, attacker, Float:damage, const String:weapon[3
         return;
     }
 
-    new Float:CritChance = W3GetBuffSumFloat(attacker, fCritChance);
-    new Float:CritMultiplier = W3GetBuffSumFloat(attacker,fCritModifier);
-    new CritMode = W3GetBuffLastValue(attacker, iCritMode);
-    new DamageMode = W3GetBuffLastValue(attacker, iDamageMode);
-    new Float:DamageMultiplier = W3GetBuffSumFloat(attacker, fDamageModifier);
-    new BonusDamage = W3GetBuffSumInt(attacker,iDamageBonus);
+    float CritChance = W3GetBuffSumFloat(attacker, fCritChance);
+    float CritMultiplier = W3GetBuffSumFloat(attacker,fCritModifier);
+    int CritMode = W3GetBuffLastValue(attacker, iCritMode);
+    int DamageMode = W3GetBuffLastValue(attacker, iDamageMode);
+    float DamageMultiplier = W3GetBuffSumFloat(attacker, fDamageModifier);
+    int BonusDamage = W3GetBuffSumInt(attacker,iDamageBonus);
     
-    new Float:PercentIncrease = 0.0;
-    new DamageIncrease = 0;
+    float PercentIncrease = 0.0;
+    int DamageIncrease = 0;
     
     if((DamageMultiplier > 0.0) ||(BonusDamage > 0) || (DamageMode > 0))
     {
@@ -135,11 +135,11 @@ public OnWar3EventPostHurt(victim, attacker, Float:damage, const String:weapon[3
             }
         }
     }
-    new newdamage = RoundToFloor(PercentIncrease * damage);
+    int newdamage = RoundToFloor(PercentIncrease * damage);
     newdamage = newdamage + DamageIncrease;
     if(newdamage > 0 && ValidPlayer(victim, true))
     {
-        new victimHealth = GetClientHealth(victim);
+        int victimHealth = GetClientHealth(victim);
         War3_LogInfo("Dealing crit damage %i of player \"{client %i}\" to victim \"{client %i}\" (%i hp)", newdamage, attacker, victim, victimHealth);
         War3_DealDamage(victim, newdamage, attacker, _, "weapon_crit");
     }

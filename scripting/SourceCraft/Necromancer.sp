@@ -8,6 +8,7 @@
  */
  
 #pragma semicolon 1
+#pragma newdecls required
 
 // Pump up the memory!
 #pragma dynamic 32767
@@ -57,8 +58,8 @@ new const String:necroWav[][]   = { "sc/NecromancerReady1.mp3" ,
                                     "sc/NecromancerWhat1.mp3" };
 
 new g_CrippleChance[]               = { 0, 20, 24, 28, 32, 36, 40, 44, 48 };
-new Float:g_SpeedLevels[]           = { -1.0, 1.05,  1.10,   1.16, 1.23  };
-new Float:g_VampiricAuraPercent[]   = { 0.0,  0.12,  0.18,   0.24, 0.30  };
+float g_SpeedLevels[]           = { -1.0, 1.05,  1.10,   1.16, 1.23  };
+float g_VampiricAuraPercent[]   = { 0.0,  0.12,  0.18,   0.24, 0.30  };
 new g_HorsemannHealthFactor[]       = { 0,  30,  60, 125, 250,  300 };
 new g_HorsemannMaxHealth[]          = { 0, 400, 550, 700, 850, 1200 };
 
@@ -67,14 +68,14 @@ new String:raiseWav[]="vo/trainyard/ba_backup.wav";
 new raceID, vampiricID, crippleID, trainingID, wrangleID, frenzyID;
 new raiseDeadID, raiseHorseID, raiseEyeID, summonHorseID, scareID;
 
-new bool:m_FrenzyActive[MAXPLAYERS+1];
-new Float:m_VampiricAuraTime[MAXPLAYERS+1];
+bool m_FrenzyActive[MAXPLAYERS+1];
+float m_VampiricAuraTime[MAXPLAYERS+1];
 
-new Handle:m_CrippleTimer[MAXPLAYERS+1];
-new Float:m_CrippleROF[MAXPLAYERS+1];
-new Float:m_CrippleEnergy[MAXPLAYERS+1];
+Handle m_CrippleTimer[MAXPLAYERS+1];
+float m_CrippleROF[MAXPLAYERS+1];
+float m_CrippleEnergy[MAXPLAYERS+1];
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Necromancer",
     author = "-=|JFH|=-Naris",
@@ -84,7 +85,7 @@ public Plugin:myinfo =
 };
 
 // War3Source Functions
-public OnPluginStart()
+public void OnPluginStart()
 {
     LoadTranslations("sc.common.phrases.txt");
     LoadTranslations("sc.necromancer.phrases.txt");
@@ -112,7 +113,7 @@ public OnPluginStart()
         OnSourceCraftReady();
 }
 
-public OnSourceCraftReady()
+public void OnSourceCraftReady()
 {
     raceID       = CreateRace("necromancer", -1, -1, 33, .faction=UndeadScourge,
                               .type=Undead, .parent="undead");
@@ -199,7 +200,7 @@ public OnSourceCraftReady()
                    g_HorsemannMaxHealth, raceID, summonHorseID);
 }
 
-public OnLibraryAdded(const String:name[])
+public void OnLibraryAdded(const String:name[])
 {
     if (StrEqual(name, "RateOfFire"))
         IsROFAvailable(true);
@@ -213,7 +214,7 @@ public OnLibraryAdded(const String:name[])
         IsWrangleyeAvailable(true);
 }
 
-public OnLibraryRemoved(const String:name[])
+public void OnLibraryRemoved(const String:name[])
 {
     if (StrEqual(name, "RateOfFire"))
         m_ROFAvailable = false;
@@ -227,7 +228,7 @@ public OnLibraryRemoved(const String:name[])
         m_WrangleyeAvailable = false;
 }
 
-public OnMapStart()
+public void OnMapStart()
 {
     SetupBeamSprite();
     SetupHaloSprite();
@@ -241,13 +242,13 @@ public OnMapStart()
     SetupSound(summonWav);
     SetupSound(frenzyWav);
 
-    for (new i = 0; i < sizeof(necroWav); i++)
+    for (int i = 0; i < sizeof(necroWav); i++)
         SetupSound(necroWav[i]);
 }
 
-public OnMapEnd()
+public void OnMapEnd()
 {
-    for (new index=1;index<=MaxClients;index++)
+    for (int index =1;index<=MaxClients;index++)
     {
         m_FrenzyActive[index] = false;
         m_VampiricAuraTime[index] = 0.0;
@@ -255,14 +256,14 @@ public OnMapEnd()
     }
 }
 
-public OnClientDisconnect(client)
+public void OnClientDisconnect(client)
 {
     m_FrenzyActive[client] = false;
     m_VampiricAuraTime[client] = 0.0;
     ResetCripple(client);
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -281,15 +282,15 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
         return Plugin_Continue;
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
         m_FrenzyActive[client] = false;
 
-        new training_level  = GetUpgradeLevel(client,raceID,trainingID);
-        new Float:training_energy = 80.0 + (float(training_level)*15.0);
-        new Float:initial_energy  = GetInitialEnergy(client);
+        int training_level = GetUpgradeLevel(client,raceID,trainingID);
+        float training_energy = 80.0 + (float(training_level)*15.0);
+        float initial_energy  = GetInitialEnergy(client);
         SetInitialEnergy(client, training_energy);
         if (GetEnergy(client, true) >= initial_energy)
             SetEnergy(client, training_energy, true);
@@ -305,7 +306,7 @@ public Action:OnRaceSelected(client,oldrace,newrace)
         return Plugin_Continue;
 }
 
-public OnUpgradeLevelChanged(client,race,upgrade,new_level)
+public void OnUpgradeLevelChanged(client,race,upgrade,new_level)
 {
     if (race == raceID && GetRace(client) == raceID)
     {
@@ -315,8 +316,8 @@ public OnUpgradeLevelChanged(client,race,upgrade,new_level)
                 SetSpeedBoost(client, new_level, true, g_SpeedLevels);
             else if (upgrade==trainingID)
             {
-                new Float:training_energy = 80.0 + (float(new_level)*15.0);
-                new Float:initial_energy  = GetInitialEnergy(client);
+                float training_energy = 80.0 + (float(new_level)*15.0);
+                float initial_energy  = GetInitialEnergy(client);
                 SetInitialEnergy(client, training_energy);
                 if (GetEnergy(client, true) >= initial_energy)
                     SetEnergy(client, training_energy, true);
@@ -325,7 +326,7 @@ public OnUpgradeLevelChanged(client,race,upgrade,new_level)
     }
 }
 
-public OnItemPurchase(client,item)
+public void OnItemPurchase(client,item)
 {
     if (m_FrenzyActive[client] &&
         (!m_BeHorsemannAvailable || !IsHorsemann(client)))
@@ -337,7 +338,7 @@ public OnItemPurchase(client,item)
 
             if (item == g_bootsItem)
             {
-                new frenzy_level = GetUpgradeLevel(client,raceID,frenzyID);
+                int frenzy_level = GetUpgradeLevel(client,raceID,frenzyID);
                 if (frenzy_level > 0)
                     SetSpeedBoost(client, frenzy_level, true, g_SpeedLevels);
             }
@@ -345,7 +346,7 @@ public OnItemPurchase(client,item)
     }
 }
 
-public OnUltimateCommand(client,race,bool:pressed,arg)
+public void OnUltimateCommand(client,race,bool:pressed,arg)
 {
     if (pressed && race==raceID && IsValidClientAlive(client))
     {
@@ -359,13 +360,13 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
             {
                 case 4, 5: // Summon Horsemann and Horsemann Scare
                 {
-                    new horse_level = GetUpgradeLevel(client,race,summonHorseID);
+                    int horse_level = GetUpgradeLevel(client,race,summonHorseID);
                     if (m_BeHorsemannAvailable && horse_level > 0)
                     {
                         if (GetRestriction(client,Restriction_NoUltimates) ||
                             GetRestriction(client,Restriction_Stunned))
                         {
-                            decl String:upgradeName[NAME_STRING_LENGTH];
+                            char upgradeName[NAME_STRING_LENGTH];
                             GetUpgradeName(raceID, summonHorseID, upgradeName, sizeof(upgradeName), client);
                             DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
                             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -374,7 +375,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                         {
                             PrepareAndEmitSoundToClient(client,deniedWav);
 
-                            decl String:upgradeName[NAME_STRING_LENGTH];
+                            char upgradeName[NAME_STRING_LENGTH];
                             GetUpgradeName(raceID, summonHorseID, upgradeName, sizeof(upgradeName), client);
                             DisplayMessage(client, Display_Ultimate, "%t", "CantUseAsMole", upgradeName);
                         }
@@ -403,20 +404,20 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                 }
                 case 3: // Raise Monoculus or Raise Horsemann
                 {
-                    new eye_level = GetUpgradeLevel(client,race,raiseEyeID);
+                    int eye_level = GetUpgradeLevel(client,race,raiseEyeID);
                     if (m_MonoculusAvailable && eye_level > 0)
                     {
                         if (GetRestriction(client,Restriction_NoUltimates) ||
                             GetRestriction(client,Restriction_Stunned))
                         {
-                            decl String:upgradeName[NAME_STRING_LENGTH];
+                            char upgradeName[NAME_STRING_LENGTH];
                             GetUpgradeName(raceID, raiseEyeID, upgradeName, sizeof(upgradeName), client);
                             DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
                             PrepareAndEmitSoundToClient(client,deniedWav);
                         }
                         else if (IsMole(client))
                         {
-                            decl String:upgradeName[NAME_STRING_LENGTH];
+                            char upgradeName[NAME_STRING_LENGTH];
                             GetUpgradeName(raceID, raiseEyeID, upgradeName, sizeof(upgradeName), client);
                             DisplayMessage(client, Display_Ultimate, "%t", "CantUseAsMole", upgradeName);
                             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -436,14 +437,14 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                         if (GetRestriction(client,Restriction_NoUltimates) ||
                             GetRestriction(client,Restriction_Stunned))
                         {
-                            decl String:upgradeName[NAME_STRING_LENGTH];
+                            char upgradeName[NAME_STRING_LENGTH];
                             GetUpgradeName(raceID, raiseHorseID, upgradeName, sizeof(upgradeName), client);
                             DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
                             PrepareAndEmitSoundToClient(client,deniedWav);
                         }
                         else if (IsMole(client))
                         {
-                            decl String:upgradeName[NAME_STRING_LENGTH];
+                            char upgradeName[NAME_STRING_LENGTH];
                             GetUpgradeName(raceID, raiseHorseID, upgradeName, sizeof(upgradeName), client);
                             DisplayMessage(client, Display_Ultimate, "%t", "CantUseAsMole", upgradeName);
                             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -460,21 +461,21 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                 }
                 case 2: // Raise Dead
                 {
-                    new raise_level = GetUpgradeLevel(client,race,raiseDeadID);
+                    int raise_level = GetUpgradeLevel(client,race,raiseDeadID);
                     if (raise_level > 0)
                     {
                         if (GetRestriction(client,Restriction_NoUltimates) ||
                             GetRestriction(client,Restriction_NoRespawn)   ||
                             GetRestriction(client,Restriction_Stunned)    )
                         {
-                            decl String:upgradeName[NAME_STRING_LENGTH];
+                            char upgradeName[NAME_STRING_LENGTH];
                             GetUpgradeName(raceID, raiseDeadID, upgradeName, sizeof(upgradeName), client);
                             DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
                             PrepareAndEmitSoundToClient(client,deniedWav);
                         }
                         else if (IsMole(client))
                         {
-                            decl String:upgradeName[NAME_STRING_LENGTH];
+                            char upgradeName[NAME_STRING_LENGTH];
                             GetUpgradeName(raceID, raiseDeadID, upgradeName, sizeof(upgradeName), client);
                             DisplayMessage(client, Display_Ultimate, "%t", "CantUseAsMole", upgradeName);
                             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -491,13 +492,13 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                 }
                 default: // Direct Monoculus or Unholy Frenzy
                 {
-                    new wrangle_level = GetUpgradeLevel(client,race,wrangleID);
+                    int wrangle_level = GetUpgradeLevel(client,race,wrangleID);
                     if (wrangle_level > 0)
                     {
                         if (GetRestriction(client,Restriction_NoUltimates) ||
                             GetRestriction(client,Restriction_Stunned))
                         {
-                            decl String:upgradeName[NAME_STRING_LENGTH];
+                            char upgradeName[NAME_STRING_LENGTH];
                             GetUpgradeName(raceID, wrangleID, upgradeName, sizeof(upgradeName), client);
                             DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
                             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -513,21 +514,21 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                     }
                     else
                     {
-                        new frenzy_level = GetUpgradeLevel(client,race,frenzyID);
+                        int frenzy_level = GetUpgradeLevel(client,race,frenzyID);
                         if (frenzy_level > 0)
                         {
                             if (GetRestriction(client,Restriction_NoUltimates) ||
                                 GetRestriction(client,Restriction_Stunned))
                             {
-                                decl String:upgradeName[NAME_STRING_LENGTH];
+                                char upgradeName[NAME_STRING_LENGTH];
                                 GetUpgradeName(raceID, frenzyID, upgradeName, sizeof(upgradeName), client);
                                 DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
                                 PrepareAndEmitSoundToClient(client,deniedWav);
                             }
                             else
                             {
-                                new hurt = frenzy_level*10;
-                                new health = GetClientHealth(client);
+                                int hurt = frenzy_level*10;
+                                int health = GetClientHealth(client);
                                 if (health <= hurt+10)
                                 {
                                     PrepareAndEmitSoundToClient(client,errorWav);
@@ -546,7 +547,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                                     HudMessage(client, "%t", "FrenzyHud");
                                     PrintHintText(client, "%t", "FrenzyActive");
 
-                                    //new num = GetRandomInt(0,sizeof(frenzyWav)-1);
+                                    //int num = GetRandomInt(0,sizeof(frenzyWav)-1);
                                     //PrepareAndEmitSoundToAll(frenzyWav[num],client);
 
                                     CreateCooldown(client, raceID, frenzyID);
@@ -564,23 +565,23 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
 }
 
 // Events
-public OnPlayerSpawnEvent(Handle:event, client, race)
+public void OnPlayerSpawnEvent(Handle:event, client, race)
 {
     if (race == raceID)
     {
         m_FrenzyActive[client] = false;
         m_VampiricAuraTime[client] = 0.0;
 
-        new training_level  = GetUpgradeLevel(client,raceID,trainingID);
-        new Float:training_energy = 80.0 + (float(training_level)*15.0);
-        new Float:initial_energy  = GetInitialEnergy(client);
+        int training_level = GetUpgradeLevel(client,raceID,trainingID);
+        float training_energy = 80.0 + (float(training_level)*15.0);
+        float initial_energy  = GetInitialEnergy(client);
         SetInitialEnergy(client, training_energy);
         if (GetEnergy(client, true) >= initial_energy)
             SetEnergy(client, training_energy, true);
     }
 }
 
-public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
+public void OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
                           attacker_race, assister_index, assister_race, damage,
                           const String:weapon[], bool:is_equipment, customkill,
                           bool:headshot, bool:backstab, bool:melee)
@@ -609,10 +610,10 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
         LogMessage("Attacker is Necromancer");
         if (IsValidClientAlive(attacker_index))
         {
-            new Float:vec[3];
+            float vec[3];
             GetClientEyePosition(attacker_index, vec);
             
-            new num = GetRandomInt(0,sizeof(necroWav)-1);
+            int num = GetRandomInt(0,sizeof(necroWav)-1);
             PrepareAndEmitAmbientSound(necroWav[num], vec, attacker_index);
             LogMessage("Emit Necromancer sound %d", num);
         }
@@ -626,10 +627,10 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
         LogMessage("Assister is Necromancer");
         if (IsValidClientAlive(assister_index))
         {
-            new Float:vec[3];
+            float vec[3];
             GetClientEyePosition(assister_index, vec);
             
-            new num = GetRandomInt(0,sizeof(necroWav)-1);
+            int num = GetRandomInt(0,sizeof(necroWav)-1);
             PrepareAndEmitAmbientSound(necroWav[num], vec, assister_index);
             LogMessage("Emit Necromancer sound %d", num);
         }
@@ -640,13 +641,13 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
     }
 }
 
-public Action:OnPlayerTakeDamage(victim,&attacker,&inflictor,&Float:damage,&damagetype)
+public Action OnPlayerTakeDamage(victim,&attacker,&inflictor,&Float:damage,&damagetype)
 {
     if (GetRace(attacker) == raceID && attacker != victim && IsClient(victim))
     {
         if (!m_BeHorsemannAvailable || !IsHorsemann(attacker))
         {
-            new cripple_level = GetUpgradeLevel(attacker,raceID,crippleID);
+            int cripple_level = GetUpgradeLevel(attacker,raceID,crippleID);
             if (cripple_level > 0 && m_CrippleTimer[victim] == INVALID_HANDLE &&
                 !GetRestriction(attacker,Restriction_NoUpgrades) &&
                 !GetRestriction(attacker,Restriction_Stunned) &&
@@ -677,9 +678,9 @@ public Action:OnPlayerTakeDamage(victim,&attacker,&inflictor,&Float:damage,&dama
     return Plugin_Continue;
 }
 
-public Action:RemoveCripple(Handle:timer,any:userid)
+public Action RemoveCripple(Handle:timer,any:userid)
 {
-    new client = GetClientOfUserId(userid);
+    int client = GetClientOfUserId(userid);
     if (client > 0)
     {
         m_CrippleTimer[client] = INVALID_HANDLE;
@@ -689,7 +690,7 @@ public Action:RemoveCripple(Handle:timer,any:userid)
 
 ResetCripple(client)
 {
-    new Handle:timer = m_CrippleTimer[client];
+    Handle timer = m_CrippleTimer[client];
     if (timer != INVALID_HANDLE)
     {
         m_CrippleTimer[client] = INVALID_HANDLE;	
@@ -705,7 +706,7 @@ ResetCripple(client)
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     if (!from_sc && attacker_index > 0 &&
@@ -722,7 +723,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
     return Plugin_Continue;
 }
 
-public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
+public Action OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
                                   assister_index, assister_race, damage,
                                   absorbed)
 {
@@ -740,29 +741,29 @@ public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
 
 bool:VampiricAura(damage, index, victim_index)
 {
-    new level = GetUpgradeLevel(index,raceID,vampiricID);
+    int level = GetUpgradeLevel(index,raceID,vampiricID);
     if (level > 0 && GetRandomInt(1,10) <= 6 && IsValidClientAlive(index) &&
         !GetRestriction(index, Restriction_NoUpgrades) &&
         !GetRestriction(index, Restriction_Stunned))
     {
-        new bool:victimIsNPC    = (victim_index > MaxClients);
-        new bool:victimIsPlayer = !victimIsNPC && IsValidClientAlive(victim_index) &&
+        bool victimIsNPC    = (victim_index > MaxClients);
+        bool victimIsPlayer = !victimIsNPC && IsValidClientAlive(victim_index) &&
                                   !GetImmunity(victim_index,Immunity_HealthTaking) &&
                                   !GetImmunity(victim_index,Immunity_Upgrades) &&
                                   !IsInvulnerable(victim_index);
 
         if (victimIsPlayer || victimIsNPC)
         {
-            new Float:lastTime = m_VampiricAuraTime[index];
-            new Float:interval = GetGameTime() - lastTime;
+            float lastTime = m_VampiricAuraTime[index];
+            float interval = GetGameTime() - lastTime;
             if ((lastTime == 0.0 || interval > 0.25) &&
                 CanInvokeUpgrade(index, raceID, vampiricID, .notify=false))
             {
-                new Float:start[3];
+                float start[3];
                 GetClientAbsOrigin(index, start);
                 start[2] += 1620;
 
-                new Float:end[3];
+                float end[3];
                 GetClientAbsOrigin(index, end);
                 end[2] += 20;
 
@@ -775,17 +776,17 @@ bool:VampiricAura(damage, index, victim_index)
 
                 m_VampiricAuraTime[index] = GetGameTime();
 
-                new leechhealth=RoundFloat(float(damage)*g_VampiricAuraPercent[level]);
+                int leechhealth =RoundFloat(float(damage)*g_VampiricAuraPercent[level]);
                 if (leechhealth <= 0)
                     leechhealth = 1;
 
-                new health = GetClientHealth(index) + leechhealth;
+                int health = GetClientHealth(index) + leechhealth;
                 if (health <= GetMaxHealth(index))
                 {
                     ShowHealthParticle(index);
                     SetEntityHealth(index,health);
 
-                    decl String:upgradeName[NAME_STRING_LENGTH];
+                    char upgradeName[NAME_STRING_LENGTH];
                     GetUpgradeName(raceID, vampiricID, upgradeName, sizeof(upgradeName), index);
 
                     if (victimIsPlayer)
@@ -802,7 +803,7 @@ bool:VampiricAura(damage, index, victim_index)
 
                 if (victimIsPlayer)
                 {
-                    new victim_health = GetClientHealth(victim_index);
+                    int victim_health = GetClientHealth(victim_index);
                     if (victim_health <= leechhealth)
                         KillPlayer(victim_index, index, "sc_vampiric_aura");
                     else
@@ -811,12 +812,12 @@ bool:VampiricAura(damage, index, victim_index)
 
                         if (GameType != tf2 || GetMode() != MvM)
                         {
-                            new entities = EntitiesAvailable(200, .message="Reducing Explosion Effects");
+                            int entities = EntitiesAvailable(200, .message="Reducing Explosion Effects");
                             if (entities > 50)
                                 CreateParticle("blood_impact_red_01_chunk", 0.1, victim_index, Attach, "head");
                         }
 
-                        decl String:upgradeName[NAME_STRING_LENGTH];
+                        char upgradeName[NAME_STRING_LENGTH];
                         GetUpgradeName(raceID, vampiricID, upgradeName, sizeof(upgradeName), victim_index);
                         DisplayMessage(victim_index, Display_Injury, "%t", "HasLeeched",
                                        index, leechhealth, upgradeName);
@@ -835,9 +836,9 @@ bool:VampiricAura(damage, index, victim_index)
     return false;
 }
 
-public Action:EndFrenzy(Handle:timer,any:userid)
+public Action EndFrenzy(Handle:timer,any:userid)
 {
-    new client = GetClientOfUserId(userid);
+    int client = GetClientOfUserId(userid);
     if (client > 0)
     {
         m_FrenzyActive[client]=false;
@@ -849,7 +850,7 @@ public Action:EndFrenzy(Handle:timer,any:userid)
 
         if (IsClientInGame(client) && IsPlayerAlive(client))
         {
-            decl String:message[NAME_STRING_LENGTH];
+            char message[NAME_STRING_LENGTH];
             Format(message, sizeof(message), "%T", "FrenzyHud", client);
             ReplaceString(message, sizeof(message), "*", "");
             ReplaceString(message, sizeof(message), " ", "");
@@ -865,7 +866,7 @@ public Action:EndFrenzy(Handle:timer,any:userid)
 
 public EventRoundOver(Handle:event,const String:name[],bool:dontBroadcast)
 {
-    for (new index=1;index<=MaxClients;index++)
+    for (int index =1;index<=MaxClients;index++)
     {
         if (IsClientInGame(index))
         {
@@ -876,10 +877,10 @@ public EventRoundOver(Handle:event,const String:name[],bool:dontBroadcast)
 
 bool:RaiseDead(client)
 {
-    new team=GetClientTeam(client);
-    new targetCount=0;
+    int team =GetClientTeam(client);
+    int targetCount =0;
     new targetList[MAXPLAYERS+1];
-    for(new x=1;x<=MaxClients;x++)
+    for(int x =1;x<=MaxClients;x++)
     {
         if(IsValidClient(x) && team==GetClientTeam(x) && !IsPlayerAlive(x))
         {
@@ -889,16 +890,16 @@ bool:RaiseDead(client)
 
     if (targetCount>0)
     {
-        new Float:ang[3];
+        float ang[3];
         GetClientEyeAngles(client,ang);
 
-        new Float:pos[3];
+        float pos[3];
         GetClientAbsOrigin(client,pos);
         pos[0]+=45.0;
         pos[1]+=45.0;
         pos[2]+=5.0;
 
-        new target=targetList[GetRandomInt(0, targetCount-1)];
+        int target =targetList[GetRandomInt(0, targetCount-1)];
         if (target > 0)
         {
             RespawnPlayer(target);
@@ -919,24 +920,24 @@ bool:RaiseDead(client)
     return false;
 }
 
-public Action:ResetCollisionGroup(Handle:timer,any:userid)
+public Action ResetCollisionGroup(Handle:timer,any:userid)
 {
-    new client = GetClientOfUserId(userid);
+    int client = GetClientOfUserId(userid);
     if (client > 0)
     {
-        new client_team = GetClientTeam(client);
+        int client_team = GetClientTeam(client);
 
-        new Float:client_pos[3];
+        float client_pos[3];
         GetClientAbsOrigin(client,client_pos);
 
-        for(new i=1;i<=MaxClients;i++)
+        for(int i =1;i<=MaxClients;i++)
         {
             if (i != client && IsClientInGame(i) && IsPlayerAlive(i))
             {
-                new team = GetClientTeam(i);
+                int team = GetClientTeam(i);
                 if (team > 1 && (team != client_team || GetGameType() != tf2))
                 {
-                    new Float:pos[3];
+                    float pos[3];
                     GetClientAbsOrigin(i,pos);
                     if(GetVectorDistance(pos, client_pos)<=50.0)
                     {
@@ -951,7 +952,7 @@ public Action:ResetCollisionGroup(Handle:timer,any:userid)
     }
 }
 
-public Action:OnHorsemannScare(client, target)
+public Action OnHorsemannScare(client, target)
 {
     if (target <= 0 && IsValidClient(client) && GetRace(client) == raceID)
     {
@@ -960,7 +961,7 @@ public Action:OnHorsemannScare(client, target)
         {
             PrepareAndEmitSoundToClient(client,deniedWav);
 
-            decl String:upgradeName[NAME_STRING_LENGTH];
+            char upgradeName[NAME_STRING_LENGTH];
             GetUpgradeName(raceID, scareID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
             return Plugin_Stop;

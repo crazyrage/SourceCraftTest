@@ -28,7 +28,7 @@ PsionicRage(client, raceId, upgradeId, level,
 {
     if (level > 0)
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceId, upgradeId, upgradeName, sizeof(upgradeName), client);
 
         if (GetRestriction(client,Restriction_NoUltimates) ||
@@ -58,9 +58,9 @@ PsionicRage(client, raceId, upgradeId, level,
     }
 }
 
-public Action:EndRage(Handle:timer,any:userid)
+public Action EndRage(Handle:timer,any:userid)
 {
-    new client = GetClientOfUserId(userid);
+    int client = GetClientOfUserId(userid);
     if (IsValidClient(client) && m_RageActive[client])
     {
         m_RageActive[client]=false;
@@ -74,7 +74,7 @@ public Action:EndRage(Handle:timer,any:userid)
             PrintHintText(client, "%t", "YouStoppedRaging");
         }
 
-        decl String:message[64];
+        char message[64];
         Format(message, sizeof(message), "%T", "RageHud", client);
         ReplaceString(message, sizeof(message), "*", "");
         ReplaceString(message, sizeof(message), " ", "");

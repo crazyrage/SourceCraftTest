@@ -75,7 +75,7 @@ stock Spawn(client, level, raceId, upgradeId, maxObjects, bool:multAmps, bool:al
 {
     if (!IsValidClientAlive(client))
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceId, upgradeId, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "YouHaveDied", upgradeName);
         PrepareAndEmitSoundToClient(client,deniedWav);
@@ -83,21 +83,21 @@ stock Spawn(client, level, raceId, upgradeId, maxObjects, bool:multAmps, bool:al
     else if (GetRestriction(client,Restriction_NoUltimates) ||
              GetRestriction(client,Restriction_Stunned))
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceId, upgradeId, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
         PrepareAndEmitSoundToClient(client,deniedWav);
     }
     else if (IsBurrowed(client))
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceId, upgradeId, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "NotWhileBurrowed", upgradeName);
         PrepareAndEmitSoundToClient(client,deniedWav);
     }
     else if (IsMole(client))
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceId, upgradeId, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "NotAsMole", upgradeName);
         PrepareAndEmitSoundToClient(client,deniedWav);
@@ -107,7 +107,7 @@ stock Spawn(client, level, raceId, upgradeId, maxObjects, bool:multAmps, bool:al
         new TFClassType:class = TF2_GetPlayerClass(client);
         if (engineersOnly && class != TFClass_Engineer)
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceId, upgradeId, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "EngineersOnly", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -137,30 +137,30 @@ stock Spawn(client, level, raceId, upgradeId, maxObjects, bool:multAmps, bool:al
                 TF2_RemovePlayerDisguise(client);
         }
 
-        decl String:title[64];
+        char title[64];
         Format(title, sizeof(title), "[SC] %T", menuTitle, client);
 
-        new Handle:menu=CreateMenu(Spawn_Selected);
+        Handle menu=CreateMenu(Spawn_Selected);
         SetMenuTitle(menu,title);
 
-        new Float:energy      = GetEnergy(client);
-        new Float:energy_cost = GetUpgradeEnergy(raceId,upgradeId);
+        float energy      = GetEnergy(client);
+        float energy_cost = GetUpgradeEnergy(raceId,upgradeId);
 
-        new vespene           = GetVespene(client);
-        new vespene_cost      = GetUpgradeVespene(raceId,upgradeId);
-        new bool:ok           = (energy >= energy_cost && vespene >= vespene_cost);
+        int vespene = GetVespene(client);
+        int vespene_cost = GetUpgradeVespene(raceId,upgradeId);
+        bool ok           = (energy >= energy_cost && vespene >= vespene_cost);
 
-        new max_count         = (level > maxObjects) ? maxObjects : level;
+        int max_count = (level > maxObjects) ? maxObjects : level;
 
         new counts[TFOBJECT_COUNT];
-        new sum = CountBuildings(client, counts);
+        int sum = CountBuildings(client, counts);
 
         AddMenuItemT(menu,"6","MiniSentry", client, (ok && counts[TFObject_Sentry] < max_count) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED);
         AddMenuItemT(menu,"2","Sentry",     client, (ok && counts[TFObject_Sentry] < max_count) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED);
 
         if (m_AmpNodeAvailable)
         {
-            new dispOK = (ok && counts[TFObject_Dispenser] < max_count);
+            int dispOK = (ok && counts[TFObject_Dispenser] < max_count);
 
             AddMenuItemT(menu,"8","RepairNode", client, (dispOK) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED);
             //AddMenuItemT(menu,"9","UpgradeStation", client, (dispOK) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED);
@@ -194,7 +194,7 @@ stock Spawn(client, level, raceId, upgradeId, maxObjects, bool:multAmps, bool:al
         }
         else
         {
-            new dispenserOK = (ok && counts[TFObject_Dispenser] < ((max_count > 1) ? 1 : max_count));
+            int dispenserOK = (ok && counts[TFObject_Dispenser] < ((max_count > 1) ? 1 : max_count));
             AddMenuItemT(menu,"0","Dispenser",  client, (dispenserOK) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED);
         }
 
@@ -215,11 +215,11 @@ public Spawn_Selected(Handle:menu,MenuAction:action,client,selection)
         
         if (GetRace(client) == m_spawnRaceId)
         {
-            decl String:num[16];
-            decl String:SelectionInfo[32];
+            char num[16];
+            char SelectionInfo[32];
             GetMenuItem(menu,selection,SelectionInfo,sizeof(SelectionInfo));
-            new pos = BreakString(SelectionInfo, num, sizeof(num));
-            new item = StringToInt(num);
+            int pos = BreakString(SelectionInfo, num, sizeof(num));
+            int item = StringToInt(num);
             if (item == 13)
             {
                 if (!DestroyBuildingMenu(client))
@@ -242,7 +242,7 @@ public Spawn_Selected(Handle:menu,MenuAction:action,client,selection)
                         obj = TFObject_Dispenser;
                         if (m_AmpNodeAvailable)
                         {
-                            new spawn_level=GetUpgradeLevel(client,m_spawnRaceId,m_spawnUpgradeId);
+                            int spawn_level =GetUpgradeLevel(client,m_spawnRaceId,m_spawnUpgradeId);
                             SetRepairNode(client, .team=(spawn_level>2), .enable=true, .select=true);
                         }
                     }
@@ -275,7 +275,7 @@ public Spawn_Selected(Handle:menu,MenuAction:action,client,selection)
                 }
                 else
                 {
-                    new spawn_level=GetUpgradeLevel(client,m_spawnRaceId,m_spawnUpgradeId);
+                    int spawn_level =GetUpgradeLevel(client,m_spawnRaceId,m_spawnUpgradeId);
                     SpawnIt(client, TFExtObjectType:item, m_spawnRaceId, m_spawnUpgradeId,
                             spawn_level, false, false, m_SpawnSound);
                 }
@@ -289,34 +289,34 @@ public Spawn_Selected(Handle:menu,MenuAction:action,client,selection)
 stock SpawnIt(client, TFExtObjectType:type, raceId, upgradeId, level,
               bool:bMini, bool:bShielded, const String:spawnSound[])
 {
-    new count;
+    int count;
 
     if (!IsValidClientAlive(client))
     {
         PrepareAndEmitSoundToClient(client,deniedWav);
 
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceId, upgradeId, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "YouHaveDied", upgradeName);
     }
     else if (GetRestriction(client,Restriction_NoUltimates) ||
              GetRestriction(client,Restriction_Stunned))
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceId, upgradeId, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
         PrepareAndEmitSoundToClient(client,deniedWav);
     }
     else if (IsBurrowed(client))
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceId, upgradeId, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "NotWhileBurrowed", upgradeName);
         PrepareAndEmitSoundToClient(client,deniedWav);
     }
     else if (IsMole(client))
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceId, upgradeId, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "NotAsMole", upgradeName);
         PrepareAndEmitSoundToClient(client,deniedWav);
@@ -356,7 +356,7 @@ stock SpawnIt(client, TFExtObjectType:type, raceId, upgradeId, level,
         m_spawnRaceId = raceId;
         m_spawnUpgradeId = upgradeId;
         strcopy(m_SpawnSound, sizeof(m_SpawnSound), spawnSound);
-        new obj = BuildObject(client, type, (bMini || type == TFExtObject_MiniSentry) ? 1 : level,
+        int obj = BuildObject(client, type, (bMini || type == TFExtObject_MiniSentry) ? 1 : level,
                               bMini, bShielded, .bDisabled=true, .check=false);
         if (obj > 0)
         {
@@ -366,9 +366,9 @@ stock SpawnIt(client, TFExtObjectType:type, raceId, upgradeId, level,
             ChargeForUpgrade(client, raceId, upgradeId);
             PrepareAndEmitSoundToAll(m_SpawnSound,client);
 
-            new spawn_level=GetUpgradeLevel(client, raceId, upgradeId);
-            new num_built = CountObjects(client, TF2_ObjectClassNames[type]);
-            new Float:cooldown = GetUpgradeCooldown(raceId, upgradeId) * float(4-spawn_level+((num_built > 1) ? num_built * 2 : 1));
+            int spawn_level =GetUpgradeLevel(client, raceId, upgradeId);
+            int num_built = CountObjects(client, TF2_ObjectClassNames[type]);
+            float cooldown = GetUpgradeCooldown(raceId, upgradeId) * float(4-spawn_level+((num_built > 1) ? num_built * 2 : 1));
             CreateCooldown(client, raceId, upgradeId, cooldown);
 
             if (m_AmpNodeAvailable)
@@ -392,13 +392,13 @@ stock SpawnIt(client, TFExtObjectType:type, raceId, upgradeId, level,
     }
 }
 
-public Action:OnBuildCommand(client,TFObjectType:type,mode,count)
+public Action OnBuildCommand(client,TFObjectType:type,mode,count)
 {
     if (GetRace(client) == m_spawnRaceId && IsClientInGame(client) &&
         TF2_GetPlayerClass(client) == TFClass_Engineer)
     {
         // always allow 2 teleporters or 1 of everything else without cost
-        new max = (type == TFObject_Teleporter) ? 1 : 0;
+        int max = (type == TFObject_Teleporter) ? 1 : 0;
         if (count > max)
         {
             if (CanInvokeUpgrade(client, m_spawnRaceId, m_spawnUpgradeId))
@@ -421,20 +421,20 @@ public Action:OnBuildCommand(client,TFObjectType:type,mode,count)
     return Plugin_Continue;
 }
 
-public Action:ResetAmplifier(Handle:timer,any:userid)
+public Action ResetAmplifier(Handle:timer,any:userid)
 {
-    new client = GetClientOfUserId(userid);
+    int client = GetClientOfUserId(userid);
     if (client > 0 && m_AmpNodeAvailable)
         SetAmplifier(client, .enable=false);
 
     return Plugin_Stop;
 }
 
-public Action:OnAmplify(builder,client,TFCond:condition)
+public Action OnAmplify(builder,client,TFCond:condition)
 {
     if (condition == TFCond_Buffed && builder > 0 && GetRace(builder) == m_spawnRaceId)
     {
-        new Float:energy = GetEnergy(client);
+        float energy = GetEnergy(client);
         if (energy < 4.0)
             return Plugin_Stop;
         else

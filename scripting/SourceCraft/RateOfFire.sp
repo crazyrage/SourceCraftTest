@@ -6,6 +6,7 @@
  */
 
 #pragma semicolon 1
+#pragma newdecls required
 #include <sourcemod>
 #include <sdktools>
 #include <gametype>
@@ -24,7 +25,7 @@
 #tryinclude "sc/SourceCraft"
 #include "sc/weapons"
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Rate of Fire plugin",
     author = "-=|JFH|=-Naris",
@@ -33,19 +34,19 @@ public Plugin:myinfo =
     url = "http://www.jigglysfunhouse.net/"
 }
 
-new m_WeaponRateQueueLen                 = 0;
+int m_WeaponRateQueueLen = 0;
 new m_WeaponRateQueue[MAXPLAYERS+1]      = { 0, ... };
-new Float:m_EnergyAmount[MAXPLAYERS+1]   = { 0.0, ... };
-new Float:m_WeaponRateMult[MAXPLAYERS+1] = { 0.0, ... };
-new Float:m_ClientRateMult[MAXPLAYERS+1] = { 0.0, ... };
-new bool:m_ClientDisarmed[MAXPLAYERS+1]  = { false, ... };
+float m_EnergyAmount[MAXPLAYERS+1]   = { 0.0, ... };
+float m_WeaponRateMult[MAXPLAYERS+1] = { 0.0, ... };
+float m_ClientRateMult[MAXPLAYERS+1] = { 0.0, ... };
+bool m_ClientDisarmed[MAXPLAYERS+1]  = { false, ... };
 
-new bool:g_NativeControl                 = false;
-new Handle:g_OnWeaponFiredHandle         = INVALID_HANDLE;
-new Handle:g_hROF                        = INVALID_HANDLE;
-new Float:g_mult                         = 1.0;
+bool g_NativeControl                 = false;
+Handle g_OnWeaponFiredHandle         = INVALID_HANDLE;
+Handle g_hROF                        = INVALID_HANDLE;
+float g_mult                         = 1.0;
 
-public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
     if (GetGameTypeIsCS())
     {
@@ -84,13 +85,13 @@ public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
     return  APLRes_Success;
 }
 
-public OnPluginStart()
+public void OnPluginStart()
 {
     g_hROF = CreateConVar("sm_rof", "1.0", "Rate Of Fire multiplier.", FCVAR_NOTIFY);
     HookConVarChange(g_hROF, Cvar_rof);
 }
 
-public OnConfigsExecuted()
+public void OnConfigsExecuted()
 {
     g_mult = 1.0/GetConVarFloat(g_hROF);
 }
@@ -101,25 +102,25 @@ public bool:OnClientConnect(client, String:rejectmsg[], maxlen)
     return true;
 }
 
-public OnClientDisconnect(client)
+public void OnClientDisconnect(client)
 {
     m_ClientRateMult[client] = 0.0;
 }
 
-public OnGameFrame()
+public void OnGameFrame()
 {
     if (m_WeaponRateQueueLen)
     {
-        new Float:enginetime = GetGameTime();
-        for (new i=0;i<m_WeaponRateQueueLen;i++)
+        float enginetime = GetGameTime();
+        for (int i =0;i<m_WeaponRateQueueLen;i++)
         {
-            new ent = m_WeaponRateQueue[i];
+            int ent = m_WeaponRateQueue[i];
             if (IsValidEntity(ent))
             {
-                new Float:rofmult = m_WeaponRateMult[i];
+                float rofmult = m_WeaponRateMult[i];
                 if (rofmult != 1.0)
                 {
-                    new Float:time = (GetEntPropFloat(ent, Prop_Send, "m_flNextPrimaryAttack")-enginetime)*rofmult;
+                    float time = (GetEntPropFloat(ent, Prop_Send, "m_flNextPrimaryAttack")-enginetime)*rofmult;
                     SetEntPropFloat(ent, Prop_Send, "m_flNextPrimaryAttack", time+enginetime);
 
                     time = (GetEntPropFloat(ent, Prop_Send, "m_flNextSecondaryAttack")-enginetime)*rofmult;
@@ -139,11 +140,11 @@ public Cvar_rof(Handle:convar, const String:oldValue[], const String:newValue[])
     g_mult = 1.0/GetConVarFloat(g_hROF);
 }
 
-public Action:TF2_CalcIsAttackCritical(client, weapon, String:weaponname[], &bool:result)
+public Action TF2_CalcIsAttackCritical(client, weapon, String:weaponname[], &bool:result)
 {
     if (client > 0 && weapon > 0)
     {
-        new Float:rate = g_NativeControl ? m_ClientRateMult[client] : g_mult;
+        float rate = g_NativeControl ? m_ClientRateMult[client] : g_mult;
         if (rate < 0.0)
             rate = g_mult;
 
@@ -194,21 +195,21 @@ public Action:TF2_CalcIsAttackCritical(client, weapon, String:weaponname[], &boo
 
 public WeaponFireEvent(Handle:event,const String:name[],bool:dontBroadcast)
 { 
-    new client = (GameType == dod) ? GetEventInt(event,"attacker")
+    int client = (GameType == dod) ? GetEventInt(event,"attacker")
                                    : GetClientOfUserId(GetEventInt(event,"userid"));
 
-    new weapon = GetActiveWeapon(client);
+    int weapon = GetActiveWeapon(client);
     if (weapon > 0)
     {
-        new Float:rate = g_NativeControl ? m_ClientRateMult[client] : g_mult;
+        float rate = g_NativeControl ? m_ClientRateMult[client] : g_mult;
         if (rate < 0.0)
             rate = g_mult;
 
         if (rate != 0.0 && rate != 1.0)
         {
 #if defined SOURCECRAFT
-            new Float:energy = GetEnergy(client);
-            new Float:amount = m_EnergyAmount[client];
+            float energy = GetEnergy(client);
+            float amount = m_EnergyAmount[client];
             if (energy >= amount)
 #endif
             {
@@ -230,7 +231,7 @@ public WeaponFireEvent(Handle:event,const String:name[],bool:dontBroadcast)
     } 
 }
 
-public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:angles[3], &weapon)
+public Action OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:angles[3], &weapon)
 {
     if (client > 0)
     {
@@ -247,21 +248,21 @@ public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:ang
     return Plugin_Continue;
 }
 
-public Native_ControlROF(Handle:plugin, numParams)
+public int Native_ControlROF(Handle plugin, int numParams)
 {
     g_NativeControl = GetNativeCell(1);
     Trace("ControlROF(%d)", g_NativeControl);
 }
 
-public Native_DisarmPlayer(Handle:plugin, numParams)
+public int Native_DisarmPlayer(Handle plugin, int numParams)
 {
-    new client = GetNativeCell(1);
+    int client = GetNativeCell(1);
     m_ClientDisarmed[client] = bool:GetNativeCell(2);
 }
 
-public Native_SetROF(Handle:plugin, numParams)
+public int Native_SetROF(Handle plugin, int numParams)
 {
-    new client = GetNativeCell(1);
+    int client = GetNativeCell(1);
     m_ClientRateMult[client] = Float:GetNativeCell(2);
     m_EnergyAmount[client] = Float:GetNativeCell(3);
 
@@ -270,9 +271,9 @@ public Native_SetROF(Handle:plugin, numParams)
           m_ClientRateMult[client], m_EnergyAmount[client]);
 }
 
-public Native_GetROF(Handle:plugin, numParams)
+public int Native_GetROF(Handle plugin, int numParams)
 {
-    new client = GetNativeCell(1);
+    int client = GetNativeCell(1);
     SetNativeCellRef(2, m_EnergyAmount[client]);
     return _:m_ClientRateMult[client];          
 }

@@ -6,6 +6,7 @@
  */
  
 #pragma semicolon 1
+#pragma newdecls required
 
 #include <sourcemod>
 #include <sdktools>
@@ -52,26 +53,26 @@ new const String:forgeWav[]         = "sc/pfowht00.wav";
 new const String:cannonWav[]        = "sc/phohit00.wav";
 new const String:shieldBatteryWav[] = "sc/pbaact00.wav";
 
-new Float:g_InitialShields[]    = { 0.0, 0.10, 0.25, 0.50, 0.75 };
-new Float:g_ShieldsPercent[][2] = { {0.00, 0.00},
+float g_InitialShields[]    = { 0.0, 0.10, 0.25, 0.50, 0.75 };
+float g_ShieldsPercent[][2] = { {0.00, 0.00},
                                     {0.00, 0.10},
                                     {0.00, 0.30},
                                     {0.10, 0.40},
                                     {0.20, 0.50} };
 
-new Float:g_SpeedLevels[]       = { 1.10, 1.15, 1.20, 1.25, 1.30 };
+float g_SpeedLevels[]       = { 1.10, 1.15, 1.20, 1.25, 1.30 };
 
-new Float:g_BatteryRange[]      = { 150.0, 200.0, 250.0, 350.0, 500.0 };
+float g_BatteryRange[]      = { 150.0, 200.0, 250.0, 350.0, 500.0 };
 
-new Float:g_WarpGateRate[]      = { 0.0, 8.0, 6.0, 3.0, 1.0 };
+float g_WarpGateRate[]      = { 0.0, 8.0, 6.0, 3.0, 1.0 };
 
-new Float:g_ForgeFactor[]       = { 1.0, 1.10, 1.30, 1.50, 1.80 };
+float g_ForgeFactor[]       = { 1.0, 1.10, 1.30, 1.50, 1.80 };
 
 new g_CannonChance[]            = {   0,     20,    40,    60,    90  };
-new Float:g_CannonPercent[]     = {   0.0,  0.15,  0.30,  0.40,  0.60 };
-new Float:g_CannonRange[]       = { 150.0, 200.0, 250.0, 350.0, 500.0 };
+float g_CannonPercent[]     = {   0.0,  0.15,  0.30,  0.40,  0.60 };
+float g_CannonRange[]       = { 150.0, 200.0, 250.0, 350.0, 500.0 };
 
-new Float:m_BatteryEnergy[]     = { 1.0, 2.0, 3.0, 4.0, 5.0 };
+float m_BatteryEnergy[]     = { 1.0, 2.0, 3.0, 4.0, 5.0 };
 new m_BatteryUpgradeMetal[]     = { 1,   2,   3,   4,   5 };
 new m_BatteryAmmoRockets[]      = { 1,   2,   3,   4,   5 };
 new m_BatteryAmmoShells[]       = { 2,   4,   6,   8,  10 };
@@ -81,20 +82,20 @@ new m_BatteryHealth[]           = { 2,   4,   6,   8,  10 };
 new m_BatteryAmmo[]             = { 1,   2,   3,   4,   5 };
 
 new g_JetpackFuel[]             = { 0, 40, 50, 70, 90 };
-new Float:g_JetpackRefuelTime[] = { 0.0, 45.0, 35.0, 25.0, 15.0 };
+float g_JetpackRefuelTime[] = { 0.0, 45.0, 35.0, 25.0, 15.0 };
 
 
 new raceID, shieldsID, batteriesID, forgeID, warpGateID, cannonID;
 new recallID, spawnID, recallStructureID, enhancementID, jetpackID;
 
-new cfgMaxObjects;
-new cfgAllowSentries;
-new bool:cfgAllowTeleport;
+int cfgMaxObjects;
+int cfgAllowSentries;
+bool cfgAllowTeleport;
 
-new bool:m_HasCannon[MAXPLAYERS+1][MAXPLAYERS+1];
-new Float:m_CannonTime[MAXPLAYERS+1];
+bool m_HasCannon[MAXPLAYERS+1][MAXPLAYERS+1];
+float m_CannonTime[MAXPLAYERS+1];
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Protoss Warp/Phase Prism",
     author = "-=|JFH|=-Naris",
@@ -103,7 +104,7 @@ public Plugin:myinfo =
     url = "http://jigglysfunhouse.net/"
 };
 
-public OnPluginStart()
+public void OnPluginStart()
 {
     LoadTranslations("sc.objects.phrases.txt");
     LoadTranslations("sc.common.phrases.txt");
@@ -115,7 +116,7 @@ public OnPluginStart()
         OnSourceCraftReady();
 }
 
-public OnSourceCraftReady()
+public void OnSourceCraftReady()
 {
     raceID          = CreateRace("prism", -1, -1, 32, .energy_rate=2.0,
                                  .faction=Protoss, .type=Robotic,
@@ -224,9 +225,9 @@ public OnSourceCraftReady()
     GetConfigFloatArray("shields_amount", g_InitialShields, sizeof(g_InitialShields),
                         g_InitialShields, raceID, shieldsID);
 
-    for (new level=0; level < sizeof(g_ShieldsPercent); level++)
+    for (int level =0; level < sizeof(g_ShieldsPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "shields_percent_level_%d", level);
         GetConfigFloatArray(key, g_ShieldsPercent[level], sizeof(g_ShieldsPercent[]),
                             g_ShieldsPercent[level], raceID, shieldsID);
@@ -285,33 +286,33 @@ public OnSourceCraftReady()
         GetConfigFloatArray("range", g_CannonRange, sizeof(g_CannonRange),
                             g_CannonRange, raceID, cannonID);
 
-        for (new level=0; level < sizeof(m_SpawnAmpRange); level++)
+        for (int level =0; level < sizeof(m_SpawnAmpRange); level++)
         {
-            decl String:key[32];
+            char key[32];
             Format(key, sizeof(key), "amp_range_level_%d", level);
             GetConfigFloatArray(key, m_SpawnAmpRange[level], sizeof(m_SpawnAmpRange[]),
                                 m_SpawnAmpRange[level], raceID, spawnID);
         }
 
-        for (new level=0; level < sizeof(m_SpawnNodeRange); level++)
+        for (int level =0; level < sizeof(m_SpawnNodeRange); level++)
         {
-            decl String:key[32];
+            char key[32];
             Format(key, sizeof(key), "node_range_level_%d", level);
             GetConfigFloatArray(key, m_SpawnNodeRange[level], sizeof(m_SpawnNodeRange[]),
                                 m_SpawnNodeRange[level], raceID, spawnID);
         }
 
-        for (new level=0; level < sizeof(m_SpawnNodeRegen); level++)
+        for (int level =0; level < sizeof(m_SpawnNodeRegen); level++)
         {
-            decl String:key[32];
+            char key[32];
             Format(key, sizeof(key), "node_regen_level_%d", level);
             GetConfigArray(key, m_SpawnNodeRegen[level], sizeof(m_SpawnNodeRegen[]),
                            m_SpawnNodeRegen[level], raceID, spawnID);
         }
 
-        for (new level=0; level < sizeof(m_SpawnNodeShells); level++)
+        for (int level =0; level < sizeof(m_SpawnNodeShells); level++)
         {
-            decl String:key[32];
+            char key[32];
             Format(key, sizeof(key), "node_shells_level_%d", level);
             GetConfigArray(key, m_SpawnNodeShells[level], sizeof(m_SpawnNodeShells[]),
                            m_SpawnNodeShells[level], raceID, spawnID);
@@ -322,7 +323,7 @@ public OnSourceCraftReady()
     }
 }
 
-public OnLibraryAdded(const String:name[])
+public void OnLibraryAdded(const String:name[])
 {
     if (StrEqual(name, "jetpack"))
         IsJetpackAvailable(true);
@@ -338,7 +339,7 @@ public OnLibraryAdded(const String:name[])
         IsInfiniteAmmoAvailable(true);
 }
 
-public OnLibraryRemoved(const String:name[])
+public void OnLibraryRemoved(const String:name[])
 {
     if (StrEqual(name, "tf2teleporter"))
         m_TeleporterAvailable = false;
@@ -354,7 +355,7 @@ public OnLibraryRemoved(const String:name[])
         m_InfiniteAmmoAvailable = false;
 }
 
-public OnMapStart()
+public void OnMapStart()
 {
     SetupHaloSprite();
     SetupBeamSprite();
@@ -375,22 +376,22 @@ public OnMapStart()
     SetupSound(shieldBatteryWav);
 }
 
-public OnMapEnd()
+public void OnMapEnd()
 {
     ResetAllClientTimers();
 }
 
-public OnClientDisconnect(client)
+public void OnClientDisconnect(client)
 {
     KillClientTimer(client);
 }
 
-public OnPlayerAuthed(client)
+public void OnPlayerAuthed(client)
 {
     m_CannonTime[client] = 0.0;
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -412,30 +413,30 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
             TakeJetpack(client);
 
         // Reset all the cannons
-        for (new index=1;index<=MaxClients;index++)
+        for (int index =1;index<=MaxClients;index++)
             m_HasCannon[client][index] = false;
     }
     return Plugin_Continue;
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
         m_CannonTime[client] = 0.0;
 
-        new enhancement_level = GetUpgradeLevel(client,raceID,enhancementID);
+        int enhancement_level = GetUpgradeLevel(client,raceID,enhancementID);
         SetSpeedBoost(client, enhancement_level, true, g_SpeedLevels);
 
-        new teleporter_level = GetUpgradeLevel(client,raceID,warpGateID);
+        int teleporter_level = GetUpgradeLevel(client,raceID,warpGateID);
         SetupTeleporter(client, teleporter_level);
 
-        new jetpack_level=GetUpgradeLevel(client,raceID,jetpackID);
+        int jetpack_level =GetUpgradeLevel(client,raceID,jetpackID);
         SetupJetpack(client, jetpack_level);
 
         if (GetGameType() == tf2 && m_BuildAvailable)
         {
-            new spawn_num = RoundToCeil((float(GetUpgradeLevel(client,raceID,spawnID)) / 2.0) + 0.5);
+            int spawn_num = RoundToCeil((float(GetUpgradeLevel(client,raceID,spawnID)) / 2.0) + 0.5);
             if (spawn_num > cfgMaxObjects)
                 spawn_num = cfgMaxObjects;
             GiveBuild(client, spawn_num, spawn_num, spawn_num, spawn_num);
@@ -443,7 +444,7 @@ public Action:OnRaceSelected(client,oldrace,newrace)
 
         if (IsValidClientAlive(client))
         {
-            new shields_level = GetUpgradeLevel(client,raceID,shieldsID);
+            int shields_level = GetUpgradeLevel(client,raceID,shieldsID);
             SetupShields(client, shields_level, g_InitialShields, g_ShieldsPercent);
 
             CreateClientTimer(client, 1.0, BatteryTimer,
@@ -456,7 +457,7 @@ public Action:OnRaceSelected(client,oldrace,newrace)
         return Plugin_Continue;
 }
 
-public OnUpgradeLevelChanged(client,race,upgrade,new_level)
+public void OnUpgradeLevelChanged(client,race,upgrade,new_level)
 {
     if (race == raceID && GetRace(client) == raceID)
     {
@@ -475,7 +476,7 @@ public OnUpgradeLevelChanged(client,race,upgrade,new_level)
         {
             if (m_BuildAvailable)
             {
-                new spawn_num = RoundToCeil((float(new_level) / 2.0) + 0.5);
+                int spawn_num = RoundToCeil((float(new_level) / 2.0) + 0.5);
                 if (spawn_num > cfgMaxObjects)
                     spawn_num = cfgMaxObjects;
                 GiveBuild(client, spawn_num, spawn_num, spawn_num, spawn_num);
@@ -484,9 +485,9 @@ public OnUpgradeLevelChanged(client,race,upgrade,new_level)
     }
 }
 
-public OnItemPurchase(client,item)
+public void OnItemPurchase(client,item)
 {
-    new race=GetRace(client);
+    int race =GetRace(client);
     if (race == raceID && IsValidClientAlive(client))
     {
         if (g_bootsItem < 0)
@@ -494,13 +495,13 @@ public OnItemPurchase(client,item)
 
         if (item == g_bootsItem)
         {
-            new enhancement_level = GetUpgradeLevel(client,race,enhancementID);
+            int enhancement_level = GetUpgradeLevel(client,race,enhancementID);
             SetSpeedBoost(client, enhancement_level, true, g_SpeedLevels);
         }
     }
 }
 
-public OnUltimateCommand(client,race,bool:pressed,arg)
+public void OnUltimateCommand(client,race,bool:pressed,arg)
 {
     if (race==raceID)
     {
@@ -508,7 +509,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
         {
             case 4:
             {
-                new recall_level=GetUpgradeLevel(client,race,recallID);
+                int recall_level =GetUpgradeLevel(client,race,recallID);
                 if (recall_level > 0)
                     RecallTeam(client,race,recallID);
             }
@@ -516,7 +517,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
             {
                 if (pressed)
                 {
-                    new recall_structure_level = GetUpgradeLevel(client,race,recallStructureID);
+                    int recall_structure_level = GetUpgradeLevel(client,race,recallStructureID);
                     if (recall_structure_level && GameType == tf2 && cfgAllowTeleport &&
                         (cfgAllowSentries >= 2) || (cfgAllowSentries >= 1 && TF2_GetPlayerClass(client) == TFClass_Engineer))
                     {
@@ -524,7 +525,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                     }
                     else
                     {
-                        new recall_level=GetUpgradeLevel(client,race,recallID);
+                        int recall_level =GetUpgradeLevel(client,race,recallID);
                         if (recall_level > 0)
                             RecallTeam(client,race,recallID);
                     }
@@ -534,7 +535,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
             {
                 if (pressed)
                 {
-                    new spawn_level = GetUpgradeLevel(client,race,spawnID);
+                    int spawn_level = GetUpgradeLevel(client,race,spawnID);
                     if (spawn_level > 0 && cfgAllowSentries >= 1)
                     {
                         Spawn(client, spawn_level, race, spawnID, cfgMaxObjects,
@@ -543,7 +544,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                     }
                     else
                     {
-                        new recall_structure_level = GetUpgradeLevel(client,race,recallStructureID);
+                        int recall_structure_level = GetUpgradeLevel(client,race,recallStructureID);
                         if (recall_structure_level && GameType == tf2 && cfgAllowTeleport &&
                             ((cfgAllowSentries >= 2) || (cfgAllowSentries >= 1 && TF2_GetPlayerClass(client) == TFClass_Engineer)))
                         {
@@ -551,7 +552,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                         }
                         else
                         {
-                            new recall_level=GetUpgradeLevel(client,race,recallID);
+                            int recall_level =GetUpgradeLevel(client,race,recallID);
                             if (recall_level > 0)
                                 RecallTeam(client,race,recallID);
                         }
@@ -560,7 +561,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
             }
             default:
             {
-                new jetpack_level = GetUpgradeLevel(client,raceID,jetpackID);
+                int jetpack_level = GetUpgradeLevel(client,raceID,jetpackID);
                 if (jetpack_level > 0)
                 {
                     if (m_JetpackAvailable)
@@ -581,14 +582,14 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                     }
                     else if (pressed)
                     {
-                        decl String:upgradeName[64];
+                        char upgradeName[64];
                         GetUpgradeName(raceID, jetpackID, upgradeName, sizeof(upgradeName), client);
                         PrintHintText(client,"%t", "IsNotAvailable", upgradeName);
                     }
                 }
                 else
                 {
-                    new spawn_level = GetUpgradeLevel(client,race,spawnID);
+                    int spawn_level = GetUpgradeLevel(client,race,spawnID);
                     if (spawn_level > 0 && cfgAllowSentries >= 1)
                     {
                         Spawn(client, spawn_level, race, spawnID, cfgMaxObjects,
@@ -597,7 +598,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                     }
                     else
                     {
-                        new recall_structure_level = GetUpgradeLevel(client,race,recallStructureID);
+                        int recall_structure_level = GetUpgradeLevel(client,race,recallStructureID);
                         if (recall_structure_level && GameType == tf2 && cfgAllowTeleport &&
                             ((cfgAllowSentries >= 2) || (cfgAllowSentries >= 1 && TF2_GetPlayerClass(client) == TFClass_Engineer)))
                         {
@@ -605,7 +606,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                         }
                         else
                         {
-                            new recall_level=GetUpgradeLevel(client,race,recallID);
+                            int recall_level =GetUpgradeLevel(client,race,recallID);
                             if (recall_level > 0)
                                 RecallTeam(client,race,recallID);
                         }
@@ -617,7 +618,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
 }
 
 // Events
-public OnPlayerSpawnEvent(Handle:event, client, race)
+public void OnPlayerSpawnEvent(Handle:event, client, race)
 {
     if (race == raceID)
     {
@@ -625,18 +626,18 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
 
         m_CannonTime[client] = 0.0;
 
-        new enhancement_level = GetUpgradeLevel(client,raceID,enhancementID);
+        int enhancement_level = GetUpgradeLevel(client,raceID,enhancementID);
         SetSpeedBoost(client, enhancement_level, true, g_SpeedLevels);
 
-        new jetpack_level=GetUpgradeLevel(client,raceID,jetpackID);
+        int jetpack_level =GetUpgradeLevel(client,raceID,jetpackID);
         SetupJetpack(client, jetpack_level);
 
-        new shields_level = GetUpgradeLevel(client,raceID,shieldsID);
+        int shields_level = GetUpgradeLevel(client,raceID,shieldsID);
         SetupShields(client, shields_level, g_InitialShields, g_ShieldsPercent);
 
         if (m_BuildAvailable)
         {
-            new spawn_num = RoundToCeil((float(GetUpgradeLevel(client,raceID,spawnID)) / 2.0) + 0.5);
+            int spawn_num = RoundToCeil((float(GetUpgradeLevel(client,raceID,spawnID)) / 2.0) + 0.5);
             if (spawn_num > cfgMaxObjects)
                 spawn_num = cfgMaxObjects;
             GiveBuild(client, spawn_num, spawn_num, spawn_num, spawn_num);
@@ -647,7 +648,7 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     if (!from_sc && attacker_index > 0 && attacker_index != victim_index &&
@@ -660,7 +661,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
     return Plugin_Continue;
 }
 
-public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
+public Action OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
                                   assister_index, assister_race, damage,
                                   absorbed)
 {
@@ -673,7 +674,7 @@ public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
     return Plugin_Continue;
 }
 
-public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
+public void OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
                           attacker_race, assister_index, assister_race, damage,
                           const String:weapon[], bool:is_equipment, customkill,
                           bool:headshot, bool:backstab, bool:melee)
@@ -686,7 +687,7 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
     }
 }
 
-public OnPlayerBuiltObject(Handle:event, client, obj, TFObjectType:type)
+public void OnPlayerBuiltObject(Handle:event, client, obj, TFObjectType:type)
 {
     if (obj > 0 && type != TFObject_Sapper && cfgAllowSentries >= 1)
     {
@@ -696,32 +697,32 @@ public OnPlayerBuiltObject(Handle:event, client, obj, TFObjectType:type)
         {
             if (GetUpgradeLevel(client,raceID,forgeID) > 0)
             {
-                new Float:time = (GetEntPropFloat(obj, Prop_Send, "m_flPercentageConstructed") >= 1.0) ? 0.1 : 10.0;
+                float time = (GetEntPropFloat(obj, Prop_Send, "m_flPercentageConstructed") >= 1.0) ? 0.1 : 10.0;
                 CreateTimer(time, ForgeTimer, EntIndexToEntRef(obj), TIMER_FLAG_NO_MAPCHANGE);
             }
         }
     }
 }
 
-public Action:ForgeTimer(Handle:timer,any:ref)
+public Action ForgeTimer(Handle:timer,any:ref)
 {
-    new obj = EntRefToEntIndex(ref);
+    int obj = EntRefToEntIndex(ref);
     if (obj > 0 && IsValidEntity(obj) && IsValidEdict(obj))
     {
-        new builder = GetEntPropEnt(obj, Prop_Send, "m_hBuilder");
+        int builder = GetEntPropEnt(obj, Prop_Send, "m_hBuilder");
         if (builder > 0 && GetRace(builder) == raceID &&
             !GetRestriction(builder, Restriction_NoUpgrades) &&
             !GetRestriction(builder, Restriction_Stunned))
         {
             if (GetEntPropFloat(obj, Prop_Send, "m_flPercentageConstructed") >= 1.0)
             {
-                new build_level = GetUpgradeLevel(builder,raceID,forgeID);
+                int build_level = GetUpgradeLevel(builder,raceID,forgeID);
                 if (build_level > 0)
                 {
-                    new health = GetEntProp(obj, Prop_Data, "m_iMaxHealth");
+                    int health = GetEntProp(obj, Prop_Data, "m_iMaxHealth");
                     health = RoundToNearest(float(health)*g_ForgeFactor[build_level]);
 
-                    new maxHealth = TF2_SentryHealth[4]; //[iLevel+1];
+                    int maxHealth = TF2_SentryHealth[4]; //[iLevel+1];
                     if (health > maxHealth)
                         health = maxHealth;
 
@@ -730,13 +731,13 @@ public Action:ForgeTimer(Handle:timer,any:ref)
 
                     if (TF2_GetObjectType(obj) == TFObject_Sentry)
                     {
-                        new iShells = GetEntProp(obj, Prop_Send, "m_iAmmoShells");
+                        int iShells = GetEntProp(obj, Prop_Send, "m_iAmmoShells");
                         iShells = RoundToNearest(float(iShells)*g_ForgeFactor[build_level]);
                         if (iShells > 511)
                             iShells = 511;
                         SetEntProp(obj, Prop_Send, "m_iAmmoShells", iShells);
 
-                        new iRockets = GetEntProp(obj, Prop_Send, "m_iAmmoRockets");
+                        int iRockets = GetEntProp(obj, Prop_Send, "m_iAmmoRockets");
                         if (iRockets > 0)
                         {
                             iRockets = RoundToNearest(float(iRockets)*g_ForgeFactor[build_level]);
@@ -758,38 +759,38 @@ public Action:ForgeTimer(Handle:timer,any:ref)
     return Plugin_Stop;
 }
 
-public Action:BatteryTimer(Handle:timer, any:userid)
+public Action BatteryTimer(Handle:timer, any:userid)
 {
-    new client = GetClientOfUserId(userid);
+    int client = GetClientOfUserId(userid);
     if (IsValidClientNotSpec(client) && GetRace(client) == raceID &&
         !GetRestriction(client,Restriction_NoUpgrades) &&
         !GetRestriction(client,Restriction_Stunned))
     {
         // Reset all the cannons
-        for (new index=1;index<=MaxClients;index++)
+        for (int index =1;index<=MaxClients;index++)
             m_HasCannon[client][index] = false;
 
         if (GetGameType() != tf2)
             return Plugin_Continue;
 
-        new battery_level = GetUpgradeLevel(client,raceID,batteriesID);
-        new Float:battery_range=g_BatteryRange[battery_level];
+        int battery_level = GetUpgradeLevel(client,raceID,batteriesID);
+        float battery_range=g_BatteryRange[battery_level];
 
-        new cannon_level = GetUpgradeLevel(client,raceID,cannonID);
-        new Float:cannon_range=g_CannonRange[cannon_level];
+        int cannon_level = GetUpgradeLevel(client,raceID,cannonID);
+        float cannon_range=g_CannonRange[cannon_level];
 
-        new Float:energy_amount = m_BatteryEnergy[battery_level];
-        new upgrade_amount = m_BatteryUpgradeMetal[battery_level];
-        new rocket_amount = m_BatteryAmmoRockets[battery_level];
-        new shells_amount = m_BatteryAmmoShells[battery_level];
-        new metal_amount = m_BatteryAmmoMetal[battery_level];
-        new repair_amount = m_BatteryRepair[battery_level];
-        new health_amount = m_BatteryHealth[battery_level];
-        new ammo_amount = m_BatteryAmmo[battery_level];
+        float energy_amount = m_BatteryEnergy[battery_level];
+        int upgrade_amount = m_BatteryUpgradeMetal[battery_level];
+        int rocket_amount = m_BatteryAmmoRockets[battery_level];
+        int shells_amount = m_BatteryAmmoShells[battery_level];
+        int metal_amount = m_BatteryAmmoMetal[battery_level];
+        int repair_amount = m_BatteryRepair[battery_level];
+        int health_amount = m_BatteryHealth[battery_level];
+        int ammo_amount = m_BatteryAmmo[battery_level];
 
-        new team = GetClientTeam(client);
-        new maxentities = GetMaxEntities();
-        for (new ent = MaxClients + 1; ent <= maxentities; ent++)
+        int team = GetClientTeam(client);
+        int maxentities = GetMaxEntities();
+        for (int ent = MaxClients + 1; ent <= maxentities; ent++)
         {
             if (IsValidEntity(ent) && IsValidEdict(ent))
             {
@@ -801,10 +802,10 @@ public Action:BatteryTimer(Handle:timer, any:userid)
                     {
                         if (cfgAllowSentries >= 1)
                         {
-                            new iLevel = GetEntProp(ent, Prop_Send, "m_iUpgradeLevel");
+                            int iLevel = GetEntProp(ent, Prop_Send, "m_iUpgradeLevel");
                             if (iLevel < 3)
                             {
-                                new iUpgrade = GetEntProp(ent, Prop_Send, "m_iUpgradeMetal");
+                                int iUpgrade = GetEntProp(ent, Prop_Send, "m_iUpgradeMetal");
                                 if (iUpgrade < TF2_MaxUpgradeMetal)
                                 {
                                     iUpgrade += upgrade_amount;
@@ -819,7 +820,7 @@ public Action:BatteryTimer(Handle:timer, any:userid)
                                 {
                                     case TFExtObject_Dispenser:
                                     {
-                                        new iMetal = GetEntProp(ent, Prop_Send, "m_iAmmoMetal");
+                                        int iMetal = GetEntProp(ent, Prop_Send, "m_iAmmoMetal");
                                         if (iMetal < TF2_MaxDispenserMetal)
                                         {
                                             iMetal += metal_amount;
@@ -830,8 +831,8 @@ public Action:BatteryTimer(Handle:timer, any:userid)
                                     }
                                     case TFExtObject_Sentry:
                                     {
-                                        new maxShells = TF2_MaxSentryShells[iLevel];
-                                        new iShells = GetEntProp(ent, Prop_Send, "m_iAmmoShells");
+                                        int maxShells = TF2_MaxSentryShells[iLevel];
+                                        int iShells = GetEntProp(ent, Prop_Send, "m_iAmmoShells");
                                         if (iShells < TF2_MaxSentryShells[iLevel])
                                         {
                                             iShells += shells_amount;
@@ -840,8 +841,8 @@ public Action:BatteryTimer(Handle:timer, any:userid)
                                             SetEntProp(ent, Prop_Send, "m_iAmmoShells", iShells);
                                         }
 
-                                        new maxRockets = TF2_MaxSentryRockets[iLevel];
-                                        new iRockets = GetEntProp(ent, Prop_Send, "m_iAmmoRockets");
+                                        int maxRockets = TF2_MaxSentryRockets[iLevel];
+                                        int iRockets = GetEntProp(ent, Prop_Send, "m_iAmmoRockets");
                                         if (iRockets < TF2_MaxSentryRockets[iLevel])
                                         {
                                             iRockets += rocket_amount;
@@ -853,8 +854,8 @@ public Action:BatteryTimer(Handle:timer, any:userid)
                                 }
                             }
 
-                            new max_health = GetEntProp(ent, Prop_Data, "m_iMaxHealth");
-                            new health = GetEntProp(ent, Prop_Send, "m_iHealth");
+                            int max_health = GetEntProp(ent, Prop_Data, "m_iMaxHealth");
+                            int health = GetEntProp(ent, Prop_Send, "m_iHealth");
                             if (health < max_health)
                             {
                                 health += repair_amount;
@@ -867,14 +868,14 @@ public Action:BatteryTimer(Handle:timer, any:userid)
 
                         // Heal/Supply/Arm teammates
 
-                        new Float:pos[3];
+                        float pos[3];
                         GetEntPropVector(ent, Prop_Send, "m_vecOrigin", pos);
 
-                        new count=0;
-                        new alt_count=0;
+                        int count =0;
+                        int alt_count =0;
                         new list[MaxClients+1];
                         new alt_list[MaxClients+1];
-                        for (new index=1;index<=MaxClients;index++)
+                        for (int index =1;index<=MaxClients;index++)
                         {
                             if (IsClientInGame(index) && IsPlayerAlive(index))
                             {
@@ -912,8 +913,8 @@ public Action:BatteryTimer(Handle:timer, any:userid)
                             }
                         }
 
-                        new haloSprite      = HaloSprite();
-                        new beamSprite      = BeamSprite();
+                        int haloSprite = HaloSprite();
+                        int beamSprite = BeamSprite();
 
                         static const ammoColor[4] = {255, 225, 0, 255};
                         static const cannonColor[4] = {255, 97, 3, 255};
@@ -985,7 +986,7 @@ SetupJetpack(client, level)
 
 bool:HasCannon(index)
 {
-    for (new client=1;client<=MaxClients;client++)
+    for (int client =1;client<=MaxClients;client++)
     {
         if (m_HasCannon[client][index])
             return true;
@@ -995,7 +996,7 @@ bool:HasCannon(index)
 
 bool:PhaseCannon(damage, victim_index, index)
 {
-    new cannon_level = GetUpgradeLevel(index,raceID,cannonID);
+    int cannon_level = GetUpgradeLevel(index,raceID,cannonID);
     if (cannon_level > 0)
     {
         if (!GetRestriction(index, Restriction_NoUpgrades) &&
@@ -1004,20 +1005,20 @@ bool:PhaseCannon(damage, victim_index, index)
             !GetImmunity(victim_index,Immunity_Upgrades) &&
             !IsInvulnerable(victim_index))
         {
-            new Float:lastTime = m_CannonTime[index];
-            new Float:interval = GetGameTime() - lastTime;
+            float lastTime = m_CannonTime[index];
+            float interval = GetGameTime() - lastTime;
             if (lastTime == 0.0 || interval > 0.25)
             {
                 if (GetRandomInt(1,100) <= g_CannonChance[cannon_level])
                 {
-                    new health_take = RoundToFloor(float(damage)*g_CannonPercent[cannon_level]);
+                    int health_take = RoundToFloor(float(damage)*g_CannonPercent[cannon_level]);
                     if (health_take > 0)
                     {
                         if (CanInvokeUpgrade(index, raceID, cannonID, .notify=false))
                         {
                             if (interval == 0.0 || interval >= 2.0)
                             {
-                                new Float:Origin[3];
+                                float Origin[3];
                                 GetEntityAbsOrigin(victim_index, Origin);
                                 Origin[2] += 5;
 

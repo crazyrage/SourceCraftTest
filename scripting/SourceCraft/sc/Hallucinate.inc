@@ -36,7 +36,7 @@ stock bool:Hallucinate(victim_index, index, level, Float:amount,
     {
         if (GetRandomInt(1,100) <= hallucinateChance[level])
         {
-            new Float:energy = GetEnergy(index);
+            float energy = GetEnergy(index);
             if (energy >= amount)
             {
                 if (GetSetting(victim_index,Remove_Queasiness) ||
@@ -75,9 +75,9 @@ stock bool:Hallucinate(victim_index, index, level, Float:amount,
     return false;
 }
 
-public Action:CurePlayer(Handle:timer,any:userid)
+public Action CurePlayer(Handle:timer,any:userid)
 {
-    new client = GetClientOfUserId(userid);
+    int client = GetClientOfUserId(userid);
     if (client > 0)
     {
         PrepareAndEmitSoundToAll(cureWav,client);
@@ -86,9 +86,9 @@ public Action:CurePlayer(Handle:timer,any:userid)
     return Plugin_Stop;
 }
 
-public Action:UnblindPlayer(Handle:timer,any:userid)
+public Action UnblindPlayer(Handle:timer,any:userid)
 {
-    new client = GetClientOfUserId(userid);
+    int client = GetClientOfUserId(userid);
     if (IsValidClient(client))
     {
         PrepareAndEmitSoundToAll(cureWav,client);

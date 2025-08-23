@@ -6,6 +6,7 @@
  */
  
 #pragma semicolon 1
+#pragma newdecls required
 
 #include <sourcemod>
 #include <sdktools>
@@ -45,10 +46,10 @@ new const String:fartWav[][]    = { "sc/fart.wav",
                                     "sc/poot.mp3" };
 
 new g_FesterChance[]            = { 0, 10, 15, 20, 25 };
-new Float:g_FesterPercent[]     = { 0.0, 0.15, 0.30, 0.40, 0.50 };
+float g_FesterPercent[]     = { 0.0, 0.15, 0.30, 0.40, 0.50 };
 
-new Float:g_FartRange[]         = { 0.0, 400.0, 550.0, 850.0, 1000.0 };
-new Float:g_RevulsionRange[]    = { 0.0, 300.0, 450.0, 650.0, 800.0 };
+float g_FartRange[]         = { 0.0, 400.0, 550.0, 850.0, 1000.0 };
+float g_RevulsionRange[]    = { 0.0, 300.0, 450.0, 650.0, 800.0 };
 
 new g_PickPocketChance[][]      = { {  0,  0 },
                                     { 10, 20 },
@@ -60,12 +61,12 @@ new g_PickPocketChance[][]      = { {  0,  0 },
 
 new raceID, festerID, pickPocketID, revulsionID, fartID, hunterID;
 
-new g_hunterRace = -1;
+int g_hunterRace = -1;
 
 new gFartDuration[MAXPLAYERS+1];
-new Float:gPickPocketTime[MAXPLAYERS+1];
+float gPickPocketTime[MAXPLAYERS+1];
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Sick Farter",
     author = "Naris",
@@ -74,7 +75,7 @@ public Plugin:myinfo =
     url = "http://www.jigglysfunhouse.net/"
 };
 
-public OnPluginStart()
+public void OnPluginStart()
 {
     LoadTranslations("sc.common.phrases.txt");
     LoadTranslations("sc.farter.phrases.txt");
@@ -84,7 +85,7 @@ public OnPluginStart()
         OnSourceCraftReady();
 }
 
-public OnSourceCraftReady()
+public void OnSourceCraftReady()
 {
     raceID       = CreateRace("farter", 16, 0, 17, .faction=UndeadScourge, .type=Undead);
 
@@ -114,16 +115,16 @@ public OnSourceCraftReady()
     GetConfigFloatArray("range", g_FartRange, sizeof(g_FartRange),
                         g_FartRange, raceID, fartID);
 
-    for (new level=0; level < sizeof(g_PickPocketChance); level++)
+    for (int level =0; level < sizeof(g_PickPocketChance); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "chance_level_%d", level);
         GetConfigArray(key, g_PickPocketChance[level], sizeof(g_PickPocketChance[]),
                        g_PickPocketChance[level], raceID, pickPocketID);
     }
 }
 
-public OnMapStart()
+public void OnMapStart()
 {
     SetupLightning();
     SetupBeamSprite();
@@ -135,26 +136,26 @@ public OnMapStart()
 
     SetupDeniedSound();
 
-    for (new i = 0; i < sizeof(fartWav); i++)
+    for (int i = 0; i < sizeof(fartWav); i++)
         SetupSound(fartWav[i]);
 }
 
-public OnMapEnd()
+public void OnMapEnd()
 {
     ResetAllClientTimers();
 }
 
-public OnPlayerAuthed(client)
+public void OnPlayerAuthed(client)
 {
     gPickPocketTime[client] = 0.0;
 }
 
-public OnClientDisconnect(client)
+public void OnClientDisconnect(client)
 {
     KillClientTimer(client);
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -163,7 +164,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
 
         KillClientTimer(client);
 
-        new maxCrystals = GetMaxCrystals();
+        int maxCrystals = GetMaxCrystals();
         if (GetCrystals(client) > maxCrystals)
         {
             SetCrystals(client, maxCrystals);
@@ -191,7 +192,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
     }
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
@@ -200,7 +201,7 @@ public Action:OnRaceSelected(client,oldrace,newrace)
 
         gPickPocketTime[client] = 0.0;
 
-        new revulsion_level=GetUpgradeLevel(client,raceID,revulsionID);
+        int revulsion_level =GetUpgradeLevel(client,raceID,revulsionID);
         if (revulsion_level && IsValidClientAlive(client))
             CreateClientTimer(client, 2.0, Revulsion, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
 
@@ -211,7 +212,7 @@ public Action:OnRaceSelected(client,oldrace,newrace)
         return Plugin_Continue;
 }
 
-public OnUpgradeLevelChanged(client,race,upgrade,new_level)
+public void OnUpgradeLevelChanged(client,race,upgrade,new_level)
 {
     if (race == raceID && GetRace(client) == raceID)
     {
@@ -231,7 +232,7 @@ public OnUpgradeLevelChanged(client,race,upgrade,new_level)
     }
 }
 
-public OnUltimateCommand(client,race,bool:pressed,arg)
+public void OnUltimateCommand(client,race,bool:pressed,arg)
 {
     if (race == raceID && IsValidClientAlive(client))
     {
@@ -240,7 +241,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
 
         if (arg >= 2)
         {
-            new hunter_level=GetUpgradeLevel(client,race,hunterID);
+            int hunter_level =GetUpgradeLevel(client,race,hunterID);
             if (hunter_level > 0)
             {
                 if (!pressed)
@@ -249,7 +250,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
         }
         else if (pressed)
         {
-            new fart_level = GetUpgradeLevel(client,race,fartID);
+            int fart_level = GetUpgradeLevel(client,race,fartID);
             if (fart_level > 0)
             {
                 if (GetRestriction(client,Restriction_NoUltimates) ||
@@ -257,7 +258,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                 {
                     PrepareAndEmitSoundToClient(client,deniedWav);
 
-                    decl String:upgradeName[64];
+                    char upgradeName[64];
                     GetUpgradeName(raceID, fartID, upgradeName, sizeof(upgradeName), client);
                     DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
                 }
@@ -271,11 +272,11 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
 
                     gFartDuration[client] = fart_level * 3;
 
-                    new Handle:FartTimer = CreateTimer(0.4, PersistFart, GetClientUserId(client),
+                    Handle FartTimer = CreateTimer(0.4, PersistFart, GetClientUserId(client),
                                                        TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
                     TriggerTimer(FartTimer, true);
 
-                    decl String:upgradeName[64];
+                    char upgradeName[64];
                     GetUpgradeName(raceID, fartID, upgradeName, sizeof(upgradeName), client);
                     DisplayMessage(client,Display_Ultimate, "%t", "Invoked", upgradeName);
                     CreateCooldown(client, raceID, fartID);
@@ -288,14 +289,14 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
 }
 
 // Events
-public OnPlayerSpawnEvent(Handle:event, client, race)
+public void OnPlayerSpawnEvent(Handle:event, client, race)
 {
     if (race == raceID)
     {
         TraceInto("SickFarter", "OnPlayerSpawnEvent", "client=%N(%d), raceID=%d", \
                   client, client, raceID);
 
-        new revulsion_level=GetUpgradeLevel(client,raceID,revulsionID);
+        int revulsion_level =GetUpgradeLevel(client,raceID,revulsionID);
         if (revulsion_level > 0)
         {
             CreateClientTimer(client, 2.0, Revulsion,
@@ -306,7 +307,7 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
     }
 }
 
-public Action:OnEntityHurtEvent(Handle:event, victim_index, attacker_index, attacker_race, damage)
+public Action OnEntityHurtEvent(Handle:event, victim_index, attacker_index, attacker_race, damage)
 {
     if (attacker_race == raceID)
     {
@@ -317,7 +318,7 @@ public Action:OnEntityHurtEvent(Handle:event, victim_index, attacker_index, atta
         return Plugin_Continue;
 }
 
-public Action:OnEntityAssistEvent(Handle:event, victim_index, assister_index, assister_race, damage)
+public Action OnEntityAssistEvent(Handle:event, victim_index, assister_index, assister_race, damage)
 {
     if (assister_race == raceID)
     {
@@ -328,7 +329,7 @@ public Action:OnEntityAssistEvent(Handle:event, victim_index, assister_index, as
         return Plugin_Continue;
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     new Action:returnCode = Plugin_Continue;
@@ -347,7 +348,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
     return returnCode;
 }
 
-public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
+public Action OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
                                   assister_index, assister_race, damage,
                                   absorbed)
 {
@@ -365,7 +366,7 @@ public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
     return returnCode;
 }
 
-public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
+public void OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
                           attacker_race, assister_index, assister_race, damage,
                           const String:weapon[], bool:is_equipment, customkill,
                           bool:headshot, bool:backstab, bool:melee)
@@ -389,7 +390,7 @@ bool:FesteringAbomination(damage, victim_index, index)
     TraceInto("SickFarter", "FesteringAbomination", "index=%N(%d), victim_index=%N(%d), damage=%d", \
               index, index, victim_index, victim_index, damage);
 
-    new fa_level = GetUpgradeLevel(index, raceID, festerID);
+    int fa_level = GetUpgradeLevel(index, raceID, festerID);
     if (fa_level >= sizeof(g_FesterChance))
     {
         LogError("%d:%N has too many levels in SickFarter::FesteringAbomination level=%d, max=%d",
@@ -405,15 +406,15 @@ bool:FesteringAbomination(damage, victim_index, index)
             !GetImmunity(victim_index,Immunity_Upgrades) &&
             !IsInvulnerable(victim_index))
         {
-            new health_take = RoundFloat(float(damage)*g_FesterPercent[fa_level]);
+            int health_take = RoundFloat(float(damage)*g_FesterPercent[fa_level]);
             if (health_take > 0 && GetRandomInt(1,100) <= g_FesterChance[fa_level] &&
                 CanInvokeUpgrade(index, raceID, festerID, .notify=false))
             {
-                new Float:indexLoc[3];
+                float indexLoc[3];
                 GetClientAbsOrigin(index, indexLoc);
                 indexLoc[2] += 50.0;
 
-                new Float:victimLoc[3];
+                float victimLoc[3];
                 GetEntityAbsOrigin(victim_index, victimLoc);
                 victimLoc[2] += 50.0;
 
@@ -443,12 +444,12 @@ bool:PickPocket(Handle:event,victim_index, index)
     TraceInto("SickFarter", "PickPocket", "index=%N(%d), victim_index=%N(%d), event=%x", \
               index, index, victim_index, victim_index, event);
 
-    new pp_level = GetUpgradeLevel(index, raceID, pickPocketID);
+    int pp_level = GetUpgradeLevel(index, raceID, pickPocketID);
     if (pp_level > 0)
     {
-        decl String:weapon[64];
-        new bool:is_equipment=GetWeapon(event,index,weapon,sizeof(weapon));
-        new bool:is_melee=IsMelee(weapon, is_equipment,index,victim_index);
+        char weapon[64];
+        bool is_equipment=GetWeapon(event,index,weapon,sizeof(weapon));
+        bool is_melee=IsMelee(weapon, is_equipment,index,victim_index);
 
         if ((gPickPocketTime[index] == 0.0 || GetGameTime() - gPickPocketTime[index] > 1.0) &&
             GetRandomInt(1,100) <= g_PickPocketChance[pp_level][is_melee] &&
@@ -458,22 +459,22 @@ bool:PickPocket(Handle:event,victim_index, index)
             !GetImmunity(victim_index,Immunity_Theft) &&
             !IsInvulnerable(victim_index))
         {
-            new victim_cash = GetCrystals(victim_index);
+            int victim_cash = GetCrystals(victim_index);
             if (victim_cash > 0 && CanInvokeUpgrade(index, raceID, pickPocketID))
             {
-                new Float:percent=GetRandomFloat(0.0,is_melee ? 0.15 : 0.05);
-                new cash=GetCrystals(index);
-                new plunder = RoundToCeil(float(victim_cash) * percent);
+                float percent=GetRandomFloat(0.0,is_melee ? 0.15 : 0.05);
+                int cash =GetCrystals(index);
+                int plunder = RoundToCeil(float(victim_cash) * percent);
 
                 SetCrystals(victim_index,victim_cash-plunder,false);
                 SetCrystals(index,cash+plunder,false);
                 gPickPocketTime[index] = GetGameTime();
 
-                new Float:indexLoc[3];
+                float indexLoc[3];
                 GetClientAbsOrigin(index, indexLoc);
                 indexLoc[2] += 50.0;
 
-                new Float:victimLoc[3];
+                float victimLoc[3];
                 GetClientAbsOrigin(victim_index, victimLoc);
                 victimLoc[2] += 50.0;
 
@@ -496,9 +497,9 @@ bool:PickPocket(Handle:event,victim_index, index)
     return false;
 }
 
-public Action:PersistFart(Handle:timer,any:userid)
+public Action PersistFart(Handle:timer,any:userid)
 {
-    new client = GetClientOfUserId(userid);
+    int client = GetClientOfUserId(userid);
     if (IsValidClientNotSpec(client) && GetRace(client) == raceID &&
         !GetRestriction(client,Restriction_NoUltimates) &&
         !GetRestriction(client,Restriction_Stunned))
@@ -534,20 +535,20 @@ public Action:PersistFart(Handle:timer,any:userid)
                 TF2_RemovePlayerDisguise(client);
         }
 
-        new fart_level = GetUpgradeLevel(client,raceID,fartID);
-        new Float:range = g_FartRange[fart_level];
+        int fart_level = GetUpgradeLevel(client,raceID,fartID);
+        float range = g_FartRange[fart_level];
 
-        new Float:indexLoc[3];
-        new Float:clientLoc[3];
+        float indexLoc[3];
+        float clientLoc[3];
         GetClientAbsOrigin(client, clientLoc);
         clientLoc[2] += 50.0; // Adjust trace position to the middle of the person instead of the feet.
 
-        new Float:maxLoc[3];
+        float maxLoc[3];
         maxLoc[0] = clientLoc[0] + 256.0;
         maxLoc[1] = clientLoc[1] + 256.0;
         maxLoc[2] = clientLoc[2] + 256.0;
 
-        new bubble_count = RoundToNearest(range/4.0);
+        int bubble_count = RoundToNearest(range/4.0);
 
         TE_SetupBubbles(clientLoc, maxLoc, BubbleModel(), range,
                         bubble_count, 2.0);
@@ -560,15 +561,15 @@ public Action:PersistFart(Handle:timer,any:userid)
         TE_SetupSmoke(clientLoc, SmokeSprite(),range,400);
         TE_SendEffectToAll();
 
-        new snd = GetRandomInt(0,sizeof(fartWav)-1);
+        int snd = GetRandomInt(0,sizeof(fartWav)-1);
         PrepareAndEmitSoundToAll(fartWav[snd], client);
 
-        new count=0;
-        new num=fart_level*3;
-        new team = GetClientTeam(client);
-        new minDmg=fart_level*2;
-        new maxDmg=fart_level*4;
-        for (new index=1;index<=MaxClients;index++)
+        int count =0;
+        int num =fart_level*3;
+        int team = GetClientTeam(client);
+        int minDmg =fart_level*2;
+        int maxDmg =fart_level*4;
+        for (int index =1;index<=MaxClients;index++)
         {
             if (client != index && IsClientInGame(index) &&
                 IsPlayerAlive(index) && GetClientTeam(index) != team)
@@ -581,7 +582,7 @@ public Action:PersistFart(Handle:timer,any:userid)
                     if (IsPointInRange(clientLoc,indexLoc,range) &&
                         TraceTargetIndex(client, index, clientLoc, indexLoc))
                     {
-                        new amt=GetRandomInt(minDmg,maxDmg);
+                        int amt =GetRandomInt(minDmg,maxDmg);
                         FlashScreen(index,RGBA_COLOR_BROWN);
                         HurtPlayer(index,amt,client,"sc_flatulence",
                                    .xp=5+fart_level, .type=DMG_NERVEGAS);
@@ -604,9 +605,9 @@ public Action:PersistFart(Handle:timer,any:userid)
     return Plugin_Stop;
 }
 
-public Action:Revulsion(Handle:timer, any:userid)
+public Action Revulsion(Handle:timer, any:userid)
 {
-    new client = GetClientOfUserId(userid);
+    int client = GetClientOfUserId(userid);
     if (IsValidClientAlive(client) &&
         !GetRestriction(client, Restriction_NoUpgrades) &&
         !GetRestriction(client, Restriction_Stunned))
@@ -616,11 +617,11 @@ public Action:Revulsion(Handle:timer, any:userid)
 
         if (GetRace(client) == raceID)
         {
-            new revulsion_level=GetUpgradeLevel(client,raceID,revulsionID);
+            int revulsion_level =GetUpgradeLevel(client,raceID,revulsionID);
             if (revulsion_level > 0)
             {
-                new health;
-                new Float:range = g_RevulsionRange[revulsion_level];
+                int health;
+                float range = g_RevulsionRange[revulsion_level];
                 switch(revulsion_level)
                 {
                     case 1: health=0;
@@ -629,21 +630,21 @@ public Action:Revulsion(Handle:timer, any:userid)
                     case 4: health=GetRandomInt(0,5);
                 }
 
-                new Float:indexLoc[3];
-                new Float:clientLoc[3];
+                float indexLoc[3];
+                float clientLoc[3];
                 GetClientAbsOrigin(client, clientLoc);
                 clientLoc[2] += 50.0; // Adjust trace position to the middle of the person instead of the feet.
 
-                new lightning  = Lightning();
-                new haloSprite = HaloSprite();
+                int lightning = Lightning();
+                int haloSprite = HaloSprite();
                 static const revulsionColor[4] = {255, 10, 55, 255};
 
-                new count=0;
-                new alt_count=0;
+                int count =0;
+                int alt_count =0;
                 new list[MaxClients+1];
                 new alt_list[MaxClients+1];
-                new team=GetClientTeam(client);
-                for (new index=1;index<=MaxClients;index++)
+                int team =GetClientTeam(client);
+                for (int index =1;index<=MaxClients;index++)
                 {
                     if (index != client && IsClientInGame(index)
                                         && IsPlayerAlive(index))
@@ -719,7 +720,7 @@ SummonHunter(client)
 
     if (g_hunterRace < 0)
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, hunterID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "IsNotAvailable", upgradeName);
         LogError("***The Titty Hunter race is not Available!");
@@ -733,7 +734,7 @@ SummonHunter(client)
     }
     else if (CanInvokeUpgrade(client, raceID, hunterID))
     {
-        new Float:clientLoc[3];
+        float clientLoc[3];
         GetClientAbsOrigin(client, clientLoc);
         clientLoc[2] += 40.0; // Adjust position to the middle
 

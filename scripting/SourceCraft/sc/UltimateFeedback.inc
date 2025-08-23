@@ -37,7 +37,7 @@ stock UltimateFeedback(client, raceId, upgradeId, level, Float:feedbackRange[])
     if (GetRestriction(client,Restriction_NoUltimates) ||
         GetRestriction(client,Restriction_Stunned))
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceId, upgradeId, upgradeName, sizeof(upgradeName), client);
         PrepareAndEmitSoundToClient(client,deniedWav);
         DisplayMessage(client, Display_Ultimate, "%t",
@@ -72,18 +72,18 @@ stock UltimateFeedback(client, raceId, upgradeId, level, Float:feedbackRange[])
 
         static const lightningColor[4] = { 10, 200, 255, 255 };
 
-        new Float:range = feedbackRange[level];
+        float range = feedbackRange[level];
 
-        new Float:lastLoc[3];
-        new Float:indexLoc[3];
-        new Float:targetLoc[3];
+        float lastLoc[3];
+        float indexLoc[3];
+        float targetLoc[3];
         GetClientAbsOrigin(client, lastLoc);
         lastLoc[2] += 50.0; // Adjust trace position to the middle of the person instead of the feet.
 
-        new last;
-        new count=0;
-        new team=GetClientTeam(client);
-        new target = GetClientAimTarget(client);
+        int last;
+        int count =0;
+        int team =GetClientTeam(client);
+        int target = GetClientAimTarget(client);
         if (target > 0) 
         {
             last=target;
@@ -99,7 +99,7 @@ stock UltimateFeedback(client, raceId, upgradeId, level, Float:feedbackRange[])
                 !GetImmunity(target,Immunity_Restore) &&
                 !IsInvulnerable(target))
             {
-                new dmg = RoundToNearest(GetEnergy(target));
+                int dmg = RoundToNearest(GetEnergy(target));
                 if (dmg > 0)
                 {
                     count++;
@@ -127,12 +127,12 @@ stock UltimateFeedback(client, raceId, upgradeId, level, Float:feedbackRange[])
 
         PrepareAndEmitSoundToAll(ultimateFeedbackSound,client);
         
-        new lightning  = Lightning();
-        new beamSprite = BeamSprite();
-        new haloSprite = PlasmaHaloSprite();
+        int lightning = Lightning();
+        int beamSprite = BeamSprite();
+        int haloSprite = PlasmaHaloSprite();
 
-        new b_count=0;
-        new alt_count=0;
+        int b_count =0;
+        int alt_count =0;
         new list[MaxClients+1];
         new alt_list[MaxClients+1];
         SetupOBeaconLists(list, alt_list, b_count, alt_count, client);
@@ -153,7 +153,7 @@ stock UltimateFeedback(client, raceId, upgradeId, level, Float:feedbackRange[])
             TE_Send(alt_list, alt_count, 0.0);
         }
         
-        for (new index=1;index<=MaxClients;index++)
+        for (int index =1;index<=MaxClients;index++)
         {
             if (client != index && client != target && IsClientInGame(index) &&
                 IsPlayerAlive(index) && GetClientTeam(index) != team)
@@ -169,7 +169,7 @@ stock UltimateFeedback(client, raceId, upgradeId, level, Float:feedbackRange[])
                     if (IsPointInRange(targetLoc,indexLoc,range) &&
                         TraceTargetIndex(client, index, targetLoc, indexLoc))
                     {
-                        new dmg = RoundToNearest(GetEnergy(index));
+                        int dmg = RoundToNearest(GetEnergy(index));
                         if (dmg > 0)
                         {
                             TE_SetupBeamPoints(lastLoc, indexLoc, lightning, haloSprite,
@@ -195,7 +195,7 @@ stock UltimateFeedback(client, raceId, upgradeId, level, Float:feedbackRange[])
             }
         }
 
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceId, upgradeId, upgradeName, sizeof(upgradeName), client);
 
         if (count)

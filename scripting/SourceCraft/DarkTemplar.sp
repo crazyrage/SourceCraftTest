@@ -6,6 +6,7 @@
  */
 
 #pragma semicolon 1
+#pragma newdecls required
 
 #include <sourcemod>
 #include <sdktools>
@@ -51,27 +52,27 @@ new const String:g_PsiBladesSound[] = "sc/uzefir00.wav";
 new raceID, immunityID, legID, shieldsID, cloakID, regenID;
 new meleeID, teleportID, darkArchonID, deathID;
 
-new Float:g_InitialShields[]        = { 0.0, 0.10, 0.20, 0.30, 0.40 };
-new Float:g_ShieldsPercent[][2]     = { {0.00, 0.00},
+float g_InitialShields[]        = { 0.0, 0.10, 0.20, 0.30, 0.40 };
+float g_ShieldsPercent[][2]     = { {0.00, 0.00},
                                         {0.00, 0.05},
                                         {0.02, 0.10},
                                         {0.05, 0.15},
                                         {0.08, 0.20} };
 
-new Float:g_SpeedLevels[]           = { -1.0, 1.05, 1.10, 1.15, 1.20 };
-new Float:g_PsiBladesPercent[]      = { 0.0, 0.15, 0.30, 0.40, 0.50 };
+float g_SpeedLevels[]           = { -1.0, 1.05, 1.10, 1.15, 1.20 };
+float g_PsiBladesPercent[]      = { 0.0, 0.15, 0.30, 0.40, 0.50 };
 
-new Float:g_TeleportDistance[]      = { 0.0, 300.0, 500.0, 800.0, 1500.0 };
+float g_TeleportDistance[]      = { 0.0, 300.0, 500.0, 800.0, 1500.0 };
 
-new Float:g_RegenAmount[]           = { 0.0, 1.0, 2.0, 3.0, 4.0 };
+float g_RegenAmount[]           = { 0.0, 1.0, 2.0, 3.0, 4.0 };
 
-new bool:cfgAllowTeleport           = true;
+bool cfgAllowTeleport           = true;
 
-new g_darkArchonRace = -1;
+int g_darkArchonRace = -1;
 
-new Float:m_CloakRegenTime[MAXPLAYERS+1];
+float m_CloakRegenTime[MAXPLAYERS+1];
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Protoss Dark Templar",
     author = "-=|JFH|=-Naris",
@@ -80,7 +81,7 @@ public Plugin:myinfo =
     url = "http://jigglysfunhouse.net/"
 };
 
-public OnPluginStart()
+public void OnPluginStart()
 {
     LoadTranslations("sc.common.phrases.txt");
     LoadTranslations("sc.teleport.phrases.txt");
@@ -109,7 +110,7 @@ public OnPluginStart()
         OnSourceCraftReady();
 }
 
-public OnSourceCraftReady()
+public void OnSourceCraftReady()
 {
     raceID      = CreateRace("dark_templar", 64, 0, 30, .energy_rate=2.0,
                              .faction=Protoss, .type=Biological);
@@ -171,9 +172,9 @@ public OnSourceCraftReady()
     GetConfigFloatArray("shields_amount", g_InitialShields, sizeof(g_InitialShields),
                         g_InitialShields, raceID, shieldsID);
 
-    for (new level=0; level < sizeof(g_ShieldsPercent); level++)
+    for (int level =0; level < sizeof(g_ShieldsPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "shields_percent_level_%d", level);
         GetConfigFloatArray(key, g_ShieldsPercent[level], sizeof(g_ShieldsPercent[]),
                             g_ShieldsPercent[level], raceID, shieldsID);
@@ -192,7 +193,7 @@ public OnSourceCraftReady()
                         g_TeleportDistance, raceID, teleportID);
 }
 
-public OnLibraryAdded(const String:name[])
+public void OnLibraryAdded(const String:name[])
 {
     if (StrEqual(name, "FakeDeath"))
         IsFakeDeathAvailable(true);
@@ -200,7 +201,7 @@ public OnLibraryAdded(const String:name[])
         IsSidewinderAvailable(true);
 }
 
-public OnLibraryRemoved(const String:name[])
+public void OnLibraryRemoved(const String:name[])
 {
     if (StrEqual(name, "FakeDeath"))
         m_FakeDeathAvailable = false;
@@ -208,7 +209,7 @@ public OnLibraryRemoved(const String:name[])
         m_SidewinderAvailable = false;
 }
 
-public OnMapStart()
+public void OnMapStart()
 {
     SetupSmokeSprite();
     SetupHaloSprite();
@@ -227,23 +228,23 @@ public OnMapStart()
     SetupSound(g_PsiBladesSound);
 }
 
-public OnMapEnd()
+public void OnMapEnd()
 {
     ResetAllClientTimers();
 }
 
-public OnPlayerAuthed(client)
+public void OnPlayerAuthed(client)
 {
     m_CloakRegenTime[client] = 0.0;
     ResetTeleport(client);
 }
 
-public OnClientDisconnect(client)
+public void OnClientDisconnect(client)
 {
     KillClientTimer(client);
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -260,7 +261,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
             TakeDeath(client);
 
         // Turn off Immunities
-        new immunity_level=GetUpgradeLevel(client,raceID,immunityID);
+        int immunity_level =GetUpgradeLevel(client,raceID,immunityID);
         DoImmunity(client, immunity_level, false);
 
         return Plugin_Handled;
@@ -282,22 +283,22 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
     }
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
         m_CloakRegenTime[client] = 0.0;
 
-        new immunity_level=GetUpgradeLevel(client,raceID,immunityID);
+        int immunity_level =GetUpgradeLevel(client,raceID,immunityID);
         DoImmunity(client, immunity_level, true);
 
-        new cloak_level=GetUpgradeLevel(client,raceID,cloakID);
+        int cloak_level =GetUpgradeLevel(client,raceID,cloakID);
         AlphaCloak(client, cloak_level, false);
 
-        new leg_level = GetUpgradeLevel(client,raceID,legID);
+        int leg_level = GetUpgradeLevel(client,raceID,legID);
         SetSpeedBoost(client, leg_level, false, g_SpeedLevels);
 
-        new shields_level = GetUpgradeLevel(client,raceID,shieldsID);
+        int shields_level = GetUpgradeLevel(client,raceID,shieldsID);
         SetupShields(client, shields_level, g_InitialShields, g_ShieldsPercent);
 
         if (IsValidClientAlive(client))
@@ -308,11 +309,11 @@ public Action:OnRaceSelected(client,oldrace,newrace)
 
             if (m_FakeDeathAvailable)
             {
-                new death_level = GetUpgradeLevel(client,raceID,deathID);
+                int death_level = GetUpgradeLevel(client,raceID,deathID);
                 GiveDeath(client, death_level, true);
             }
 
-            new regen_level = GetUpgradeLevel(client,raceID,regenID);
+            int regen_level = GetUpgradeLevel(client,raceID,regenID);
             if (shields_level > 0 || (regen_level > 0 && GameType == tf2))
             {
                 CreateClientTimer(client, 1.0, Regeneration, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
@@ -324,7 +325,7 @@ public Action:OnRaceSelected(client,oldrace,newrace)
         return Plugin_Continue;
 }
 
-public OnUpgradeLevelChanged(client,race,upgrade,new_level)
+public void OnUpgradeLevelChanged(client,race,upgrade,new_level)
 {
     if (race == raceID && GetRace(client) == raceID)
     {
@@ -344,7 +345,7 @@ public OnUpgradeLevelChanged(client,race,upgrade,new_level)
             SetupShields(client, new_level, g_InitialShields,
                          g_ShieldsPercent, .upgrade=true);
 
-            new regen_level = GetUpgradeLevel(client,raceID,regenID);
+            int regen_level = GetUpgradeLevel(client,raceID,regenID);
             if (new_level > 0 || (regen_level > 0 && GameType == tf2
                                   && cfgAllowInvisibility))
             {
@@ -360,7 +361,7 @@ public OnUpgradeLevelChanged(client,race,upgrade,new_level)
         }
         else if (upgrade==regenID)
         {
-            new shields_level = GetUpgradeLevel(client,raceID,shieldsID);
+            int shields_level = GetUpgradeLevel(client,raceID,shieldsID);
             if (shields_level > 0 || (new_level > 0 && GameType == tf2
                                       && cfgAllowInvisibility))
             {
@@ -373,9 +374,9 @@ public OnUpgradeLevelChanged(client,race,upgrade,new_level)
     }
 }
 
-public OnItemPurchase(client,item)
+public void OnItemPurchase(client,item)
 {
-    new race=GetRace(client);
+    int race =GetRace(client);
     if (race == raceID && IsValidClientAlive(client))
     {
         if (g_bootsItem < 0)
@@ -386,19 +387,19 @@ public OnItemPurchase(client,item)
 
         if (item == g_bootsItem)
         {
-            new leg_level = GetUpgradeLevel(client,race,legID);
+            int leg_level = GetUpgradeLevel(client,race,legID);
             if (leg_level > 0)
                 SetSpeedBoost(client, leg_level, true, g_SpeedLevels);
         }
         else if (item == g_cloakItem)
         {
-            new cloak_level=GetUpgradeLevel(client,race,cloakID);
+            int cloak_level =GetUpgradeLevel(client,race,cloakID);
             AlphaCloak(client, cloak_level, true);
         }
     }
 }
 
-public OnUltimateCommand(client,race,bool:pressed,arg)
+public void OnUltimateCommand(client,race,bool:pressed,arg)
 {
     if (race == raceID && IsValidClientAlive(client))
     {
@@ -408,7 +409,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
             {
                 if (pressed)
                 {
-                    new darkArchon_level = GetUpgradeLevel(client,race,darkArchonID);
+                    int darkArchon_level = GetUpgradeLevel(client,race,darkArchonID);
                     if (darkArchon_level > 0)
                         SummonDarkArchon(client);
                 }
@@ -422,7 +423,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                         if (GetRestriction(client,Restriction_NoUltimates) ||
                             GetRestriction(client,Restriction_Stunned))
                         {
-                            decl String:upgradeName[64];
+                            char upgradeName[64];
                             GetUpgradeName(raceID, deathID, upgradeName, sizeof(upgradeName), client);
                             DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
                             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -438,7 +439,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
             }
             default:
             {
-                new blink_level = GetUpgradeLevel(client,race,teleportID);
+                int blink_level = GetUpgradeLevel(client,race,teleportID);
                 if (blink_level && cfgAllowTeleport)
                 {
                     SetVisibility(client, NormalVisibility);
@@ -447,7 +448,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                         SidewinderCloakClient(client, false);
 
                     CreateTimer(5.0,RecloakPlayer,GetClientUserId(client),TIMER_FLAG_NO_MAPCHANGE);
-                    new Float:blink_energy=GetUpgradeEnergy(raceID,teleportID) * (5.0-float(blink_level));
+                    float blink_energy=GetUpgradeEnergy(raceID,teleportID) * (5.0-float(blink_level));
                     TeleportCommand(client, race, teleportID, blink_level, blink_energy,
                                     pressed, g_TeleportDistance, teleportWav);
                 }
@@ -455,7 +456,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                 {
                     if (pressed)
                     {
-                        new darkArchon_level = GetUpgradeLevel(client,race,darkArchonID);
+                        int darkArchon_level = GetUpgradeLevel(client,race,darkArchonID);
                         if (darkArchon_level > 0)
                             SummonDarkArchon(client);
                     }
@@ -465,20 +466,20 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
     }
 }
 
-public Action:RecloakPlayer(Handle:timer,any:userid)
+public Action RecloakPlayer(Handle:timer,any:userid)
 {
-    new client = GetClientOfUserId(userid);
+    int client = GetClientOfUserId(userid);
     if (client)
     {
         SetOverrideVisiblity(client, -1);
 
-        new cloak_level=GetUpgradeLevel(client,raceID,cloakID);
+        int cloak_level =GetUpgradeLevel(client,raceID,cloakID);
         AlphaCloak(client, cloak_level, true);
     }
     return Plugin_Stop;
 }
 
-public OnPlayerSpawnEvent(Handle:event, client, race)
+public void OnPlayerSpawnEvent(Handle:event, client, race)
 {
     if (race == raceID)
     {
@@ -489,21 +490,21 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
         GetClientAbsOrigin(client,spawnLoc[client]);
         ResetTeleport(client);
 
-        new immunity_level=GetUpgradeLevel(client,raceID,immunityID);
+        int immunity_level =GetUpgradeLevel(client,raceID,immunityID);
         DoImmunity(client, immunity_level, true);
 
-        new cloak_level=GetUpgradeLevel(client,raceID,cloakID);
+        int cloak_level =GetUpgradeLevel(client,raceID,cloakID);
         AlphaCloak(client, cloak_level, false);
 
-        new leg_level = GetUpgradeLevel(client,raceID,legID);
+        int leg_level = GetUpgradeLevel(client,raceID,legID);
         SetSpeedBoost(client, leg_level, false, g_SpeedLevels);
 
         ApplyPlayerSettings(client);
 
-        new shields_level = GetUpgradeLevel(client,raceID,shieldsID);
+        int shields_level = GetUpgradeLevel(client,raceID,shieldsID);
         SetupShields(client, shields_level, g_InitialShields, g_ShieldsPercent);
 
-        new regen_level = GetUpgradeLevel(client,raceID,regenID);
+        int regen_level = GetUpgradeLevel(client,raceID,regenID);
         if (shields_level > 0 || (regen_level > 0 && GameType == tf2))
         {
             CreateClientTimer(client, 1.0, Regeneration,
@@ -512,18 +513,18 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     if (!from_sc && attacker_index > 0 &&
         attacker_index != victim_index &&
         attacker_race == raceID)
     {
-        new blink_level = GetUpgradeLevel(attacker_index,raceID,teleportID);
+        int blink_level = GetUpgradeLevel(attacker_index,raceID,teleportID);
         if (blink_level && cfgAllowTeleport)
             TeleporterAttacked(attacker_index,raceID,teleportID);
 
-        new blades_level=GetUpgradeLevel(attacker_index,raceID,meleeID);
+        int blades_level =GetUpgradeLevel(attacker_index,raceID,meleeID);
         if (blades_level > 0)
         {
             if (MeleeAttack(raceID, meleeID, blades_level, event, damage+absorbed,
@@ -539,7 +540,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
     return Plugin_Continue;
 }
 
-public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
+public void OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
                           attacker_race, assister_index, assister_race, damage,
                           const String:weapon[], bool:is_equipment, customkill,
                           bool:headshot, bool:backstab, bool:melee)
@@ -571,7 +572,7 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
 
 public EventRoundOver(Handle:event,const String:name[],bool:dontBroadcast)
 {
-    for(new index=1;index<=MaxClients;index++)
+    for(int index =1;index<=MaxClients;index++)
     {
         if (IsClientInGame(index))
         {
@@ -611,7 +612,7 @@ DoImmunity(client, level, bool:value)
 
     if (value && IsValidClientAlive(client))
     {
-        new Float:start[3];
+        float start[3];
         GetClientAbsOrigin(client, start);
 
         static const color[4] = { 0, 255, 50, 128 };
@@ -628,7 +629,7 @@ SummonDarkArchon(client)
 
     if (g_darkArchonRace < 0)
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, darkArchonID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "IsNotAvailable", upgradeName);
         LogError("***The Dark Archon race is not Available!");
@@ -643,7 +644,7 @@ SummonDarkArchon(client)
     }
     else if (CanInvokeUpgrade(client, raceID, darkArchonID))
     {
-        new Float:clientLoc[3];
+        float clientLoc[3];
         GetClientAbsOrigin(client, clientLoc);
         clientLoc[2] += 40.0; // Adjust position to the middle
 
@@ -659,19 +660,19 @@ SummonDarkArchon(client)
     }
 }
 
-public Action:Regeneration(Handle:timer, any:userid)
+public Action Regeneration(Handle:timer, any:userid)
 {
-    new client = GetClientOfUserId(userid);
+    int client = GetClientOfUserId(userid);
     if (IsValidClientAlive(client) && GetRace(client) == raceID &&
         !GetRestriction(client,Restriction_NoUpgrades) &&
         !GetRestriction(client,Restriction_Stunned))
     {
-        new regen_level = GetUpgradeLevel(client,raceID,regenID);
+        int regen_level = GetUpgradeLevel(client,raceID,regenID);
         if (regen_level > 0 && GameType == tf2 && cfgAllowInvisibility &&
             TF2_GetPlayerClass(client) == TFClass_Spy)
         {
             // Check for the Dead Ringer in slot 4
-            new weapon = GetPlayerWeaponSlot(client, 4);
+            int weapon = GetPlayerWeaponSlot(client, 4);
             if (weapon > 0 && IsValidEdict(weapon) && IsValidEntity(weapon))
             {
                 if (GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 59)
@@ -681,18 +682,18 @@ public Action:Regeneration(Handle:timer, any:userid)
                 }
             }
 
-            new Float:cloak = TF2_GetCloakMeter(client);
+            float cloak = TF2_GetCloakMeter(client);
             if (cloak < 100.0)
             {
-                new Float:energy = GetEnergy(client);
-                new Float:amt = g_RegenAmount[regen_level]; // float(regen_level) * 2.0;
+                float energy = GetEnergy(client);
+                float amt = g_RegenAmount[regen_level]; // float(regen_level) * 2.0;
                 if (amt > energy)
                     amt = energy;
 
                 if (amt > 0.0)
                 {
-                    new Float:lastTime = m_CloakRegenTime[client];
-                    new Float:interval = GetGameTime() - lastTime;
+                    float lastTime = m_CloakRegenTime[client];
+                    float interval = GetGameTime() - lastTime;
                     if ((lastTime == 0.0 || interval >= 2.00) && cloak + amt <= 100.0)
                     {
                         DecrementEnergy(client, amt);

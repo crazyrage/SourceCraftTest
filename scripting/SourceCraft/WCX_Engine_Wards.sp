@@ -1,7 +1,7 @@
 #include <sourcemod>
 #include "W3SIncs/War3Source_Interface"
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "War3Source - Warcraft Extended - Generic ward skills",
     author = "War3Source Team",
@@ -17,7 +17,7 @@ enum {
 
 new BehaviorIndex[BEHAVIOR_LAST];
 
-public OnWar3LoadRaceOrItemOrdered2(num)
+public void OnWar3LoadRaceOrItemOrdered2(num)
 {
     if (num == 0)
     {
@@ -27,7 +27,7 @@ public OnWar3LoadRaceOrItemOrdered2(num)
     }
 }
 
-public OnWardPulse(wardindex, behavior)
+public void OnWardPulse(wardindex, behavior)
 {
     if(behavior != BehaviorIndex[BEHAVIOR_DAMAGE] && behavior != BehaviorIndex[BEHAVIOR_HEAL] && behavior != BehaviorIndex[BEHAVIOR_SLOW])
     {
@@ -35,7 +35,7 @@ public OnWardPulse(wardindex, behavior)
     }
     
     new beamcolor[4];
-    new team = GetClientTeam(War3_GetWardOwner(wardindex));
+    int team = GetClientTeam(War3_GetWardOwner(wardindex));
 
     if(War3_GetWardUseDefaultColor(wardindex)) 
     {
@@ -61,7 +61,7 @@ public OnWardPulse(wardindex, behavior)
     War3_WardVisualEffect(wardindex, beamcolor);
 }
 
-public OnWardTrigger(wardindex, victim, owner, behavior) 
+public void OnWardTrigger(wardindex, victim, owner, behavior) 
 {
     decl data[MAXWARDDATA];
     decl Float:VictimPos[3];
@@ -77,7 +77,7 @@ public OnWardTrigger(wardindex, victim, owner, behavior)
         }
         else
         {
-            new damage = data[War3_GetSkillLevel(owner, War3_GetRace(owner), War3_GetWardSkill(wardindex))];
+            int damage = data[War3_GetSkillLevel(owner, War3_GetRace(owner), War3_GetWardSkill(wardindex))];
             
             War3_DealDamage(victim, damage, owner, _, "weapon_wards");
             VictimPos[2] += 65.0;
@@ -87,7 +87,7 @@ public OnWardTrigger(wardindex, victim, owner, behavior)
     
     else if (behavior == BehaviorIndex[BEHAVIOR_HEAL]) 
     {
-        new healAmount = data[War3_GetSkillLevel(owner, War3_GetRace(owner), War3_GetWardSkill(wardindex))];
+        int healAmount = data[War3_GetSkillLevel(owner, War3_GetRace(owner), War3_GetWardSkill(wardindex))];
 
         if (War3_HealToMaxHP(victim, healAmount))
         {
@@ -104,8 +104,8 @@ public OnWardTrigger(wardindex, victim, owner, behavior)
         }
         else
         {
-            //new wardskill = War3_GetWardSkill(wardindex);
-            //new slow = data[War3_GetSkillLevel(owner, War3_GetRace(owner), wardskill)];
+            //int wardskill = War3_GetWardSkill(wardindex);
+            //int slow = data[War3_GetSkillLevel(owner, War3_GetRace(owner), wardskill)];
             
             // do actual slowing
         }

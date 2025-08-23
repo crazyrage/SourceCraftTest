@@ -6,6 +6,7 @@
  */
  
 #pragma semicolon 1
+#pragma newdecls required
 
 #include <sourcemod>
 #include <sdktools>
@@ -54,16 +55,16 @@ new const String:resetWav[]     = "sc/unrwht00.wav";
 new const String:forgeWav[]     = "sc/pfowht00.wav";
 new const String:cannonWav[]    = "sc/phohit00.wav";
 
-new Float:g_InitialShields[]    = { 0.0, 0.10, 0.20, 0.30, 0.40 };
-new Float:g_ShieldsPercent[][2] = { {0.00, 0.00},
+float g_InitialShields[]    = { 0.0, 0.10, 0.20, 0.30, 0.40 };
+float g_ShieldsPercent[][2] = { {0.00, 0.00},
                                     {0.00, 0.10},
                                     {0.00, 0.20},
                                     {0.10, 0.30},
                                     {0.20, 0.40} };
 
-new Float:g_ForgeFactor[]       = { 1.0, 1.10, 1.20, 1.40, 1.60 };
+float g_ForgeFactor[]       = { 1.0, 1.10, 1.20, 1.40, 1.60 };
 
-new Float:g_WarpGateRate[]      = { 0.0, 8.0, 6.0, 3.0, 1.0 };
+float g_WarpGateRate[]      = { 0.0, 8.0, 6.0, 3.0, 1.0 };
 
 new m_BatteryUpgradeMetal[]     = { 0, 1, 2, 3, 4 };
 new m_BatteryAmmoRockets[]      = { 0, 1, 2, 3, 4 };
@@ -72,23 +73,23 @@ new m_BatteryAmmoMetal[]        = { 0, 2, 4, 6, 8 };
 new m_BatteryRepair[]           = { 0, 1, 2, 3, 4 };
 
 new g_CannonChance[]            = { 0, 20, 40, 60, 90 };
-new Float:g_CannonPercent[]     = { 0.0, 0.15, 0.30, 0.40, 0.50 };
+float g_CannonPercent[]     = { 0.0, 0.15, 0.30, 0.40, 0.50 };
 
 new m_DarkPylonAlpha[]          = { 255, 150, 100, 50, 10, 0 };
 
 new raceID, shieldsID, batteriesID, forgeID, warpGateID, cannonID;
 new recallStructureID, pylonID, amplifierID, phasePrismID;
 
-new g_phasePrismRace = -1;
+int g_phasePrismRace = -1;
 
-new cfgAllowSentries;
-new bool:cfgAllowTeleport;
-new bool:cfgAllowInvisibility;
+int cfgAllowSentries;
+bool cfgAllowTeleport;
+bool cfgAllowInvisibility;
 
-new bool:m_IsDarkPylon[MAXPLAYERS+1];
-new Float:m_CannonTime[MAXPLAYERS+1];
+bool m_IsDarkPylon[MAXPLAYERS+1];
+float m_CannonTime[MAXPLAYERS+1];
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Protoss Probe",
     author = "-=|JFH|=-Naris",
@@ -97,7 +98,7 @@ public Plugin:myinfo =
     url = "http://jigglysfunhouse.net/"
 };
 
-public OnPluginStart()
+public void OnPluginStart()
 {
     LoadTranslations("sc.objects.phrases.txt");
     LoadTranslations("sc.common.phrases.txt");
@@ -134,7 +135,7 @@ public OnPluginStart()
         OnSourceCraftReady();
 }
 
-public OnSourceCraftReady()
+public void OnSourceCraftReady()
 {
     raceID      = CreateRace("probe", 80, 0, 33, .energy_rate=2.0,
                              .faction=Protoss, .type=Robotic);
@@ -223,9 +224,9 @@ public OnSourceCraftReady()
     GetConfigFloatArray("shields_amount", g_InitialShields, sizeof(g_InitialShields),
                         g_InitialShields, raceID, shieldsID);
 
-    for (new level=0; level < sizeof(g_ShieldsPercent); level++)
+    for (int level =0; level < sizeof(g_ShieldsPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "shields_percent_level_%d", level);
         GetConfigFloatArray(key, g_ShieldsPercent[level], sizeof(g_ShieldsPercent[]),
                             g_ShieldsPercent[level], raceID, shieldsID);
@@ -263,14 +264,14 @@ public OnSourceCraftReady()
         GetConfigArray("alpha", m_DarkPylonAlpha, sizeof(m_DarkPylonAlpha),
                        m_DarkPylonAlpha, raceID, pylonID);
 
-        for (new type=0; type < sizeof(g_AmpRange); type++)
+        for (int type =0; type < sizeof(g_AmpRange); type++)
         {
-            decl String:section[32];
+            char section[32];
             Format(section, sizeof(section), "amplifier_type_%d", type);
 
-            for (new level=0; level < sizeof(g_AmpRange[]); level++)
+            for (int level =0; level < sizeof(g_AmpRange[]); level++)
             {
-                decl String:key[32];
+                char key[32];
                 Format(key, sizeof(key), "range_level_%d", level);
                 GetConfigFloatArray(key, g_AmpRange[type][level], sizeof(g_AmpRange[][]),
                                     g_AmpRange[type][level], raceID, amplifierID, section);
@@ -279,7 +280,7 @@ public OnSourceCraftReady()
     }
 }
 
-public OnLibraryAdded(const String:name[])
+public void OnLibraryAdded(const String:name[])
 {
     if (StrEqual(name, "tf2teleporter"))
         IsTeleporterAvailable(true);
@@ -293,7 +294,7 @@ public OnLibraryAdded(const String:name[])
         IsInfiniteAmmoAvailable(true);
 }
 
-public OnLibraryRemoved(const String:name[])
+public void OnLibraryRemoved(const String:name[])
 {
     if (StrEqual(name, "tf2teleporter"))
         m_TeleporterAvailable = false;
@@ -307,7 +308,7 @@ public OnLibraryRemoved(const String:name[])
         m_InfiniteAmmoAvailable = false;
 }
 
-public OnMapStart()
+public void OnMapStart()
 {
     SetupExplosion();
     SetupSmokeSprite();
@@ -328,23 +329,23 @@ public OnMapStart()
     SetupSound(cannonWav);
 }
 
-public OnMapEnd()
+public void OnMapEnd()
 {
     ResetAllClientTimers();
 }
 
-public OnPlayerAuthed(client)
+public void OnPlayerAuthed(client)
 {
     m_IsDarkPylon[client] = false;
     m_CannonTime[client] = 0.0;
 }
 
-public OnClientDisconnect(client)
+public void OnClientDisconnect(client)
 {
     KillClientTimer(client);
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -376,23 +377,23 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
     }
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
         m_CannonTime[client] = 0.0;
         m_IsDarkPylon[client] = false;
 
-        new warp_gate_level = GetUpgradeLevel(client,raceID,warpGateID);
+        int warp_gate_level = GetUpgradeLevel(client,raceID,warpGateID);
         if (warp_gate_level > 0)
             SetupTeleporter(client, warp_gate_level);
 
-        new shields_level = GetUpgradeLevel(client,raceID,shieldsID);
+        int shields_level = GetUpgradeLevel(client,raceID,shieldsID);
         SetupShields(client, shields_level, g_InitialShields, g_ShieldsPercent);
 
         if (IsValidClientAlive(client))
         {
-            new battery_level = GetUpgradeLevel(client,raceID,batteriesID);
+            int battery_level = GetUpgradeLevel(client,raceID,batteriesID);
             if (shields_level ||
                 (battery_level && GameType == tf2 &&
                  TF2_GetPlayerClass(client) == TFClass_Engineer))
@@ -408,7 +409,7 @@ public Action:OnRaceSelected(client,oldrace,newrace)
         return Plugin_Continue;
 }
 
-public OnUpgradeLevelChanged(client,race,upgrade,new_level)
+public void OnUpgradeLevelChanged(client,race,upgrade,new_level)
 {
     if (race == raceID && GetRace(client) == raceID)
     {
@@ -449,7 +450,7 @@ public OnUpgradeLevelChanged(client,race,upgrade,new_level)
     }
 }
 
-public OnUltimateCommand(client,race,bool:pressed,arg)
+public void OnUltimateCommand(client,race,bool:pressed,arg)
 {
     if (race==raceID)
     {
@@ -457,7 +458,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
         {
             case 4:
             {
-                new phase_prism_level=GetUpgradeLevel(client,race,phasePrismID);
+                int phase_prism_level =GetUpgradeLevel(client,race,phasePrismID);
                 if (phase_prism_level > 0)
                 {
                     if (!pressed)
@@ -465,7 +466,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                 }
                 else
                 {
-                    new amplifier_level = GetUpgradeLevel(client,raceID,amplifierID);
+                    int amplifier_level = GetUpgradeLevel(client,raceID,amplifierID);
                     if (GameType == tf2 && amplifier_level > 0)
                     {
                         if (!pressed)
@@ -473,7 +474,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                     }
                     else
                     {
-                        new pylon_level=GetUpgradeLevel(client,race,pylonID);
+                        int pylon_level =GetUpgradeLevel(client,race,pylonID);
                         if (GameType == tf2 && pylon_level > 0 && cfgAllowInvisibility)
                         {
                             if (pressed)
@@ -484,7 +485,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
             }
             case 3:
             {
-                new amplifier_level = GetUpgradeLevel(client,raceID,amplifierID);
+                int amplifier_level = GetUpgradeLevel(client,raceID,amplifierID);
                 if (GameType == tf2 && amplifier_level > 0)
                 {
                     if (!pressed)
@@ -492,7 +493,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                 }
                 else
                 {
-                    new pylon_level=GetUpgradeLevel(client,race,pylonID);
+                    int pylon_level =GetUpgradeLevel(client,race,pylonID);
                     if (GameType == tf2 && pylon_level > 0 && cfgAllowInvisibility)
                     {
                         if (pressed)
@@ -500,7 +501,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                     }
                     else if (!pressed)
                     {
-                        new phase_prism_level=GetUpgradeLevel(client,race,phasePrismID);
+                        int phase_prism_level =GetUpgradeLevel(client,race,phasePrismID);
                         if (phase_prism_level > 0)
                             SummonPhasePrism(client);
                     }
@@ -508,7 +509,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
             }
             case 2:
             {
-                new pylon_level=GetUpgradeLevel(client,race,pylonID);
+                int pylon_level =GetUpgradeLevel(client,race,pylonID);
                 if (GameType == tf2 && pylon_level > 0 && cfgAllowInvisibility)
                 {
                     if (pressed)
@@ -516,14 +517,14 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                 }
                 else if (!pressed)
                 {
-                    new phase_prism_level=GetUpgradeLevel(client,race,phasePrismID);
+                    int phase_prism_level =GetUpgradeLevel(client,race,phasePrismID);
                     if (phase_prism_level > 0)
                         SummonPhasePrism(client);
                 }
             }
             default:
             {
-                new recall_structure_level = GetUpgradeLevel(client,race,recallStructureID);
+                int recall_structure_level = GetUpgradeLevel(client,race,recallStructureID);
                 if (GameType == tf2 && recall_structure_level > 0 && cfgAllowTeleport &&
                     (cfgAllowSentries >= 2) || (cfgAllowSentries >= 1 && GameType == tf2 &&
                                                 TF2_GetPlayerClass(client) != TFClass_Engineer))
@@ -533,7 +534,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                 }
                 else
                 {
-                    new pylon_level=GetUpgradeLevel(client,race,pylonID);
+                    int pylon_level =GetUpgradeLevel(client,race,pylonID);
                     if (GameType == tf2 && pylon_level > 0 && cfgAllowInvisibility)
                     {
                         if (pressed)
@@ -541,7 +542,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                     }
                     else if (!pressed)
                     {
-                        new phase_prism_level=GetUpgradeLevel(client,race,phasePrismID);
+                        int phase_prism_level =GetUpgradeLevel(client,race,phasePrismID);
                         if (phase_prism_level > 0)
                             SummonPhasePrism(client);
                     }
@@ -552,7 +553,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
 }
 
 // Events
-public OnPlayerSpawnEvent(Handle:event, client, race)
+public void OnPlayerSpawnEvent(Handle:event, client, race)
 {
     if (race == raceID)
     {
@@ -560,10 +561,10 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
 
         PrepareAndEmitSoundToAll(summonWav,client);
 
-        new shields_level = GetUpgradeLevel(client,raceID,shieldsID);
+        int shields_level = GetUpgradeLevel(client,raceID,shieldsID);
         SetupShields(client, shields_level, g_InitialShields, g_ShieldsPercent);
 
-        new battery_level=GetUpgradeLevel(client,raceID,batteriesID);
+        int battery_level =GetUpgradeLevel(client,raceID,batteriesID);
         if (shields_level ||
             (battery_level && GameType == tf2 &&
              TF2_GetPlayerClass(client) == TFClass_Engineer))
@@ -574,7 +575,7 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     if (!from_sc && attacker_index > 0 &&
@@ -589,7 +590,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
     return Plugin_Continue;
 }
 
-public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
+public Action OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
                                   assister_index, assister_race, damage,
                                   absorbed)
 {
@@ -602,7 +603,7 @@ public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
     return Plugin_Continue;
 }
 
-public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
+public void OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
                           attacker_race, assister_index, assister_race, damage,
                           const String:weapon[], bool:is_equipment, customkill,
                           bool:headshot, bool:backstab, bool:melee)
@@ -630,13 +631,13 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
 
 public EventRoundOver(Handle:event,const String:name[],bool:dontBroadcast)
 {
-    for (new index=1;index<=MaxClients;index++)
+    for (int index =1;index<=MaxClients;index++)
     {
         m_IsDarkPylon[index] = false;
     }
 }
 
-public OnPlayerBuiltObject(Handle:event, client, obj, TFObjectType:type)
+public void OnPlayerBuiltObject(Handle:event, client, obj, TFObjectType:type)
 {
     if (obj > 0 && type != TFObject_Sapper)
     {
@@ -646,11 +647,11 @@ public OnPlayerBuiltObject(Handle:event, client, obj, TFObjectType:type)
         {
             if (cfgAllowSentries >= 1 && GetUpgradeLevel(client,raceID,forgeID) > 0)
             {
-                new Float:time = (GetEntPropFloat(obj, Prop_Send, "m_flPercentageConstructed") >= 1.0) ? 0.1 : 10.0;
+                float time = (GetEntPropFloat(obj, Prop_Send, "m_flPercentageConstructed") >= 1.0) ? 0.1 : 10.0;
                 CreateTimer(time, ForgeTimer, EntIndexToEntRef(obj), TIMER_FLAG_NO_MAPCHANGE);
             }
 
-            new pylon_level = cfgAllowInvisibility && m_IsDarkPylon[client] ? GetUpgradeLevel(client,raceID,pylonID) : 0;
+            int pylon_level = cfgAllowInvisibility && m_IsDarkPylon[client] ? GetUpgradeLevel(client,raceID,pylonID) : 0;
             if (pylon_level > 0)
             {
                 SetEntityRenderColor(obj, 255, 255, 255, m_DarkPylonAlpha[pylon_level]);
@@ -662,10 +663,10 @@ public OnPlayerBuiltObject(Handle:event, client, obj, TFObjectType:type)
 
 public PlayerUpgradedObject(Handle:event,const String:name[],bool:dontBroadcast)
 {
-    new obj = GetEventInt(event,"index");
+    int obj = GetEventInt(event,"index");
     if (obj > 0)
     {
-        new client = GetClientOfUserId(GetEventInt(event,"userid"));
+        int client = GetClientOfUserId(GetEventInt(event,"userid"));
         if (IsValidClientNotSpec(client) && GetRace(client) == raceID &&
             !GetRestriction(client, Restriction_NoUpgrades) &&
             !GetRestriction(client, Restriction_Stunned))
@@ -673,7 +674,7 @@ public PlayerUpgradedObject(Handle:event,const String:name[],bool:dontBroadcast)
             if (cfgAllowSentries >= 1 && GetUpgradeLevel(client,raceID,forgeID) > 0)
                 CreateTimer(0.1, ForgeTimer, EntIndexToEntRef(obj), TIMER_FLAG_NO_MAPCHANGE);
 
-            new pylon_level = m_IsDarkPylon[client] ? GetUpgradeLevel(client,raceID,pylonID) : 0;
+            int pylon_level = m_IsDarkPylon[client] ? GetUpgradeLevel(client,raceID,pylonID) : 0;
             if (pylon_level > 0 && cfgAllowInvisibility)
             {
                 SetEntityRenderColor(obj, 255, 255, 255, m_DarkPylonAlpha[pylon_level]);
@@ -683,28 +684,28 @@ public PlayerUpgradedObject(Handle:event,const String:name[],bool:dontBroadcast)
     }
 }
 
-public Action:ForgeTimer(Handle:timer,any:ref)
+public Action ForgeTimer(Handle:timer,any:ref)
 {
-    new obj = EntRefToEntIndex(ref);
+    int obj = EntRefToEntIndex(ref);
     if (obj > 0 && IsValidEntity(obj) && IsValidEdict(obj))
     {
-        new builder = GetEntPropEnt(obj, Prop_Send, "m_hBuilder");
+        int builder = GetEntPropEnt(obj, Prop_Send, "m_hBuilder");
         if (builder > 0 && GetRace(builder) == raceID &&
             !GetRestriction(builder, Restriction_NoUpgrades) &&
             !GetRestriction(builder, Restriction_Stunned))
         {
             if (GetEntPropFloat(obj, Prop_Send, "m_flPercentageConstructed") >= 1.0)
             {
-                new build_level = GetUpgradeLevel(builder,raceID,forgeID);
+                int build_level = GetUpgradeLevel(builder,raceID,forgeID);
                 if (build_level > 0 && cfgAllowSentries >= 1)
                 {
-                    new iLevel = GetEntProp(obj, Prop_Send, "m_bMiniBuilding") ? 0 : 
+                    int iLevel = GetEntProp(obj, Prop_Send, "m_bMiniBuilding") ? 0 : 
                                  GetEntProp(obj, Prop_Send, "m_iUpgradeLevel");
 
-                    //new health = GetEntProp(obj, Prop_Send, "m_iHealth");
-                    new health = RoundToNearest(float(TF2_SentryHealth[iLevel]) * g_ForgeFactor[build_level]);
+                    //int health = GetEntProp(obj, Prop_Send, "m_iHealth");
+                    int health = RoundToNearest(float(TF2_SentryHealth[iLevel]) * g_ForgeFactor[build_level]);
 
-                    new maxHealth = TF2_SentryHealth[4]; //[iLevel+1];
+                    int maxHealth = TF2_SentryHealth[4]; //[iLevel+1];
                     if (health > maxHealth)
                         health = maxHealth;
 
@@ -715,9 +716,9 @@ public Action:ForgeTimer(Handle:timer,any:ref)
 
                     if (TF2_GetObjectType(obj) == TFObject_Sentry)
                     {
-                        new maxShells = TF2_MaxSentryShells[4]; //[iLevel+1];
-                        //new iShells = GetEntProp(obj, Prop_Send, "m_iAmmoShells");
-                        new iShells = RoundToNearest(float(TF2_MaxSentryShells[iLevel]) *g_ForgeFactor[build_level]);
+                        int maxShells = TF2_MaxSentryShells[4]; //[iLevel+1];
+                        //int iShells = GetEntProp(obj, Prop_Send, "m_iAmmoShells");
+                        int iShells = RoundToNearest(float(TF2_MaxSentryShells[iLevel]) *g_ForgeFactor[build_level]);
                         if (iShells > maxShells)
                             iShells = maxShells;
 
@@ -725,9 +726,9 @@ public Action:ForgeTimer(Handle:timer,any:ref)
 
                         if (iLevel > 2)
                         {
-                            new maxRockets = TF2_MaxSentryRockets[4]; //[iLevel+1];
-                            //new iRockets = GetEntProp(obj, Prop_Send, "m_iAmmoRockets");
-                            new iRockets = RoundToNearest(float(TF2_MaxSentryRockets[iLevel]) *g_ForgeFactor[build_level]);
+                            int maxRockets = TF2_MaxSentryRockets[4]; //[iLevel+1];
+                            //int iRockets = GetEntProp(obj, Prop_Send, "m_iAmmoRockets");
+                            int iRockets = RoundToNearest(float(TF2_MaxSentryRockets[iLevel]) *g_ForgeFactor[build_level]);
                             if (iRockets > maxRockets)
                                 iRockets = maxRockets;
 
@@ -738,7 +739,7 @@ public Action:ForgeTimer(Handle:timer,any:ref)
                     PrepareAndEmitSoundToAll(forgeWav,obj);
                 }
 
-                new pylon_level = m_IsDarkPylon[builder] ? GetUpgradeLevel(builder,raceID,pylonID) : 0;
+                int pylon_level = m_IsDarkPylon[builder] ? GetUpgradeLevel(builder,raceID,pylonID) : 0;
                 if (pylon_level > 0 && cfgAllowInvisibility)
                 {
                     SetEntityRenderColor(obj, 255, 255, 255, m_DarkPylonAlpha[pylon_level]);
@@ -752,9 +753,9 @@ public Action:ForgeTimer(Handle:timer,any:ref)
     return Plugin_Stop;
 }
 
-public Action:BatteryTimer(Handle:timer, any:userid)
+public Action BatteryTimer(Handle:timer, any:userid)
 {
-    new client = GetClientOfUserId(userid);
+    int client = GetClientOfUserId(userid);
     if (IsValidClientNotSpec(client) && GetRace(client) == raceID &&
         !GetRestriction(client,Restriction_NoUpgrades) &&
         !GetRestriction(client,Restriction_Stunned))
@@ -762,18 +763,18 @@ public Action:BatteryTimer(Handle:timer, any:userid)
         if (GetGameType() != tf2)
             return Plugin_Continue;
 
-        new battery_level = GetUpgradeLevel(client,raceID,batteriesID);
+        int battery_level = GetUpgradeLevel(client,raceID,batteriesID);
         if (battery_level > 0 && cfgAllowSentries >= 1 && GameType == tf2 &&
             TF2_GetPlayerClass(client) == TFClass_Engineer)
         {
-            new upgrade_amount = m_BatteryUpgradeMetal[battery_level];
-            new rocket_amount = m_BatteryAmmoRockets[battery_level];
-            new shells_amount = m_BatteryAmmoShells[battery_level];
-            new metal_amount = m_BatteryAmmoMetal[battery_level];
-            new repair_amount = m_BatteryRepair[battery_level];
+            int upgrade_amount = m_BatteryUpgradeMetal[battery_level];
+            int rocket_amount = m_BatteryAmmoRockets[battery_level];
+            int shells_amount = m_BatteryAmmoShells[battery_level];
+            int metal_amount = m_BatteryAmmoMetal[battery_level];
+            int repair_amount = m_BatteryRepair[battery_level];
 
-            new maxentities = GetMaxEntities();
-            for (new i = MaxClients + 1; i <= maxentities; i++)
+            int maxentities = GetMaxEntities();
+            for (int i = MaxClients + 1; i <= maxentities; i++)
             {
                 if (IsValidEntity(i) && IsValidEdict(i))
                 {
@@ -783,10 +784,10 @@ public Action:BatteryTimer(Handle:timer, any:userid)
                         if (GetEntPropEnt(i, Prop_Send, "m_hBuilder") == client &&
                             GetEntPropFloat(i, Prop_Send, "m_flPercentageConstructed") >= 1.0)
                         {
-                            new iLevel = GetEntProp(i, Prop_Send, "m_iUpgradeLevel");
+                            int iLevel = GetEntProp(i, Prop_Send, "m_iUpgradeLevel");
                             if (iLevel < 3)
                             {
-                                new iUpgrade = GetEntProp(i, Prop_Send, "m_iUpgradeMetal");
+                                int iUpgrade = GetEntProp(i, Prop_Send, "m_iUpgradeMetal");
                                 if (iUpgrade < TF2_MaxUpgradeMetal)
                                 {
                                     iUpgrade += upgrade_amount;
@@ -801,7 +802,7 @@ public Action:BatteryTimer(Handle:timer, any:userid)
                                 {
                                     case TFExtObject_Dispenser:
                                     {
-                                        new iMetal = GetEntProp(i, Prop_Send, "m_iAmmoMetal");
+                                        int iMetal = GetEntProp(i, Prop_Send, "m_iAmmoMetal");
                                         if (iMetal < TF2_MaxDispenserMetal)
                                         {
                                             iMetal += metal_amount;
@@ -812,8 +813,8 @@ public Action:BatteryTimer(Handle:timer, any:userid)
                                     }
                                     case TFExtObject_Sentry:
                                     {
-                                        new maxShells = TF2_MaxSentryShells[iLevel];
-                                        new iShells = GetEntProp(i, Prop_Send, "m_iAmmoShells");
+                                        int maxShells = TF2_MaxSentryShells[iLevel];
+                                        int iShells = GetEntProp(i, Prop_Send, "m_iAmmoShells");
                                         if (iShells < maxShells)
                                         {
                                             iShells += shells_amount;
@@ -822,8 +823,8 @@ public Action:BatteryTimer(Handle:timer, any:userid)
                                             SetEntProp(i, Prop_Send, "m_iAmmoShells", iShells);
                                         }
 
-                                        new maxRockets = TF2_MaxSentryRockets[iLevel];
-                                        new iRockets = GetEntProp(i, Prop_Send, "m_iAmmoRockets");
+                                        int maxRockets = TF2_MaxSentryRockets[iLevel];
+                                        int iRockets = GetEntProp(i, Prop_Send, "m_iAmmoRockets");
                                         if (iRockets < maxRockets)
                                         {
                                             iRockets += rocket_amount;
@@ -835,8 +836,8 @@ public Action:BatteryTimer(Handle:timer, any:userid)
                                 }
                             }
 
-                            new maxHealth = GetEntProp(i, Prop_Data, "m_iMaxHealth");
-                            new health = GetEntProp(i, Prop_Send, "m_iHealth");
+                            int maxHealth = GetEntProp(i, Prop_Data, "m_iMaxHealth");
+                            int health = GetEntProp(i, Prop_Send, "m_iHealth");
                             if (health < maxHealth)
                             {
                                 health += repair_amount;
@@ -862,7 +863,7 @@ SetupTeleporter(client, level)
 
 bool:PhotonCannon(damage, victim_index, index)
 {
-    new cannon_level = GetUpgradeLevel(index,raceID,cannonID);
+    int cannon_level = GetUpgradeLevel(index,raceID,cannonID);
     if (cannon_level > 0)
     {
         if (!GetRestriction(index, Restriction_NoUpgrades) &&
@@ -871,20 +872,20 @@ bool:PhotonCannon(damage, victim_index, index)
             !GetImmunity(victim_index,Immunity_Upgrades) &&
             !IsInvulnerable(victim_index))
         {
-            new Float:lastTime = m_CannonTime[index];
-            new Float:interval = GetGameTime() - lastTime;
+            float lastTime = m_CannonTime[index];
+            float interval = GetGameTime() - lastTime;
             if (lastTime == 0.0 || interval > 0.25)
             {
                 if (GetRandomInt(1,100) <= g_CannonChance[cannon_level])
                 {
-                    new health_take = RoundToFloor(float(damage)*g_CannonPercent[cannon_level]);
+                    int health_take = RoundToFloor(float(damage)*g_CannonPercent[cannon_level]);
                     if (health_take > 0)
                     {
                         if (CanInvokeUpgrade(index, raceID, cannonID, .notify=false))
                         {
                             if (interval == 0.0 || interval >= 2.0)
                             {
-                                new Float:Origin[3];
+                                float Origin[3];
                                 GetEntityAbsOrigin(victim_index, Origin);
                                 Origin[2] += 5;
 
@@ -924,15 +925,15 @@ DarkPylon(client, level)
         {
             PrepareAndEmitSoundToClient(client,deniedWav);
 
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, pylonID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
         }
         else if (CanInvokeUpgrade(client, raceID, pylonID))
         {
-            new count = 0;
-            new maxentities = GetMaxEntities();
-            for (new i = MaxClients + 1; i <= maxentities; i++)
+            int count = 0;
+            int maxentities = GetMaxEntities();
+            for (int i = MaxClients + 1; i <= maxentities; i++)
             {
                 if (IsValidEntity(i) && IsValidEdict(i))
                 {
@@ -952,7 +953,7 @@ DarkPylon(client, level)
 
             if (count > 0)
             {
-                new Float:time = float(level)*2.0;
+                float time = float(level)*2.0;
                 DisplayMessage(client,Display_Ultimate, "%t", "PylonInvoked", time);
                 CreateTimer(time, ResetDarkPylon, GetClientUserId(client),TIMER_FLAG_NO_MAPCHANGE);
                 ChargeForUpgrade(client, raceID, pylonID);
@@ -968,13 +969,13 @@ DarkPylon(client, level)
     }
 }
 
-public Action:ResetDarkPylon(Handle:timer,any:userid)
+public Action ResetDarkPylon(Handle:timer,any:userid)
 {
-    new client = GetClientOfUserId(userid);
+    int client = GetClientOfUserId(userid);
     if (client > 0)
     {
-        new maxentities = GetMaxEntities();
-        for (new i = MaxClients + 1; i <= maxentities; i++)
+        int maxentities = GetMaxEntities();
+        for (int i = MaxClients + 1; i <= maxentities; i++)
         {
             if (IsValidEntity(i) && IsValidEdict(i))
             {
@@ -1004,7 +1005,7 @@ SummonPhasePrism(client)
 
     if (g_phasePrismRace < 0)
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, phasePrismID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "IsNotAvailable", upgradeName);
         LogError("***The Phase Prism race is not Available!");
@@ -1019,7 +1020,7 @@ SummonPhasePrism(client)
     }
     else if (CanInvokeUpgrade(client, raceID, phasePrismID))
     {
-        new Float:clientLoc[3];
+        float clientLoc[3];
         GetClientAbsOrigin(client, clientLoc);
         clientLoc[2] += 40.0; // Adjust position to the middle
 
@@ -1034,10 +1035,10 @@ SummonPhasePrism(client)
     }
 }
 
-public Action:OnAmplify(builder,client,TFCond:condition)
+public Action OnAmplify(builder,client,TFCond:condition)
 {
-    new from;
-    new Float:amount;
+    int from;
+    float amount;
     switch (condition)
     {
         case TFCond_Slowed, TFCond_Zoomed:

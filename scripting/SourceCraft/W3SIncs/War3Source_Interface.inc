@@ -5,6 +5,7 @@
  * Author(s): War3Source Team  
  */
 #pragma semicolon 1
+#pragma newdecls required
 
 #if defined _War3Source_Interface_included
  #endinput
@@ -42,13 +43,13 @@
 
 //Interface version, change this when the API requirement changes to force a recompile
 //There will be a system check to make sure all plugins are compiled to the same interface.
-new String:interfaceVersion[]="1.2.4.1";
+char interfaceVersion[]="1.2.4.1";
 #if defined SOURCECRAFT // Not for SourceCraft!
 #pragma unused interfaceVersion
 #endif
 
-stock dummy; //variable for dummies! Use this where ever u want for a dummy return
-stock String:dummystr[32]; //just a dummy string! 
+stock int dummy; //variable for dummies! Use this where ever u want for a dummy return
+stock char dummystr[32]; //just a dummy string! 
 
 /**********************
  * CAUTION, THE War3 INTERFACE NOW HANDLES AskPluginLoad2Custom BECAUSE IT IS REQUIRED TO HANDLE CERTAIN TASKS
@@ -60,10 +61,10 @@ stock String:dummystr[32]; //just a dummy string!
  * AskPluginLoad2Custom(Handle:myself,bool:late,String:error[],err_max);
  * So if you want to do something in AskPluginLoad2, implement public AskPluginLoad2Custom(...) instead. 
  */
-public APLRes:AskPluginLoad2(Handle:plugin,bool:late,String:error[],err_max)
+public APLRes AskPluginLoad2(Handle plugin, bool late, char[] error, int err_max)
 {
   DetermineGameMode();
-  new Function:func;
+  Function func;
   func=GetFunctionByName(plugin, "InitNativesForwards");
   if(func!=INVALID_FUNCTION) { //non war3 plugins dont have this function
     Call_StartFunction(plugin, func);
@@ -80,10 +81,10 @@ public APLRes:AskPluginLoad2(Handle:plugin,bool:late,String:error[],err_max)
     Call_PushString(error);
     Call_PushCell(err_max);
     Call_Finish(dummy);
-    if(APLRes:dummy==APLRes_SilentFailure) {
+    if(view_as<APLRes>(dummy)==APLRes_SilentFailure) {
       return APLRes_SilentFailure;
     }
-    if(APLRes:dummy!=APLRes_Success) {
+    if(view_as<APLRes>(dummy)!=APLRes_Success) {
       LogError("AskPluginLoad2Custom did not return true, possible failure");
     }
   }

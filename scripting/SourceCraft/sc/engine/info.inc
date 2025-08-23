@@ -21,7 +21,7 @@ PlayerInfoMenu(client,MenuMode:mode)
 {
     if (IsValidClient(client) && !IsFakeClient(client))
     {
-        new Handle:playerMenu=CreateMenu(View_Selected);
+        Handle playerMenu=CreateMenu(View_Selected);
         SetMenuTitle(playerMenu,"[SC] %T", "ViewPlayer", client);
         SetMenuExitButton(playerMenu,true);
 
@@ -40,7 +40,7 @@ public View_Selected(Handle:menu,MenuAction:action,client,selection)
     if (action == MenuAction_Select)
     {
         new userid, target;
-        decl String:SelectionInfo[SMALL_STRING_LENGTH];
+        char SelectionInfo[SMALL_STRING_LENGTH];
         PrepareAndEmitSoundToClient(client,buttonWav);
         GetMenuItem(menu,selection,SelectionInfo,sizeof(SelectionInfo));
         userid=StringToInt(SelectionInfo);
@@ -63,34 +63,34 @@ public PlayerInfo(client,target,MenuMode:mode)
     if (IsValidClient(client) && !IsFakeClient(client) &&
         IsValidClient(target))
     {
-        decl String:title[LONG_STRING_LENGTH];
-        new race = GetRace(target);
+        char title[LONG_STRING_LENGTH];
+        int race = GetRace(target);
         if (race >= 0)
         {
-            new Handle:raceHandle=GetRaceHandle(race);
+            Handle raceHandle=GetRaceHandle(race);
 
-            decl String:raceName[NAME_STRING_LENGTH];
+            char raceName[NAME_STRING_LENGTH];
             GetRaceName(raceHandle, raceName, sizeof(raceName));
 
             new Faction:techId = GetRaceFactionId(raceHandle);
             new UnitType:typeId = GetRaceType(raceHandle);
             if (techId > Generic)
             {
-                decl String:techName[NAME_STRING_LENGTH];
+                char techName[NAME_STRING_LENGTH];
                 GetFactionName(techId, techName, sizeof(techName));
 
-                decl String:unitType[NAME_STRING_LENGTH];
+                char unitType[NAME_STRING_LENGTH];
                 GetUnitTypeName(typeId, unitType, sizeof(unitType));
                 Format(title,sizeof(title),"%s: %s {%s}",
                        techName, raceName, unitType);
 
-                new len=strlen(title);
+                int len =strlen(title);
                 Format(title[len], sizeof(title)-len,"\n%T", "PlayerTechLevel", client,
                        techName, GetTechLevel(target,techId));
             }
             else if (typeId > GenericUnit)
             {
-                decl String:unit[NAME_STRING_LENGTH];
+                char unit[NAME_STRING_LENGTH];
                 GetUnitTypeName(typeId, unit, sizeof(unit));
                 Format(title,sizeof(title),"%s {%s}",
                        raceName, unit);
@@ -100,9 +100,9 @@ public PlayerInfo(client,target,MenuMode:mode)
                 strcopy(title, sizeof(title), raceName);
             }
 
-            new len      = strlen(title);
-            new level    = GetLevel(target,race);
-            new maxLevel = GetRaceMaxLevel(raceHandle);
+            int len = strlen(title);
+            int level = GetLevel(target,race);
+            int maxLevel = GetRaceMaxLevel(raceHandle);
             Format(title[len], sizeof(title)-len, "\n%T", "PlayerLevel", client,
                    level, maxLevel, GetOverallLevel(target));
 
@@ -129,7 +129,7 @@ public PlayerInfo(client,target,MenuMode:mode)
                    client, GetEnergy(target));
         }
 
-        new len = strlen(title);
+        int len = strlen(title);
         Format(title[len], sizeof(title)-len, "\n%T", "PlayerCrystals",
                client, GetCrystals(target));
 
@@ -137,7 +137,7 @@ public PlayerInfo(client,target,MenuMode:mode)
         Format(title[len], sizeof(title)-len, "\n%T", "PlayerVespene",
                client, GetVespene(target));
 
-        new Handle:playerInfo=CreateMenu(PlayerInfo_Select);
+        Handle playerInfo=CreateMenu(PlayerInfo_Select);
         SetMenuTitle(playerInfo, "[SC] %T", "PlayerInfo", client,
                      IsFakeClient(target) ? "[BOT] " : "",
                      target, title);
@@ -147,7 +147,7 @@ public PlayerInfo(client,target,MenuMode:mode)
         if (mode & EnableMenuExitBack)
             SetMenuExitBackButton(playerInfo,true);
 
-        decl String:buf[SMALL_STRING_LENGTH];
+        char buf[SMALL_STRING_LENGTH];
         Format(buf,sizeof(buf),"%d",target);
 
         if (client == target)
@@ -189,10 +189,10 @@ public PlayerInfo_Select(Handle:menu,MenuAction:action,client,selection)
 {
     if (action == MenuAction_Select)
     {
-        decl String:SelectionInfo[SMALL_STRING_LENGTH];
+        char SelectionInfo[SMALL_STRING_LENGTH];
         PrepareAndEmitSoundToClient(client,buttonWav);
         GetMenuItem(menu,selection,SelectionInfo,sizeof(SelectionInfo));
-        new target=StringToInt(SelectionInfo);
+        int target =StringToInt(SelectionInfo);
         if (IsValidClient(target))
         {
             if (target == client || (gPlayerInfoMenuMode[client] & AdminMode))
@@ -221,7 +221,7 @@ public PlayerInfo_Select(Handle:menu,MenuAction:action,client,selection)
             }
             else // Only option (for other players) is Upgrade Info for non-admins
             {
-                new race = GetRace(target);
+                int race = GetRace(target);
                 if (race > 0)
                 {
                     UpgradesInfo(client, target, race,
@@ -263,30 +263,30 @@ UpgradesInfo(client,target,race,MenuMode:mode)
     if (IsValidClient(client) && !IsFakeClient(client) &&
         (client == target || IsValidClient(target)))
     {
-        decl String:item[ITEM_STRING_LENGTH];
-        decl String:buf[SMALL_STRING_LENGTH];
+        char item[ITEM_STRING_LENGTH];
+        char buf[SMALL_STRING_LENGTH];
 
-        new Handle:menu=CreateMenu(UpgradesInfo_Selected);
+        Handle menu=CreateMenu(UpgradesInfo_Selected);
         SetMenuExitButton(menu,true);
 
         if (mode & EnableMenuExitBack)
             SetMenuExitBackButton(menu,true);
 
-        new Handle:raceHandle=GetRaceHandle(race);
+        Handle raceHandle=GetRaceHandle(race);
 
-        decl String:raceName[NAME_STRING_LENGTH];
+        char raceName[NAME_STRING_LENGTH];
         GetRaceName(raceHandle, raceName, sizeof(raceName));
 
         if (client == target)
         {
-            decl String:short[SHORT_STRING_LENGTH];
+            char short[SHORT_STRING_LENGTH];
             GetRaceShortName(raceHandle, short, sizeof(short));
 
-            decl String:unitType[NAME_STRING_LENGTH];
+            char unitType[NAME_STRING_LENGTH];
             GetUnitTypeName(GetRaceType(raceHandle), unitType,
                             sizeof(unitType), client);
 
-            decl String:factionName[NAME_STRING_LENGTH];
+            char factionName[NAME_STRING_LENGTH];
             GetFactionName(GetRaceFaction(raceHandle), factionName,
                            sizeof(factionName), client);
 
@@ -305,11 +305,11 @@ UpgradesInfo(client,target,race,MenuMode:mode)
             AddMenuItem(menu,"","",ITEMDRAW_SPACER);
         }
 
-        new maxLevel = GetRaceMaxLevel(raceHandle);
-        new upgradeCount = GetUpgradeCount(raceHandle);
-        for(new upgrade=0;upgrade<upgradeCount;upgrade++)
+        int maxLevel = GetRaceMaxLevel(raceHandle);
+        int upgradeCount = GetUpgradeCount(raceHandle);
+        for(int upgrade =0;upgrade<upgradeCount;upgrade++)
         {
-            new upgradeCategory = GetUpgradeCategory(raceHandle, upgrade);
+            int upgradeCategory = GetUpgradeCategory(raceHandle, upgrade);
             if (upgradeCategory > 1)
             {
                 Format(item, sizeof(item), "%T:", "UltimateN",
@@ -320,36 +320,36 @@ UpgradesInfo(client,target,race,MenuMode:mode)
             else
                 item[0] = 0;
 
-            decl String:upgradeName[NAME_STRING_LENGTH];
+            char upgradeName[NAME_STRING_LENGTH];
             GetUpgradeName(raceHandle, upgrade, upgradeName, sizeof(upgradeName), client);
             StrCat(item, sizeof(item), upgradeName);
 
-            new maxUpgradeLevel = GetUpgradeMaxLevel(raceHandle,upgrade);
-            new requiredLevel   = GetUpgradeRequiredLevel(raceHandle,upgrade);
-            new bool:disabled   = GetUpgradeDisabled(raceHandle,upgrade);
+            int maxUpgradeLevel = GetUpgradeMaxLevel(raceHandle,upgrade);
+            int requiredLevel = GetUpgradeRequiredLevel(raceHandle,upgrade);
+            bool disabled   = GetUpgradeDisabled(raceHandle,upgrade);
             if (requiredLevel < 1 && !disabled)
             {
-                new len=strlen(item);
+                int len =strlen(item);
                 Format(item[len], sizeof(item)-len," [%T]", "AlwaysAvailable", client);
             }
             else if (disabled || requiredLevel > maxLevel || maxUpgradeLevel <= 0)
             {
-                new len=strlen(item);
+                int len =strlen(item);
                 Format(item[len], sizeof(item)-len," [%T]", "NotAvailable", client);
             }
             else if (requiredLevel > 1)
             {
-                new len=strlen(item);
+                int len =strlen(item);
                 Format(item[len], sizeof(item)-len," [%T]", "MinimumLevel", client, requiredLevel);
             }
 
-            new upgradeLevel;
+            int upgradeLevel;
             if (mode & (InfoMode|QueryMode))
             {
                 upgradeLevel=GetUpgradeLevel(target,race,upgrade);
                 if (upgradeLevel > 0)
                 {
-                    new len=strlen(item);
+                    int len =strlen(item);
                     Format(item[len], sizeof(item)-len," (%T)", "IsLevel", client, upgradeLevel);
                 }
             }
@@ -378,17 +378,17 @@ public UpgradesInfo_Selected(Handle:menu,MenuAction:action,client,selection)
     if (action==MenuAction_Select)
     {
         PrepareAndEmitSoundToClient(client,buttonWav);
-        new target = gUpgradesInfoTarget[client];
+        int target = gUpgradesInfoTarget[client];
         if (IsValidClient(target))
         {
-            decl String:SelectionInfo[SMALL_STRING_LENGTH];
+            char SelectionInfo[SMALL_STRING_LENGTH];
             PrepareAndEmitSoundToClient(client,buttonWav);
             GetMenuItem(menu,selection,SelectionInfo,sizeof(SelectionInfo));
             if (SelectionInfo[0])
             {
-                new race=gRaceForUpgrades[client];
-                new Handle:raceHandle=GetRaceHandle(race);
-                new upgrade=StringToInt(SelectionInfo);
+                int race =gRaceForUpgrades[client];
+                Handle raceHandle=GetRaceHandle(race);
+                int upgrade =StringToInt(SelectionInfo);
                 if (upgrade < 0) // They decided to change to this race.
                 {
                     ChangeRace(target, race, raceHandle, false, true, false);
@@ -430,7 +430,7 @@ public UpgradesInfo_Selected(Handle:menu,MenuAction:action,client,selection)
 stock AddMenuLines(Handle:menu, String:item[])
 {
     int pos = 0;
-    decl String:line[DESCRIPTION_LENGTH];
+    char line[DESCRIPTION_LENGTH];
     for (int idx; (idx = SplitString(item[pos], "\n", line, sizeof(line))) != -1; )
     {
         AddMenuItem(menu, "", line, ITEMDRAW_DISABLED);
@@ -448,18 +448,18 @@ ShowUpgradeInfo(client, race, Handle:raceHandle, upgrade, MenuMode:mode)
     TraceInto("Info", "ShowUpgradeInfo", "client=%d:%N, raceHandle=0x%08x, upgrade=%d, mode=%d", \
               client, client, raceHandle, upgrade, mode);
 
-    new category = GetUpgradeCategory(raceHandle, upgrade);
+    int category = GetUpgradeCategory(raceHandle, upgrade);
     new MenuMode:isUpgradeMode = (mode & UpgradeMode);
 
-    decl String:item[DESCRIPTION_LENGTH];
-    decl String:name[NAME_STRING_LENGTH];
-    decl String:desc[DESCRIPTION_LENGTH];
-    decl String:bind[DESCRIPTION_LENGTH];
-    decl String:invoke[DESCRIPTION_LENGTH];
+    char item[DESCRIPTION_LENGTH];
+    char name[NAME_STRING_LENGTH];
+    char desc[DESCRIPTION_LENGTH];
+    char bind[DESCRIPTION_LENGTH];
+    char invoke[DESCRIPTION_LENGTH];
     GetUpgradeStrings(raceHandle, upgrade, name, sizeof(name), desc, sizeof(desc), invoke, sizeof(invoke), bind, sizeof(bind), client);
     Trace("GetUpgradeStrings:name=%s,desc=%s,invoke=%s,bind=%s",name,desc,invoke,bind);
 
-    new Handle:menu = CreateMenu(UpgradesInfo_Back);
+    Handle menu = CreateMenu(UpgradesInfo_Back);
     SetMenuExitButton(menu,true);
     SetMenuExitBackButton(menu,true);
 
@@ -467,7 +467,7 @@ ShowUpgradeInfo(client, race, Handle:raceHandle, upgrade, MenuMode:mode)
 
     if (isUpgradeMode)
     {
-        decl String:sbuf[SMALL_STRING_LENGTH];
+        char sbuf[SMALL_STRING_LENGTH];
         Format(sbuf,sizeof(sbuf),"%d",upgrade);
         AddMenuItemT(menu, sbuf, "SelectUpgrade", client);
     }
@@ -480,14 +480,14 @@ ShowUpgradeInfo(client, race, Handle:raceHandle, upgrade, MenuMode:mode)
         AddMenuItem(menu, "", item, ITEMDRAW_DISABLED);
     }
 
-    new Float:energy = GetUpgradeEnergy(raceHandle, upgrade);
-    new Float:recurring_energy = GetUpgradeRecurringEnergy(raceHandle, upgrade);
+    float energy = GetUpgradeEnergy(raceHandle, upgrade);
+    float recurring_energy = GetUpgradeRecurringEnergy(raceHandle, upgrade);
     if (recurring_energy > 0.0)
     {
         if (energy > 0.0)
         {
-            new Float:recurring_interval = GetUpgradeRecurringInterval(raceHandle, upgrade);
-            new Float:interval = (recurring_interval == 0.0) ? recurring_energy : recurring_interval;
+            float recurring_interval = GetUpgradeRecurringInterval(raceHandle, upgrade);
+            float interval = (recurring_interval == 0.0) ? recurring_energy : recurring_interval;
             Format(item, sizeof(item), "%T", "UsesEnergyPerSecond", client, energy, recurring_energy,
                    interval, (interval > 1.0) ? "s" : "");
 
@@ -505,8 +505,8 @@ ShowUpgradeInfo(client, race, Handle:raceHandle, upgrade, MenuMode:mode)
         AddMenuItem(menu, "", item, ITEMDRAW_DISABLED);
     }
 
-    new crystals = GetUpgradeCrystals(raceHandle, upgrade);
-    new vespene = GetUpgradeVespene(raceHandle, upgrade);
+    int crystals = GetUpgradeCrystals(raceHandle, upgrade);
+    int vespene = GetUpgradeVespene(raceHandle, upgrade);
     if (crystals > 0 && vespene > 0)
     {
         Format(item, sizeof(item), "%T", "CostsCrystalsAndVespenePerUse", client, crystals, vespene);
@@ -525,13 +525,13 @@ ShowUpgradeInfo(client, race, Handle:raceHandle, upgrade, MenuMode:mode)
 
     if (g_bChargeForUpgrades)
     {
-        new crystal_cost = GetUpgradeCostCrystals(raceHandle, upgrade);
+        int crystal_cost = GetUpgradeCostCrystals(raceHandle, upgrade);
         if (crystal_cost < 0)
         {
             crystal_cost = g_iUpgradeCrystalsCost;
         }
         
-        new vespene_cost = GetUpgradeCostVespene(raceHandle, upgrade);
+        int vespene_cost = GetUpgradeCostVespene(raceHandle, upgrade);
         if (vespene_cost < 0)
         {
             vespene_cost = g_iUpgradeVespeneCost;
@@ -608,13 +608,13 @@ public UpgradesInfo_Back(Handle:menu,MenuAction:action,client,selection)
         if (IsValidClient(client))
         {
             //if (gUpgradesMenuMode[client] & FromUpgradeMenu)
-            decl String:SelectionInfo[SMALL_STRING_LENGTH];
+            char SelectionInfo[SMALL_STRING_LENGTH];
             GetMenuItem(menu,selection,SelectionInfo,sizeof(SelectionInfo));
-            new upgrade=StringToInt(SelectionInfo);
+            int upgrade =StringToInt(SelectionInfo);
             
-            new race = gRaceForUpgrades[client];
-            new Handle:raceHandle=GetRaceHandle(race);
-            new upgradeCount=GetUpgradeCount(raceHandle);
+            int race = gRaceForUpgrades[client];
+            Handle raceHandle=GetRaceHandle(race);
+            int upgradeCount =GetUpgradeCount(raceHandle);
             if (upgrade >= 0 && upgrade < upgradeCount)
             {
                 SelectUpgrade(client, race, upgrade, raceHandle);
