@@ -1,0 +1,65 @@
+name: Compile SourcePawn Plugins
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup SourceMod
+      run: |
+        mkdir -p sm
+        cd sm
+        wget -q https://sm.alliedmods.net/smdrop/1.12/sourcemod-1.12.0-git7093-linux.tar.gz
+        tar -xzf sourcemod-1.12.0-git7093-linux.tar.gz
+        chmod +x addons/sourcemod/scripting/spcomp
+        
+    - name: Compile Main SourceCraft Plugin
+      run: |
+        cd scripting/SourceCraft
+        ../../sm/addons/sourcemod/scripting/spcomp \
+          -i../../sm/addons/sourcemod/scripting/include \
+          -i../include \
+          -i. \
+          -v2 \
+          -w234 \
+          SourceCraft.sp
+          
+    - name: Compile Race Plugins
+      run: |
+        cd scripting/SourceCraft
+        failed_plugins=""
+        for plugin in *.sp; do
+          if [ "$plugin" != "SourceCraft.sp" ]; then
+            echo "Compiling $plugin..."
+            if ! ../../sm/addons/sourcemod/scripting/spcomp \
+              -i../../sm/addons/sourcemod/scripting/include \
+              -i../include \
+              -i. \
+              -v2 \
+              -w234 \
+              "$plugin"; then
+              failed_plugins="$failed_plugins $plugin"
+            fi
+          fi
+        done
+        
+        if [ ! -z "$failed_plugins" ]; then
+          echo "Failed to compile:$failed_plugins"
+          exit 1
+        fi
+        
+    - name: Upload Compiled Plugins
+      uses: actions/upload-artifact@v4
+      if: success()
+      with:
+        name: compiled-plugins
+        path: scripting/SourceCraft/*.smx
+        retention-days: 30
