@@ -6,6 +6,7 @@
  */
  
 #pragma semicolon 1
+#pragma newdecls required
 
 #include <sourcemod>
 #include <sdktools>
@@ -51,19 +52,19 @@ new raceID, pneumatizedID, boostID, regenerationID, healingID;
 new transfusionID, detectorID, jetpackID, excreteID, sacsID, overseerID;
 
 new g_JetpackFuel[]                 = { 0,     20,   25,   35,   45 };
-new Float:g_JetpackRefuelTime[]     = { 0.0, 45.0, 35.0, 25.0, 15.0 };
+float g_JetpackRefuelTime[]     = { 0.0, 45.0, 35.0, 25.0, 15.0 };
 
-new Float:g_ExcreteCreepRange[]     = { 350.0, 400.0, 650.0, 750.0, 900.0 };
-new Float:g_TransfusionRange[]      = { 0.0, 300.0, 450.0, 650.0, 800.0 };
-new Float:g_DetectingRange[]        = { 0.0, 300.0, 450.0, 650.0, 800.0 };
+float g_ExcreteCreepRange[]     = { 350.0, 400.0, 650.0, 750.0, 900.0 };
+float g_TransfusionRange[]      = { 0.0, 300.0, 450.0, 650.0, 800.0 };
+float g_DetectingRange[]        = { 0.0, 300.0, 450.0, 650.0, 800.0 };
 
 new g_HealingAmount[]               = { 0, 1, 2, 3, 4 };
-new Float:g_HealingRange[]          = { 0.0, 300.0, 450.0, 650.0, 800.0 };
+float g_HealingRange[]          = { 0.0, 300.0, 450.0, 650.0, 800.0 };
 
-new Float:g_SpeedLevels[]           = { 1.0, 1.05, 1.10, 1.15, 1.20 };
-new Float:g_LevitationLevels[]      = { 1.0, 0.92, 0.733, 0.5466, 0.36 };
+float g_SpeedLevels[]           = { 1.0, 1.05, 1.10, 1.15, 1.20 };
+float g_LevitationLevels[]      = { 1.0, 0.92, 0.733, 0.5466, 0.36 };
 
-new Float:g_PiggybackRange[]        = { 0.0, 350.0, 400.0, 650.0, 750.0 };
+float g_PiggybackRange[]        = { 0.0, 350.0, 400.0, 650.0, 750.0 };
 new PiggyMethod:g_PiggybackMethod[] =
 {
     PiggyMethod_None,
@@ -73,9 +74,9 @@ new PiggyMethod:g_PiggybackMethod[] =
     PiggyMethod_Enable | PiggyMethod_Pickup | PiggyMethod_DisableAttack | PiggyMethod_AllowSpys
 };
 
-new g_overseerRace              = -1;
+int g_overseerRace = -1;
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Zerg Overlord",
     author = "-=|JFH|=-Naris",
@@ -84,7 +85,7 @@ public Plugin:myinfo =
     url = "http://jigglysfunhouse.net/"
 };
 
-public OnPluginStart()
+public void OnPluginStart()
 {
     LoadTranslations("sc.common.phrases.txt");
     LoadTranslations("sc.supply.phrases.txt");
@@ -95,7 +96,7 @@ public OnPluginStart()
         OnSourceCraftReady();
 }
 
-public OnSourceCraftReady()
+public void OnSourceCraftReady()
 {
     raceID          = CreateRace("overlord", 32, 0, 37, 45.0, 150.0, 1.0,
                                  Zerg, Biological);
@@ -176,7 +177,7 @@ public OnSourceCraftReady()
                         g_PiggybackRange, raceID, sacsID);
 }
 
-public OnLibraryAdded(const String:name[])
+public void OnLibraryAdded(const String:name[])
 {
     if (StrEqual(name, "jetpack"))
         IsJetpackAvailable(true);
@@ -188,7 +189,7 @@ public OnLibraryAdded(const String:name[])
         IsInfiniteAmmoAvailable(true);
 }
 
-public OnLibraryRemoved(const String:name[])
+public void OnLibraryRemoved(const String:name[])
 {
     if (StrEqual(name, "jetpack"))
         m_JetpackAvailable = false;
@@ -200,7 +201,7 @@ public OnLibraryRemoved(const String:name[])
         m_InfiniteAmmoAvailable = false;
 }
 
-public OnMapStart()
+public void OnMapStart()
 {
     SetupRedGlow();
     SetupBlueGlow();
@@ -215,19 +216,19 @@ public OnMapStart()
     SetupDeniedSound();
 }
 
-public OnMapEnd()
+public void OnMapEnd()
 {
     ResetAllClientTimers();
 }
 
-public OnClientDisconnect(client)
+public void OnClientDisconnect(client)
 {
     KillClientTimer(client);
     ResetDetection(client);
     ResetDetected(client);
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -262,29 +263,29 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
     }
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
-        new flyer_level=GetUpgradeLevel(client,raceID,jetpackID);
+        int flyer_level =GetUpgradeLevel(client,raceID,jetpackID);
         SetupJetpack(client, flyer_level);
 
-        new sacs_level=GetUpgradeLevel(client,raceID,sacsID);
+        int sacs_level =GetUpgradeLevel(client,raceID,sacsID);
         SetupPiggyback(client, sacs_level);
 
-        new pneumatized_level = GetUpgradeLevel(client,raceID,pneumatizedID);
+        int pneumatized_level = GetUpgradeLevel(client,raceID,pneumatizedID);
         SetLevitation(client, pneumatized_level, false, g_LevitationLevels);
 
-        new boost_level = GetUpgradeLevel(client,raceID,boostID);
+        int boost_level = GetUpgradeLevel(client,raceID,boostID);
         SetSpeedBoost(client, boost_level, false, g_SpeedLevels);
 
-        new regeneration_level=GetUpgradeLevel(client,raceID,regenerationID);
+        int regeneration_level =GetUpgradeLevel(client,raceID,regenerationID);
         SetHealthRegen(client, float(regeneration_level));
 
         if (IsValidClientAlive(client))
         {
-            new healing_aura_level=GetUpgradeLevel(client,raceID,healingID);
-            new transfusion_level=GetUpgradeLevel(client,raceID,transfusionID);
+            int healing_aura_level =GetUpgradeLevel(client,raceID,healingID);
+            int transfusion_level =GetUpgradeLevel(client,raceID,transfusionID);
             if (healing_aura_level > 0 || transfusion_level > 0)
             {
                 CreateClientTimer(client, 1.0, TransfusionTimer,
@@ -301,7 +302,7 @@ public Action:OnRaceSelected(client,oldrace,newrace)
         return Plugin_Continue;
 }
 
-public OnUpgradeLevelChanged(client,race,upgrade,new_level)
+public void OnUpgradeLevelChanged(client,race,upgrade,new_level)
 {
     if (race == raceID && GetRace(client) == raceID)
     {
@@ -350,7 +351,7 @@ public OnUpgradeLevelChanged(client,race,upgrade,new_level)
     }
 }
 
-public OnItemPurchase(client,item)
+public void OnItemPurchase(client,item)
 {
     if (GetRace(client) == raceID && IsValidClientAlive(client))
     {
@@ -362,28 +363,28 @@ public OnItemPurchase(client,item)
 
         if (item == g_bootsItem)
         {
-            new boost_level = GetUpgradeLevel(client,raceID,boostID);
+            int boost_level = GetUpgradeLevel(client,raceID,boostID);
             SetSpeedBoost(client, boost_level, true, g_SpeedLevels);
         }
         else if (item == g_sockItem)
         {
-            new pneumatized_level = GetUpgradeLevel(client,raceID,pneumatizedID);
+            int pneumatized_level = GetUpgradeLevel(client,raceID,pneumatizedID);
             SetLevitation(client, pneumatized_level, true, g_LevitationLevels);
         }
     }
 }
 
-public Action:OnDropPlayer(client, target)
+public Action OnDropPlayer(client, target)
 {
     if (IsValidClient(target) && GetRace(target) == raceID)
     {
-        new pneumatized_level = GetUpgradeLevel(target,raceID,pneumatizedID);
+        int pneumatized_level = GetUpgradeLevel(target,raceID,pneumatizedID);
         SetLevitation(target, pneumatized_level, true, g_LevitationLevels);
     }
     return Plugin_Continue;
 }
 
-public OnUltimateCommand(client,race,bool:pressed,arg)
+public void OnUltimateCommand(client,race,bool:pressed,arg)
 {
     if (race==raceID && IsValidClientAlive(client))
     {
@@ -391,7 +392,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
         {
             case 4:
             {
-                new overseer_level=GetUpgradeLevel(client,race,overseerID);
+                int overseer_level =GetUpgradeLevel(client,race,overseerID);
                 if (overseer_level > 0)
                 {
                     if (pressed)
@@ -415,7 +416,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
             {
                 if (pressed)
                 {
-                    new excrete_level = GetUpgradeLevel(client,race,excreteID);
+                    int excrete_level = GetUpgradeLevel(client,race,excreteID);
                     if (excrete_level > 0)
                         ExcreteCreep(client,excrete_level);
                     else if (m_PiggybackAvailable &&
@@ -447,7 +448,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                 }
                 else if (pressed)
                 {
-                    decl String:upgradeName[64];
+                    char upgradeName[64];
                     GetUpgradeName(raceID, jetpackID, upgradeName, sizeof(upgradeName), client);
                     PrintHintText(client,"%t", "IsNotAvailable", upgradeName);
                 }
@@ -457,30 +458,30 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
 }
 
 // Events
-public OnPlayerSpawnEvent(Handle:event, client, race)
+public void OnPlayerSpawnEvent(Handle:event, client, race)
 {
     if (race==raceID)
     {
-        new flyer_level=GetUpgradeLevel(client,raceID,jetpackID);
+        int flyer_level =GetUpgradeLevel(client,raceID,jetpackID);
         SetupJetpack(client, flyer_level);
 
-        new sacs_level=GetUpgradeLevel(client,raceID,sacsID);
+        int sacs_level =GetUpgradeLevel(client,raceID,sacsID);
         SetupPiggyback(client, sacs_level);
 
-        new pneumatized_level = GetUpgradeLevel(client,raceID,pneumatizedID);
+        int pneumatized_level = GetUpgradeLevel(client,raceID,pneumatizedID);
         SetLevitation(client, pneumatized_level, true, g_LevitationLevels);
 
-        new boost_level = GetUpgradeLevel(client,raceID,boostID);
+        int boost_level = GetUpgradeLevel(client,raceID,boostID);
         SetSpeedBoost(client, boost_level, false, g_SpeedLevels);
 
         if (boost_level > 0 || pneumatized_level > 0)
             ApplyPlayerSettings(client);
 
-        new regeneration_level=GetUpgradeLevel(client,raceID,regenerationID);
+        int regeneration_level =GetUpgradeLevel(client,raceID,regenerationID);
         SetHealthRegen(client, float(regeneration_level));
 
-        new healing_aura_level=GetUpgradeLevel(client,raceID,healingID);
-        new transfusion_level=GetUpgradeLevel(client,raceID,transfusionID);
+        int healing_aura_level =GetUpgradeLevel(client,raceID,healingID);
+        int transfusion_level =GetUpgradeLevel(client,raceID,transfusionID);
         if (healing_aura_level > 0 || regeneration_level > 0 ||
             transfusion_level > 0)
         {
@@ -490,7 +491,7 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
     }
 }
 
-public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
+public void OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
                           attacker_race, assister_index, assister_race, damage,
                           const String:weapon[], bool:is_equipment, customkill,
                           bool:headshot, bool:backstab, bool:melee)
@@ -517,21 +518,21 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
     }
 }
 
-public Action:TransfusionTimer(Handle:timer, any:userid)
+public Action TransfusionTimer(Handle:timer, any:userid)
 {
-    new client = GetClientOfUserId(userid);
+    int client = GetClientOfUserId(userid);
     if (IsValidClientAlive(client))
     {
         if (GetRace(client) == raceID)
         {
-            new healing_aura_level = GetUpgradeLevel(client,raceID,healingID);
-            new Float:healing_range = g_HealingRange[healing_aura_level];
+            int healing_aura_level = GetUpgradeLevel(client,raceID,healingID);
+            float healing_range = g_HealingRange[healing_aura_level];
 
-            new transfusion_level = GetUpgradeLevel(client,raceID,transfusionID);
-            new Float:transfusion_range = g_TransfusionRange[transfusion_level];
+            int transfusion_level = GetUpgradeLevel(client,raceID,transfusionID);
+            float transfusion_range = g_TransfusionRange[transfusion_level];
 
-            new detecting_level = GetUpgradeLevel(client,raceID,detectorID);
-            new Float:detecting_range = g_DetectingRange[detecting_level];
+            int detecting_level = GetUpgradeLevel(client,raceID,detectorID);
+            float detecting_range = g_DetectingRange[detecting_level];
 
             if ((healing_aura_level <= 0 && transfusion_level <= 0 && detecting_level <= 0) ||
                 GetRestriction(client, Restriction_NoUpgrades) ||
@@ -542,25 +543,25 @@ public Action:TransfusionTimer(Handle:timer, any:userid)
             else
             {
                 static const healingColor[4] = {0, 255, 0, 255};
-                new Float:indexLoc[3];
-                new Float:clientLoc[3];
+                float indexLoc[3];
+                float clientLoc[3];
                 GetClientAbsOrigin(client, clientLoc);
                 clientLoc[2] += 50.0; // Adjust trace position to the middle of the person instead of the feet.
 
-                decl String:upgradeName[64];
+                char upgradeName[64];
                 GetUpgradeName(raceID, detectorID, upgradeName, sizeof(upgradeName), client);
 
-                new count=0;
-                new alt_count=0;
+                int count =0;
+                int alt_count =0;
                 new list[MaxClients+1];
                 new alt_list[MaxClients+1];
-                new team=GetClientTeam(client);
-                new auraAmount = g_HealingAmount[healing_aura_level]; // healing_aura_level*5;
-                for (new index=1;index<=MaxClients;index++)
+                int team =GetClientTeam(client);
+                int auraAmount = g_HealingAmount[healing_aura_level]; // healing_aura_level*5;
+                for (int index =1;index<=MaxClients;index++)
                 {
                     if (index != client && IsClientInGame(index))
                     {
-                        new bool:alive = IsPlayerAlive(index);
+                        bool alive = IsPlayerAlive(index);
                         GetClientAbsOrigin(index, indexLoc);
 
                         if (GetClientTeam(index) == team)
@@ -584,7 +585,7 @@ public Action:TransfusionTimer(Handle:timer, any:userid)
                                         new SupplyTypes:type;
                                         if (GameType == dod)
                                         {
-                                            new pick = GetRandomInt(0,10);
+                                            int pick = GetRandomInt(0,10);
                                             type = (pick > 6) ? SupplyDefault :
                                                    (pick > 3) ? SupplySecondary
                                                               : (SupplyGrenade|SupplySmoke);
@@ -602,8 +603,8 @@ public Action:TransfusionTimer(Handle:timer, any:userid)
                                 {
                                     if (IsPointInRange(clientLoc,indexLoc,healing_range))
                                     {
-                                        new health=GetClientHealth(index);
-                                        new max=GetMaxHealth(index);
+                                        int health =GetClientHealth(index);
+                                        int max =GetMaxHealth(index);
                                         if (health < max)
                                             HealPlayer(index,auraAmount,health,max);
                                     }
@@ -617,7 +618,7 @@ public Action:TransfusionTimer(Handle:timer, any:userid)
                                 if (alive && IsPointInRange(clientLoc,indexLoc,detecting_range) &&
                                     TraceTargetIndex(client, index, clientLoc, indexLoc))
                                 {
-                                    new bool:uncloaked = false;
+                                    bool uncloaked = false;
                                     if (GetGameType() == tf2 &&
                                         !GetImmunity(index,Immunity_Uncloaking) &&
                                         TF2_GetPlayerClass(index) == TFClass_Spy)
@@ -757,7 +758,7 @@ ExcreteCreep(client, level)
     if (GetRestriction(client,Restriction_NoUltimates) ||
         GetRestriction(client,Restriction_Stunned))
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, excreteID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
         PrepareAndEmitSoundToClient(client,deniedWav);
@@ -770,19 +771,19 @@ ExcreteCreep(client, level)
                 TF2_RemovePlayerDisguise(client);
         }
 
-        new lightning  = Lightning();
-        new haloSprite = HaloSprite();
+        int lightning = Lightning();
+        int haloSprite = HaloSprite();
         static const color[4] = { 0, 255, 0, 255 };
 
-        new Float:indexLoc[3];
-        new Float:clientLoc[3];
+        float indexLoc[3];
+        float clientLoc[3];
         GetClientAbsOrigin(client, clientLoc);
         clientLoc[2] += 50.0; // Adjust trace position to the middle of the person instead of the feet.
 
-        new count = 0;
-        new team  = GetClientTeam(client);
-        new Float:range = g_ExcreteCreepRange[level];
-        for (new index=1;index<=MaxClients;index++)
+        int count = 0;
+        int team = GetClientTeam(client);
+        float range = g_ExcreteCreepRange[level];
+        for (int index =1;index<=MaxClients;index++)
         {
             if (client != index && IsClientInGame(index) &&
                 IsPlayerAlive(index) && GetClientTeam(index) != team)
@@ -812,11 +813,11 @@ ExcreteCreep(client, level)
                             TF2_RemovePlayerDisguise(index);
                             TF2_RemoveCondition(index, TFCond_Cloaked);
 
-                            new Float:cloakMeter = TF2_GetCloakMeter(index);
+                            float cloakMeter = TF2_GetCloakMeter(index);
                             if (cloakMeter > 0.0 && cloakMeter <= 100.0)
                                 TF2_SetCloakMeter(index, 0.0);
 
-                            decl String:creepName[64];
+                            char creepName[64];
                             Format(creepName,sizeof(creepName), "%T", "Creep", index);
                             DisplayMessage(index, Display_Enemy_Message, "%t", "HasUncloaked", client, creepName);
                         }
@@ -830,7 +831,7 @@ ExcreteCreep(client, level)
                             TE_SendQEffectToAll(client,index);
                             FlashScreen(index,RGBA_COLOR_BLUE);
 
-                            decl String:creepName[64];
+                            char creepName[64];
                             Format(creepName,sizeof(creepName), "%T", "Creep", index);
                             DisplayMessage(index, Display_Enemy_Message, "%t", "HasEnsnared", client, creepName);
 
@@ -845,7 +846,7 @@ ExcreteCreep(client, level)
             }
         }
 
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, excreteID, upgradeName, sizeof(upgradeName), client);
 
         if (count)
@@ -864,9 +865,9 @@ ExcreteCreep(client, level)
     }
 }
 
-public Action:RestoreSpeed(Handle:timer,any:userid)
+public Action RestoreSpeed(Handle:timer,any:userid)
 {
-    new client = GetClientOfUserId(userid);
+    int client = GetClientOfUserId(userid);
     if (client > 0)
     {
         SetRestriction(client, Restriction_Grounded, false);
@@ -875,9 +876,9 @@ public Action:RestoreSpeed(Handle:timer,any:userid)
     return Plugin_Stop;
 }
 
-public Action:RecloakPlayer(Handle:timer,any:userid)
+public Action RecloakPlayer(Handle:timer,any:userid)
 {
-    new client = GetClientOfUserId(userid);
+    int client = GetClientOfUserId(userid);
     if (client > 0)
     {
         SetOverrideVisiblity(client, -1);
@@ -898,7 +899,7 @@ SetupPiggyback(client, level)
     }
 }
 
-public Action:OnPlayerPiggyback(rider, carrier, bool:pickedup, Float:distance)
+public Action OnPlayerPiggyback(rider, carrier, bool:pickedup, Float:distance)
 {
     if (pickedup)
     {
@@ -907,7 +908,7 @@ public Action:OnPlayerPiggyback(rider, carrier, bool:pickedup, Float:distance)
             if (GetRestriction(carrier,Restriction_NoUltimates) ||
                 GetRestriction(carrier,Restriction_Stunned))
             {
-                decl String:upgradeName[64];
+                char upgradeName[64];
                 GetUpgradeName(raceID, sacsID, upgradeName, sizeof(upgradeName), carrier);
                 DisplayMessage(carrier, Display_Ultimate, "%t", "Prevented", upgradeName);
                 PrepareAndEmitSoundToClient(carrier,deniedWav);
@@ -919,7 +920,7 @@ public Action:OnPlayerPiggyback(rider, carrier, bool:pickedup, Float:distance)
             }
             else if (GameType == tf2 && TF2_HasTheFlag(rider))
             {
-                decl String:upgradeName[64];
+                char upgradeName[64];
                 GetUpgradeName(raceID, sacsID, upgradeName, sizeof(upgradeName), carrier);
                 DisplayMessage(carrier, Display_Ultimate, "%t", "CantUseOnFlagCarrier", upgradeName);
                 PrepareAndEmitSoundToClient(carrier,deniedWav);
@@ -948,7 +949,7 @@ OverseerMorph(client)
 
     if (g_overseerRace < 0)
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, overseerID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "IsNotAvailable", upgradeName);
         LogError("***The Zerg Overseer race is not Available!");
@@ -962,7 +963,7 @@ OverseerMorph(client)
     }
     else if (HasCooldownExpired(client, raceID, overseerID))
     {
-        new Float:clientLoc[3];
+        float clientLoc[3];
         GetClientAbsOrigin(client, clientLoc);
         clientLoc[2] += 40.0; // Adjust position to the middle
 

@@ -26,8 +26,8 @@ stock GetSavedHealth(client)
 
 stock SaveAllHealth()
 {
-    new clientCount = GetClientCount();
-    for(new x=1;x<=clientCount;x++)
+    int clientCount = GetClientCount();
+    for(int x =1;x<=clientCount;x++)
     {
         if (IsClientInGame(x) && !IsFakeClient(x))
         {
@@ -39,7 +39,7 @@ stock SaveAllHealth()
 
 stock GetDamage(Handle:event, client=0)
 {
-    new damage;
+    int damage;
 
     switch (GameType)
     {
@@ -54,7 +54,7 @@ stock GetDamage(Handle:event, client=0)
 
             if (client)
             {
-                new prevHealth = savedHealth[client]; 
+                int prevHealth = savedHealth[client]; 
                 if (prevHealth)
                 {
                     damage = prevHealth - GetEventInt(event,"health");

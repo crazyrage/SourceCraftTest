@@ -6,12 +6,12 @@
  * Credit(s): PimpinJuice (Anthony Iacono)
  */
 
-new m_clrRender = 0;
-new m_hMyWeapons = 0;
+int m_clrRender = 0;
+int m_hMyWeapons = 0;
 
 bool:InitOffsets()
 {
-    new bool:ret=true;
+    bool ret=true;
 
     FindSendPropInfo("CBaseAnimating", "m_clrRender", .local_offset=m_clrRender);
     if (m_clrRender==-1)

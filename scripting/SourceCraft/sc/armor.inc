@@ -34,18 +34,18 @@ stock SetupArmor(client, level, const Float:initialArmor[], const Float:armorPer
                  const String:armorName[]="", ArmorFlags:flags=Armor_Default, maxShields=-1,
                  bool:upgrade=false)
 {
-    new amount = 0;
+    int amount = 0;
     ResetMaxHealth(client);
     if (initialArmor[level] > 0.0)
     {
-        new maxhp = TF2_GetPlayerMaxHealth(client);
+        int maxhp = TF2_GetPlayerMaxHealth(client);
         amount = RoundFloat(float(maxhp)*initialArmor[level]);
     }
 
     if (upgrade)
     {
-        new armor = GetArmor(client);
-        new oldArmor = m_savedArmor[client];
+        int armor = GetArmor(client);
+        int oldArmor = m_savedArmor[client];
         if (level > 0 && armor >= initialArmor[level-1])
             m_savedArmor[client] = amount;
         else if (amount > oldArmor && oldArmor >  0)

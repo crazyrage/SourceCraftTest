@@ -6,6 +6,7 @@
  */
  
 #pragma semicolon 1
+#pragma newdecls required
 
 #include <sourcemod>
 #include <sdktools>
@@ -42,25 +43,25 @@
 new const String:g_PlagueSound[] = "sc/zdeblo01.wav";
 
 new const String:g_ArmorName[]  = "Carapace";
-new Float:g_InitialArmor[]      = { 0.05, 0.10, 0.25, 0.50, 0.75 };
-new Float:g_ArmorPercent[][2]   = { {0.00, 0.10},
+float g_InitialArmor[]      = { 0.05, 0.10, 0.25, 0.50, 0.75 };
+float g_ArmorPercent[][2]   = { {0.00, 0.10},
                                     {0.00, 0.20},
                                     {0.10, 0.30},
                                     {0.20, 0.40},
                                     {0.30, 0.50} };
 
-new Float:g_ConsumePercent[]    = { 0.10, 0.18, 0.28, 0.38, 0.48 };
-new Float:g_PlagueRange[]       = { 300.0, 400.0, 550.0, 700.0, 900.0 };
-new Float:g_DarkSwarmRange[]    = { 300.0, 400.0, 600.0, 800.0, 1000.0 };
-new Float:g_CorruptionRange[]   = { 250.0, 500.0, 700.0, 1000.0, 1500.0 };
+float g_ConsumePercent[]    = { 0.10, 0.18, 0.28, 0.38, 0.48 };
+float g_PlagueRange[]       = { 300.0, 400.0, 550.0, 700.0, 900.0 };
+float g_DarkSwarmRange[]    = { 300.0, 400.0, 600.0, 800.0, 1000.0 };
+float g_CorruptionRange[]   = { 250.0, 500.0, 700.0, 1000.0, 1500.0 };
 
 new raceID, carapaceID, regenerationID, consumeID, burrowID;
 new darkSwarmID, plagueID, swarmID, corruptionID;
 
 new m_gasAllocation[MAXPLAYERS+1];
-new Float:m_ConsumeEnemyTime[MAXPLAYERS+1];
+float m_ConsumeEnemyTime[MAXPLAYERS+1];
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Zerg Infestor",
     author = "-=|JFH|=-Naris",
@@ -69,7 +70,7 @@ public Plugin:myinfo =
     url = "http://jigglysfunhouse.net/"
 };
 
-public OnPluginStart()
+public void OnPluginStart()
 {
     LoadTranslations("sc.common.phrases.txt");
     LoadTranslations("sc.infestor.phrases.txt");
@@ -81,7 +82,7 @@ public OnPluginStart()
         OnSourceCraftReady();
 }
 
-public OnSourceCraftReady()
+public void OnSourceCraftReady()
 {
     raceID          = CreateRace("infestor", -1, -1, 29, 100.0, -1.0, 1.0,
                                  Zerg, Biological, "defiler");
@@ -129,9 +130,9 @@ public OnSourceCraftReady()
     GetConfigFloatArray("armor_amount", g_InitialArmor, sizeof(g_InitialArmor),
                         g_InitialArmor, raceID, carapaceID);
 
-    for (new level=0; level < sizeof(g_ArmorPercent); level++)
+    for (int level =0; level < sizeof(g_ArmorPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "armor_percent_level_%d", level);
         GetConfigFloatArray(key, g_ArmorPercent[level], sizeof(g_ArmorPercent[]),
                             g_ArmorPercent[level], raceID, carapaceID);
@@ -150,7 +151,7 @@ public OnSourceCraftReady()
                         g_CorruptionRange, raceID, corruptionID);
 }
 
-public OnLibraryAdded(const String:name[])
+public void OnLibraryAdded(const String:name[])
 {
     if (StrEqual(name, "sm_gas"))
         IsGasAvailable(true);
@@ -158,7 +159,7 @@ public OnLibraryAdded(const String:name[])
         IsMindControlAvailable(true);
 }
 
-public OnLibraryRemoved(const String:name[])
+public void OnLibraryRemoved(const String:name[])
 {
     if (StrEqual(name, "sm_gas"))
         m_GasAvailable = false;
@@ -166,7 +167,7 @@ public OnLibraryRemoved(const String:name[])
         m_MindControlAvailable = false;
 }
 
-public OnMapStart()
+public void OnMapStart()
 {
     SetupBeamSprite();
     SetupHaloSprite();
@@ -179,29 +180,29 @@ public OnMapStart()
     SetupPlague(g_PlagueSound);
 }
 
-public OnMapEnd()
+public void OnMapEnd()
 {
-    for (new index=1;index<=MaxClients;index++)
+    for (int index =1;index<=MaxClients;index++)
     {
         ResetPlague(index);
         ResetDarkSwarm(index);
     }
 }
 
-public OnPlayerAuthed(client)
+public void OnPlayerAuthed(client)
 {
     m_gasAllocation[client] = 0;
     m_ConsumeEnemyTime[client] = 0.0;
 }
 
-public OnClientDisconnect(client)
+public void OnClientDisconnect(client)
 {
     ResetPlague(client);
     ResetDarkSwarm(client);
     ResetProtected(client);
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -215,19 +216,19 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
     return Plugin_Continue;
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
         m_gasAllocation[client] = 0;
 
-        new swarm_level=GetUpgradeLevel(client,raceID,swarmID);
+        int swarm_level =GetUpgradeLevel(client,raceID,swarmID);
         SetupSwarmInfestation(client, swarm_level);
 
-        new regeneration_level=GetUpgradeLevel(client,raceID,regenerationID);
+        int regeneration_level =GetUpgradeLevel(client,raceID,regenerationID);
         SetHealthRegen(client, float(regeneration_level+1));
 
-        new carapace_level = GetUpgradeLevel(client,raceID,carapaceID);
+        int carapace_level = GetUpgradeLevel(client,raceID,carapaceID);
         SetupArmor(client, carapace_level, g_InitialArmor,
                    g_ArmorPercent, g_ArmorName);
 
@@ -237,7 +238,7 @@ public Action:OnRaceSelected(client,oldrace,newrace)
         return Plugin_Continue;
 }
 
-public OnUpgradeLevelChanged(client,race,upgrade,new_level)
+public void OnUpgradeLevelChanged(client,race,upgrade,new_level)
 {
     if (race == raceID && GetRace(client) == raceID)
     {
@@ -254,7 +255,7 @@ public OnUpgradeLevelChanged(client,race,upgrade,new_level)
     }
 }
 
-public OnUltimateCommand(client,race,bool:pressed,arg)
+public void OnUltimateCommand(client,race,bool:pressed,arg)
 {
     if (pressed && race==raceID && IsValidClientAlive(client))
     {
@@ -262,7 +263,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
         {
             case 4:
             {
-                new corruption_level=GetUpgradeLevel(client,race,corruptionID);
+                int corruption_level =GetUpgradeLevel(client,race,corruptionID);
                 if (GetGameType() == tf2 && corruption_level > 0)
                     Corruption(client, corruption_level);
             }
@@ -272,12 +273,12 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
             }
             case 2:
             {
-                new burrow_level=GetUpgradeLevel(client,race,burrowID);
+                int burrow_level =GetUpgradeLevel(client,race,burrowID);
                 Burrow(client, burrow_level+1);
             }
             default:
             {
-                new plague_level=GetUpgradeLevel(client,race,plagueID);
+                int plague_level =GetUpgradeLevel(client,race,plagueID);
                 if (plague_level > 0)
                 {
                     Plague(client, race, plagueID, plague_level,
@@ -286,7 +287,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                 }
                 else
                 {
-                    new dark_swarm_level=GetUpgradeLevel(client,race,darkSwarmID);
+                    int dark_swarm_level =GetUpgradeLevel(client,race,darkSwarmID);
                     DarkSwarm(client, race, darkSwarmID, dark_swarm_level, g_DarkSwarmRange);
                 }
             }
@@ -295,26 +296,26 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
 }
 
 // Events
-public OnPlayerSpawnEvent(Handle:event, client, race)
+public void OnPlayerSpawnEvent(Handle:event, client, race)
 {
     if (race == raceID)
     {
         m_gasAllocation[client] = 0;
         m_ConsumeEnemyTime[client] = 0.0;
 
-        new swarm_level=GetUpgradeLevel(client,raceID,swarmID);
+        int swarm_level =GetUpgradeLevel(client,raceID,swarmID);
         SetupSwarmInfestation(client, swarm_level);
 
-        new regeneration_level=GetUpgradeLevel(client,raceID,regenerationID);
+        int regeneration_level =GetUpgradeLevel(client,raceID,regenerationID);
         SetHealthRegen(client, float(regeneration_level+1));
 
-        new carapace_level = GetUpgradeLevel(client,raceID,carapaceID);
+        int carapace_level = GetUpgradeLevel(client,raceID,carapaceID);
         SetupArmor(client, carapace_level, g_InitialArmor,
                    g_ArmorPercent, g_ArmorName);
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     if (!from_sc && attacker_index > 0 &&
@@ -328,7 +329,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
     return Plugin_Continue;
 }
 
-public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
+public Action OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
                                   assister_index, assister_race, damage,
                                   absorbed)
 {
@@ -341,7 +342,7 @@ public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
     return Plugin_Continue;
 }
 
-public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
+public void OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
                           attacker_race, assister_index, assister_race, damage,
                           const String:weapon[], bool:is_equipment, customkill,
                           bool:headshot, bool:backstab, bool:melee)
@@ -352,29 +353,29 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
 
 bool:ConsumeEnemy(damage, index, victim_index)
 {
-    new level = GetUpgradeLevel(index, raceID, consumeID);
+    int level = GetUpgradeLevel(index, raceID, consumeID);
     if (level > 0 && GetRandomInt(1,10) <= 9 &&
         !GetRestriction(index, Restriction_NoUpgrades) &&
         !GetRestriction(index, Restriction_Stunned))
     {
-        new bool:victimIsNPC    = (victim_index > MaxClients);
-        new bool:victimIsPlayer = !victimIsNPC && IsValidClientAlive(victim_index) &&
+        bool victimIsNPC    = (victim_index > MaxClients);
+        bool victimIsPlayer = !victimIsNPC && IsValidClientAlive(victim_index) &&
                                   !GetImmunity(victim_index,Immunity_HealthTaking) &&
                                   !GetImmunity(victim_index,Immunity_Upgrades) &&
                                   !IsInvulnerable(victim_index);
 
         if (victimIsPlayer || victimIsNPC)
         {
-            new Float:lastTime = m_ConsumeEnemyTime[index];
-            new Float:interval = GetGameTime() - lastTime;
+            float lastTime = m_ConsumeEnemyTime[index];
+            float interval = GetGameTime() - lastTime;
             if ((lastTime == 0.0 || interval > 0.25) &&
                 CanInvokeUpgrade(index, raceID, consumeID, .notify=false))
             {
-                new Float:start[3];
+                float start[3];
                 GetClientAbsOrigin(index, start);
                 start[2] += 1620;
 
-                new Float:end[3];
+                float end[3];
                 GetClientAbsOrigin(index, end);
                 end[2] += 20;
 
@@ -387,19 +388,19 @@ bool:ConsumeEnemy(damage, index, victim_index)
 
                 m_ConsumeEnemyTime[index] = GetGameTime();
 
-                new leechhealth = RoundFloat(float(damage)*g_ConsumePercent[level]);
+                int leechhealth = RoundFloat(float(damage)*g_ConsumePercent[level]);
                 if (leechhealth <= 0)
                     leechhealth = 1;
 
                 if (IsClientInGame(index) && IsPlayerAlive(index))
                 {
-                    new health = GetClientHealth(index) + leechhealth;
+                    int health = GetClientHealth(index) + leechhealth;
                     if (health <= GetMaxHealth(index))
                     {
                         ShowHealthParticle(index);
                         SetEntityHealth(index,health);
 
-                        decl String:upgradeName[NAME_STRING_LENGTH];
+                        char upgradeName[NAME_STRING_LENGTH];
                         GetUpgradeName(raceID, consumeID, upgradeName, sizeof(upgradeName), index);
 
                         if (victimIsPlayer)
@@ -417,7 +418,7 @@ bool:ConsumeEnemy(damage, index, victim_index)
 
                 if (victimIsPlayer)
                 {
-                    new victim_health = GetClientHealth(victim_index);
+                    int victim_health = GetClientHealth(victim_index);
                     if (victim_health <= leechhealth)
                         KillPlayer(victim_index, index, "sc_consume");
                     else
@@ -426,12 +427,12 @@ bool:ConsumeEnemy(damage, index, victim_index)
 
                         if (GameType != tf2 || GetMode() != MvM)
                         {
-                            new entities = EntitiesAvailable(200, .message="Reducing Effects");
+                            int entities = EntitiesAvailable(200, .message="Reducing Effects");
                             if (entities > 50)
                                 CreateParticle("blood_impact_red_01_chunk", 0.1, victim_index, Attach, "head");
                         }
 
-                        decl String:upgradeName[NAME_STRING_LENGTH];
+                        char upgradeName[NAME_STRING_LENGTH];
                         GetUpgradeName(raceID, consumeID, upgradeName, sizeof(upgradeName), victim_index);
                         DisplayMessage(victim_index, Display_Injury, "%t", "HasLeeched",
                                        index, leechhealth, upgradeName);
@@ -454,7 +455,7 @@ SetupSwarmInfestation(client, level)
 {
     if (m_GasAvailable)
     {
-        new amount = ((level+1)*2) - m_gasAllocation[client];
+        int amount = ((level+1)*2) - m_gasAllocation[client];
         if (amount > 0)
         {
             m_gasAllocation[client] += amount;
@@ -470,7 +471,7 @@ SwarmInfestation(client)
         if (GetRestriction(client,Restriction_NoUltimates) ||
             GetRestriction(client,Restriction_Stunned))
         {
-            decl String:upgradeName[NAME_STRING_LENGTH];
+            char upgradeName[NAME_STRING_LENGTH];
             GetUpgradeName(raceID, swarmID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -486,7 +487,7 @@ SwarmInfestation(client)
             if (GasAttack(client))
             {
                 ChargeForUpgrade(client, raceID, swarmID);
-                new remaining = HasGas(client);
+                int remaining = HasGas(client);
                 if (remaining == 0)
                 {
                     DisplayMessage(client,Display_Ultimate, "%t",
@@ -494,7 +495,7 @@ SwarmInfestation(client)
                 }
                 else
                 {
-                    new Float:cooldown = GetUpgradeCooldown(raceID, swarmID);
+                    float cooldown = GetUpgradeCooldown(raceID, swarmID);
                     if (cooldown > 0.0)
                     {
                         DisplayMessage(client, Display_Ultimate, "%t", "UsedSwarmInfestationMustWait", remaining, cooldown);
@@ -513,7 +514,7 @@ SwarmInfestation(client)
             }
             else // if (!IsGasEnabled(client))
             {
-                decl String:upgradeName[NAME_STRING_LENGTH];
+                char upgradeName[NAME_STRING_LENGTH];
                 GetUpgradeName(raceID, swarmID, upgradeName, sizeof(upgradeName), client);
                 DisplayMessage(client, Display_Ultimate, "%t", "IsNotReady", upgradeName);
                 PrepareAndEmitSoundToClient(client,deniedWav);
@@ -522,16 +523,16 @@ SwarmInfestation(client)
     }
     else
     {
-        decl String:upgradeName[NAME_STRING_LENGTH];
+        char upgradeName[NAME_STRING_LENGTH];
         GetUpgradeName(raceID, swarmID, upgradeName, sizeof(upgradeName), client);
         PrintHintText(client, "%t", "IsNotAvailable", upgradeName);
         PrepareAndEmitSoundToClient(client,deniedWav);
     }
 }
 
-public Action:AllowSwarmInfestation(Handle:timer,any:userid)
+public Action AllowSwarmInfestation(Handle:timer,any:userid)
 {
-    new index = GetClientOfUserId(userid);
+    int index = GetClientOfUserId(userid);
     if (index > 0 && m_GasAvailable)
     {
         EnableGas(index, true);
@@ -539,7 +540,7 @@ public Action:AllowSwarmInfestation(Handle:timer,any:userid)
         {
             if (GetRace(index) == raceID)
             {
-                decl String:upgradeName[NAME_STRING_LENGTH];
+                char upgradeName[NAME_STRING_LENGTH];
                 GetUpgradeName(raceID, swarmID, upgradeName, sizeof(upgradeName), index);
                 DisplayMessage(index, Display_Ultimate, "%t", "IsReady", upgradeName);
                 PrintHintText(index, "%t", "IsReady", upgradeName);
@@ -555,7 +556,7 @@ Corruption(client, level)
     if (GetRestriction(client,Restriction_NoUltimates) ||
         GetRestriction(client,Restriction_Stunned))
     {
-        decl String:upgradeName[NAME_STRING_LENGTH];
+        char upgradeName[NAME_STRING_LENGTH];
         GetUpgradeName(raceID, corruptionID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
         PrepareAndEmitSoundToClient(client,deniedWav);
@@ -568,14 +569,14 @@ Corruption(client, level)
                 TF2_RemovePlayerDisguise(client);
         }
 
-        new Float:range = g_CorruptionRange[level];
-        new target = TraceAimTarget(client);
+        float range = g_CorruptionRange[level];
+        int target = TraceAimTarget(client);
         if (target >= 0)
         {
-            new Float:clientLoc[3];
+            float clientLoc[3];
             GetClientAbsOrigin(client, clientLoc);
 
-            new Float:targetLoc[3];
+            float targetLoc[3];
             TR_GetEndPosition(targetLoc);
 
             if (IsPointInRange(clientLoc,targetLoc,range))
@@ -583,10 +584,10 @@ Corruption(client, level)
                 if (IsValidEdict(target) && IsValidEntity(target) &&
                     TF2_GetExtObjectType(target) != TFExtObject_Unknown)
                 {
-                    new builder = GetEntPropEnt(target, Prop_Send, "m_hBuilder");
+                    int builder = GetEntPropEnt(target, Prop_Send, "m_hBuilder");
                     if (builder > 0 && !GetImmunity(builder,Immunity_Ultimates))
                     {
-                        new Handle:pack;
+                        Handle pack;
                         if (CreateDataTimer(0.5, CorruptionTimer, pack, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE) &&
                             pack != INVALID_HANDLE)
                         {
@@ -597,7 +598,7 @@ Corruption(client, level)
                             WritePackCell(pack, level);
                             WritePackFloat(pack, GetEngineTime() + (float(level) * 5.0));
 
-                            new targetTeam = GetEntProp(target, Prop_Send, "m_iTeamNum");
+                            int targetTeam = GetEntProp(target, Prop_Send, "m_iTeamNum");
                             if (targetTeam != GetClientTeam(client))
                             {
                                 new r,b,g;
@@ -645,24 +646,24 @@ Corruption(client, level)
     }
 }
 
-public Action:CorruptionTimer(Handle:timer,Handle:pack)
+public Action CorruptionTimer(Handle:timer,Handle:pack)
 {
     if (pack != INVALID_HANDLE)
     {
         ResetPack(pack);
-        new ref=ReadPackCell(pack);
-        new client=ReadPackCell(pack);
-        new level=ReadPackCell(pack);
-        new Float:endTime=ReadPackFloat(pack);
+        int ref =ReadPackCell(pack);
+        int client =ReadPackCell(pack);
+        int level =ReadPackCell(pack);
+        float endTime=ReadPackFloat(pack);
 
-        new target = EntRefToEntIndex(ref);
+        int target = EntRefToEntIndex(ref);
         if (target > 0 && IsValidEntity(target) && IsValidEdict(target))
         {
-            new health = GetEntProp(target, Prop_Send, "m_iHealth");
-            new team = GetEntProp(target, Prop_Send, "m_iTeamNum");
+            int health = GetEntProp(target, Prop_Send, "m_iHealth");
+            int team = GetEntProp(target, Prop_Send, "m_iTeamNum");
             if (team == GetClientTeam(client))
             {
-                new max_health = GetEntProp(target, Prop_Data, "m_iMaxHealth");
+                int max_health = GetEntProp(target, Prop_Data, "m_iMaxHealth");
                 if (health < max_health)
                 {
                     health += 10 * level;
@@ -676,7 +677,7 @@ public Action:CorruptionTimer(Handle:timer,Handle:pack)
             }
             else
             {
-                new amount = 10 * level;
+                int amount = 10 * level;
                 health -= amount;
                 if (health > 50 + amount)
                 {

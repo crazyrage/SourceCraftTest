@@ -30,7 +30,7 @@ stock SetupStimpacks()
     SetupErrorSound();
     SetupDeniedSound();
 
-    for (new i = 0; i < sizeof(stimpacksWav); i++)
+    for (int i = 0; i < sizeof(stimpacksWav); i++)
         SetupSound(stimpacksWav[i]);
 }
 
@@ -40,7 +40,7 @@ stock Stimpacks(client, level, raceId, upgradeId)
     {
         if (!m_ROFAvailable)
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, upgradeId, upgradeName, sizeof(upgradeName), client);
             PrintHintText(client,"%t", "AreNotAvailable", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -48,15 +48,15 @@ stock Stimpacks(client, level, raceId, upgradeId)
         else if (GetRestriction(client,Restriction_NoUltimates) ||
                  GetRestriction(client,Restriction_Stunned))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, upgradeId, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);
         }
         else if (CanInvokeUpgrade(client, raceId, upgradeId))
         {
-            new hurt = level*10;
-            new health = GetClientHealth(client);
+            int hurt = level*10;
+            int health = GetClientHealth(client);
             if (health <= hurt+10)
             {
                 PrepareAndEmitSoundToClient(client,errorWav);
@@ -72,7 +72,7 @@ stock Stimpacks(client, level, raceId, upgradeId)
                 HudMessage(client, "%t", "StimpackHud");
                 PrintHintText(client, "%t", "StimpacksActive");
 
-                new num = GetRandomInt(0,sizeof(stimpacksWav)-1);
+                int num = GetRandomInt(0,sizeof(stimpacksWav)-1);
                 PrepareAndEmitSoundToAll(stimpacksWav[num],client);
 
                 CreateTimer(2.0 * float(level), EndStimpack,
@@ -83,9 +83,9 @@ stock Stimpacks(client, level, raceId, upgradeId)
     }
 }
 
-public Action:EndStimpack(Handle:timer,any:userid)
+public Action EndStimpack(Handle:timer,any:userid)
 {
-    new client = GetClientOfUserId(userid);
+    int client = GetClientOfUserId(userid);
     if (client > 0)
     {
         m_StimpacksActive[client]=false;
@@ -94,7 +94,7 @@ public Action:EndStimpack(Handle:timer,any:userid)
 
         if (IsClientInGame(client) && IsPlayerAlive(client))
         {
-            decl String:message[64];
+            char message[64];
             Format(message, sizeof(message), "%T", "StimpackHud", client);
             ReplaceString(message, sizeof(message), "*", "");
             ReplaceString(message, sizeof(message), " ", "");

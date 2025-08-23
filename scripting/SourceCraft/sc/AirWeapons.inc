@@ -24,7 +24,7 @@ stock SetupAirWeapons()
 bool:AirWeapons(race, upgrade, Handle:event, damage, victim_index, index,
                 const Float:weaponsPercent[], const weaponsChance[])
 {
-    new weapons_level = GetUpgradeLevel(index, race, upgrade);
+    int weapons_level = GetUpgradeLevel(index, race, upgrade);
     if (weapons_level > 0)
     {
         if (!GetRestriction(index, Restriction_NoUpgrades) &&
@@ -35,17 +35,17 @@ bool:AirWeapons(race, upgrade, Handle:event, damage, victim_index, index,
         {
             if (GetRandomInt(1,100)<=weaponsChance[weapons_level])
             {
-                decl String:weapon[64];
-                new bool:is_equipment=GetWeapon(event,index,weapon,sizeof(weapon));
+                char weapon[64];
+                bool is_equipment=GetWeapon(event,index,weapon,sizeof(weapon));
                 if (!IsMelee(weapon, is_equipment,index,victim_index))
                 {
                     if (CanInvokeUpgrade(index, race, upgrade, .notify=false))
                     {
-                        new Float:indexLoc[3];
+                        float indexLoc[3];
                         GetClientAbsOrigin(index, indexLoc);
                         indexLoc[2] += 50.0;
 
-                        new Float:victimLoc[3];
+                        float victimLoc[3];
                         GetEntityAbsOrigin(victim_index, victimLoc);
                         victimLoc[2] += 50.0;
 
@@ -55,7 +55,7 @@ bool:AirWeapons(race, upgrade, Handle:event, damage, victim_index, index,
                         TE_SendQEffectToAll(index, victim_index);
                         FlashScreen(victim_index,RGBA_COLOR_RED);
 
-                        new health_take = RoundFloat(float(damage)*weaponsPercent[weapons_level]);
+                        int health_take = RoundFloat(float(damage)*weaponsPercent[weapons_level]);
                         if (health_take < 1)
                             health_take = 1;
 

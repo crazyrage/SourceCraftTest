@@ -1,36 +1,37 @@
 #pragma semicolon 1
+#pragma newdecls required
  
 #include <sourcemod>
 #include "W3SIncs/War3Source_Interface"
 #include <sdktools>
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "War3Source - Race - Scout",
     author = "War3Source Team",
     description = "The Scout race for War3Source"
 };
 
-new thisRaceID;
+int thisRaceID;
 
 
 new SKILL_INVIS, SKILL_TRUESIGHT, SKILL_DISARM, ULT_MARKSMAN;
 
 // Chance/Data Arrays
-new Float:InvisDrain=0.05; //as a percent of your health
-new Float:InvisDuration[5]={0.0,5.0,6.0,7.0,8.0};
-new Handle:InvisEndTimer[MAXPLAYERSCUSTOM];
-new bool:InInvis[MAXPLAYERSCUSTOM];
+float InvisDrain=0.05; //as a percent of your health
+float InvisDuration[5]={0.0,5.0,6.0,7.0,8.0};
+Handle InvisEndTimer[MAXPLAYERSCUSTOM];
+bool InInvis[MAXPLAYERSCUSTOM];
 
-new Float:EyeRadius[5]={0.0,400.0,500.0,700.0,800.0};
+float EyeRadius[5]={0.0,400.0,500.0,700.0,800.0};
 
-new Float:DisarmChance[5]={0.0,0.06,0.10,0.13,0.15};
-new Float:MarksmanCrit[5]={0.0,0.15,0.3,0.45,0.6};
-new STANDSTILLREQ=10;
+float DisarmChance[5]={0.0,0.06,0.10,0.13,0.15};
+float MarksmanCrit[5]={0.0,0.15,0.3,0.45,0.6};
+int STANDSTILLREQ =10;
 
 
-new bool:bDisarmed[MAXPLAYERSCUSTOM];
-new Float:lastvec[MAXPLAYERSCUSTOM][3];
+bool bDisarmed[MAXPLAYERSCUSTOM];
+float lastvec[MAXPLAYERSCUSTOM][3];
 new standStillCount[MAXPLAYERSCUSTOM];
 
 // Effects
@@ -38,7 +39,7 @@ new standStillCount[MAXPLAYERSCUSTOM];
 
 new auras[5];
 
-public OnPluginStart()
+public void OnPluginStart()
 {
     
 
@@ -48,14 +49,14 @@ public OnPluginStart()
     CreateTimer(0.1,DeciSecondTimer,_,TIMER_REPEAT);
 }
 
-public OnMapStart()
+public void OnMapStart()
 {
     //BeamSprite=PrecacheModel("materials/sprites/lgtning.vmt");
     //HaloSprite=PrecacheModel("materials/sprites/halo01.vmt");
     
 }
 
-public OnWar3LoadRaceOrItemOrdered(num)
+public void OnWar3LoadRaceOrItemOrdered(num)
 {
     if(num==180)
     {
@@ -119,11 +120,11 @@ public OnWar3LoadRaceOrItemOrdered(num)
     }
 }
 
-public OnRaceChanged(client,oldrace,newrace)
+public void OnRaceChanged(client,oldrace,newrace)
 {
     if(newrace==thisRaceID)
     {
-        new level=War3_GetSkillLevel(client,thisRaceID,SKILL_TRUESIGHT);
+        int level =War3_GetSkillLevel(client,thisRaceID,SKILL_TRUESIGHT);
         if(level>0){
             W3SetAuraFromPlayer(auras[level],client,true,level);
         }
@@ -133,7 +134,7 @@ public OnRaceChanged(client,oldrace,newrace)
     }
 }
 
-public OnSkillLevelChanged(client,race,skill,newskilllevel)
+public void OnSkillLevelChanged(client,race,skill,newskilllevel)
 {
     
     if(race==thisRaceID && War3_GetRace(client)==thisRaceID)
@@ -153,7 +154,7 @@ ClearAura(client){
     W3SetAuraFromPlayer(auras[3],client,false);
     W3SetAuraFromPlayer(auras[4],client,false);
 }
-public OnWar3EventSpawn(client){
+public void OnWar3EventSpawn(client){
     if(bDisarmed[client]){
         EndInvis2(INVALID_HANDLE,client);
     }
@@ -163,11 +164,11 @@ public OnWar3EventSpawn(client){
         InInvis[client]=false;
     }
 }
-public OnAbilityCommand(client,ability,bool:pressed)
+public void OnAbilityCommand(client,ability,bool:pressed)
 {
     if(War3_GetRace(client)==thisRaceID &&  pressed && IsPlayerAlive(client))
     {
-        new skilllvl = War3_GetSkillLevel(client,thisRaceID,SKILL_INVIS);
+        int skilllvl = War3_GetSkillLevel(client,thisRaceID,SKILL_INVIS);
         if(skilllvl > 0)
         {
             if(InInvis[client]){
@@ -189,7 +190,7 @@ public OnAbilityCommand(client,ability,bool:pressed)
                 InInvis[client]=true;
 
 #if defined SOURCECRAFT
-                new Float:cooldown= GetUpgradeCooldown(thisRaceID,SKILL_INVIS);
+                float cooldown= GetUpgradeCooldown(thisRaceID,SKILL_INVIS);
                 War3_CooldownMGR(client,cooldown,thisRaceID,SKILL_INVIS);
 #else
                 War3_CooldownMGR(client,15.0,thisRaceID,SKILL_INVIS);
@@ -199,7 +200,7 @@ public OnAbilityCommand(client,ability,bool:pressed)
         }
     }
 }
-public Action:EndInvis(Handle:timer,any:client)
+public Action EndInvis(Handle:timer,any:client)
 {
     InInvis[client]=false;
     War3_SetBuff(client,fInvisibilitySkill,thisRaceID,1.0);
@@ -208,36 +209,36 @@ public Action:EndInvis(Handle:timer,any:client)
     PrintHintText(client,"%T","No Longer Invis! Cannot shoot for 1 sec!",client);
     
 }
-public Action:EndInvis2(Handle:timer,any:client){
+public Action EndInvis2(Handle:timer,any:client){
     War3_SetBuff(client,bDisarm,thisRaceID,false);
     bDisarmed[client]=false;
 }
 
-public OnW3TakeDmgBulletPre(victim,attacker,Float:damage)
+public void OnW3TakeDmgBulletPre(victim,attacker,Float:damage)
 {
     if(ValidPlayer(victim)&&ValidPlayer(attacker))
     {
-        new vteam=GetClientTeam(victim);
-        new ateam=GetClientTeam(attacker);
+        int vteam =GetClientTeam(victim);
+        int ateam =GetClientTeam(attacker);
         if(vteam!=ateam)
         {
             if(War3_GetRace(attacker)==thisRaceID && !W3HasImmunity(victim,Immunity_Skills)){
-                new lvl=War3_GetSkillLevel(attacker,thisRaceID,ULT_MARKSMAN);
+                int lvl =War3_GetSkillLevel(attacker,thisRaceID,ULT_MARKSMAN);
                 if(lvl>0&& standStillCount[attacker]>=STANDSTILLREQ){ //stood still for 1 second
 #if defined SOURCECRAFT
                     if (CanInvokeUpgrade(attacker,thisRaceID,ULT_MARKSMAN, .notify=false))
                     {
 #endif
-                    new Float:vicpos[3];
-                    new Float:attpos[3];
+                    float vicpos[3];
+                    float attpos[3];
                     GetClientAbsOrigin(victim,vicpos);
                     GetClientAbsOrigin(attacker,attpos);
-                    new Float:distance=GetVectorDistance(vicpos,attpos);
+                    float distance=GetVectorDistance(vicpos,attpos);
                     
                     if(distance>1000.0){ //0-512 normal damage 512-1024 linear increase, 1024-> maximum
                         distance=1000.0;
                     }
-                    new Float:multi=distance*MarksmanCrit[lvl]/1000.0;
+                    float multi=distance*MarksmanCrit[lvl]/1000.0;
                     War3_DamageModPercent(multi+1.0);
                     PrintToConsole(attacker,"[W3S] %.2fX dmg by marksman shot",multi);
 #if defined SOURCECRAFT
@@ -250,13 +251,13 @@ public OnW3TakeDmgBulletPre(victim,attacker,Float:damage)
 }
 
 
-public OnWar3EventPostHurt(victim, attacker, Float:damage, const String:weapon[32], bool:isWarcraft)
+public void OnWar3EventPostHurt(victim, attacker, Float:damage, const String:weapon[32], bool:isWarcraft)
 {
     if(!isWarcraft && ValidPlayer(victim,true)&&ValidPlayer(attacker,true)&&GetClientTeam(victim)!=GetClientTeam(attacker))
     {    
         if(War3_GetRace(attacker)==thisRaceID)
         {
-            new skill_level=War3_GetSkillLevel(attacker,thisRaceID,SKILL_DISARM);
+            int skill_level =War3_GetSkillLevel(attacker,thisRaceID,SKILL_DISARM);
             if(skill_level>0&&!Hexed(attacker,false))
             {
                 if(!W3HasImmunity(victim,Immunity_Skills) && !bDisarmed[victim]){
@@ -277,13 +278,13 @@ public OnWar3EventPostHurt(victim, attacker, Float:damage, const String:weapon[3
         }
     }           
 }
-public Action:Undisarm(Handle:t,any:client){
+public Action Undisarm(Handle:t,any:client){
     War3_SetBuff(client,bDisarm,thisRaceID,false);
 }
 
 
-public Action:DeciSecondTimer(Handle:t){
-    for(new client=1;client<=MaxClients;client++){\
+public Action DeciSecondTimer(Handle:t){
+    for(int client =1;client<=MaxClients;client++){\
         if(ValidPlayer(client,true)&&War3_GetRace(client)==thisRaceID){
             static Float:vec[3];
             GetClientAbsOrigin(client,vec);
@@ -300,11 +301,11 @@ public Action:DeciSecondTimer(Handle:t){
     }
 }
 
-public OnUltimateCommand(client,race,bool:pressed)
+public void OnUltimateCommand(client,race,bool:pressed)
 {
     if(race==thisRaceID && IsPlayerAlive(client) && pressed)
     {
-        new skill_level=War3_GetSkillLevel(client,race,SKILL_TRUESIGHT);
+        int skill_level =War3_GetSkillLevel(client,race,SKILL_TRUESIGHT);
         if(skill_level>0)
         {
             if(!Silenced(client)&&War3_SkillNotInCooldown(client,thisRaceID,SKILL_TRUESIGHT,true)){
@@ -318,7 +319,7 @@ public OnUltimateCommand(client,race,bool:pressed)
         }
     }
 }
-public OnW3PlayerAuraStateChanged(client,tAuraID,bool:inAura,level){
+public void OnW3PlayerAuraStateChanged(client,tAuraID,bool:inAura,level){
     if(tAuraID==auras[1]||
     tAuraID==auras[2]||
     tAuraID==auras[3]||

@@ -67,7 +67,7 @@ stock TeleportCommand(client, raceId, upgradeId, level, Float:energy_required, b
                 PrepareAndEmitSoundToClient(client, deniedWav);
                 m_UltimatePressed[client] = 0.0;
 
-                decl String:upgradeName[64];
+                char upgradeName[64];
                 GetUpgradeName(raceId, upgradeId, upgradeName, sizeof(upgradeName), client);
                 DisplayMessage(client, Display_Ultimate, "%t", "NotWithFlag", upgradeName);
                 return;
@@ -99,8 +99,8 @@ stock TeleportCommand(client, raceId, upgradeId, level, Float:energy_required, b
         }
 
         new stuckFlag:stuck = notStuck;
-        new Float:time_pressed = GetGameTime() - m_UltimatePressed[client];
-        new Float:energy = GetEnergy(client);
+        float time_pressed = GetGameTime() - m_UltimatePressed[client];
+        float energy = GetEnergy(client);
 
         m_UltimatePressed[client] = 0.0;
 
@@ -108,7 +108,7 @@ stock TeleportCommand(client, raceId, upgradeId, level, Float:energy_required, b
         if (m_TeleportCount[client] >= 1)
         {
             // Check to see if player got stuck
-            new Float:origin[3];
+            float origin[3];
             GetClientAbsOrigin(client, origin);
             if (origin[0] == teleportLoc[client][0] &&
                 origin[1] == teleportLoc[client][1] &&
@@ -127,7 +127,7 @@ stock TeleportCommand(client, raceId, upgradeId, level, Float:energy_required, b
                 {
                     stuck = toSpawn;
 
-                    decl String:upgradeName[64];
+                    char upgradeName[64];
                     GetUpgradeName(raceId, upgradeId, upgradeName, sizeof(upgradeName), client);
                     DisplayMessage(client, Display_Ultimate, "%t", "TeleportToSpawn", upgradeName);
                     PrepareAndEmitSoundToClient(client,errorWav);
@@ -140,7 +140,7 @@ stock TeleportCommand(client, raceId, upgradeId, level, Float:energy_required, b
         {
             if (energy < energy_required)
             {
-                decl String:upgradeName[64];
+                char upgradeName[64];
                 GetUpgradeName(raceId, upgradeId, upgradeName, sizeof(upgradeName), client);
                 DisplayMessage(client, Display_Energy, "%t", "InsufficientEnergyFor", upgradeName, energy_required);
                 EmitEnergySoundToClient(client, GetRaceFaction(raceId));
@@ -149,7 +149,7 @@ stock TeleportCommand(client, raceId, upgradeId, level, Float:energy_required, b
             else if (GetRestriction(client,Restriction_NoUltimates) ||
                      GetRestriction(client,Restriction_Stunned))
             {
-                decl String:upgradeName[64];
+                char upgradeName[64];
                 GetUpgradeName(raceId, upgradeId, upgradeName, sizeof(upgradeName), client);
                 DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
                 PrepareAndEmitSoundToClient(client,deniedWav);
@@ -157,7 +157,7 @@ stock TeleportCommand(client, raceId, upgradeId, level, Float:energy_required, b
             }
             else if (m_TeleportCount[client] >= 1)
             {
-                decl String:upgradeName[64];
+                char upgradeName[64];
                 GetUpgradeName(raceId, upgradeId, upgradeName, sizeof(upgradeName), client);
                 DisplayMessage(client, Display_Ultimate, "%t", "NotRecharged", upgradeName);
                 PrepareAndEmitSoundToClient(client,deniedWav);
@@ -180,12 +180,12 @@ stock Teleport(client, raceId, upgradeId, level, Float:time_pressed,
                const Float:teleportDistance[],
                const String:teleportSnd[]="")
 {
-    new Float:origin[3];
+    float origin[3];
     GetClientAbsOrigin(client, origin);
     TE_SetupSmoke(origin,SmokeSprite(),40.0,1);
     TE_SendEffectToAll();
 
-    new Float:destloc[3];
+    float destloc[3];
     if (stuck == toSpawn)
     {
         energy -= energy_required;
@@ -193,18 +193,18 @@ stock Teleport(client, raceId, upgradeId, level, Float:time_pressed,
     }
     else
     {
-        new Float:clientloc[3],Float:clientang[3];
+        float clientloc[3],Float:clientang[3];
         GetClientEyePosition(client,clientloc);
         GetClientEyeAngles(client,clientang);
 
         if (time_pressed > TELEPORT_MAX_CHARGE_TIME || time_pressed <= 0.0)
             time_pressed = TELEPORT_MAX_CHARGE_TIME;
 
-        new Float:percent = time_pressed / TELEPORT_MAX_CHARGE_TIME;
-        new Float:range = percent * teleportDistance[level];
+        float percent = time_pressed / TELEPORT_MAX_CHARGE_TIME;
+        float range = percent * teleportDistance[level];
         if (range > 0.0)
         {
-            new Float:dir[3],Float:endloc[3];
+            float dir[3],Float:endloc[3];
             GetAngleVectors(clientang,dir,NULL_VECTOR,NULL_VECTOR);
             ScaleVector(dir, range);
             AddVectors(clientloc, dir, endloc);
@@ -223,10 +223,10 @@ stock Teleport(client, raceId, upgradeId, level, Float:time_pressed,
 
         if (!stuck)
         {
-            new count=0;
+            int count =0;
             for(;count < TELEPORT_MAX_RETRIES;count++)
             {
-                new Float:distance = (GetVectorDistance(clientloc, destloc) - 50.0);
+                float distance = (GetVectorDistance(clientloc, destloc) - 50.0);
                 destloc[1] = (clientloc[1] + (distance * Sine(DegToRad(clientang[1]))));
                 destloc[0] = (clientloc[0] + (distance * Cosine(DegToRad(clientang[1]))));
 
@@ -236,7 +236,7 @@ stock Teleport(client, raceId, upgradeId, level, Float:time_pressed,
 
             if (count >= TELEPORT_MAX_RETRIES)
             {
-                decl String:upgradeName[64];
+                char upgradeName[64];
                 GetUpgradeName(raceId, upgradeId, upgradeName, sizeof(upgradeName), client);
                 DisplayMessage(client, Display_Ultimate, "%t", "InsufficientRoom", upgradeName);
                 PrepareAndEmitSoundToClient(client,deniedWav);
@@ -244,8 +244,8 @@ stock Teleport(client, raceId, upgradeId, level, Float:time_pressed,
             }
         }
 
-        new Float:half = energy_required / 2.0;
-        new Float:amount = percent*energy_required;
+        float half = energy_required / 2.0;
+        float amount = percent*energy_required;
         if (amount < 1.0)
             amount = 1.0;
         else if (amount < half)
@@ -253,7 +253,7 @@ stock Teleport(client, raceId, upgradeId, level, Float:time_pressed,
 
         if (energy < amount && energy > 0.0)
         {
-            new Float:p = energy / amount;
+            float p = energy / amount;
             percent *= p;
             energy = 0.0;
         }
@@ -281,10 +281,10 @@ stock Teleport(client, raceId, upgradeId, level, Float:time_pressed,
 
     if (!stuck)
     {
-        new Float:cooldown = GetUpgradeCooldown(raceId, upgradeId) * (5-level);
+        float cooldown = GetUpgradeCooldown(raceId, upgradeId) * (5-level);
         if (cooldown > 0.0)
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceId, upgradeId, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client,Display_Ultimate, "%t", "TeleportAgain", cooldown, upgradeName);
 
@@ -303,7 +303,7 @@ bool:CheckPlayerBox(Float:bottom[3],Float:start[3],client)
     // CSS Player Box = 33 x 73
     // TF2 Player Box = 57 x 95
 
-    new Float:edge[3][8];
+    float edge[3][8];
     //point A
     edge[2][0]=bottom[2];
     edge[0][0]=bottom[0]+12.5; // 24.5;
@@ -326,16 +326,16 @@ bool:CheckPlayerBox(Float:bottom[3],Float:start[3],client)
     //           start[0], start[1], start[2]);
 
     //other buttons
-    for(new i=0;i<4;i++)
+    for(int i =0;i<4;i++)
     {
-        for(new x=0;x<2;x++)
+        for(int x =0;x<2;x++)
         {
             edge[x][i+4]=edge[x][i];
         }
         edge[2][i+4]=edge[2][i]+67.0; // 89.0;
     }
 
-    for(new i=0;i<4;i++)
+    for(int i =0;i<4;i++)
     {
         decl Float:point[3];
         point[0]=edge[0][i];
@@ -358,7 +358,7 @@ bool:CheckPlayerBox(Float:bottom[3],Float:start[3],client)
         }
     }
 
-    for(new i=0;i<7;i++)
+    for(int i =0;i<7;i++)
     {
         decl Float:point[3];
         point[0]=edge[0][i];
@@ -381,7 +381,7 @@ bool:CheckPlayerBox(Float:bottom[3],Float:start[3],client)
         }
     }
 
-    new Float:top[3];
+    float top[3];
     top=bottom;
     top[2]+=90; // 112;
 
@@ -401,7 +401,7 @@ bool:CheckPlayerBox(Float:bottom[3],Float:start[3],client)
         TR_TraceRayFilter(start, top, MASK_PLAYERSOLID,
                           RayType_EndPoint, TraceRayDontHitSelf,
                           client);
-        new bool:result = !TR_DidHit();
+        bool result = !TR_DidHit();
         //LogMessage("CheckPlayerBox(%N) return 4=%d, start={%f,%f,%f},top={%f,%f,%f}",
         //           client, result, start[0], start[1], start[2], top[0], top[1], top[2]);
         //PrintToChat(client, "CheckPlayerBox() return 4=%d, start={%f,%f,%f},top={%f,%f,%f}",
@@ -410,7 +410,7 @@ bool:CheckPlayerBox(Float:bottom[3],Float:start[3],client)
     }
 }
 
-public OnCooldownExpired(client,race,upgrade,bool:expiredByTime)
+public void OnCooldownExpired(client,race,upgrade,bool:expiredByTime)
 {
     if (race == m_raceId && upgrade == m_upgradeId)
     {
@@ -418,7 +418,7 @@ public OnCooldownExpired(client,race,upgrade,bool:expiredByTime)
         if (IsValidClientAlive(client) && GetRace(client) == race &&
             (GetCooldownType(client,race,upgrade) & Cooldown_ExpireNotify) == Cooldown_None)
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(race, upgrade, upgradeName, sizeof(upgradeName), client);
             PrintToConsole(client, "%t", "HasRecharged", upgradeName);
             PrepareAndEmitSoundToClient(client, rechargeWav);
@@ -428,10 +428,10 @@ public OnCooldownExpired(client,race,upgrade,bool:expiredByTime)
 
 stock TeleporterAttacked(index, raceId, upgradeId)
 {
-    new Float:cooldown = GetUpgradeCooldown(raceId, upgradeId);
+    float cooldown = GetUpgradeCooldown(raceId, upgradeId);
     if (cooldown > 0.0)
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceId, upgradeId, upgradeName, sizeof(upgradeName), index);
         PrintToConsole(index, "%t", "TeleportWait", cooldown, upgradeName);
         CreateCooldown(index, raceId, upgradeId, .type=Cooldown_AutoReset | Cooldown_ResetOnChange);
@@ -439,9 +439,9 @@ stock TeleporterAttacked(index, raceId, upgradeId)
     }
 }
 
-public Action:UpdateTeleportBar(Handle:timer, any:userid)
+public Action UpdateTeleportBar(Handle:timer, any:userid)
 {
-    new client = GetClientOfUserId(userid);
+    int client = GetClientOfUserId(userid);
     if (m_UltimatePressed[client] > 0.0 &&
         IsValidClientAlive(client))
     {
@@ -473,12 +473,12 @@ public Action:UpdateTeleportBar(Handle:timer, any:userid)
                 TF2_RemovePlayerDisguise(client);
         }
 
-        new Float:time_pressed = GetGameTime() - m_UltimatePressed[client];
-        new String:gauge[30] = "[=====================]";
-        new Float:percent = time_pressed/TELEPORT_MAX_CHARGE_TIME;
+        float time_pressed = GetGameTime() - m_UltimatePressed[client];
+        char gauge[30] = "[=====================]";
+        float percent = time_pressed/TELEPORT_MAX_CHARGE_TIME;
         if (percent <= 1.0)
         {
-            new pos = RoundFloat(percent * 20.0) + 1;
+            int pos = RoundFloat(percent * 20.0) + 1;
             if (pos < 21)
             {
                 if (pos < 1)

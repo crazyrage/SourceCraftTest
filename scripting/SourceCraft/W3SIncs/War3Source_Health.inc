@@ -96,7 +96,7 @@ native W3ForceDamageIsBullet();
 native W3GetDamageStack();
 
 stock War3_DealDamageDelayed(victim,attacker,damage,String:classname[32],Float:delay=0.0,bool:showDamage=false,showDamage_skill=0) {
-    new Handle:pack;
+    Handle pack;
     CreateDataTimer(delay, _war3source_Timer_DealDamage, pack);
     WritePackCell(pack, victim);
     WritePackCell(pack, attacker);
@@ -107,19 +107,19 @@ stock War3_DealDamageDelayed(victim,attacker,damage,String:classname[32],Float:d
 }
 
 // In csgo killing 2 players in the same frame causes a crash so we use this dirty workaround
-public Action:_war3source_Timer_DealDamage(Handle:timer, Handle:pack)
+public Action _war3source_Timer_DealDamage(Handle:timer, Handle:pack)
 {
     ResetPack(pack); //resolve the package...
-    new victim = ReadPackCell(pack);
+    int victim = ReadPackCell(pack);
     if(!ValidPlayer(victim,true)) {
         // immedialety exit!
         return Plugin_Stop;
     }
-    new attacker = ReadPackCell(pack);
-    new damage = ReadPackCell(pack);
-    new bool:showDamage = bool:ReadPackCell(pack);
-    new showDamage_skill = ReadPackCell(pack);
-    decl String:classname[32];
+    int attacker = ReadPackCell(pack);
+    int damage = ReadPackCell(pack);
+    bool showDamage = bool:ReadPackCell(pack);
+    int showDamage_skill = ReadPackCell(pack);
+    char classname[32];
     ReadPackString(pack,classname,sizeof(classname));
     
     // Glider: TODO: Figure out if the notification include or the 
@@ -272,11 +272,11 @@ stock bool:W3IsDamageFromMelee(const String:weapon[])
  */
 stock bool:War3_HealToMaxHP(client, health)
 {
-    new maxhp = War3_GetMaxHP(client);
-    new currenthp = GetClientHealth(client);
+    int maxhp = War3_GetMaxHP(client);
+    int currenthp = GetClientHealth(client);
     if(currenthp < maxhp)
     {
-        new newhp = GetClientHealth(client) + health;
+        int newhp = GetClientHealth(client) + health;
         if (newhp > maxhp)
         {
             newhp = maxhp;
@@ -292,8 +292,8 @@ stock bool:War3_HealToMaxHP(client, health)
  * @noreturn
  */
 stock bool:War3HealToHP(client, addhp, maximumHP) {
-    new currenthp = GetClientHealth(client);
-    new newhp = currenthp + addhp;
+    int currenthp = GetClientHealth(client);
+    int newhp = currenthp + addhp;
     if (newhp > maximumHP) 
     {
         newhp = maximumHP;
@@ -315,11 +315,11 @@ stock bool:War3HealToHP(client, addhp, maximumHP) {
  */
 stock bool:War3_HealToBuffHP(client, health)
 {
-    new maxhp = (War3_GetGame() == Game_TF) ? RoundFloat(float(War3_GetMaxHP(client)) * 1.5) : War3_GetMaxHP(client);
-    new currenthp = GetClientHealth(client);
+    int maxhp = (War3_GetGame() == Game_TF) ? RoundFloat(float(War3_GetMaxHP(client)) * 1.5) : War3_GetMaxHP(client);
+    int currenthp = GetClientHealth(client);
     if(currenthp < maxhp)
     {
-        new newhp = GetClientHealth(client) + health;
+        int newhp = GetClientHealth(client) + health;
         if (newhp > maxhp)
         {
             newhp = maxhp;
@@ -338,7 +338,7 @@ stock bool:War3_HealToBuffHP(client, health)
  */
 stock bool:War3_DecreaseHP(client, amount)
 {
-    new iHealth = GetClientHealth(client)-amount;
+    int iHealth = GetClientHealth(client)-amount;
     if(iHealth < 1)
     {
         iHealth = 1;
@@ -350,7 +350,7 @@ stock bool:War3_DecreaseHP(client, amount)
 // The actual internal setHealth function. Returns if the health has changed
 stock bool:nsEntity_SetHealth(entity, health) 
 {
-    new currenthp = GetEntProp(entity, Prop_Data, "m_iHealth");
+    int currenthp = GetEntProp(entity, Prop_Data, "m_iHealth");
     
     if (currenthp == health)
     {
@@ -379,7 +379,7 @@ stock War3_TFHealingEvent(client, amount_healed)
         return;
     }
     
-    new Handle:event = CreateEvent("player_healonhit");
+    Handle event = CreateEvent("player_healonhit");
     SetEventInt(event, "entindex", client);
     SetEventInt(event, "amount", amount_healed);
     FireEvent(event);

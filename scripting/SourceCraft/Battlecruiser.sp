@@ -6,6 +6,7 @@
  */
  
 #pragma semicolon 1
+#pragma newdecls required
 
 #include <sourcemod>
 #include <sdktools>
@@ -52,41 +53,41 @@ new const String:explosionsWav[][]  = { "sc/explo1.wav",
                                         "sc/explolrg.wav" };
 
 new const String:g_ArmorName[]      = "Plating";
-new Float:g_InitialArmor[]          = { 0.05, 0.10, 0.25, 0.50, 0.75 };
-new Float:g_ArmorPercent[][2]       = { {0.00, 0.10},
+float g_InitialArmor[]          = { 0.05, 0.10, 0.25, 0.50, 0.75 };
+float g_ArmorPercent[][2]       = { {0.00, 0.10},
                                         {0.05, 0.20},
                                         {0.15, 0.30},
                                         {0.20, 0.40},
                                         {0.25, 0.50} };
 
 new g_JetpackFuel[]                 = { 40,   50,   70,   90,   120 };
-new Float:g_JetpackRefuelTime[]     = { 45.0, 35.0, 25.0, 15.0, 5.0 };
+float g_JetpackRefuelTime[]     = { 45.0, 35.0, 25.0, 15.0, 5.0 };
 
-new Float:g_GravgunSpeed[]          = { 0.10, 0.30, 0.50, 0.70, 0.90 };
+float g_GravgunSpeed[]          = { 0.10, 0.30, 0.50, 0.70, 0.90 };
 
-new Float:g_ShipWeaponsDamage[]     = { 0.15, 0.30, 0.40, 0.50, 0.70 };
+float g_ShipWeaponsDamage[]     = { 0.15, 0.30, 0.40, 0.50, 0.70 };
 
-new Float:g_BarrageRange[]          = { 0.0, 250.0, 400.0, 550.0, 650.0 };
+float g_BarrageRange[]          = { 0.0, 250.0, 400.0, 550.0, 650.0 };
 
-new Float:g_YamatoRange[]           = { 350.0, 400.0, 650.0, 750.0, 900.0 };
+float g_YamatoRange[]           = { 350.0, 400.0, 650.0, 750.0, 900.0 };
 new g_YamatoDamage[][2]             = { {25,   50},
                                         {75,  100},
                                         {100, 150},
                                         {125, 200},
                                         {150, 250} };
 
-new cfgAllowGravgun                 = 2;
-new bool:cfgAllowRepair             = true;
-new bool:cfgAllowEnabled            = true;
-new Float:cfgGravgunDuration        = 15.0;
-new Float:cfgGravgunThrowSpeed      = 500.0;
+int cfgAllowGravgun = 2;
+bool cfgAllowRepair             = true;
+bool cfgAllowEnabled            = true;
+float cfgGravgunDuration        = 15.0;
+float cfgGravgunThrowSpeed      = 500.0;
 
 new raceID, immunityID, armorID, weaponsID, gravAccelID, jetpackID, yamatoID, barrageID;
 
 new gMissileBarrageDuration[MAXPLAYERS+1];
-new Float:m_GravTime[MAXPLAYERS+1];
+float m_GravTime[MAXPLAYERS+1];
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Terran Battlecruiser",
     author = "-=|JFH|=-Naris",
@@ -95,7 +96,7 @@ public Plugin:myinfo =
     url = "http://jigglysfunhouse.net/"
 };
 
-public OnPluginStart()
+public void OnPluginStart()
 {
     LoadTranslations("sc.common.phrases.txt");
     LoadTranslations("sc.battlecruiser.phrases.txt");
@@ -104,7 +105,7 @@ public OnPluginStart()
         OnSourceCraftReady();
 }
 
-public OnSourceCraftReady()
+public void OnSourceCraftReady()
 {
     raceID      = CreateRace("battlecruiser", -1, -1, 28, 60.0, -1.0, 1.0,
                              Terran, Mechanical, "scv");
@@ -176,9 +177,9 @@ public OnSourceCraftReady()
     GetConfigFloatArray("armor_amount", g_InitialArmor, sizeof(g_InitialArmor),
                         g_InitialArmor, raceID, armorID);
 
-    for (new level=0; level < sizeof(g_ArmorPercent); level++)
+    for (int level =0; level < sizeof(g_ArmorPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "armor_percent_level_%d", level);
         GetConfigFloatArray(key, g_ArmorPercent[level], sizeof(g_ArmorPercent[]),
                             g_ArmorPercent[level], raceID, armorID);
@@ -199,9 +200,9 @@ public OnSourceCraftReady()
     GetConfigFloatArray("range", g_YamatoRange, sizeof(g_YamatoRange),
                         g_YamatoRange, raceID, yamatoID);
 
-    for (new level=0; level < sizeof(g_YamatoDamage); level++)
+    for (int level =0; level < sizeof(g_YamatoDamage); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "damage_level_%d", level);
         GetConfigArray(key, g_YamatoDamage[level], sizeof(g_YamatoDamage[]),
                        g_YamatoDamage[level], raceID, yamatoID);
@@ -211,7 +212,7 @@ public OnSourceCraftReady()
                         g_BarrageRange, raceID, barrageID);
 }
 
-public OnLibraryAdded(const String:name[])
+public void OnLibraryAdded(const String:name[])
 {
     if (StrEqual(name, "ztf2grab"))
         IsGravgunAvailable(true);
@@ -219,7 +220,7 @@ public OnLibraryAdded(const String:name[])
         IsJetpackAvailable(true);
 }
 
-public OnLibraryRemoved(const String:name[])
+public void OnLibraryRemoved(const String:name[])
 {
     if (StrEqual(name, "ztf2grab"))
         m_GravgunAvailable = false;
@@ -227,7 +228,7 @@ public OnLibraryRemoved(const String:name[])
         m_JetpackAvailable = false;
 }
 
-public OnMapStart()
+public void OnMapStart()
 {
     SetupLightning();
     SetupBeamSprite();
@@ -242,18 +243,18 @@ public OnMapStart()
     SetupSound(yamatoFireWav);
     SetupSound(yamatoRepeatWav);
 
-    for (new i = 0; i < sizeof(explosionsWav); i++)
+    for (int i = 0; i < sizeof(explosionsWav); i++)
         SetupSound(explosionsWav[i]);
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
         ResetArmor(client);
 
         // Turn off Immunities
-        new immunity_level=GetUpgradeLevel(client,raceID,immunityID);
+        int immunity_level =GetUpgradeLevel(client,raceID,immunityID);
         DoImmunity(client, immunity_level, false);
 
         if (m_JetpackAvailable)
@@ -265,22 +266,22 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
     return Plugin_Continue;
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
         // Turn on Immunities
-        new immunity_level=GetUpgradeLevel(client,raceID,immunityID);
+        int immunity_level =GetUpgradeLevel(client,raceID,immunityID);
         DoImmunity(client, immunity_level,true);
 
-        new armor_level = GetUpgradeLevel(client,raceID,armorID);
+        int armor_level = GetUpgradeLevel(client,raceID,armorID);
         SetupArmor(client, armor_level, g_InitialArmor,
                    g_ArmorPercent, g_ArmorName);
 
-        new gravaccel_level=GetUpgradeLevel(client,raceID,gravAccelID);
+        int gravaccel_level =GetUpgradeLevel(client,raceID,gravAccelID);
         SetupGravgun(client, gravaccel_level);
 
-        new jetpack_level=GetUpgradeLevel(client,raceID,jetpackID);
+        int jetpack_level =GetUpgradeLevel(client,raceID,jetpackID);
         SetupJetpack(client, jetpack_level);
 
         if (IsValidClientAlive(client))
@@ -294,7 +295,7 @@ public Action:OnRaceSelected(client,oldrace,newrace)
         return Plugin_Continue;
 }
 
-public OnUpgradeLevelChanged(client,race,upgrade,new_level)
+public void OnUpgradeLevelChanged(client,race,upgrade,new_level)
 {
     if (race == raceID && GetRace(client) == raceID)
     {
@@ -313,7 +314,7 @@ public OnUpgradeLevelChanged(client,race,upgrade,new_level)
     }
 }
 
-public OnUltimateCommand(client,race,bool:pressed,arg)
+public void OnUltimateCommand(client,race,bool:pressed,arg)
 {
     if (race==raceID && IsValidClientAlive(client))
     {
@@ -323,12 +324,12 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
             {
                 if (pressed)
                 {
-                    new barrage_level=GetUpgradeLevel(client,race,barrageID);
+                    int barrage_level =GetUpgradeLevel(client,race,barrageID);
                     if (barrage_level > 0)
                         MissileBarrage(client,barrage_level);
                     else
                     {
-                        new yamato_level=GetUpgradeLevel(client,race,yamatoID);
+                        int yamato_level =GetUpgradeLevel(client,race,yamatoID);
                         if (yamato_level && pressed)
                             YamatoCannon(client,yamato_level);
                     }
@@ -338,12 +339,12 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
             {
                 if (pressed)
                 {
-                    new yamato_level=GetUpgradeLevel(client,race,yamatoID);
+                    int yamato_level =GetUpgradeLevel(client,race,yamatoID);
                     if (yamato_level)
                         YamatoCannon(client,yamato_level);
                     else
                     {
-                        new barrage_level=GetUpgradeLevel(client,race,barrageID);
+                        int barrage_level =GetUpgradeLevel(client,race,barrageID);
                         if (barrage_level > 0)
                             MissileBarrage(client,barrage_level);
                     }
@@ -369,7 +370,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                 }
                 else if (pressed)
                 {
-                    decl String:upgradeName[64];
+                    char upgradeName[64];
                     GetUpgradeName(raceID, jetpackID, upgradeName, sizeof(upgradeName), client);
                     PrintHintText(client,"%t", "IsNotAvailable", upgradeName);
                 }
@@ -380,7 +381,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                 {
                     if (pressed)
                     {
-                        decl String:upgradeName[64];
+                        char upgradeName[64];
                         GetUpgradeName(raceID, gravAccelID, upgradeName, sizeof(upgradeName), client);
                         PrintHintText(client,"%t", "IsNotAvailable", upgradeName);
                     }
@@ -390,7 +391,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                     if (cfgAllowGravgun < 2 && GetGameType() == tf2 &&
                         TF2_GetPlayerClass(client) != TFClass_Engineer)
                     {
-                        decl String:upgradeName[64];
+                        char upgradeName[64];
                         GetUpgradeName(raceID, gravAccelID, upgradeName, sizeof(upgradeName), client);
                         DisplayMessage(client, Display_Ultimate, "%t", "EngineersOnly", upgradeName);
                         PrepareAndEmitSoundToClient(client,deniedWav);
@@ -402,7 +403,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                             if (GetRestriction(client,Restriction_NoUltimates) ||
                                 GetRestriction(client,Restriction_Stunned))
                             {
-                                decl String:upgradeName[64];
+                                char upgradeName[64];
                                 GetUpgradeName(raceID, gravAccelID, upgradeName, sizeof(upgradeName), client);
                                 DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
                                 PrepareAndEmitSoundToClient(client,deniedWav);
@@ -420,30 +421,30 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
 }
 
 // Events
-public OnPlayerSpawnEvent(Handle:event, client, race)
+public void OnPlayerSpawnEvent(Handle:event, client, race)
 {
     if (race == raceID)
     {
         SetOverrideSpeed(client, -1.0);
 
-        new immunity_level = GetUpgradeLevel(client,raceID,immunityID);
+        int immunity_level = GetUpgradeLevel(client,raceID,immunityID);
         DoImmunity(client, immunity_level, true);
 
-        new gravaccel_level=GetUpgradeLevel(client,raceID,gravAccelID);
+        int gravaccel_level =GetUpgradeLevel(client,raceID,gravAccelID);
         SetupGravgun(client, gravaccel_level);
 
-        new armor_level = GetUpgradeLevel(client,raceID,armorID);
+        int armor_level = GetUpgradeLevel(client,raceID,armorID);
         SetupArmor(client, armor_level, g_InitialArmor,
                    g_ArmorPercent, g_ArmorName);
 
-        new jetpack_level=GetUpgradeLevel(client,raceID,jetpackID);
+        int jetpack_level =GetUpgradeLevel(client,raceID,jetpackID);
         SetupJetpack(client, jetpack_level);
 
         PrepareAndEmitSoundToAll(buildWav,client);
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     if (!from_sc && attacker_index > 0 &&
@@ -457,7 +458,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
     return Plugin_Continue;
 }
 
-public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
+public Action OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
                                   assister_index, assister_race, damage,
                                   absorbed)
 {
@@ -470,7 +471,7 @@ public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
     return Plugin_Continue;
 }
 
-public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
+public void OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
                           attacker_race, assister_index, assister_race, damage,
                           const String:weapon[], bool:is_equipment, customkill,
                           bool:headshot, bool:backstab, bool:melee)
@@ -492,7 +493,7 @@ DoImmunity(client, level, bool:value)
 
     if (value && IsValidClientAlive(client))
     {
-        new Float:start[3];
+        float start[3];
         GetClientAbsOrigin(client, start);
 
         static const color[4] = { 0, 255, 50, 128 };
@@ -508,9 +509,9 @@ public SetupGravgun(client, level)
     {
         if (cfgAllowGravgun >= 2 || (cfgAllowGravgun >= 1 && (GameType != tf2 || TF2_GetPlayerClass(client) == TFClass_Engineer)))
         {
-            new Float:speed = cfgGravgunThrowSpeed * float(level);
-            new Float:duration = cfgGravgunDuration * float(level);
-            new permissions=HAS_GRABBER|CAN_STEAL|CAN_JUMP_WHILE_HOLDING;
+            float speed = cfgGravgunThrowSpeed * float(level);
+            float duration = cfgGravgunDuration * float(level);
+            int permissions =HAS_GRABBER|CAN_STEAL|CAN_JUMP_WHILE_HOLDING;
 
             if (GameType == tf2)
             {
@@ -541,7 +542,7 @@ public SetupGravgun(client, level)
     }
 }
 
-public Action:OnPickupObject(client, builder, ent)
+public Action OnPickupObject(client, builder, ent)
 {
     if (GetRace(client) == raceID)
     {
@@ -566,7 +567,7 @@ public Action:OnPickupObject(client, builder, ent)
         {
             PrepareAndEmitSoundToClient(client,deniedWav);
 
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, gravAccelID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
             return Plugin_Stop;
@@ -575,7 +576,7 @@ public Action:OnPickupObject(client, builder, ent)
         {
             m_GravTime[client] = GetEngineTime();
 
-            new grav_level = GetUpgradeLevel(client,raceID,gravAccelID);
+            int grav_level = GetUpgradeLevel(client,raceID,gravAccelID);
             SetOverrideSpeed(client, g_GravgunSpeed[grav_level], true);
         }
     }
@@ -583,7 +584,7 @@ public Action:OnPickupObject(client, builder, ent)
     return Plugin_Continue;
 }
 
-public Action:OnCarryObject(client,ent,Float:time)
+public Action OnCarryObject(client,ent,Float:time)
 {
     if (GetRace(client) == raceID)
     {
@@ -597,21 +598,21 @@ public Action:OnCarryObject(client,ent,Float:time)
         {
             PrepareAndEmitSoundToClient(client,deniedWav);
 
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, gravAccelID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
             return Plugin_Stop;
         }
         else
         {
-            new Float:now = GetEngineTime();
-            new Float:amount = GetUpgradeRecurringEnergy(raceID,gravAccelID);
+            float now = GetEngineTime();
+            float amount = GetUpgradeRecurringEnergy(raceID,gravAccelID);
             if (now-m_GravTime[client] > amount)
             {
-                new level = GetUpgradeLevel(client,raceID,gravAccelID);
+                int level = GetUpgradeLevel(client,raceID,gravAccelID);
                 if (level < 3 || !GetEntProp(ent, Prop_Send, "m_bDisabled"))
                 {
-                    decl String:upgradeName[64];
+                    char upgradeName[64];
                     GetUpgradeName(raceID, gravAccelID, upgradeName, sizeof(upgradeName), client);
 
                     if (CanProcessUpgrade(client, raceID, gravAccelID))
@@ -641,7 +642,7 @@ public Action:OnCarryObject(client,ent,Float:time)
     return Plugin_Continue;
 }
 
-public OnDropObject(client, ent)
+public void OnDropObject(client, ent)
 {
     if (GetRace(client) == raceID)
     {
@@ -650,7 +651,7 @@ public OnDropObject(client, ent)
     }
 }
 
-public Action:OnThrowObject(client, ent)
+public Action OnThrowObject(client, ent)
 {
     OnDropObject(client, ent);
     return Plugin_Continue;
@@ -668,12 +669,12 @@ public bool:ShipWeapons(damage, victim_index, index)
         {
             if (CanInvokeUpgrade(index, raceID, weaponsID))
             {
-                new level = GetUpgradeLevel(index, raceID, weaponsID);
-                new Float:percent = g_ShipWeaponsDamage[level];
-                new dmgamt = RoundFloat(float(damage)*percent);
+                int level = GetUpgradeLevel(index, raceID, weaponsID);
+                float percent = g_ShipWeaponsDamage[level];
+                int dmgamt = RoundFloat(float(damage)*percent);
                 if (dmgamt > 0)
                 {
-                    new Float:Origin[3];
+                    float Origin[3];
                     GetEntityAbsOrigin(victim_index, Origin);
                     Origin[2] += 5;
 
@@ -726,7 +727,7 @@ public MissileBarrage(client,ultlevel)
 
         gMissileBarrageDuration[client] = (ultlevel+1)*3;
 
-        new Handle:MissileBarrageTimer = CreateTimer(0.4, PersistMissileBarrage,
+        Handle MissileBarrageTimer = CreateTimer(0.4, PersistMissileBarrage,
                                                      GetClientUserId(client),
                                                      TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
         TriggerTimer(MissileBarrageTimer, true);
@@ -735,31 +736,31 @@ public MissileBarrage(client,ultlevel)
     }
 }
 
-public Action:PersistMissileBarrage(Handle:timer,any:userid)
+public Action PersistMissileBarrage(Handle:timer,any:userid)
 {
-    new client = GetClientOfUserId(userid);
+    int client = GetClientOfUserId(userid);
     if (IsValidClientAlive(client) &&
         !GetRestriction(client,Restriction_NoUltimates) &&
         !GetRestriction(client,Restriction_Stunned))
     {
-        new level = GetUpgradeLevel(client,raceID,barrageID);
-        new Float:range = g_BarrageRange[level];
+        int level = GetUpgradeLevel(client,raceID,barrageID);
+        float range = g_BarrageRange[level];
 
-        new Float:indexLoc[3];
-        new Float:clientLoc[3];
+        float indexLoc[3];
+        float clientLoc[3];
         GetClientAbsOrigin(client, clientLoc);
         clientLoc[2] += 50.0; // Adjust trace position to the middle of the person instead of the feet.
 
         PrepareAndEmitSoundToAll(barrageWav,client);
 
-        new count=0;
-        new alt_count=0;
+        int count =0;
+        int alt_count =0;
         new list[MaxClients+1];
         new alt_list[MaxClients+1];
         SetupOBeaconLists(list, alt_list, count, alt_count, client);
 
-        new lightning  = Lightning();
-        new haloSprite = HaloSprite();
+        int lightning = Lightning();
+        int haloSprite = HaloSprite();
         static const barrageColor[4] = { 200, 200, 100, 255 };
 
         if (count > 0)
@@ -778,10 +779,10 @@ public Action:PersistMissileBarrage(Handle:timer,any:userid)
             TE_Send(alt_list, alt_count, 0.0);
         }
 
-        new minDmg=level*5;
-        new maxDmg=level*10;
-        new team=GetClientTeam(client);
-        for(new index=1;index<=MaxClients;index++)
+        int minDmg =level*5;
+        int maxDmg =level*10;
+        int team =GetClientTeam(client);
+        for(int index =1;index<=MaxClients;index++)
         {
             if (client != index && IsClientInGame(index) &&
                 IsPlayerAlive(index) && GetClientTeam(index) != team)
@@ -796,14 +797,14 @@ public Action:PersistMissileBarrage(Handle:timer,any:userid)
                     if (IsPointInRange(clientLoc,indexLoc,range) &&
                         TraceTargetIndex(client, index, clientLoc, indexLoc))
                     {
-                        new num = GetRandomInt(0,sizeof(explosionsWav)-1);
+                        int num = GetRandomInt(0,sizeof(explosionsWav)-1);
                         PrepareAndEmitSoundToAll(explosionsWav[num], index);
                             
                         TE_SetupBeamPoints(clientLoc,indexLoc, lightning, haloSprite,
                                            0, 1, 10.0, 10.0,10.0,2,50.0,barrageColor,255);
                         TE_SendQEffectToAll(client,index);
 
-                        new amt=GetRandomInt(minDmg,maxDmg);
+                        int amt =GetRandomInt(minDmg,maxDmg);
                         HurtPlayer(index, amt, client, "sc_barrage",
                                    .xp=5+level, .type=DMG_BLAST);
                     }
@@ -833,25 +834,25 @@ YamatoCannon(client,level)
                 TF2_RemovePlayerDisguise(client);
         }
 
-        new Float:range = g_YamatoRange[level];
-        new dmg = GetRandomInt(g_YamatoDamage[level][0],
+        float range = g_YamatoRange[level];
+        int dmg = GetRandomInt(g_YamatoDamage[level][0],
                                g_YamatoDamage[level][1]);
 
-        new Float:indexLoc[3];
-        new Float:targetLoc[3];
-        new Float:clientLoc[3];
+        float indexLoc[3];
+        float targetLoc[3];
+        float clientLoc[3];
         GetClientAbsOrigin(client, clientLoc);
         clientLoc[2] += 50.0; // Adjust trace position to the middle of the person instead of the feet.
 
-        new lightning  = Lightning();
-        new haloSprite = HaloSprite();
-        new beamSprite = BeamSprite();
+        int lightning = Lightning();
+        int haloSprite = HaloSprite();
+        int beamSprite = BeamSprite();
         static const yamatoColor[4] = {139, 200, 255, 255};
         static const yamatoFlash[4] = {139, 200, 255, 3};
 
-        new count  = 0;
-        new team   = GetClientTeam(client);
-        new target = GetClientAimTarget(client);
+        int count = 0;
+        int team = GetClientTeam(client);
+        int target = GetClientAimTarget(client);
         if (target > 0) 
         {
             GetClientAbsOrigin(target, targetLoc);
@@ -891,8 +892,8 @@ YamatoCannon(client,level)
             targetLoc = clientLoc;
         }
 
-        new b_count=0;
-        new alt_count=0;
+        int b_count =0;
+        int alt_count =0;
         new list[MaxClients+1];
         new alt_list[MaxClients+1];
         SetupOBeaconLists(list, alt_list, b_count, alt_count, client);
@@ -915,7 +916,7 @@ YamatoCannon(client,level)
 
         PrepareAndEmitSoundToAll(yamatoFireWav, client);
 
-        for (new index=1;index<=MaxClients;index++)
+        for (int index =1;index<=MaxClients;index++)
         {
             if (client != index && client != target && IsClientInGame(index) &&
                 IsPlayerAlive(index) && GetClientTeam(index) != team)
@@ -952,7 +953,7 @@ YamatoCannon(client,level)
             }
         }
 
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, yamatoID, upgradeName, sizeof(upgradeName), client);
 
         if (count)

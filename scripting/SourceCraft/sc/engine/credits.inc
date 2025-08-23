@@ -43,7 +43,7 @@ ShowCrystals(client, Display:displayFlags=Display_Crystals)
 {
     if (GetShopItemCount() >= 1 && !IsFakeClient(client))
     {
-        new pcrystals = GetPCrystals(client);
+        int pcrystals = GetPCrystals(client);
         if (pcrystals > 0)
         {
             DisplayMessage(client, displayFlags, "%t", "ShowPCrystals",
@@ -70,17 +70,17 @@ ShowEnergy(client, Display:displayFlags=Display_Energy)
 {
     if (!IsFakeClient(client))
     {
-        new bool:display = (displayFlags != Display_Energy);
+        bool display = (displayFlags != Display_Energy);
         if (!display)
         {
             new EnergyFlags:energyFlags = NoEnergy;
-            new Float:limit = GetEnergyLimit(client);
-            new Float:rate = GetEnergyRate(client);
+            float limit = GetEnergyLimit(client);
+            float rate = GetEnergyRate(client);
 
-            new race = GetRace(client);
+            int race = GetRace(client);
             if (race > 0)
             {
-                new Handle:raceHandle = GetRaceHandle(race);
+                Handle raceHandle = GetRaceHandle(race);
                 energyFlags = GetRaceEnergyFlags(raceHandle);
 
                 if (rate < 0)
@@ -104,20 +104,20 @@ ShowEnergy(client, Display:displayFlags=Display_Energy)
 
 GiveKillCrystals(client)
 {
-    new addcrystals= (SAVE_ENABLED) ? KILL_CRYSTALS_LONGTERM : KILL_CRYSTALS_SHORTTERM;
+    int addcrystals = (SAVE_ENABLED) ? KILL_CRYSTALS_LONGTERM : KILL_CRYSTALS_SHORTTERM;
     GiveCrystals(client,addcrystals,"Kill");
 }
 
 GiveBossStunCrystalsAndGas(client, level)
 {
-    new amount = STUN_BOSS_AMOUNT + (BOSS_LEVEL_AMOUNT * (level+1));
+    int amount = STUN_BOSS_AMOUNT + (BOSS_LEVEL_AMOUNT * (level+1));
     GiveCrystals(client, amount, "BossStun");
     GiveVespene(client, amount, "BossStun");
 }
 
 GiveBossKillCrystalsAndGas(client, level)
 {
-    new amount = KILL_BOSS_AMOUNT + (BOSS_LEVEL_AMOUNT * (level+1));
+    int amount = KILL_BOSS_AMOUNT + (BOSS_LEVEL_AMOUNT * (level+1));
     GiveCrystals(client, amount, "BossKill");
     GiveVespene(client, amount, "BossKill");
 }
@@ -253,7 +253,7 @@ GiveCrystals(client, amount, const String:phrase[],
 
         if (result != Plugin_Stop)
         {
-            new String:reason[NAME_STRING_LENGTH];
+            char reason[NAME_STRING_LENGTH];
             if (place >= 0 || points >= 0)
             {
                 Format(reason, sizeof(reason), "%T",
@@ -267,8 +267,8 @@ GiveCrystals(client, amount, const String:phrase[],
 
             if (g_bUseMoney)
             {
-                new curmoney = GetMoney(client);
-                new newmoney = curmoney+RoundToNearest(float(amount) * g_fCrystalSellRate);
+                int curmoney = GetMoney(client);
+                int newmoney = curmoney+RoundToNearest(float(amount) * g_fCrystalSellRate);
                 SetMoney(client, newmoney);
 
                 if (amount >= 0)
@@ -286,8 +286,8 @@ GiveCrystals(client, amount, const String:phrase[],
             }
             else
             {
-                new curcrystals = GetCrystals(client);
-                new newcrystals = curcrystals+amount;
+                int curcrystals = GetCrystals(client);
+                int newcrystals = curcrystals+amount;
                 if (newcrystals <= g_iMaxCrystals || g_iMaxCrystals <= 0)
                 {
                     SetCrystals(client,newcrystals);
@@ -306,7 +306,7 @@ GiveCrystals(client, amount, const String:phrase[],
                 }
                 else
                 {
-                    new amt = g_iMaxCrystals-curcrystals;
+                    int amt = g_iMaxCrystals-curcrystals;
                     if (amt > 0)
                     {
                         SetCrystals(client,g_iMaxCrystals);
@@ -317,7 +317,7 @@ GiveCrystals(client, amount, const String:phrase[],
                     else if (amt < 0)
                         amt = 0;
 
-                    new extra = amount - amt;
+                    int extra = amount - amt;
                     IncrementPCrystals(client, extra);
 
                     LogToGame("%N gained %d +crystals for %s", client, extra, reason);
@@ -329,14 +329,14 @@ GiveCrystals(client, amount, const String:phrase[],
             if (IsFakeClient(client))
             {
                 // Should the Bot buy something?
-                new crystals = GetCrystals(client);
+                int crystals = GetCrystals(client);
                 if (crystals > 10 && GetRandomInt(0,100) < ((crystals >= 90) ? 80 : 50))
                 {
-                    new shopItemCount = GetShopItemCount();
-                    new item = GetRandomInt(0, shopItemCount-1);
+                    int shopItemCount = GetShopItemCount();
+                    int item = GetRandomInt(0, shopItemCount-1);
                     if (item >= 0)
                     {
-                        new Handle:itemHandle = GetShopItemHandle(item);
+                        Handle itemHandle = GetShopItemHandle(item);
                         if (itemHandle && GetCrystals(client) >= GetItemCrystals(itemHandle))
                             PurchaseShopItem(client, item);
                     }
@@ -348,7 +348,7 @@ GiveCrystals(client, amount, const String:phrase[],
 
 GivePCrystals(client, amount, const String:phrase[])
 {
-    new String:reason[NAME_STRING_LENGTH];
+    char reason[NAME_STRING_LENGTH];
     Format(reason, sizeof(reason), "%T", phrase, client);
     LogToGame("%N gained %d +crystals for %s", client, amount, reason);
     DisplayMessage(client, Display_Crystals, "%t", "GainedPCrystals",
@@ -369,7 +369,7 @@ GiveVespene(client, amount, const String:phrase[],
 
         if (result != Plugin_Stop)
         {
-            new String:reason[NAME_STRING_LENGTH];
+            char reason[NAME_STRING_LENGTH];
             if (place >= 0 || points >= 0)
             {
                 Format(reason, sizeof(reason), "%T",
@@ -381,8 +381,8 @@ GiveVespene(client, amount, const String:phrase[],
                        phrase, client);
             }
 
-            new curvespene = GetVespene(client);
-            new newvespene = curvespene+amount;
+            int curvespene = GetVespene(client);
+            int newvespene = curvespene+amount;
             if (newvespene <= g_iMaxVespene || g_iMaxVespene <= 0)
             {
                 SetVespene(client,newvespene);
@@ -401,7 +401,7 @@ GiveVespene(client, amount, const String:phrase[],
             }
             else
             {
-                new amt = g_iMaxVespene-curvespene;
+                int amt = g_iMaxVespene-curvespene;
                 if (amt > 0)
                 {
                     SetVespene(client,g_iMaxVespene);
@@ -419,7 +419,7 @@ GiveEnergy(client, Float:amount, const String:phrase[],
 {
     if (GetShopItemCount() >= 1 && GetClientCount() >= g_iMinPlayers)
     {
-        new String:reason[NAME_STRING_LENGTH];
+        char reason[NAME_STRING_LENGTH];
         if (place >= 0 || points >= 0)
         {
             Format(reason, sizeof(reason), "%T",

@@ -34,7 +34,7 @@ stock AddBurrowUpgrade(raceId, category=2, required_level=6, max_level=1, start_
 {
     AdditionalTranslations("sc.burrow.phrases.txt");
 
-    decl String:desc[NAME_STRING_LENGTH];
+    char desc[NAME_STRING_LENGTH];
     if (max_level >= start_level && start_level > 0 && start_level < 3)
         Format(desc, sizeof(desc), "%%burrow_%d.%d", start_level, max_level);
     else

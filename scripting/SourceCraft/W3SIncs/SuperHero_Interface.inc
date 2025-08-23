@@ -26,7 +26,7 @@ forward OnHeroChanged(client);
 //returns hero id!!
 //Skill name is displayed in cooldowns
 stock SHRegisterHero(String:heroname[],String:shortheroname[],String:tttSkillName[]="No Activateble Skill",String:longDescription[],bool:hasPowerBind=false){
-	new heroid=War3_CreateNewRace(heroname,shortheroname);
+	int heroid =War3_CreateNewRace(heroname,shortheroname);
 	War3_AddRaceSkill(heroid,tttSkillName,longDescription,false,4); ///
 
 	SHSetHeroHasPowerBind(heroid,hasPowerBind);
@@ -66,8 +66,8 @@ native SHGetHeroesClientCanHave(client);
  * how many heroes this person have?
  */ 
 stock SHHasHeroesNum(client){
-	new num;
-	for(new i=1;i<=War3_GetRacesLoaded();i++)
+	int num;
+	for(int i =1;i<=War3_GetRacesLoaded();i++)
 	{
 		if(SHHasHero(client,i))
 		{
@@ -127,8 +127,8 @@ stock SH_ChatMessage(client, const String:szMessage[], any:...)
 {
 	if (client == 0)
 	{
-		decl String:szBuffer[MAX_MESSAGE_LENGTH];
-		for (new i = 1; i <= MaxClients; i++)
+		char szBuffer[MAX_MESSAGE_LENGTH];
+		for (int i = 1; i <= MaxClients; i++)
 		{
 			if (IsClientInGame(i) && !IsFakeClient(i))
 			{
@@ -142,7 +142,7 @@ stock SH_ChatMessage(client, const String:szMessage[], any:...)
 	}
 	else
 	{
-		decl String:szBuffer[MAX_MESSAGE_LENGTH];
+		char szBuffer[MAX_MESSAGE_LENGTH];
 		SetGlobalTransTarget(client);
 		VFormat(szBuffer, sizeof(szBuffer), szMessage, 3);
 		//Format(szBuffer, sizeof(szBuffer), "%T%s", "[SH]", client, szBuffer);

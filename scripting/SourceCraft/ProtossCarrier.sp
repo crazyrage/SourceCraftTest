@@ -6,6 +6,7 @@
  */
  
 #pragma semicolon 1
+#pragma newdecls required
 
 #include <sourcemod>
 #include <sdktools>
@@ -37,17 +38,17 @@ new const String:deathWav[]     = "sc/pcadth00.wav";
 new const String:launchWav[]    = "sc/pinlau00.wav";
 
 new g_JetpackFuel[]             = { 40,   50,   70,   90,   120 };
-new Float:g_JetpackRefuelTime[] = { 45.0, 35.0, 25.0, 15.0, 5.0 };
+float g_JetpackRefuelTime[] = { 45.0, 35.0, 25.0, 15.0, 5.0 };
 
-new Float:g_SpeedLevels[]       = { -1.0, 1.10, 1.15, 1.20, 1.25 };
+float g_SpeedLevels[]       = { -1.0, 1.10, 1.15, 1.20, 1.25 };
 
-new Float:m_InterceptorSpeed[4] = { 150.0, 225.0, 325.0, 400.0 };
+float m_InterceptorSpeed[4] = { 150.0, 225.0, 325.0, 400.0 };
 
-new Float:g_WeaponsPercent[]    = { 0.0, 0.30, 0.40, 0.50, 0.70 };
+float g_WeaponsPercent[]    = { 0.0, 0.30, 0.40, 0.50, 0.70 };
 new g_WeaponsChance[]           = { 0,   25,   25,   25,   25 };
 
-new Float:g_InitialShields[]    = { 0.0, 0.10, 0.25, 0.50, 0.75 };
-new Float:g_ShieldsPercent[][2] = { {0.00, 0.10},
+float g_InitialShields[]    = { 0.0, 0.10, 0.25, 0.50, 0.75 };
+float g_ShieldsPercent[][2] = { {0.00, 0.10},
                                     {0.05, 0.20},
                                     {0.10, 0.30},
                                     {0.20, 0.40},
@@ -55,10 +56,10 @@ new Float:g_ShieldsPercent[][2] = { {0.00, 0.10},
 
 new raceID, weaponsID, shieldsID, thrusterID, jetpackID, interceptorID, capacityID;
 
-new cfgMaxObjects;
-new cfgAllowSentries;
+int cfgMaxObjects;
+int cfgAllowSentries;
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Unit - Protoss Carrier",
     author = "-=|JFH|=-Naris",
@@ -67,7 +68,7 @@ public Plugin:myinfo =
     url = "http://jigglysfunhouse.net/"
 };
 
-public OnPluginStart()
+public void OnPluginStart()
 {
     LoadTranslations("sc.common.phrases.txt");
     LoadTranslations("sc.carrier.phrases.txt");
@@ -76,7 +77,7 @@ public OnPluginStart()
         OnSourceCraftReady();
 }
 
-public OnSourceCraftReady()
+public void OnSourceCraftReady()
 {
     raceID      = CreateRace("carrier", -1, -1, 24, .energy_rate=2.0, .faction=Protoss,
                              .type=Mechanical, .parent="phoenix");
@@ -142,9 +143,9 @@ public OnSourceCraftReady()
     GetConfigFloatArray("shields_amount", g_InitialShields, sizeof(g_InitialShields),
                         g_InitialShields, raceID, shieldsID);
 
-    for (new level=0; level < sizeof(g_ShieldsPercent); level++)
+    for (int level =0; level < sizeof(g_ShieldsPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "shields_percent_level_%d", level);
         GetConfigFloatArray(key, g_ShieldsPercent[level], sizeof(g_ShieldsPercent[]),
                             g_ShieldsPercent[level], raceID, shieldsID);
@@ -172,19 +173,19 @@ public OnSourceCraftReady()
 ParseInterceptorSpeed()
 {
     //Specify either 1 factor (multiplied by level) or 4 values (per level) separated with spaces
-    new String:speedValue[32];
-    new String:values[sizeof(m_InterceptorSpeed)][8];
+    char speedValue[32];
+    char values[sizeof(m_InterceptorSpeed)][8];
     GetConfigString("speed", speedValue, sizeof(speedValue),
                     "150.0 225.0 325.0 400.0",
                     raceID, interceptorID);
 
     if (speedValue[0])
     {
-        new count = ExplodeString(speedValue," ",values, sizeof(values), sizeof(values[]));
+        int count = ExplodeString(speedValue," ",values, sizeof(values), sizeof(values[]));
         if (count > sizeof(m_InterceptorSpeed))
             count = sizeof(m_InterceptorSpeed);
 
-        new level=0;
+        int level =0;
         for (;level < count; level++)
             m_InterceptorSpeed[level] = StringToFloat(values[level]);
 
@@ -193,7 +194,7 @@ ParseInterceptorSpeed()
     }
 }
 
-public OnLibraryAdded(const String:name[])
+public void OnLibraryAdded(const String:name[])
 {
     if (StrEqual(name, "jetpack"))
         IsJetpackAvailable(true);
@@ -201,7 +202,7 @@ public OnLibraryAdded(const String:name[])
         IsRemoteAvailable(true);
 }
 
-public OnLibraryRemoved(const String:name[])
+public void OnLibraryRemoved(const String:name[])
 {
     if (StrEqual(name, "jetpack"))
         m_JetpackAvailable = false;
@@ -209,7 +210,7 @@ public OnLibraryRemoved(const String:name[])
         m_RemoteAvailable = false;
 }
 
-public OnMapStart()
+public void OnMapStart()
 {
     SetupHaloSprite();
     SetupLightning();
@@ -223,7 +224,7 @@ public OnMapStart()
     SetupSound(launchWav);
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -245,21 +246,21 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
     return Plugin_Continue;
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
         Interceptor(client, GetUpgradeLevel(client,raceID,interceptorID));
 
-        new thrusters_level = GetUpgradeLevel(client,raceID,thrusterID);
+        int thrusters_level = GetUpgradeLevel(client,raceID,thrusterID);
         SetSpeedBoost(client, thrusters_level, true, g_SpeedLevels);
 
-        new jetpack_level=GetUpgradeLevel(client,raceID,jetpackID);
+        int jetpack_level =GetUpgradeLevel(client,raceID,jetpackID);
         SetupJetpack(client, jetpack_level);
 
         if (m_RemoteAvailable)
         {
-            new capacity = GetUpgradeLevel(client,raceID,capacityID);
+            int capacity = GetUpgradeLevel(client,raceID,capacityID);
             if (capacity < 1)
                 capacity = 1;
             else if (capacity > cfgMaxObjects)
@@ -267,7 +268,7 @@ public Action:OnRaceSelected(client,oldrace,newrace)
             GiveBuild(client, capacity, capacity, capacity, capacity);
         }
 
-        new shields_level = GetUpgradeLevel(client,raceID,shieldsID);
+        int shields_level = GetUpgradeLevel(client,raceID,shieldsID);
         SetupShields(client, shields_level, g_InitialShields, g_ShieldsPercent);
 
         return Plugin_Handled;
@@ -276,7 +277,7 @@ public Action:OnRaceSelected(client,oldrace,newrace)
         return Plugin_Continue;
 }
 
-public OnUpgradeLevelChanged(client,race,upgrade,new_level)
+public void OnUpgradeLevelChanged(client,race,upgrade,new_level)
 {
     if (race == raceID && GetRace(client) == raceID)
     {
@@ -295,7 +296,7 @@ public OnUpgradeLevelChanged(client,race,upgrade,new_level)
         {
             if (m_RemoteAvailable)
             {
-                new capacity = (new_level < 1) ? 1 : new_level;
+                int capacity = (new_level < 1) ? 1 : new_level;
                 if (capacity > cfgMaxObjects)
                     capacity = cfgMaxObjects;
                 GiveBuild(client, capacity, capacity, capacity, capacity);
@@ -304,7 +305,7 @@ public OnUpgradeLevelChanged(client,race,upgrade,new_level)
     }
 }
 
-public OnItemPurchase(client,item)
+public void OnItemPurchase(client,item)
 {
     if (GetRace(client) == raceID && IsValidClientAlive(client))
     {
@@ -313,14 +314,14 @@ public OnItemPurchase(client,item)
 
         if (item == g_bootsItem)
         {
-            new level=GetUpgradeLevel(client,raceID,thrusterID);
+            int level =GetUpgradeLevel(client,raceID,thrusterID);
             if (level > 0)
                 SetSpeedBoost(client, level, true, g_SpeedLevels);
         }
     }
 }
 
-public OnUltimateCommand(client,race,bool:pressed,arg)
+public void OnUltimateCommand(client,race,bool:pressed,arg)
 {
     if (race==raceID && IsValidClientAlive(client))
     {
@@ -361,7 +362,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                 }
                 else if (pressed)
                 {
-                    decl String:upgradeName[64];
+                    char upgradeName[64];
                     GetUpgradeName(raceID, jetpackID, upgradeName, sizeof(upgradeName), client);
                     PrintHintText(client,"%t", "IsNotAvailable", upgradeName);
                 }
@@ -371,7 +372,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
 }
 
 // Events
-public OnPlayerSpawnEvent(Handle:event, client, race)
+public void OnPlayerSpawnEvent(Handle:event, client, race)
 {
     if (race == raceID)
     {
@@ -379,15 +380,15 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
 
         Interceptor(client, GetUpgradeLevel(client,raceID,interceptorID));
 
-        new thrusters_level = GetUpgradeLevel(client,raceID,thrusterID);
+        int thrusters_level = GetUpgradeLevel(client,raceID,thrusterID);
         SetSpeedBoost(client, thrusters_level, true, g_SpeedLevels);
 
-        new jetpack_level=GetUpgradeLevel(client,raceID,jetpackID);
+        int jetpack_level =GetUpgradeLevel(client,raceID,jetpackID);
         SetupJetpack(client, jetpack_level);
 
         if (m_RemoteAvailable)
         {
-            new capacity = GetUpgradeLevel(client,raceID,capacityID);
+            int capacity = GetUpgradeLevel(client,raceID,capacityID);
             if (capacity < 1)
                 capacity = 1;
             else if (capacity > cfgMaxObjects)
@@ -395,12 +396,12 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
             GiveBuild(client, capacity, capacity, capacity, capacity);
         }
 
-        new shields_level = GetUpgradeLevel(client,raceID,shieldsID);
+        int shields_level = GetUpgradeLevel(client,raceID,shieldsID);
         SetupShields(client, shields_level, g_InitialShields, g_ShieldsPercent);
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     if (!from_sc && attacker_index > 0 &&
@@ -417,7 +418,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
     return Plugin_Continue;
 }
 
-public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
+public Action OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
                                   assister_index, assister_race, damage,
                                   absorbed)
 {
@@ -433,7 +434,7 @@ public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
     return Plugin_Continue;
 }
 
-public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
+public void OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
                           attacker_race, assister_index, assister_race, damage,
                           const String:weapon[], bool:is_equipment, customkill,
                           bool:headshot, bool:backstab, bool:melee)
@@ -444,13 +445,13 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
     }
 }
 
-public Action:OnBuildObject(client, TFExtObjectType:type)
+public Action OnBuildObject(client, TFExtObjectType:type)
 {
     if (GetRace(client) == raceID)
     {
         if (IsMole(client))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, interceptorID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "NotAsMole", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -459,7 +460,7 @@ public Action:OnBuildObject(client, TFExtObjectType:type)
         else if (GetRestriction(client,Restriction_NoUltimates) ||
                  GetRestriction(client,Restriction_Stunned))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, interceptorID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "PreventedFromLaunchingInterceptors");
             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -499,15 +500,15 @@ public Action:OnBuildObject(client, TFExtObjectType:type)
             new counts[TFOBJECT_COUNT];
             CountBuildings(client, counts);
 
-            new count = counts[type];
-            new Float:cooldown = GetUpgradeCooldown(raceID, interceptorID) * float((count > 1) ? count * 2 : 1);
+            int count = counts[type];
+            float cooldown = GetUpgradeCooldown(raceID, interceptorID) * float((count > 1) ? count * 2 : 1);
             CreateCooldown(client, raceID, interceptorID, cooldown);
         }
     }
     return Plugin_Continue;
 }
 
-public Action:OnControlObject(client, builder, ent)
+public Action OnControlObject(client, builder, ent)
 {
     if (GetRace(client) == raceID)
     {
@@ -523,7 +524,7 @@ public Action:OnControlObject(client, builder, ent)
 
         if (IsMole(client))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, interceptorID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "NotAsMole", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -532,7 +533,7 @@ public Action:OnControlObject(client, builder, ent)
         else if (GetRestriction(client,Restriction_NoUltimates) ||
                  GetRestriction(client,Restriction_Stunned))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, interceptorID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "PreventedFromLaunchingInterceptors");
             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -581,7 +582,7 @@ public Interceptor(client, level)
              (cfgAllowSentries >= 1 &&
               TF2_GetPlayerClass(client) == TFClass_Engineer)))
         {
-            new flags = HAS_REMOTE | REMOTE_CAN_BUILD_MINI;
+            int flags = HAS_REMOTE | REMOTE_CAN_BUILD_MINI;
             if (level >= 2)
             {
                 flags |= REMOTE_CAN_BUILD_LEVEL_1;
@@ -595,7 +596,7 @@ public Interceptor(client, level)
                     }
                 }
             }
-            new Float:speed = (level > 0) ? ((level <= sizeof(m_InterceptorSpeed))
+            float speed = (level > 0) ? ((level <= sizeof(m_InterceptorSpeed))
                                              ? m_InterceptorSpeed[level-1]
                                              : m_InterceptorSpeed[sizeof(m_InterceptorSpeed)-1])
                                           : 0.0;

@@ -1,44 +1,45 @@
 #pragma semicolon 1
+#pragma newdecls required
 
 #include <sourcemod>
 #include "W3SIncs/War3Source_Interface"
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "War3Source - Race - Blood Hunter",
     author = "War3Source Team",
     description = "The Blood Hunter race for War3Source."
 };
 
-new thisRaceID;
+int thisRaceID;
 
 #if !defined SOURCECRAFT
-new Handle:ultCooldownCvar;
+Handle ultCooldownCvar;
 #endif
 
 new SKILL_CRAZY, SKILL_FEAST,SKILL_SENSE,ULT_RUPTURE;
 
-new Float:CrazyDuration[5] = {0.0, 4.0, 6.0, 8.0, 10.0};
-new Float:CrazyUntil[MAXPLAYERSCUSTOM];
-new bool:bCrazyDot[MAXPLAYERSCUSTOM];
+float CrazyDuration[5] = {0.0, 4.0, 6.0, 8.0, 10.0};
+float CrazyUntil[MAXPLAYERSCUSTOM];
+bool bCrazyDot[MAXPLAYERSCUSTOM];
 new CrazyBy[MAXPLAYERSCUSTOM];
 
-new Float:FeastAmount[5]={0.0,0.05,0.1,0.15,0.2}; 
+float FeastAmount[5]={0.0,0.05,0.1,0.15,0.2}; 
 
-new Float:BloodSense[5]={0.0,0.1,0.15,0.2,0.25}; 
+float BloodSense[5]={0.0,0.1,0.15,0.2,0.25}; 
 
-new Float:ultRange = 300.0;
-new Float:ultiDamageMultiPerDistance[5] = {0.0, 0.06, 0.073, 0.086, 0.10}; 
-new Float:ultiDamageMultiPerDistanceCS[5] = {0.0, 0.09, 0.11, 0.13, 0.15}; 
-new Float:lastRuptureLocation[MAXPLAYERSCUSTOM][3];
-new Float:RuptureDuration = 8.0;
-new Float:RuptureUntil[MAXPLAYERSCUSTOM];
-new bool:bRuptured[MAXPLAYERSCUSTOM];
+float ultRange = 300.0;
+float ultiDamageMultiPerDistance[5] = {0.0, 0.06, 0.073, 0.086, 0.10}; 
+float ultiDamageMultiPerDistanceCS[5] = {0.0, 0.09, 0.11, 0.13, 0.15}; 
+float lastRuptureLocation[MAXPLAYERSCUSTOM][3];
+float RuptureDuration = 8.0;
+float RuptureUntil[MAXPLAYERSCUSTOM];
+bool bRuptured[MAXPLAYERSCUSTOM];
 new RupturedBy[MAXPLAYERSCUSTOM];
 
-new String:ultsnd[256]; //="war3source/bh/ult.mp3";
+char ultsnd[256]; //="war3source/bh/ult.mp3";
 
-public OnPluginStart()
+public void OnPluginStart()
 {
 #if !defined SOURCECRAFT
     ultCooldownCvar = CreateConVar("war3_bh_ult_cooldown", "20", "Cooldown time for Ultimate.");
@@ -50,7 +51,7 @@ public OnPluginStart()
     LoadTranslations("w3s.race.bh.phrases");
 }
 
-public OnWar3LoadRaceOrItemOrdered(num)
+public void OnWar3LoadRaceOrItemOrdered(num)
 {
     if(num==110)
     {
@@ -110,23 +111,23 @@ public OnWar3LoadRaceOrItemOrdered(num)
     }
 }
 
-public OnMapStart()
+public void OnMapStart()
 {
     War3_AddSoundFolder(ultsnd, sizeof(ultsnd), "bh/ult.mp3");
     War3_AddCustomSound(ultsnd);
 }
 
 
-public OnUltimateCommand(client,race,bool:pressed)
+public void OnUltimateCommand(client,race,bool:pressed)
 {
     if(race == thisRaceID && pressed && ValidPlayer(client, true))
     {
-        new skill = War3_GetSkillLevel(client, race, ULT_RUPTURE);
+        int skill = War3_GetSkillLevel(client, race, ULT_RUPTURE);
         if(skill > 0)
         {
             if(!Silenced(client) && War3_SkillNotInCooldown(client, thisRaceID, ULT_RUPTURE, true))
             {
-                new target = War3_GetTargetInViewCone(client, ultRange, false);
+                int target = War3_GetTargetInViewCone(client, ultRange, false);
                 if(ValidPlayer(target, true) && !W3HasImmunity(target, Immunity_Ultimates))
                 {
                     bRuptured[target] = true;
@@ -135,7 +136,7 @@ public OnUltimateCommand(client,race,bool:pressed)
                     GetClientAbsOrigin(target, lastRuptureLocation[target]);
                     
 #if defined SOURCECRAFT
-                    new Float:cooldown= GetUpgradeCooldown(thisRaceID,ULT_RUPTURE);
+                    float cooldown= GetUpgradeCooldown(thisRaceID,ULT_RUPTURE);
                     War3_CooldownMGR(client,cooldown,thisRaceID,ULT_RUPTURE,true,true);
 #else
                     War3_CooldownMGR(client, GetConVarFloat(ultCooldownCvar), thisRaceID, ULT_RUPTURE, true, true);
@@ -160,19 +161,19 @@ public OnUltimateCommand(client,race,bool:pressed)
     }
 }
 
-public OnWar3EventSpawn(client)
+public void OnWar3EventSpawn(client)
 {
     bRuptured[client] = false;
     bCrazyDot[client] = false;
 }
 
-public OnWar3EventDeath(victim, attacker, deathrace)
+public void OnWar3EventDeath(victim, attacker, deathrace)
 {
     if(ValidPlayer(attacker,true))
     {
         if(War3_GetRace(attacker) == thisRaceID)
         {
-            new skill = War3_GetSkillLevel(attacker, thisRaceID, SKILL_FEAST);
+            int skill = War3_GetSkillLevel(attacker, thisRaceID, SKILL_FEAST);
             if(skill > 0 && !Hexed(attacker, false))
             {
 #if defined SOURCECRAFT
@@ -189,13 +190,13 @@ public OnWar3EventDeath(victim, attacker, deathrace)
     }
 }
 
-public Action:RuptureCheckLoop(Handle:h, any:data)
+public Action RuptureCheckLoop(Handle:h, any:data)
 {
-    new Float:origin[3];
-    new attacker;
-    new skilllevel;
-    new Float:dist;
-    for(new i=1;i<=MaxClients;i++)
+    float origin[3];
+    int attacker;
+    int skilllevel;
+    float dist;
+    for(int i =1;i<=MaxClients;i++)
     {
         if(!ValidPlayer(i, true) || !bRuptured[i])
         {
@@ -213,7 +214,7 @@ public Action:RuptureCheckLoop(Handle:h, any:data)
             GetClientAbsOrigin(i,origin);
             dist=GetVectorDistance(origin, lastRuptureLocation[i]);
             
-            new damage = RoundFloat((dist * (War3_GetGame() == CS ? ultiDamageMultiPerDistanceCS[skilllevel] : ultiDamageMultiPerDistance[skilllevel])));
+            int damage = RoundFloat((dist * (War3_GetGame() == CS ? ultiDamageMultiPerDistanceCS[skilllevel] : ultiDamageMultiPerDistance[skilllevel])));
             if(damage > 0)
             {
                 if(War3_GetGame() == Game_TF)
@@ -246,10 +247,10 @@ public Action:RuptureCheckLoop(Handle:h, any:data)
         }
     }
 }
-public Action:BloodCrazyDOTLoop(Handle:h,any:data)
+public Action BloodCrazyDOTLoop(Handle:h,any:data)
 {
-    new attacker;
-    for(new i=1; i <= MaxClients; i++)
+    int attacker;
+    for(int i =1; i <= MaxClients; i++)
     {
         if(!ValidPlayer(i, true) || !bCrazyDot[i])
         {
@@ -284,11 +285,11 @@ public Action:BloodCrazyDOTLoop(Handle:h,any:data)
     }
 }
 
-public OnW3EnemyTakeDmgBulletPre(victim,attacker,Float:damage)
+public void OnW3EnemyTakeDmgBulletPre(victim,attacker,Float:damage)
 {
     if(War3_GetRace(attacker) == thisRaceID && !Hexed(attacker, false))
     {
-        new skilllevel = War3_GetSkillLevel(attacker, thisRaceID, SKILL_CRAZY);
+        int skilllevel = War3_GetSkillLevel(attacker, thisRaceID, SKILL_CRAZY);
         if(skilllevel > 0)
         {
 #if defined SOURCECRAFT

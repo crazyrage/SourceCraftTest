@@ -1,10 +1,11 @@
 #pragma semicolon 1
+#pragma newdecls required
 #include <sourcemod>
 #include <sdkhooks>
 #include <lib/trace>
 #include "W3SIncs/War3Source_Interface"
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
   name = "War3Source - Engine - Buff System",
   author = "War3Source Team",
@@ -18,7 +19,7 @@ new BuffProperties[W3Buff][W3BuffProperties];
 
 new any:BuffCached[MAXPLAYERSCUSTOM][W3Buff];// instead of looping, we cache everything in the last dimension, see enum W3BuffCache
 
-public OnPluginStart()
+public void OnPluginStart()
 {
   
   InitiateBuffPropertiesArray(BuffProperties);
@@ -60,17 +61,17 @@ public bool:InitNativesForwards()
 ItemsPlusRacesLoaded(){
   return W3GetItemsLoaded()+War3_GetRacesLoaded()+CUSTOMMODIFIERS;
 }
-public NW3BuffCustomOFFSET(Handle:plugin,numParams)
+public int NW3BuffCustomOFFSET(Handle plugin, int numParams)
 {
   return W3GetItemsLoaded()+War3_GetRacesLoaded();
 }
-public Native_War3_SetBuff(Handle:plugin,numParams)
+public int Native_War3_SetBuff(Handle plugin, int numParams)
 {
   if(numParams==4) //client,race,buffindex,value
   {
-    new client=GetNativeCell(1);
+    int client =GetNativeCell(1);
     new W3Buff:buffindex=GetNativeCell(2);
-    new raceid=GetNativeCell(3);
+    int raceid =GetNativeCell(3);
     new any:value=GetNativeCell(4);
 
 #if defined SOURCECRAFT
@@ -80,19 +81,19 @@ public Native_War3_SetBuff(Handle:plugin,numParams)
 
     SetBuff(client,buffindex,raceid+W3GetItemsLoaded(),value); //ofsetted
     /*if(raceid==0){
-    new String:buf[64];
+    char buf[64];
     GetPluginFilename(plugin, buf, sizeof(buf));
     ThrowError("warning, war3_setbuff passed zero raceid %s",buf);
     }*/
   }
 }
-public Native_War3_SetBuffItem(Handle:plugin,numParams) //buff is from an item
+public int Native_War3_SetBuffItem(Handle plugin, int numParams) //buff is from an item
 {
   if(numParams==4) //client,race,buffindex,value
   {
-    new client=GetNativeCell(1);
+    int client =GetNativeCell(1);
     new W3Buff:buffindex=GetNativeCell(2);
-    new itemid=GetNativeCell(3);
+    int itemid =GetNativeCell(3);
     new any:value=GetNativeCell(4);
 
 #if defined SOURCECRAFT
@@ -103,19 +104,19 @@ public Native_War3_SetBuffItem(Handle:plugin,numParams) //buff is from an item
     SetBuff(client,buffindex,itemid,value); //not offseted
     
     /*if(itemid==0){
-    new String:buf[64];
+    char buf[64];
     GetPluginFilename(plugin, buf, sizeof(buf));
     ThrowError("warning, war3_setbuffitem passed zero itemid %s",buf);
     }*/
   }
 }
-public Native_War3_SetBuffItem2(Handle:plugin,numParams) //buff is from an item
+public int Native_War3_SetBuffItem2(Handle plugin, int numParams) //buff is from an item
 {
   if(numParams==4) //client,race,buffindex,value
   {
-    new client=GetNativeCell(1);
+    int client =GetNativeCell(1);
     new W3Buff:buffindex=GetNativeCell(2);
-    new itemid=GetNativeCell(3);
+    int itemid =GetNativeCell(3);
     new any:value=GetNativeCell(4);
 
 #if defined SOURCECRAFT
@@ -126,19 +127,19 @@ public Native_War3_SetBuffItem2(Handle:plugin,numParams) //buff is from an item
     SetBuff(client,buffindex,W3GetItemsLoaded()+War3_GetRacesLoaded()+itemid,value); //not offseted
 
     /*if(itemid==0){
-    new String:buf[64];
+    char buf[64];
     GetPluginFilename(plugin, buf, sizeof(buf));
     LogError("warning, war3_setbuffitem2 passed zero itemid %s",buf);
     }*/
   }
 }
-public NW3GetBuff(Handle:plugin,numParams)
+public int NW3GetBuff(Handle plugin, int numParams)
 {
   
-  new client=GetNativeCell(1);
+  int client =GetNativeCell(1);
   new W3Buff:buffindex=GetNativeCell(2);
-  new raceiditemid=GetNativeCell(3);
-  new bool:isItem=GetNativeCell(4);
+  int raceiditemid =GetNativeCell(3);
+  bool isItem=GetNativeCell(4);
   if(!isItem){
     raceiditemid+=W3GetItemsLoaded();
   }
@@ -150,19 +151,19 @@ public NW3GetBuff(Handle:plugin,numParams)
   }
   return -1;
 }
-public NW3GetBuffSumInt(Handle:plugin,numParams)
+public int NW3GetBuffSumInt(Handle plugin, int numParams)
 {
-  new client=GetNativeCell(1);
+  int client =GetNativeCell(1);
   new W3Buff:buffindex=GetNativeCell(2);
   return GetBuffSumInt(client,buffindex);
 }
 
 //stop complaining that we are returning a float!
-public NW3GetPhysicalArmorMulti(Handle:plugin,numParams) {
+public int NW3GetPhysicalArmorMulti(Handle plugin, int numParams) {
   return _:PhysicalArmorMulti(GetNativeCell(1));
 }
 
-public NW3GetMagicArmorMulti(Handle:plugin,numParams) {
+public int NW3GetMagicArmorMulti(Handle plugin, int numParams) {
   
   return _:MagicArmorMulti(GetNativeCell(1));
 }
@@ -170,10 +171,10 @@ public NW3GetMagicArmorMulti(Handle:plugin,numParams) {
 public NW3GetBuffLastValue(Handle:plugins,numParams) {
   return GetBuffLastValue(GetNativeCell(1),GetNativeCell(2));
 }
-public NW3GetBuffHasTrue(Handle:plugin,numParams)
+public int NW3GetBuffHasTrue(Handle plugin, int numParams)
 {
 #if defined SOURCECRAFT
-    new client=GetNativeCell(1);
+    int client =GetNativeCell(1);
     new W3Buff:buffindex=GetNativeCell(2);
     switch (buffindex)
     {
@@ -213,33 +214,33 @@ public NW3GetBuffHasTrue(Handle:plugin,numParams)
     return _:GetBuffHasOneTrue(GetNativeCell(1),GetNativeCell(2)); //returns bool
 #endif
 }
-public NW3GetBuffStackedFloat(Handle:plugin,numParams) {
+public int NW3GetBuffStackedFloat(Handle plugin, int numParams) {
 
     return _:GetBuffStackedFloat(GetNativeCell(1),GetNativeCell(2)); //returns float usually
 }
-public NW3GetBuffSumFloat(Handle:plugin,numParams) {
+public int NW3GetBuffSumFloat(Handle plugin, int numParams) {
 
     return _:GetBuffSumFloat(GetNativeCell(1),GetNativeCell(2)); 
 }
-public NW3GetBuffMinFloat(Handle:plugin,numParams) {
+public int NW3GetBuffMinFloat(Handle plugin, int numParams) {
     return _:GetBuffMinFloat(GetNativeCell(1),GetNativeCell(2)); 
 }
-public NW3GetBuffMaxFloat(Handle:plugin,numParams) {
+public int NW3GetBuffMaxFloat(Handle plugin, int numParams) {
     return _:GetBuffMaxFloat(GetNativeCell(1),GetNativeCell(2)); 
 }
-public NW3GetBuffMinInt(Handle:plugin,numParams) {
+public int NW3GetBuffMinInt(Handle plugin, int numParams) {
     return GetBuffMinInt(GetNativeCell(1),GetNativeCell(2)); 
 }
 
-public NW3ResetAllBuffRace(Handle:plugin,numParams) {
-  new client=GetNativeCell(1);
-  new race=GetNativeCell(2);
+public int NW3ResetAllBuffRace(Handle plugin, int numParams) {
+  int client =GetNativeCell(1);
+  int race =GetNativeCell(2);
   
 #if defined SOURCECRAFT
   SCResetAllBuff(client, .pluginid=GetRacePlugin(race));
 #endif
   
-  for(new buffindex=0;buffindex<MaxBuffLoopLimit;buffindex++)
+  for(int buffindex =0;buffindex<MaxBuffLoopLimit;buffindex++)
   { 
     
     ResetBuffParticularRaceOrItem(client,W3Buff:buffindex,W3GetItemsLoaded()+race);
@@ -248,10 +249,10 @@ public NW3ResetAllBuffRace(Handle:plugin,numParams) {
   
 }
 
-public NW3ResetBuffRace(Handle:plugin,numParams) {
-  new client=GetNativeCell(1);
+public int NW3ResetBuffRace(Handle plugin, int numParams) {
+  int client =GetNativeCell(1);
   new W3Buff:buffindex=W3Buff:GetNativeCell(2);
-  new race=GetNativeCell(3);
+  int race =GetNativeCell(3);
   
 #if defined SOURCECRAFT
   if (!SCResetBuff(client, buffindex, 0, .pluginid=GetRacePlugin(race)))
@@ -261,10 +262,10 @@ public NW3ResetBuffRace(Handle:plugin,numParams) {
   ResetBuffParticularRaceOrItem(client,W3Buff:buffindex,W3GetItemsLoaded()+race); 
 }
 
-public NW3ResetBuffItem(Handle:plugin,numParams) {
-  new client=GetNativeCell(1);
+public int NW3ResetBuffItem(Handle plugin, int numParams) {
+  int client =GetNativeCell(1);
   new W3Buff:buffindex=W3Buff:GetNativeCell(2);
-  new item=GetNativeCell(3);
+  int item =GetNativeCell(3);
   
 #if defined SOURCECRAFT
     if (SCResetBuff(client, buffindex, item, .pluginid=plugin))
@@ -274,24 +275,24 @@ public NW3ResetBuffItem(Handle:plugin,numParams) {
   ResetBuffParticularRaceOrItem(client,W3Buff:buffindex,item);  
 }
 
-public NW3GetBuffLoopLimit(Handle:plugin,numParams) {
+public int NW3GetBuffLoopLimit(Handle plugin, int numParams) {
   return BuffLoopLimit();
 }
 
 
 
 
-public Action:cmdbufflist(client, args){
+public Action cmdbufflist(client, args){
   
   if(args==1){
-    new String:arg[32];
+    char arg[32];
     GetCmdArg(1,arg,sizeof(arg));
-    new num=StringToInt(arg);
+    int num =StringToInt(arg);
 #pragma unused num // prevent warning when compiled for SOURCECRAFT w/o _TRACE
-    new ItemsLoaded = W3GetItemsLoaded();
-    new RacesPlusItems = ItemsLoaded+War3_GetRacesLoaded();
-    for(new i=1;i<=RacesPlusItems;i++){
-      new String:name[32];
+    int ItemsLoaded = W3GetItemsLoaded();
+    int RacesPlusItems = ItemsLoaded+War3_GetRacesLoaded();
+    for(int i =1;i<=RacesPlusItems;i++){
+      char name[32];
       if(i<=ItemsLoaded){
         W3GetItemShortname(i,name,sizeof(name));
       }
@@ -305,10 +306,10 @@ public Action:cmdbufflist(client, args){
 }
 
 
-public OnClientPutInServer(client){
+public void OnClientPutInServer(client){
   
   //reset all buffs for each race and item
-  for(new buffindex=0;buffindex<MaxBuffLoopLimit;buffindex++)
+  for(int buffindex =0;buffindex<MaxBuffLoopLimit;buffindex++)
   {
     ResetBuff(client,W3Buff:buffindex);
   }
@@ -348,8 +349,8 @@ ResetBuff(client,W3Buff:buffindex){
   
   if(ValidBuff(buffindex))
   {
-    new loop = ItemsPlusRacesLoaded();
-    for(new i=0;i<=loop;i++) //reset starts at 0
+    int loop = ItemsPlusRacesLoaded();
+    for(int i =0;i<=loop;i++) //reset starts at 0
     {
       buffdebuff[client][buffindex][i]=BuffDefault(buffindex);
       
@@ -402,8 +403,8 @@ stock any:CalcBuffMax(client,W3Buff:buffindex)
   if(ValidBuff(buffindex))
   {
     new any:value=buffdebuff[client][buffindex][0];
-    new loop = ItemsPlusRacesLoaded();
-    for(new i=1;i<=loop;i++)
+    int loop = ItemsPlusRacesLoaded();
+    for(int i =1;i<=loop;i++)
     {
       new any:value2=buffdebuff[client][buffindex][i];
       //PrintToChatAll("%f",value2);
@@ -421,8 +422,8 @@ stock any:CalcBuffMin(client,W3Buff:buffindex)
   if(ValidBuff(buffindex))
   {
     new any:value=buffdebuff[client][buffindex][0];
-    new loop = ItemsPlusRacesLoaded();
-    for(new i=1;i<=loop;i++)
+    int loop = ItemsPlusRacesLoaded();
+    for(int i =1;i<=loop;i++)
     {
       new any:value2=buffdebuff[client][buffindex][i];
       if(value2<value){
@@ -438,11 +439,11 @@ CalcBuffMinInt(client,W3Buff:buffindex)
 {  
   if(ValidBuff(buffindex))
   {
-    new value=buffdebuff[client][buffindex][0];
-    new loop = ItemsPlusRacesLoaded();
-    for(new i=1;i<=loop;i++)
+    int value =buffdebuff[client][buffindex][0];
+    int loop = ItemsPlusRacesLoaded();
+    for(int i =1;i<=loop;i++)
     {
-      new value2=buffdebuff[client][buffindex][i];
+      int value2 =buffdebuff[client][buffindex][i];
       if(value2<value){
         value=value2;
       }
@@ -456,8 +457,8 @@ stock bool:CalcBuffHasOneTrue(client,W3Buff:buffindex)
 {
   if(ValidBuff(buffindex))
   {
-    new loop = ItemsPlusRacesLoaded();
-    for(new i=1;i<=loop;i++)
+    int loop = ItemsPlusRacesLoaded();
+    for(int i =1;i<=loop;i++)
     {
       if(buffdebuff[client][buffindex][i])
       {
@@ -478,9 +479,9 @@ stock Float:CalcBuffStackedFloat(client,W3Buff:buffindex)
 {
   if(ValidBuff(buffindex))
   {
-    new Float:value=buffdebuff[client][buffindex][0];
-    new loop = ItemsPlusRacesLoaded();
-    for(new i=1;i<=loop;i++)
+    float value=buffdebuff[client][buffindex][0];
+    int loop = ItemsPlusRacesLoaded();
+    for(int i =1;i<=loop;i++)
     {
       value=(value * buffdebuff[client][buffindex][i]);
     }
@@ -498,8 +499,8 @@ stock CalcBuffSumInt(client,W3Buff:buffindex)
   {
     new any:value=0;
     //this one starts from zero
-    new loop = ItemsPlusRacesLoaded();
-    for(new i=1;i<=loop;i++)
+    int loop = ItemsPlusRacesLoaded();
+    for(int i =1;i<=loop;i++)
     {
       
       value=value+buffdebuff[client][buffindex][i];
@@ -519,8 +520,8 @@ stock CalcBuffSumFloat(client,W3Buff:buffindex)
   {
     new any:value=0;
     //this one starts from zero
-    new loop = ItemsPlusRacesLoaded();
-    for(new i=1;i<=loop;i++)
+    int loop = ItemsPlusRacesLoaded();
+    for(int i =1;i<=loop;i++)
     {
       
       value=Float:value+Float:(buffdebuff[client][buffindex][i]);
@@ -538,7 +539,7 @@ stock CalcBuffRecentValue(client,W3Buff:buffindex,race)
 {
   if(ValidBuff(buffindex))
   {
-    new value = buffdebuff[client][buffindex][race];
+    int value = buffdebuff[client][buffindex][race];
     if(value!=-1) 
     {
       return value;
@@ -613,12 +614,12 @@ stock Float:GetBuffSumFloat(client,W3Buff:buffindex)
         case fArmorMagic:    return GetMagicalArmorSum(client);
         case fHPRegen:
 	{
-	    new Float:rate = GetHealthRegenSum(client);
+	    float rate = GetHealthRegenSum(client);
 	    return (rate > 0.0) ? rate : 0.0;
 	}
         case fHPDecay:
 	{
-	    new Float:rate = GetHealthRegenSum(client);
+	    float rate = GetHealthRegenSum(client);
 	    return (rate < 0.0) ? rate * -1.0 : 0.0;
 	}
     }
@@ -692,7 +693,7 @@ GetBuffMinInt(client,W3Buff:buffindex)
 
 
 Float:PhysicalArmorMulti(client){
-  new Float:armor=Float:GetBuffSumFloat(client,fArmorPhysical);
+  float armor=Float:GetBuffSumFloat(client,fArmorPhysical);
   
   if(armor<0.0){
     armor=armor*-1.0;
@@ -703,7 +704,7 @@ Float:PhysicalArmorMulti(client){
 }
 Float:MagicArmorMulti(client){
   
-  new Float:armor=Float:GetBuffSumFloat(client,fArmorMagic);
+  float armor=Float:GetBuffSumFloat(client,fArmorMagic);
   //PrintToServer("armor=%f",armor);
   if(armor<0.0){
     armor=armor*-1.0;
@@ -746,7 +747,7 @@ stock SetPlayerRGB(index,r,g,b)
 stock SetEntityAlpha(index,alpha)
 { 
   //if(FindSendPropOffs(index,"m_nRenderFX")>-1&&FindSendPropOffs(index,"m_nRenderMode")>-1){
-  new String:class[32];
+  char class[32];
   GetEntityNetClass(index, class, sizeof(class) );
   //PrintToServer("%s",class);
   if(FindSendPropOffs(class,"m_nRenderFX")>-1){
@@ -761,7 +762,7 @@ stock SetEntityAlpha(index,alpha)
 
 stock GetWeaponAlpha(client)
 {
-  new wep=W3GetCurrentWeaponEnt(client);
+  int wep =W3GetCurrentWeaponEnt(client);
   if(wep>MaxClients && IsValidEdict(wep))
   {
     return GetEntityAlpha(wep);

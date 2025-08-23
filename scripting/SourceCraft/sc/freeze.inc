@@ -42,9 +42,9 @@ stock UnFreezeEntity(entity, id=0)
         SetEntityMoveType(entity,MOVETYPE_DEFAULT);
 }
 
-public Action:UnfreezePlayer(Handle:timer,any:userid)
+public Action UnfreezePlayer(Handle:timer,any:userid)
 {
-    new client = GetClientOfUserId(userid);
+    int client = GetClientOfUserId(userid);
     if (client)
         UnFreezeEntity(client);
 

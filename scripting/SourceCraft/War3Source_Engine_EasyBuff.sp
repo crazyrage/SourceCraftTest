@@ -1,7 +1,7 @@
 #include <sourcemod>
 #include "W3SIncs/War3Source_Interface"
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "War3Source - Engine - EasyBuff",
     author = "War3Source Team",
@@ -11,18 +11,18 @@ public Plugin:myinfo =
 
 
 // EasyBuffs for skills
-new Handle:g_hSkillBuffs = INVALID_HANDLE; // Holds the W3Buff
-new Handle:g_hBuffSkillValues = INVALID_HANDLE; // Holds the values
-new Handle:g_hBuffRace = INVALID_HANDLE; // Holds the race id
-new Handle:g_hBuffSkill = INVALID_HANDLE; // Holds the skill id
+Handle g_hSkillBuffs = INVALID_HANDLE; // Holds the W3Buff
+Handle g_hBuffSkillValues = INVALID_HANDLE; // Holds the values
+Handle g_hBuffRace = INVALID_HANDLE; // Holds the race id
+Handle g_hBuffSkill = INVALID_HANDLE; // Holds the skill id
 
 // EasyBuffs auras
-new Handle:g_hAuraId = INVALID_HANDLE;
+Handle g_hAuraId = INVALID_HANDLE;
 
 // EasyBuffs for items
-new Handle:g_hItemBuffs = INVALID_HANDLE;  // Holds the W3Buff
-new Handle:g_hItemBuffValue = INVALID_HANDLE; // Holds the value
-new Handle:g_hBuffItem = INVALID_HANDLE; // Holds the item id
+Handle g_hItemBuffs = INVALID_HANDLE;  // Holds the W3Buff
+Handle g_hItemBuffValue = INVALID_HANDLE; // Holds the value
+Handle g_hBuffItem = INVALID_HANDLE; // Holds the item id
 
 public bool:InitNativesForwards()
 {
@@ -33,7 +33,7 @@ public bool:InitNativesForwards()
     return true;
 }
 
-public OnPluginStart()
+public void OnPluginStart()
 {
     g_hSkillBuffs = CreateArray(1);
     g_hBuffSkillValues = CreateArray(32); // If your skill has more than 32 levels you're out of luck 
@@ -49,11 +49,11 @@ public OnPluginStart()
 
 bool:AddSkillBuff()
 {
-    new iRace = GetNativeCell(1);
-    new iSkill = GetNativeCell(2);
+    int iRace = GetNativeCell(1);
+    int iSkill = GetNativeCell(2);
     new W3Buff:buff = GetNativeCell(3);
     
-    for(new i = 0; i < GetArraySize(g_hSkillBuffs); i++)
+    for(int i = 0; i < GetArraySize(g_hSkillBuffs); i++)
     {
         if(GetArrayCell(g_hBuffRace, i) == iRace && 
            GetArrayCell(g_hBuffSkill, i) == iSkill &&
@@ -68,7 +68,7 @@ bool:AddSkillBuff()
     PushArrayCell(g_hBuffSkill, iSkill);
     PushArrayCell(g_hSkillBuffs, buff);
     
-    new iSkillMaxLevel = W3GetRaceSkillMaxLevel(iRace, iSkill) + 1;
+    int iSkillMaxLevel = W3GetRaceSkillMaxLevel(iRace, iSkill) + 1;
     
     new any:values[iSkillMaxLevel];
     GetNativeArray(4, values, iSkillMaxLevel);
@@ -80,7 +80,7 @@ bool:AddSkillBuff()
     return true;
 }
 
-public Native_War3_AddSkillBuff(Handle:plugin, numParams)
+public int Native_War3_AddSkillBuff(Handle plugin, int numParams)
 {
     if(AddSkillBuff())
     {
@@ -89,28 +89,28 @@ public Native_War3_AddSkillBuff(Handle:plugin, numParams)
     }
 }
 
-public Native_War3_AddSkillAuraBuff(Handle:plugin, numParams)
+public int Native_War3_AddSkillAuraBuff(Handle plugin, int numParams)
 {
     if(AddSkillBuff())
     {
-        decl String:auraShortName[32];
+        char auraShortName[32];
         GetNativeString(5, auraShortName, sizeof(auraShortName));
-        new Float:distance = GetNativeCell(6);
-        new bool:bTrackOtherTeam = GetNativeCell(7);
+        float distance = GetNativeCell(6);
+        bool bTrackOtherTeam = GetNativeCell(7);
         
-        new iAuraID = W3RegisterAura(auraShortName, distance, bTrackOtherTeam);
+        int iAuraID = W3RegisterAura(auraShortName, distance, bTrackOtherTeam);
         PushArrayCell(g_hAuraId, iAuraID);
         
         War3_LogInfo("[AURA] Registered aura ID %i", iAuraID);
     }
 }
 
-public Native_War3_AddItemBuff(Handle:plugin, numParams)
+public int Native_War3_AddItemBuff(Handle plugin, int numParams)
 {
-    new iItem = GetNativeCell(1);
+    int iItem = GetNativeCell(1);
     new W3Buff:buff = GetNativeCell(2);
     
-    for(new i = 0; i < GetArraySize(g_hItemBuffs); i++)
+    for(int i = 0; i < GetArraySize(g_hItemBuffs); i++)
     {
         if(GetArrayCell(g_hBuffItem, i) == iItem && 
            GetArrayCell(g_hItemBuffs, i) == buff)
@@ -131,23 +131,23 @@ public Native_War3_AddItemBuff(Handle:plugin, numParams)
 
 /* SKILLS */
 
-public OnWar3EventSpawn(client)
+public void OnWar3EventSpawn(client)
 {
     InitSkills(client, War3_GetRace(client));
 }
 
-public OnSkillLevelChanged(client, race, skill, newskilllevel)
+public void OnSkillLevelChanged(client, race, skill, newskilllevel)
 {
     InitSkills(client, race);
 }
 
-public OnWar3EventDeath(victim, client, deathrace)
+public void OnWar3EventDeath(victim, client, deathrace)
 {
     ResetSkills(victim, deathrace);
 }
 
 //NOT needed anymore? since skill changes handle it?
-public OnRaceChanged(client, oldrace, newrace)
+public void OnRaceChanged(client, oldrace, newrace)
 {
 	ResetSkills(client, oldrace);
 	InitSkills(client, newrace);
@@ -155,11 +155,11 @@ public OnRaceChanged(client, oldrace, newrace)
 
 ResetSkills(client, race)
 {
-    for(new i = 0; i < GetArraySize(g_hSkillBuffs); i++)
+    for(int i = 0; i < GetArraySize(g_hSkillBuffs); i++)
     {
         if(GetArrayCell(g_hBuffRace, i) == race)
         {
-            new iAuraID = GetArrayCell(g_hAuraId, i);
+            int iAuraID = GetArrayCell(g_hAuraId, i);
             
             if (iAuraID == -1)
             {
@@ -180,13 +180,13 @@ ResetSkills(client, race)
 
 InitSkills(client, race)
 {
-    for(new i = 0; i < GetArraySize(g_hSkillBuffs); i++)
+    for(int i = 0; i < GetArraySize(g_hSkillBuffs); i++)
     {
         if(GetArrayCell(g_hBuffRace, i) == race)
         {
-            new iAuraID = GetArrayCell(g_hAuraId, i);
-            new iSkill = GetArrayCell(g_hBuffSkill, i);
-            new iLevel = War3_GetSkillLevel(client, race, iSkill);
+            int iAuraID = GetArrayCell(g_hAuraId, i);
+            int iSkill = GetArrayCell(g_hBuffSkill, i);
+            int iLevel = War3_GetSkillLevel(client, race, iSkill);
             
             // Not a aura
             if (iAuraID == -1)
@@ -207,15 +207,15 @@ InitSkills(client, race)
     }
 }
 
-public OnW3PlayerAuraStateChanged(client, tAuraID, bool:inAura, level)
+public void OnW3PlayerAuraStateChanged(client, tAuraID, bool:inAura, level)
 {
-    for(new i = 0; i < GetArraySize(g_hSkillBuffs); i++)
+    for(int i = 0; i < GetArraySize(g_hSkillBuffs); i++)
     {
         if(GetArrayCell(g_hAuraId, i) == tAuraID)
         {
-            new race = GetArrayCell(g_hBuffRace, i);
+            int race = GetArrayCell(g_hBuffRace, i);
             new W3Buff:buff = W3Buff:GetArrayCell(g_hSkillBuffs, i);
-            new iSkill = GetArrayCell(g_hBuffSkill, i);
+            int iSkill = GetArrayCell(g_hBuffSkill, i);
             
             if(inAura)
             {
@@ -235,19 +235,19 @@ public OnW3PlayerAuraStateChanged(client, tAuraID, bool:inAura, level)
 
 /* ITEMS */
 
-public OnItemPurchase(client, item)
+public void OnItemPurchase(client, item)
 {
     InitItems(client, item);
 }
 
-public OnItemLost(client, item)
+public void OnItemLost(client, item)
 { 
     ResetItems(client, item);
 }
 
 ResetItems(client, item)
 {
-    for(new i = 0; i < GetArraySize(g_hItemBuffs); i++)
+    for(int i = 0; i < GetArraySize(g_hItemBuffs); i++)
     {
         if(GetArrayCell(g_hBuffItem, i) == item)
         {
@@ -261,7 +261,7 @@ ResetItems(client, item)
 
 InitItems(client, item)
 {
-    for(new i = 0; i < GetArraySize(g_hItemBuffs); i++)
+    for(int i = 0; i < GetArraySize(g_hItemBuffs); i++)
     {
         if(GetArrayCell(g_hBuffItem, i) == item)
         {

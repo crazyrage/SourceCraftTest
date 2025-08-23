@@ -6,6 +6,7 @@
  */
  
 #pragma semicolon 1
+#pragma newdecls required
 
 #include <sourcemod>
 #include <sdktools>
@@ -40,35 +41,35 @@
 #include "effect/HaloSprite"
 #include "effect/SendEffects"
 
-new const String:spawnWav[] = "sc/zzerdy00.wav";  // Spawn sound
-new const String:deathWav[] = "sc/zzedth00.wav";  // Death sound
-new const String:bloodlustEndWav[] = "sc/zzewht00.wav";
-new const String:bloodlustWav[] = "sc/zzerdy00.wav";
+char spawnWav[] = "sc/zzerdy00.wav";  // Spawn sound
+char deathWav[] = "sc/zzedth00.wav";  // Death sound
+char bloodlustEndWav[] = "sc/zzewht00.wav";
+char bloodlustWav[] = "sc/zzerdy00.wav";
 
-new const Float:g_SpeedLevels[] = { -1.0, 1.05, 1.10, 1.15, 1.20 };
-//new const Float:g_SpeedLevels[] = { -1.0, 1.08, 1.19, 1.25, 1.36 };
+float g_SpeedLevels[] = { -1.0, 1.05, 1.10, 1.15, 1.20 };
+//float g_SpeedLevels[] = { -1.0, 1.08, 1.19, 1.25, 1.36 };
 
-new const String:g_AdrenalGlandsSound[] = "sc/zulhit00.wav";
-new Float:g_AdrenalGlandsPercent[] = { 0.0, 0.15, 0.30, 0.40, 0.50 };
+char g_AdrenalGlandsSound[] = "sc/zulhit00.wav";
+float g_AdrenalGlandsPercent[] = { 0.0, 0.15, 0.30, 0.40, 0.50 };
 
-new const String:g_ArmorName[] = "Carapace";
-new Float:g_InitialArmor[]     = { 0.0, 0.10, 0.20, 0.30, 0.40 };
-new Float:g_ArmorPercent[][2]  = { {0.00, 0.00},
+char g_ArmorName[] = "Carapace";
+float g_InitialArmor[]     = { 0.0, 0.10, 0.20, 0.30, 0.40 };
+float g_ArmorPercent[][2]  = { {0.00, 0.00},
                                    {0.00, 0.10},
                                    {0.00, 0.20},
                                    {0.10, 0.40},
                                    {0.10, 0.50} };
 
-new cfgMaxRespawns             = 4;
+int cfgMaxRespawns             = 4;
 
-new raceID, boostID, carapaceID, regenerationID, burrowID;
-new meleeID, spawningID, bloodlustID, banelingID;
+int raceID, boostID, carapaceID, regenerationID, burrowID;
+int meleeID, spawningID, bloodlustID, banelingID;
 
-new g_banelingRace = -1;
+int g_banelingRace = -1;
 
-new bool:m_BloodlustActive[MAXPLAYERS+1];
+bool m_BloodlustActive[MAXPLAYERS+1];
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Zergling",
     author = "-=|JFH|=-Naris",
@@ -77,7 +78,7 @@ public Plugin:myinfo =
     url = "http://jigglysfunhouse.net/"
 };
 
-public OnPluginStart()
+public void OnPluginStart()
 {
     LoadTranslations("sc.common.phrases.txt");
     LoadTranslations("sc.respawn.phrases.txt");

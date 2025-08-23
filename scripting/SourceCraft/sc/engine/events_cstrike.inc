@@ -55,7 +55,7 @@ bool:HookCStrikeEvents()
 
 public HostageRescuedEvent(Handle:event,const String:name[],bool:dontBroadcast)
 {
-    new index = GetClientOfUserId(GetEventInt(event,"userid"));
+    int index = GetClientOfUserId(GetEventInt(event,"userid"));
     if (index > 0)
     {
         GiveHostageRescuedXP(index);

@@ -5,6 +5,7 @@
 */
 
 #pragma semicolon 1
+#pragma newdecls required
 #include <sourcemod>
 #include <sdktools>
 
@@ -15,12 +16,12 @@
 #include "effect/SendEffects"
 #endif
 
-new thisRaceID;
+int thisRaceID;
 new SKILL_1,SKILL_2,SKILL_3,ULT;
 new BeamSprite,BeamSprite2,HaloSprite,Skydome;
-new bool:bWinded[MAXPLAYERS];
-new Float:WindWalkTime[5]={0.0,2.0,3.0,4.5,6.0};
-new Float:WindWalkInvis[5]={1.00,0.50,0.40,0.30,0.22};
+bool bWinded[MAXPLAYERS];
+float WindWalkTime[5]={0.0,2.0,3.0,4.5,6.0};
+float WindWalkInvis[5]={1.00,0.50,0.40,0.30,0.22};
 new StrafeArrows[5]={0,2,3,4,5};
 new regain0[5]={0,10,15,20,25};
 new regain1[5]={0,15,20,25,35};
@@ -33,15 +34,15 @@ new String:Sound2[] = "ambient/fire/mtov_flame2.wav";
 new String:Sound3[] = "weapons/fx/nearmiss/bulletltor05.wav";
 
 #if defined SOURCECRAFT
-new Float:SearingArrowChance=0.21;
-new bool:ultCircleEnable=true;
+float SearingArrowChance=0.21;
+bool ultCircleEnable=true;
 #else
-new Handle:abCooldownCvar=INVALID_HANDLE;
-new Handle:SearingArrowCh=INVALID_HANDLE;
-new Handle:ultCircleEnable=INVALID_HANDLE;
+Handle abCooldownCvar=INVALID_HANDLE;
+Handle SearingArrowCh=INVALID_HANDLE;
+Handle ultCircleEnable=INVALID_HANDLE;
 #endif
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "War3Source Race - Clinkz-Bone Fletcher",
     author = "DonRevan",
@@ -50,7 +51,7 @@ public Plugin:myinfo =
     url = "www.wcs-lagerhaus.de"
 };
 
-public OnMapStart()
+public void OnMapStart()
 {
     BeamSprite2=PrecacheModel("materials/sprites/fire.vmt");
     BeamSprite=PrecacheModel("materials/sprites/laser.vmt");
@@ -67,7 +68,7 @@ public OnMapStart()
 }
 
 #if !defined SOURCECRAFT
-public OnPluginStart()
+public void OnPluginStart()
 {
     abCooldownCvar=CreateConVar("war3_clinkz_ability_cooldown","18","Cooldown time for Bonefletchers WindWalk.");
     SearingArrowCh=CreateConVar("war3_clinkz_searing_chance","0.21","Chance for Bonefletchers Searing Arrow skill.");
@@ -75,7 +76,7 @@ public OnPluginStart()
 }
 #endif
 
-public OnWar3PluginReady()
+public void OnWar3PluginReady()
 {
 #if defined SOURCECRAFT
     thisRaceID=CreateRace("clinkz", .name="Clinkz-Bone Fletcher", .faction=UndeadScourge, .type=Undead, .required_level=16);
@@ -143,11 +144,11 @@ stock TE_SetupDynamicLight(const Float:vecOrigin[3], r,g,b,iExponent,Float:fRadi
     TE_WriteFloat("m_fDecay",fDecay);
 }
 
-public OnAbilityCommand(client,ability,bool:pressed)
+public void OnAbilityCommand(client,ability,bool:pressed)
 {
     if(War3_GetRace(client)==thisRaceID && ability==0 && pressed && IsPlayerAlive(client))
     {
-        new skill_level=War3_GetSkillLevel(client,thisRaceID,SKILL_3);
+        int skill_level =War3_GetSkillLevel(client,thisRaceID,SKILL_3);
         if(skill_level>0)
         {
             if(War3_SkillNotInCooldown(client,thisRaceID,SKILL_3,true))
@@ -155,7 +156,7 @@ public OnAbilityCommand(client,ability,bool:pressed)
                 if(!Silenced(client))
                 {
                     War3_SetBuff(client,fMaxSpeed,thisRaceID,1.3);
-                    new Float:this_pos[3];
+                    float this_pos[3];
                     GetClientAbsOrigin(client,this_pos);
                     TE_SetupBeamRingPoint(this_pos, 40.0, 90.0, HaloSprite, HaloSprite, 0, 5, 0.8, 50.0, 0.0, {155,115,100,200}, 1, 0) ;
 #if defined SOURCECRAFT
@@ -182,7 +183,7 @@ public OnAbilityCommand(client,ability,bool:pressed)
                     CreateTimer(WindWalkTime[skill_level],RemoveWindWalkBuff,client);
 
 #if defined SOURCECRAFT
-                    new Float:cooldown= GetUpgradeCooldown(thisRaceID,SKILL_3);
+                    float cooldown= GetUpgradeCooldown(thisRaceID,SKILL_3);
                     War3_CooldownMGR(client,cooldown,thisRaceID,SKILL_3,_,_);
 #else
                     War3_CooldownMGR(client,GetConVarFloat(abCooldownCvar),thisRaceID,SKILL_3,_,_);
@@ -190,7 +191,7 @@ public OnAbilityCommand(client,ability,bool:pressed)
 
                     PrintHintText(client,"Wind Walk");
                     bWinded[client]=true;
-                    new Float:fAngles[3]={0.0,0.0,0.0};
+                    float fAngles[3]={0.0,0.0,0.0};
                     CreateParticles(client,true,WindWalkTime[skill_level]+0.8,fAngles,45.0,15.0,25.0,0.0,"effects/strider_bulge_dudv.vmt","255 255 255","25","120","200","120");
                     //CreateParticles(const client,bool:parentent,Float:fLifetime,Float:fAng[3],Float:BaseSpread,Float:StartSize,Float:EndSize,Float:Twist,String:material[],String:renderclr[],String:SpreadSpeed[],String:JetLength[],String:Speed[],String:Rate[]){
                     EmitSoundToAll(ww_on,client);
@@ -205,7 +206,7 @@ public OnAbilityCommand(client,ability,bool:pressed)
     }
 }
 
-public Action:RemoveWindWalkBuff(Handle:t,any:client)
+public Action RemoveWindWalkBuff(Handle:t,any:client)
 {
     if(ValidPlayer(client,true) && bWinded[client]==true)
     {
@@ -215,7 +216,7 @@ public Action:RemoveWindWalkBuff(Handle:t,any:client)
         PrintHintText(client,"WindWalk disappears");
         EmitSoundToAll(ww_off,client);
         War3_SetBuff(client,fMaxSpeed,thisRaceID,1.0);
-        new Float:this_pos[3];
+        float this_pos[3];
         GetClientAbsOrigin(client,this_pos);
         TE_SetupBeamRingPoint(this_pos, 90.0, 40.0, HaloSprite, HaloSprite, 0, 5, 0.8, 50.0, 0.0, {155,115,100,200}, 1, 0) ;
 #if defined SOURCECRAFT
@@ -238,8 +239,8 @@ public bool:FireArrow(const attacker,const victim,Float:delay,damage,bool:searin
     {
         ToDealArrow[attacker]=damage;
         ArrowTarget[attacker]=victim;
-        new Float:start_pos[3];
-        new Float:target_pos[3];
+        float start_pos[3];
+        float target_pos[3];
         GetClientAbsOrigin(attacker,start_pos);
         GetClientAbsOrigin(victim,target_pos);
         target_pos[2]+=40.0;
@@ -249,7 +250,7 @@ public bool:FireArrow(const attacker,const victim,Float:delay,damage,bool:searin
         start_pos[1] += GetRandomFloat( -38.0, 38.0 );
         if(searingfire==false)
         {
-            new Float:FatTony = GetRandomFloat(1.0,2.8);
+            float FatTony = GetRandomFloat(1.0,2.8);
             TE_SetupBeamPoints(start_pos, target_pos, BeamSprite, HaloSprite, 0, 10, GetRandomFloat(0.8,1.4), FatTony, FatTony, 0, 4.5, {255,205,25,255}, 100);
 #if defined SOURCECRAFT
             TE_SendEffectToAll(delay);
@@ -279,14 +280,14 @@ public bool:FireArrow(const attacker,const victim,Float:delay,damage,bool:searin
     return false;
 }
 
-public Action:Timer_DealDamage(Handle:t,any:attacker)
+public Action Timer_DealDamage(Handle:t,any:attacker)
 {
     if(ValidPlayer(attacker,true))
     {
-        new victim = ArrowTarget[attacker];
+        int victim = ArrowTarget[attacker];
         if(ValidPlayer(victim,true))
         {
-            new damage = ToDealArrow[attacker];
+            int damage = ToDealArrow[attacker];
             War3_DealDamage( victim, damage, attacker, DMG_BULLET, "arrow" );
             PrintHintText(victim,"Dealt +%i damage to your victim",damage);
             EmitSoundToAll(Sound1,victim);
@@ -295,13 +296,13 @@ public Action:Timer_DealDamage(Handle:t,any:attacker)
     }
 }
 
-public OnW3TakeDmgBullet(victim,attacker,Float:damage)//OnWar3EventPostHurt( victim, attacker, damage )
+public void OnW3TakeDmgBullet(victim,attacker,Float:damage)//OnWar3EventPostHurt( victim, attacker, damage )
 {
     if( W3GetDamageIsBullet() && ValidPlayer( victim, true ) && ValidPlayer( attacker, true ) && GetClientTeam( victim ) != GetClientTeam( attacker ) )
     {
         if( War3_GetRace( attacker ) == thisRaceID && !W3HasImmunity(victim,Immunity_Skills) && !Hexed( attacker, false ))
         {
-            new skill_level_strafe=War3_GetSkillLevel(attacker,thisRaceID,SKILL_1);
+            int skill_level_strafe =War3_GetSkillLevel(attacker,thisRaceID,SKILL_1);
             if(skill_level_strafe>0)
             {   
                 if( GetRandomFloat( 0.0, 1.0 ) <= 0.30 )
@@ -310,15 +311,15 @@ public OnW3TakeDmgBullet(victim,attacker,Float:damage)//OnWar3EventPostHurt( vic
                     if (CanInvokeUpgrade(attacker,thisRaceID,SKILL_1, .notify=false))
                     {
 #endif
-                    new arrows = StrafeArrows[skill_level_strafe];
-                    for(new num=1;num<=arrows;num++)
+                    int arrows = StrafeArrows[skill_level_strafe];
+                    for(int num =1;num<=arrows;num++)
                     FireArrow(attacker,victim,GetRandomFloat(0.1,5.1),skill_level_strafe,false);
 #if defined SOURCECRAFT
                     }
 #endif
                 }
             }
-            new skill_dmg = War3_GetSkillLevel( attacker, thisRaceID, SKILL_2 );
+            int skill_dmg = War3_GetSkillLevel( attacker, thisRaceID, SKILL_2 );
             if(skill_dmg > 0)
             {
 #if defined SOURCECRAFT
@@ -327,13 +328,13 @@ public OnW3TakeDmgBullet(victim,attacker,Float:damage)//OnWar3EventPostHurt( vic
                 if( GetRandomFloat( 0.0, 1.0 ) <= GetConVarFloat(SearingArrowCh) )
 #endif
                 {
-                    new String:wpnstr[32];
+                    char wpnstr[32];
                     GetClientWeapon( attacker, wpnstr, 32 );
                     if(!StrEqual( wpnstr, "wep_knife" ) )
                     {
                         if(FireArrow(attacker,victim,0.2,0,true))
                         {
-                            new damageamount = GetRandomInt(3,5);
+                            int damageamount = GetRandomInt(3,5);
                             FireArrow(attacker,victim,1.8,0,true);
                             EmitSoundToAll(Sound2,victim);
                             EmitSoundToAll(Sound3,attacker);
@@ -348,21 +349,21 @@ public OnW3TakeDmgBullet(victim,attacker,Float:damage)//OnWar3EventPostHurt( vic
     }
 }
 
-public OnWar3EventDeath(victim, attacker, deathrace)
+public void OnWar3EventDeath(victim, attacker, deathrace)
 {
-    new race=War3_GetRace(attacker);
-    new skill=War3_GetSkillLevel(attacker,thisRaceID,ULT);
+    int race =War3_GetRace(attacker);
+    int skill =War3_GetSkillLevel(attacker,thisRaceID,ULT);
     if(race==thisRaceID && skill>0 && ValidPlayer( victim, false ) && ValidPlayer( attacker, true ) && GetClientTeam( victim ) != GetClientTeam( attacker ) )
     {
-        new hpadd = GetRandomInt(regain1[skill],regain0[skill]);
+        int hpadd = GetRandomInt(regain1[skill],regain0[skill]);
 
 #if defined SOURCECRAFT
         if (CanInvokeUpgrade(attacker,thisRaceID,ULT, .notify=false))
         {
             // Use 1 energy for each hp added over the base amount
-            new Float:used = GetUpgradeEnergy(thisRaceID,ULT); // amount used by CanInvokeUpgrade()
-            new Float:cost = float(hpadd) - used;
-            new Float:energy = GetEnergy(attacker);
+            float used = GetUpgradeEnergy(thisRaceID,ULT); // amount used by CanInvokeUpgrade()
+            float cost = float(hpadd) - used;
+            float energy = GetEnergy(attacker);
             if (energy >= cost)
                 SetEnergy(attacker, energy-cost);
             else
@@ -373,7 +374,7 @@ public OnWar3EventDeath(victim, attacker, deathrace)
 #endif
         SetEntityHealth(attacker,GetClientHealth(attacker)+ hpadd);
         W3FlashScreen(attacker,RGBA_COLOR_RED,1.2,_,FFADE_IN);
-        new Float:fVec[3] = {0.0,0.0,900.0};
+        float fVec[3] = {0.0,0.0,900.0};
         TE_SetupGlowSprite(fVec,Skydome,5.0,1.0,255);
 #if defined SOURCECRAFT
         TE_SendEffectToAll();
@@ -382,7 +383,7 @@ public OnWar3EventDeath(victim, attacker, deathrace)
 #endif
 
         CreateTesla(victim,1.0,3.0,10.0,60.0,3.0,4.0,600.0,"160","200","255 25 25","ambient/atmosphere/city_skypass1.wav","sprites/tp_beam001.vmt",true);
-        new Float:fAngles[3]={90.0,90.0,90.0};
+        float fAngles[3]={90.0,90.0,90.0};
 
 #if defined SOURCECRAFT
         if(ultCircleEnable)
@@ -400,11 +401,11 @@ public OnWar3EventDeath(victim, attacker, deathrace)
     }
 } 
 
-public OnWar3EventSpawn(client)
+public void OnWar3EventSpawn(client)
 {
     if(War3_GetRace(client)==thisRaceID)
     {
-        new Float:fVec[3] = {0.0,0.0,900.0};
+        float fVec[3] = {0.0,0.0,900.0};
         TE_SetupGlowSprite(fVec,Skydome,5.0,1.0,255);
 #if defined SOURCECRAFT
         TE_SendEffectToAll();
@@ -418,7 +419,7 @@ public OnWar3EventSpawn(client)
     }
 }
 
-public OnRaceChanged(client,oldrace,newrace)
+public void OnRaceChanged(client,oldrace,newrace)
 {
     if(newrace!=thisRaceID)
     {
@@ -428,11 +429,11 @@ public OnRaceChanged(client,oldrace,newrace)
     }
 }
 
-public OnUltimateCommand(client,race,bool:pressed)
+public void OnUltimateCommand(client,race,bool:pressed)
 {
     if(race==thisRaceID && pressed && ValidPlayer( client, true ))
     {
-        new skill=War3_GetSkillLevel(client,race,ULT);
+        int skill =War3_GetSkillLevel(client,race,ULT);
         if(skill>0)
         //PrintHintText(client,"This is a passive ultimate!");
         W3MsgUltimateNotActivatable(client);

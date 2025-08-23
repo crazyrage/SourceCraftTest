@@ -44,7 +44,7 @@
 #define INVALID_DEPENDENCY -1 //describes the default/invalid value of a skill dependency
 
 // The enum W3Var is used with function W3SetVar and W3GetVar.
-// It is the first parameter, eg: new deathRace = W3GetVar(DeathRace)
+// It is the first parameter, eg: int deathRace = W3GetVar(DeathRace)
 enum W3Var
 {
 	OldRace, //the race he was before OnRaceChanged //REMOVE DEPRECATED
@@ -418,7 +418,7 @@ stock MaxBuffLoopLimit=_:MaxBuffLoopLimitTemp;
 stock InitiateBuffPropertiesArray(buffpropertiesarray[W3Buff][W3BuffProperties])
 {
 	
-	for(new i=0;i<MaxBuffLoopLimit;i++)
+	for(int i =0;i<MaxBuffLoopLimit;i++)
 	{
 		buffpropertiesarray[W3Buff:i][DefaultValue]=-99;
 		buffpropertiesarray[W3Buff:i][BuffStackType]=ERRUNDEFINED;
@@ -599,7 +599,7 @@ stock InitiateBuffPropertiesArray(buffpropertiesarray[W3Buff][W3BuffProperties])
 	
 	
 	//check that all indexes have been set
-	for(new i=0;i<MaxBuffLoopLimit;i++)
+	for(int i =0;i<MaxBuffLoopLimit;i++)
 	{
 		if(buffpropertiesarray[W3Buff:i][DefaultValue]==-99)
 		{

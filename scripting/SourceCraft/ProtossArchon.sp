@@ -6,6 +6,7 @@
  */
 
 #pragma semicolon 1
+#pragma newdecls required
 
 #include <sourcemod>
 #include <sdktools>
@@ -58,16 +59,16 @@ new const String:g_FeedbackSound[]= "sc/mind.mp3";
 new raceID, shockwaveID, shieldsID, levitationID, rageID;
 new feedbackID, hallucinationID, boltID, ultimateFeedbackID;
 
-new Float:g_ShockwavePercent[]    = { 0.30, 0.40, 0.50, 0.60, 0.80 };
+float g_ShockwavePercent[]    = { 0.30, 0.40, 0.50, 0.60, 0.80 };
 
-new Float:g_InitialShields[]      = { 0.10, 0.25, 0.50, 0.75, 1.0 };
-new Float:g_ShieldsPercent[][2]   = { { 0.05, 0.10 },
+float g_InitialShields[]      = { 0.10, 0.25, 0.50, 0.75, 1.0 };
+float g_ShieldsPercent[][2]   = { { 0.05, 0.10 },
                                       { 0.10, 0.20 },
                                       { 0.15, 0.30 },
                                       { 0.20, 0.40 },
                                       { 0.25, 0.50 } };
 
-new Float:g_BoltRange[]           = { 350.0, 400.0, 650.0, 750.0, 900.0};
+float g_BoltRange[]           = { 350.0, 400.0, 650.0, 750.0, 900.0};
 new g_BoltDamage[][2]             = { { 5, 15},
                                       {15, 25},
                                       {25, 50},
@@ -76,18 +77,18 @@ new g_BoltDamage[][2]             = { { 5, 15},
 
 new g_HallucinateChance[]         = { 0, 15, 25, 35, 50 };
 
-new Float:g_LevitationLevels[]    = { 0.92, 0.733, 0.5466, 0.36, 0.26 };
+float g_LevitationLevels[]    = { 0.92, 0.733, 0.5466, 0.36, 0.26 };
 
 new g_FeedbackChance[]            = { 10, 15, 25, 35, 50 };
-new Float:g_FeedbackPercent[][2]  = { { 0.10, 1.00 },
+float g_FeedbackPercent[][2]  = { { 0.10, 1.00 },
                                       { 0.25, 1.00 },
                                       { 0.40, 1.00 },
                                       { 0.50, 1.00 },
                                       { 0.75, 1.00 } };
 
-new Float:g_FeedbackRange[]       = { 350.0, 400.0, 650.0, 750.0, 900.0 };
+float g_FeedbackRange[]       = { 350.0, 400.0, 650.0, 750.0, 900.0 };
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Protoss Archon",
     author = "-=|JFH|=-Naris",
@@ -96,7 +97,7 @@ public Plugin:myinfo =
     url = "http://jigglysfunhouse.net/"
 };
 
-public OnPluginStart()
+public void OnPluginStart()
 {
     LoadTranslations("sc.psionic_rage.phrases.txt");
     LoadTranslations("sc.hallucinate.phrases.txt");
@@ -108,7 +109,7 @@ public OnPluginStart()
         OnSourceCraftReady();
 }
 
-public OnSourceCraftReady()
+public void OnSourceCraftReady()
 {
     raceID          = CreateRace("archon", -1, -1, 32, 45.0, -1.0, 2.0,
                                  Protoss, Energy, "templar");
@@ -138,9 +139,9 @@ public OnSourceCraftReady()
     GetConfigFloatArray("shields_amount", g_InitialShields, sizeof(g_InitialShields),
                         g_InitialShields, raceID, shieldsID);
 
-    for (new level=0; level < sizeof(g_ShieldsPercent); level++)
+    for (int level =0; level < sizeof(g_ShieldsPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "shields_percent_level_%d", level);
         GetConfigFloatArray(key, g_ShieldsPercent[level], sizeof(g_ShieldsPercent[]),
                             g_ShieldsPercent[level], raceID, shieldsID);
@@ -149,9 +150,9 @@ public OnSourceCraftReady()
     GetConfigFloatArray("range",  g_BoltRange, sizeof(g_BoltRange),
                         g_BoltRange, raceID, boltID);
 
-    for (new level=0; level < sizeof(g_BoltDamage); level++)
+    for (int level =0; level < sizeof(g_BoltDamage); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "damage_level_%d", level);
         GetConfigArray(key, g_BoltDamage[level], sizeof(g_BoltDamage[]),
                        g_BoltDamage[level], raceID, boltID);
@@ -163,9 +164,9 @@ public OnSourceCraftReady()
     GetConfigArray("chance", g_FeedbackChance, sizeof(g_FeedbackChance),
                    g_FeedbackChance, raceID, feedbackID);
 
-    for (new level=0; level < sizeof(g_ShieldsPercent); level++)
+    for (int level =0; level < sizeof(g_ShieldsPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "damage_percent_level_%d", level);
         GetConfigFloatArray(key, g_FeedbackPercent[level], sizeof(g_FeedbackPercent[]),
                             g_FeedbackPercent[level], raceID, feedbackID);
@@ -180,7 +181,7 @@ public OnSourceCraftReady()
     m_PsionicRageTime = GetConfigFloat("time", m_PsionicRageTime, raceID, rageID);
 }
 
-public OnMapStart()
+public void OnMapStart()
 {
     SetupLightning();
     SetupLevitation();
@@ -200,27 +201,27 @@ public OnMapStart()
     SetupSound(psionicBoltWav);
     SetupSound(g_FeedbackSound);
 
-    for (new i = 0; i < sizeof(archonWav); i++)
+    for (int i = 0; i < sizeof(archonWav); i++)
         SetupSound(archonWav[i]);
 }
 
-public OnMapEnd()
+public void OnMapEnd()
 {
     KillAllClientTimers();
 }
 
-public OnPlayerAuthed(client)
+public void OnPlayerAuthed(client)
 {
     m_RageActive[client] = false;
 }
 
-public OnClientDisconnect(client)
+public void OnClientDisconnect(client)
 {
     m_RageActive[client] = false;
     KillClientTimer(client);
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -235,7 +236,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
     return Plugin_Continue;
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
@@ -254,10 +255,10 @@ public Action:OnRaceSelected(client,oldrace,newrace)
                       .r=r, .g=g, .b=b,
                       .apply=false);
 
-        new levitation_level = GetUpgradeLevel(client,raceID,levitationID);
+        int levitation_level = GetUpgradeLevel(client,raceID,levitationID);
         SetLevitation(client, levitation_level, false, g_LevitationLevels);
 
-        new shields_level = GetUpgradeLevel(client,raceID,shieldsID);
+        int shields_level = GetUpgradeLevel(client,raceID,shieldsID);
         SetupShields(client, shields_level, g_InitialShields,
                      g_ShieldsPercent, float(shields_level+1),
                      Armor_IsShield|Armor_NoLimit);
@@ -275,7 +276,7 @@ public Action:OnRaceSelected(client,oldrace,newrace)
         return Plugin_Continue;
 }
 
-public OnUpgradeLevelChanged(client,race,upgrade,new_level)
+public void OnUpgradeLevelChanged(client,race,upgrade,new_level)
 {
     if (race == raceID && GetRace(client) == raceID)
     {
@@ -291,7 +292,7 @@ public OnUpgradeLevelChanged(client,race,upgrade,new_level)
     }
 }
 
-public OnItemPurchase(client,item)
+public void OnItemPurchase(client,item)
 {
     if (GetRace(client) == raceID && IsValidClientAlive(client))
     {
@@ -300,23 +301,23 @@ public OnItemPurchase(client,item)
 
         if (item == g_sockItem)
         {
-            new levitation_level = GetUpgradeLevel(client,raceID,levitationID);
+            int levitation_level = GetUpgradeLevel(client,raceID,levitationID);
             SetLevitation(client, levitation_level, true, g_LevitationLevels);
         }
     }
 }
 
-public Action:OnDropPlayer(client, target)
+public Action OnDropPlayer(client, target)
 {
     if (IsValidClientAlive(target) && GetRace(target) == raceID)
     {
-        new levitation_level = GetUpgradeLevel(target,raceID,levitationID);
+        int levitation_level = GetUpgradeLevel(target,raceID,levitationID);
         SetLevitation(target, levitation_level, true, g_LevitationLevels);
     }
     return Plugin_Continue;
 }
 
-public OnPlayerSpawnEvent(Handle:event, client, race)
+public void OnPlayerSpawnEvent(Handle:event, client, race)
 {
     if (race == raceID)
     {
@@ -324,13 +325,13 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
 
         PrepareAndEmitSoundToAll(summonWav, client);
 
-        new shields_level = GetUpgradeLevel(client,raceID,shieldsID);
-        new shield_amount = SetupShields(client, shields_level, g_InitialShields,
+        int shields_level = GetUpgradeLevel(client,raceID,shieldsID);
+        int shield_amount = SetupShields(client, shields_level, g_InitialShields,
                                          g_ShieldsPercent, float(shields_level+1),
                                          Armor_IsShield|Armor_NoLimit);
 
         // Adjust Health to offset shields
-        new health=GetClientHealth(client)-shield_amount;
+        int health =GetClientHealth(client)-shield_amount;
         if (health <= 0)
             health = GetMaxHealth(client) / 2;
 
@@ -349,7 +350,7 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
                       .r=r, .g=g, .b=b,
                       .apply=false);
 
-        new levitation_level = GetUpgradeLevel(client,raceID,levitationID);
+        int levitation_level = GetUpgradeLevel(client,raceID,levitationID);
         SetLevitation(client, levitation_level, false, g_LevitationLevels);
 
         ApplyPlayerSettings(client);
@@ -358,7 +359,7 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     new Action:returnCode = Plugin_Continue;
@@ -368,7 +369,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
     {
         if (victim_race == raceID && IsPlayerAlive(attacker_index))
         {
-            new feedback_level = GetUpgradeLevel(victim_index,raceID,feedbackID);
+            int feedback_level = GetUpgradeLevel(victim_index,raceID,feedbackID);
             if (Feedback(raceID, feedbackID, feedback_level, damage, absorbed, victim_index,
                          attacker_index, g_FeedbackPercent, g_FeedbackChance, g_FeedbackSound))
             {
@@ -378,8 +379,8 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
 
         if (attacker_race == raceID)
         {
-            new hallucination_level = GetUpgradeLevel(attacker_index,raceID,hallucinationID);
-            new Float:hallucination_amount = GetUpgradeEnergy(raceID,hallucinationID);
+            int hallucination_level = GetUpgradeLevel(attacker_index,raceID,hallucinationID);
+            float hallucination_amount = GetUpgradeEnergy(raceID,hallucinationID);
             if (Hallucinate(victim_index, attacker_index, hallucination_level,
                             hallucination_amount, g_HallucinateChance))
 
@@ -397,7 +398,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
     return returnCode;
 }
 
-public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
+public Action OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
                                   assister_index, assister_race, damage,
                                   absorbed)
 {
@@ -405,8 +406,8 @@ public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
 
     if (assister_race == raceID)
     {
-        new hallucination_level = GetUpgradeLevel(assister_index,raceID,hallucinationID);
-        new Float:hallucination_amount = GetUpgradeEnergy(raceID,hallucinationID);
+        int hallucination_level = GetUpgradeLevel(assister_index,raceID,hallucinationID);
+        float hallucination_amount = GetUpgradeEnergy(raceID,hallucinationID);
         if (Hallucinate(victim_index, assister_index, hallucination_level,
                         hallucination_amount, g_HallucinateChance))
 
@@ -423,7 +424,7 @@ public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
     return returnCode;
 }
 
-public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
+public void OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
                           attacker_race, assister_index, assister_race, damage,
                           const String:weapon[], bool:is_equipment, customkill,
                           bool:headshot, bool:backstab, bool:melee)
@@ -442,7 +443,7 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
 
 public bool:PsionicShockwave(damage, victim_index, index)
 {
-    new shockwave_level=GetUpgradeLevel(index,raceID,shockwaveID);
+    int shockwave_level =GetUpgradeLevel(index,raceID,shockwaveID);
     if (!GetRestriction(index, Restriction_NoUpgrades) &&
         !GetRestriction(index, Restriction_Stunned) &&
         !GetImmunity(victim_index,Immunity_HealthTaking) &&
@@ -450,13 +451,13 @@ public bool:PsionicShockwave(damage, victim_index, index)
         !GetImmunity(victim_index,Immunity_Restore) &&
         !IsInvulnerable(victim_index))
     {
-        new adj = shockwave_level*10;
+        int adj = shockwave_level*10;
         if (GetRandomInt(1,100) <= GetRandomInt(10+adj,100-adj))
         {
-            new dmgamt = RoundFloat(float(damage)*g_ShockwavePercent[shockwave_level]);
+            int dmgamt = RoundFloat(float(damage)*g_ShockwavePercent[shockwave_level]);
             if (dmgamt > 0 && CanInvokeUpgrade(index, raceID, shockwaveID, .notify=false))
             {
-                new Float:Origin[3];
+                float Origin[3];
                 GetEntityAbsOrigin(victim_index, Origin);
                 Origin[2] += 5;
 
@@ -473,7 +474,7 @@ public bool:PsionicShockwave(damage, victim_index, index)
     return false;
 }
 
-public OnUltimateCommand(client,race,bool:pressed,arg)
+public void OnUltimateCommand(client,race,bool:pressed,arg)
 {
     if (pressed && race==raceID && IsValidClientAlive(client))
     {
@@ -481,7 +482,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
         {
             case 4,3:
             {
-                new rage_level = GetUpgradeLevel(client,race,rageID);
+                int rage_level = GetUpgradeLevel(client,race,rageID);
                 if (rage_level > 0)
                 {
                     PsionicRage(client, race, rageID, rage_level,
@@ -489,7 +490,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                 }
                 else
                 {
-                    new ultimate_feedback_level=GetUpgradeLevel(client,race,ultimateFeedbackID);
+                    int ultimate_feedback_level =GetUpgradeLevel(client,race,ultimateFeedbackID);
                     if (ultimate_feedback_level > 0)
                     {
                         UltimateFeedback(client, raceID, ultimateFeedbackID,
@@ -497,7 +498,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                     }
                     else
                     {
-                        new bolt_level=GetUpgradeLevel(client,race,boltID);
+                        int bolt_level =GetUpgradeLevel(client,race,boltID);
                         if (bolt_level > 0)
                             PsionicBolt(client, bolt_level);
                     }
@@ -505,7 +506,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
             }
             case 2:
             {
-                new ultimate_feedback_level=GetUpgradeLevel(client,race,ultimateFeedbackID);
+                int ultimate_feedback_level =GetUpgradeLevel(client,race,ultimateFeedbackID);
                 if (ultimate_feedback_level > 0)
                 {
                     UltimateFeedback(client, raceID, ultimateFeedbackID,
@@ -513,7 +514,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                 }
                 else
                 {
-                    new rage_level = GetUpgradeLevel(client,race,rageID);
+                    int rage_level = GetUpgradeLevel(client,race,rageID);
                     if (rage_level > 0)
                     {
                         PsionicRage(client, race, rageID, rage_level,
@@ -521,7 +522,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                     }
                     else
                     {
-                        new bolt_level=GetUpgradeLevel(client,race,boltID);
+                        int bolt_level =GetUpgradeLevel(client,race,boltID);
                         if (bolt_level > 0)
                             PsionicBolt(client, bolt_level);
                     }
@@ -529,12 +530,12 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
             }
             default:
             {
-                new bolt_level=GetUpgradeLevel(client,race,boltID);
+                int bolt_level =GetUpgradeLevel(client,race,boltID);
                 if (bolt_level > 0)
                     PsionicBolt(client, bolt_level);
                 else
                 {
-                    new ultimate_feedback_level=GetUpgradeLevel(client,race,ultimateFeedbackID);
+                    int ultimate_feedback_level =GetUpgradeLevel(client,race,ultimateFeedbackID);
                     if (ultimate_feedback_level > 0)
                     {
                         UltimateFeedback(client, raceID, ultimateFeedbackID,
@@ -542,7 +543,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                     }
                     else
                     {
-                        new rage_level = GetUpgradeLevel(client,race,rageID);
+                        int rage_level = GetUpgradeLevel(client,race,rageID);
                         if (rage_level > 0)
                         {
                             PsionicRage(client, race, rageID, rage_level,
@@ -555,17 +556,17 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
     }
 }
 
-public Action:Exclaimation(Handle:timer, any:userid) // Every 3.0 seconds
+public Action Exclaimation(Handle:timer, any:userid) // Every 3.0 seconds
 {
-    new client = GetClientOfUserId(userid);
+    int client = GetClientOfUserId(userid);
     if (IsValidClientAlive(client))
     {
         if (GetRace(client) == raceID)
         {
-            new Float:vec[3];
+            float vec[3];
             GetClientEyePosition(client, vec);
             
-            new num = GetRandomInt(0,sizeof(archonWav)-1);
+            int num = GetRandomInt(0,sizeof(archonWav)-1);
             PrepareAndEmitAmbientSound(archonWav[num], vec, client);
         }
     }
@@ -577,7 +578,7 @@ PsionicBolt(client, level)
     if (GetRestriction(client,Restriction_NoUltimates) ||
         GetRestriction(client,Restriction_Stunned))
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, boltID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
         PrepareAndEmitSoundToClient(client,deniedWav);
@@ -592,20 +593,20 @@ PsionicBolt(client, level)
 
         static const lightningColor[4] = { 10, 200, 255, 255 };
 
-        new Float:range = g_BoltRange[level];
-        new dmg = GetRandomInt(g_BoltDamage[level][0],
+        float range = g_BoltRange[level];
+        int dmg = GetRandomInt(g_BoltDamage[level][0],
                                g_BoltDamage[level][1]);
 
-        new Float:lastLoc[3];
-        new Float:indexLoc[3];
-        new Float:targetLoc[3];
+        float lastLoc[3];
+        float indexLoc[3];
+        float targetLoc[3];
         GetClientAbsOrigin(client, lastLoc);
         lastLoc[2] += 50.0; // Adjust trace position to the middle of the person instead of the feet.
 
-        new count  = 0;
-        new last   = client;
-        new team   = GetClientTeam(client);
-        new target = GetClientAimTarget(client);
+        int count = 0;
+        int last = client;
+        int team = GetClientTeam(client);
+        int target = GetClientAimTarget(client);
         if (target > 0) 
         {
             GetClientAbsOrigin(target, targetLoc);
@@ -651,12 +652,12 @@ PsionicBolt(client, level)
 
         PrepareAndEmitSoundToAll(psionicBoltWav,client);
         
-        new lightning  = Lightning();
-        new beamSprite = BeamSprite();
-        new haloSprite = PlasmaHaloSprite();
+        int lightning = Lightning();
+        int beamSprite = BeamSprite();
+        int haloSprite = PlasmaHaloSprite();
 
-        new b_count=0;
-        new alt_count=0;
+        int b_count =0;
+        int alt_count =0;
         new list[MaxClients+1];
         new alt_list[MaxClients+1];
         SetupOBeaconLists(list, alt_list, b_count, alt_count, client);
@@ -677,7 +678,7 @@ PsionicBolt(client, level)
             TE_Send(alt_list, alt_count, 0.0);
         }
         
-        for (new index=1;index<=MaxClients;index++)
+        for (int index =1;index<=MaxClients;index++)
         {
             if (client != index && client != target && IsClientInGame(index) &&
                 IsPlayerAlive(index) && GetClientTeam(index) != team)
@@ -715,7 +716,7 @@ PsionicBolt(client, level)
             }
         }
 
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, boltID, upgradeName, sizeof(upgradeName), client);
 
         if (count)

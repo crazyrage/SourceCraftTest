@@ -113,7 +113,7 @@ stock bool:War3_IsCommonInfected(iEntity)
 {
 	if(iEntity > 0 && IsValidEntity(iEntity) && IsValidEdict(iEntity))
 	{
-		decl String:strClassName[64];
+		char strClassName[64];
 		GetEdictClassname(iEntity, strClassName, sizeof(strClassName));
 		
 		return StrEqual(strClassName, "infected");
@@ -126,7 +126,7 @@ stock bool:War3_IsUncommonInfected(iEntity)
 {
 	if(iEntity > 0 && IsValidEntity(iEntity) && IsValidEdict(iEntity))
 	{
-		decl String:ModelName[128];
+		char ModelName[128];
 		GetEntPropString(iEntity, Prop_Data, "m_ModelName", ModelName, sizeof(ModelName));
 		
 		return (StrEqual(ModelName, "models/infected/common_male_riot.mdl") ||
@@ -144,7 +144,7 @@ stock bool:War3_IsWitch(iEntity)
 {
 	if(iEntity > 0 && IsValidEntity(iEntity) && IsValidEdict(iEntity))
 	{
-		decl String:strClassName[64];
+		char strClassName[64];
 		GetEdictClassname(iEntity, strClassName, sizeof(strClassName));
 		return StrEqual(strClassName, "witch");
 	}
@@ -164,7 +164,7 @@ stock bool:IsPlayerGhost(client)
 
 stock Float:GetSurvivorTempHealth(client)
 {
-	new Float:temphp = GetEntPropFloat(client, Prop_Send, "m_healthBuffer") - ((GetGameTime() - GetEntPropFloat(client, Prop_Send, "m_healthBufferTime")) * GetConVarFloat(FindConVar("pain_pills_decay_rate")));
+	float temphp = GetEntPropFloat(client, Prop_Send, "m_healthBuffer") - ((GetGameTime() - GetEntPropFloat(client, Prop_Send, "m_healthBufferTime")) * GetConVarFloat(FindConVar("pain_pills_decay_rate")));
 	return temphp > 0.0 ? temphp : 0.0;
 }
 
@@ -229,12 +229,12 @@ stock GetMaxMagSize(const String:weapon[])
 
 stock GetCurrentBackupAmmo(client)
 {
-	decl String:weapon[64];
-	new iWeapon = GetPlayerWeaponSlot(client, 0);
+	char weapon[64];
+	int iWeapon = GetPlayerWeaponSlot(client, 0);
 	GetEdictClassname(iWeapon, weapon, sizeof(weapon));
 	
-	new iAmmoOffset = FindDataMapOffs(client, "m_iAmmo");
-	new backup_ammo = 0;
+	int iAmmoOffset = FindDataMapOffs(client, "m_iAmmo");
+	int backup_ammo = 0;
 
 	if (StrEqual(weapon, "weapon_rifle", false) || StrEqual(weapon, "weapon_rifle_ak47", false) || StrEqual(weapon, "weapon_rifle_desert", false) || StrEqual(weapon, "weapon_rifle_sg552", false))
 	{
@@ -311,11 +311,11 @@ stock GetMaxBackupAmmo(const String:weapon[])
 
 stock SetBackupAmmo(client, ammo)
 {
-	decl String:weapon[64];
-	new iWeapon = GetPlayerWeaponSlot(client, 0);
+	char weapon[64];
+	int iWeapon = GetPlayerWeaponSlot(client, 0);
 	GetEdictClassname(iWeapon, weapon, sizeof(weapon));
 	
-	new iAmmoOffset = FindDataMapOffs(client, "m_iAmmo");
+	int iAmmoOffset = FindDataMapOffs(client, "m_iAmmo");
 
 	if (StrEqual(weapon, "weapon_rifle", false) || StrEqual(weapon, "weapon_rifle_ak47", false) || StrEqual(weapon, "weapon_rifle_desert", false) || StrEqual(weapon, "weapon_rifle_sg552", false))
 	{
@@ -380,9 +380,9 @@ stock GetEntityHP(entity)
  * 1. Give player the weapons he should use on Spawn.
  * 2. SDKHook(client, SDKHook_WeaponCanUse, OnWeaponCanUse);
  * 
- * public Action:OnWeaponCanUse(client, weapon)
+ * public Action OnWeaponCanUse(client, weapon)
 {
-	decl String:entityName[64];
+	char entityName[64];
 	GetEdictClassname(weapon, entityName, sizeof(entityName));
 	
 	if (IsWeapon(entityName))
@@ -472,7 +472,7 @@ stock L4D2_SetWeaponUpgrades(weapon, upgrades)
  */
 stock L4D2_GetInfectedAttacker(client)
 {
-	new attacker;
+	int attacker;
 
 	/* Charger */
 	attacker = GetEntPropEnt(client, Prop_Send, "m_pummelAttacker");
@@ -508,7 +508,7 @@ stock L4D2_GetInfectedAttacker(client)
  */
 stock L4D2_GetSurvivorVictim(client)
 {
-	new victim;
+	int victim;
 
 	/* Charger */
 	victim = GetEntPropEnt(client, Prop_Send, "m_pummelVictim");
@@ -656,9 +656,9 @@ stock Float:L4D_GetPlayerIntensity(client)
  */
 stock Float:L4D_GetAvgSurvivorIntensity()
 {
-	new intensityTotal = 0;
-	new intensityMaxTotal = 0;
-	for (new i = 1; i <= MaxClients; i++)
+	int intensityTotal = 0;
+	int intensityMaxTotal = 0;
+	for (int i = 1; i <= MaxClients; i++)
 	{
 		if (!IsClientInGame(i) ||
 			L4DTeam:GetClientTeam(i) != L4DTeam_Survivor ||
@@ -845,10 +845,10 @@ stock L4D2_SetEntGlow_Range(entity, range)
  */
 stock bool:L4D2_SetEntGlow(entity, L4D2GlowType:type, range, minRange, colorOverride[3], bool:flashing)
 {
-	decl String:netclass[128];
+	char netclass[128];
 	GetEntityNetClass(entity, netclass, 128);
 
-	new offset = FindSendPropInfo(netclass, "m_iGlowType");
+	int offset = FindSendPropInfo(netclass, "m_iGlowType");
 	if (offset < 1)
 	{
 		return false;	
@@ -892,7 +892,7 @@ stock L4D_GetResourceEntity()
  */
 stock bool:L4D_IsFinaleActive()
 {
-	new entity = L4D_GetResourceEntity();
+	int entity = L4D_GetResourceEntity();
 
 	if (entity == -1)
 	{

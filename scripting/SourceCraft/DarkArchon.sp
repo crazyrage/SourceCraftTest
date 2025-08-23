@@ -6,6 +6,7 @@
  */
 
 #pragma semicolon 1
+#pragma newdecls required
 
 #include <sourcemod>
 #include <sdktools>
@@ -59,21 +60,21 @@ new raceID, shockwaveID, shieldsID, meleeID, rageID;
 new maelstormID, controlID, ultimateFeedbackID;
 
 new g_MindControlChance[]       = { 30, 50, 70, 90, 95 };
-new Float:g_MindControlRange[]  = { 150.0, 300.0, 450.0, 650.0, 800.0 };
-new Float:g_MaelstormRange[]    = { 350.0, 400.0, 650.0, 750.0, 900.0 };
-new Float:g_PsiBladesPercent[]  = { 0.15, 0.30, 0.40, 0.50, 0.70 };
-new Float:g_ShockwavePercent[]  = { 0.30, 0.40, 0.50, 0.60, 0.80 };
+float g_MindControlRange[]  = { 150.0, 300.0, 450.0, 650.0, 800.0 };
+float g_MaelstormRange[]    = { 350.0, 400.0, 650.0, 750.0, 900.0 };
+float g_PsiBladesPercent[]  = { 0.15, 0.30, 0.40, 0.50, 0.70 };
+float g_ShockwavePercent[]  = { 0.30, 0.40, 0.50, 0.60, 0.80 };
 
-new Float:g_FeedbackRange[]     = { 350.0, 400.0, 650.0, 750.0, 900.0 };
+float g_FeedbackRange[]     = { 350.0, 400.0, 650.0, 750.0, 900.0 };
 
-new Float:g_InitialShields[]      = { 0.10, 0.25, 0.50, 0.75, 1.0 };
-new Float:g_ShieldsPercent[][2]   = { { 0.05, 0.10 },
+float g_InitialShields[]      = { 0.10, 0.25, 0.50, 0.75, 1.0 };
+float g_ShieldsPercent[][2]   = { { 0.05, 0.10 },
                                       { 0.10, 0.20 },
                                       { 0.15, 0.30 },
                                       { 0.20, 0.40 },
                                       { 0.25, 0.50 } };
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Protoss Archon",
     author = "-=|JFH|=-Naris",
@@ -82,7 +83,7 @@ public Plugin:myinfo =
     url = "http://jigglysfunhouse.net/"
 };
 
-public OnPluginStart()
+public void OnPluginStart()
 {
     LoadTranslations("sc.common.phrases.txt");
     LoadTranslations("sc.detector.phrases.txt");
@@ -94,7 +95,7 @@ public OnPluginStart()
         OnSourceCraftReady();
 }
 
-public OnSourceCraftReady()
+public void OnSourceCraftReady()
 {
     raceID = CreateRace("dark_archon", -1, -1, 28, 45.0, 100.0, 2.0,
                         Protoss, Energy, "dark_templar");
@@ -131,9 +132,9 @@ public OnSourceCraftReady()
     GetConfigFloatArray("shields_amount",  g_InitialShields, sizeof(g_InitialShields),
                         g_InitialShields, raceID, shieldsID);
 
-    for (new level=0; level < sizeof(g_ShieldsPercent); level++)
+    for (int level =0; level < sizeof(g_ShieldsPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "shields_percent_level_%d", level);
         GetConfigFloatArray(key, g_ShieldsPercent[level], sizeof(g_ShieldsPercent[]),
                             g_ShieldsPercent[level], raceID, shieldsID);
@@ -157,7 +158,7 @@ public OnSourceCraftReady()
     m_PsionicRageTime = GetConfigFloat("time", m_PsionicRageTime, raceID, rageID);
 }
 
-public OnLibraryAdded(const String:name[])
+public void OnLibraryAdded(const String:name[])
 {
     if (StrEqual(name, "MindControl"))
         IsMindControlAvailable(true);
@@ -165,7 +166,7 @@ public OnLibraryAdded(const String:name[])
         IsSidewinderAvailable(true);
 }
 
-public OnLibraryRemoved(const String:name[])
+public void OnLibraryRemoved(const String:name[])
 {
     if (StrEqual(name, "MindControl"))
         m_MindControlAvailable = false;
@@ -173,7 +174,7 @@ public OnLibraryRemoved(const String:name[])
         m_SidewinderAvailable = false;
 }
 
-public OnMapStart()
+public void OnMapStart()
 {
     SetupLightning();
     SetupHaloSprite();
@@ -188,27 +189,27 @@ public OnMapStart()
     SetupSound(rageExpireWav);
     SetupSound(g_PsiBladesSound);
 
-    for (new i = 0; i < sizeof(archonWav); i++)
+    for (int i = 0; i < sizeof(archonWav); i++)
         SetupSound(archonWav[i]);
 }
 
-public OnMapEnd()
+public void OnMapEnd()
 {
     ResetAllClientTimers();
 }
 
-public OnPlayerAuthed(client)
+public void OnPlayerAuthed(client)
 {
     m_RageActive[client] = false;
 }
 
-public OnClientDisconnect(client)
+public void OnClientDisconnect(client)
 {
     m_RageActive[client] = false;
     KillClientTimer(client);
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -225,7 +226,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
     return Plugin_Continue;
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
@@ -242,7 +243,7 @@ public Action:OnRaceSelected(client,oldrace,newrace)
                       .fx=RENDERFX_GLOWSHELL,
                       .r=r, .g=g, .b=b);
 
-        new shields_level = GetUpgradeLevel(client,raceID,shieldsID);
+        int shields_level = GetUpgradeLevel(client,raceID,shieldsID);
         SetupShields(client, shields_level, g_InitialShields,
                      g_ShieldsPercent, float(shields_level+1),
                      Armor_IsShield|Armor_NoLimit);
@@ -259,7 +260,7 @@ public Action:OnRaceSelected(client,oldrace,newrace)
         return Plugin_Continue;
 }
 
-public OnUpgradeLevelChanged(client,race,upgrade,new_level)
+public void OnUpgradeLevelChanged(client,race,upgrade,new_level)
 {
     if (race == raceID && GetRace(client) == raceID)
     {
@@ -273,7 +274,7 @@ public OnUpgradeLevelChanged(client,race,upgrade,new_level)
     }
 }
 
-public OnUltimateCommand(client,race,bool:pressed,arg)
+public void OnUltimateCommand(client,race,bool:pressed,arg)
 {
     if (pressed && race==raceID && IsValidClientAlive(client))
     {
@@ -281,7 +282,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
         {
             case 4:
             {
-                new rage_level = GetUpgradeLevel(client,race,rageID);
+                int rage_level = GetUpgradeLevel(client,race,rageID);
                 if (rage_level > 0)
                 {
                     PsionicRage(client, race, rageID, rage_level,
@@ -289,7 +290,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                 }
                 else
                 {
-                    new ultimate_feedback_level = GetUpgradeLevel(client,race,ultimateFeedbackID);
+                    int ultimate_feedback_level = GetUpgradeLevel(client,race,ultimateFeedbackID);
                     if (ultimate_feedback_level > 0)
                     {
                         UltimateFeedback(client, raceID, ultimateFeedbackID,
@@ -297,12 +298,12 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                     }
                     else
                     {
-                        new maelstorm_level=GetUpgradeLevel(client,race,maelstormID);
+                        int maelstorm_level =GetUpgradeLevel(client,race,maelstormID);
                         if (maelstorm_level > 0)
                             Maelstorm(client,maelstorm_level);
                         else
                         {
-                            new control_level=GetUpgradeLevel(client,race,controlID);
+                            int control_level =GetUpgradeLevel(client,race,controlID);
                             DoMindControl(client,control_level);
                         }
                     }
@@ -310,7 +311,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
             }
             case 3:
             {
-                new ultimate_feedback_level = GetUpgradeLevel(client,race,ultimateFeedbackID);
+                int ultimate_feedback_level = GetUpgradeLevel(client,race,ultimateFeedbackID);
                 if (ultimate_feedback_level > 0)
                 {
                     UltimateFeedback(client, raceID, ultimateFeedbackID,
@@ -318,31 +319,31 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                 }
                 else
                 {
-                    new maelstorm_level=GetUpgradeLevel(client,race,maelstormID);
+                    int maelstorm_level =GetUpgradeLevel(client,race,maelstormID);
                     if (maelstorm_level > 0)
                         Maelstorm(client,maelstorm_level);
                     else
                     {
-                        new control_level=GetUpgradeLevel(client,race,controlID);
+                        int control_level =GetUpgradeLevel(client,race,controlID);
                         DoMindControl(client,control_level);
                     }
                 }
             }
             case 2:
             {
-                new control_level=GetUpgradeLevel(client,race,controlID);
+                int control_level =GetUpgradeLevel(client,race,controlID);
                 DoMindControl(client,control_level);
             }
             default:
             {
-                new maelstorm_level=GetUpgradeLevel(client,race,maelstormID);
+                int maelstorm_level =GetUpgradeLevel(client,race,maelstormID);
                 Maelstorm(client,maelstorm_level);
             }
         }
     }
 }
 
-public OnPlayerSpawnEvent(Handle:event, client, race)
+public void OnPlayerSpawnEvent(Handle:event, client, race)
 {
     if (race == raceID)
     {
@@ -351,12 +352,12 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
         PrepareAndEmitSoundToAll(summonWav, client);
 
         // Adjust Health to offset shields
-        new shields_level = GetUpgradeLevel(client,raceID,shieldsID);
-        new shield_amount = SetupShields(client, shields_level, g_InitialShields,
+        int shields_level = GetUpgradeLevel(client,raceID,shieldsID);
+        int shield_amount = SetupShields(client, shields_level, g_InitialShields,
                                          g_ShieldsPercent, float(shields_level+1),
                                          Armor_IsShield|Armor_NoLimit);
 
-        new health = GetClientHealth(client)-shield_amount;
+        int health = GetClientHealth(client)-shield_amount;
         if (health <= 0)
             health = GetMaxHealth(client) / 2;
 
@@ -377,7 +378,7 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     new Action:returnCode = Plugin_Continue;
@@ -388,7 +389,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
     {
         damage += absorbed;
 
-        new blades_level=GetUpgradeLevel(attacker_index,raceID,meleeID);
+        int blades_level =GetUpgradeLevel(attacker_index,raceID,meleeID);
         if (MeleeAttack(raceID, meleeID, blades_level, event, damage,
                         victim_index, attacker_index, g_PsiBladesPercent,
                         g_PsiBladesSound, "sc_blades"))
@@ -405,7 +406,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
     return returnCode;
 }
 
-public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
+public Action OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
                                   assister_index, assister_race, damage,
                                   absorbed)
 {
@@ -418,7 +419,7 @@ public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
     return Plugin_Continue;
 }
 
-public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
+public void OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
                           attacker_race, assister_index, assister_race, damage,
                           const String:weapon[], bool:is_equipment, customkill,
                           bool:headshot,bool:backstab,bool:melee)
@@ -443,16 +444,16 @@ public bool:PsionicShockwave(damage, victim_index, index)
         !GetImmunity(victim_index, Immunity_Upgrades) &&
         !IsInvulnerable(victim_index))
     {
-        new shockwave_level=GetUpgradeLevel(index,raceID,shockwaveID);
-        new adj = shockwave_level*10;
+        int shockwave_level =GetUpgradeLevel(index,raceID,shockwaveID);
+        int adj = shockwave_level*10;
         if (GetRandomInt(1,100) <= GetRandomInt(10+adj,100-adj))
         {
             if (CanInvokeUpgrade(index, raceID, shockwaveID))
             {
-                new dmgamt = RoundFloat(float(damage)*g_ShockwavePercent[shockwave_level]);
+                int dmgamt = RoundFloat(float(damage)*g_ShockwavePercent[shockwave_level]);
                 if (dmgamt > 0)
                 {
-                    new Float:Origin[3];
+                    float Origin[3];
                     GetEntityAbsOrigin(victim_index, Origin);
                     Origin[2] += 5;
 
@@ -473,7 +474,7 @@ public bool:PsionicShockwave(damage, victim_index, index)
 
 public Maelstorm(client, level)
 {
-    decl String:upgradeName[64];
+    char upgradeName[64];
     GetUpgradeName(raceID, maelstormID, upgradeName, sizeof(upgradeName), client);
 
     if (GetRestriction(client,Restriction_NoUltimates) ||
@@ -491,20 +492,20 @@ public Maelstorm(client, level)
                 TF2_RemovePlayerDisguise(client);
         }
 
-        new Float:range = g_MaelstormRange[level];
+        float range = g_MaelstormRange[level];
 
-        new count=0;
-        new Float:indexLoc[3];
-        new Float:clientLoc[3];
+        int count =0;
+        float indexLoc[3];
+        float clientLoc[3];
         GetClientAbsOrigin(client, clientLoc);
         clientLoc[2] += 50.0; // Adjust trace position to the middle of the person instead of the feet.
 
-        new lightning  = Lightning();
-        new haloSprite = HaloSprite();
+        int lightning = Lightning();
+        int haloSprite = HaloSprite();
         static const color[4] = { 0, 255, 0, 255 };
 
-        new team=GetClientTeam(client);
-        for (new index=1;index<=MaxClients;index++)
+        int team =GetClientTeam(client);
+        for (int index =1;index<=MaxClients;index++)
         {
             if (client != index && IsClientInGame(index) &&
                 IsPlayerAlive(index) && GetClientTeam(index) != team)
@@ -534,7 +535,7 @@ public Maelstorm(client, level)
                             TF2_RemovePlayerDisguise(index);
                             TF2_RemoveCondition(client,TFCond_Cloaked);
 
-                            new Float:cloakMeter = TF2_GetCloakMeter(index);
+                            float cloakMeter = TF2_GetCloakMeter(index);
                             if (cloakMeter > 0.0 && cloakMeter <= 100.0)
                                 TF2_SetCloakMeter(index, 0.0);
 
@@ -542,7 +543,7 @@ public Maelstorm(client, level)
                                            "HasUndisguised", client, upgradeName);
                         }
 
-                        new Float:meter = TF2_GetEnergyDrinkMeter(index);
+                        float meter = TF2_GetEnergyDrinkMeter(index);
                         if (meter > 0.0 && meter <= 100.0)
                             TF2_SetEnergyDrinkMeter(index, 0.0);
 
@@ -594,9 +595,9 @@ public Maelstorm(client, level)
     }
 }
 
-public Action:RecloakPlayer(Handle:timer,any:userid)
+public Action RecloakPlayer(Handle:timer,any:userid)
 {
-    new client = GetClientOfUserId(userid);
+    int client = GetClientOfUserId(userid);
     if (client > 0)
     {
         SetOverrideVisiblity(client, -1);
@@ -608,7 +609,7 @@ public Action:RecloakPlayer(Handle:timer,any:userid)
 
 DoMindControl(client,level)
 {
-    decl String:upgradeName[64];
+    char upgradeName[64];
     GetUpgradeName(raceID, controlID, upgradeName, sizeof(upgradeName), client);
 
     if (!m_MindControlAvailable)
@@ -628,7 +629,7 @@ DoMindControl(client,level)
         }
         else if (CanInvokeUpgrade(client, raceID, controlID, false))
         {
-            new builder;
+            int builder;
             new TFExtObjectType:type;
             if (MindControl(client, g_MindControlRange[level],
                             g_MindControlChance[level],
@@ -652,17 +653,17 @@ DoMindControl(client,level)
     }
 }
 
-public Action:Exclaimation(Handle:timer, any:userid) // Every 3.0 seconds
+public Action Exclaimation(Handle:timer, any:userid) // Every 3.0 seconds
 {
-    new client = GetClientOfUserId(userid);
+    int client = GetClientOfUserId(userid);
     if (IsValidClientAlive(client))
     {
         if (GetRace(client) == raceID)
         {
-            new Float:vec[3];
+            float vec[3];
             GetClientEyePosition(client, vec);
             
-            new num = GetRandomInt(0,sizeof(archonWav)-1);
+            int num = GetRandomInt(0,sizeof(archonWav)-1);
             PrepareAndEmitAmbientSound(archonWav[num], vec, client);
         }
     }

@@ -1,4 +1,5 @@
 #pragma semicolon 1
+#pragma newdecls required
 
 #include <sourcemod>
 #include "W3SIncs/War3Source_Interface"
@@ -7,45 +8,45 @@
 #include <sdktools_tempents>
 #include <sdktools_tempents_stocks>
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "War3Source - Race - Crypt Lord",
     author = "War3Source Team",
     description = "The Crypt Lord race for War3Source."
 };
 
-new thisRaceID;
+int thisRaceID;
 
 new SKILL_IMPALE,SKILL_SPIKE,SKILL_BEETLES,ULT_LOCUST;
 
 //skill 1
-new Float:ImpaleChanceArr[]={0.0,0.05,0.09,0.12,0.15}; 
+float ImpaleChanceArr[]={0.0,0.05,0.09,0.12,0.15}; 
 
 //skill 2
-new Float:SpikeDamageRecieve[]={1.0,0.95,0.9,0.85,0.80}; //TEST
-new Float:SpikeArmorGainArr[]={0.0,0.1,0.20,0.3,0.40}; 
-new Float:SpikeReturnDmgArr[]={0.0,0.05,0.10,0.15,0.2}; 
+float SpikeDamageRecieve[]={1.0,0.95,0.9,0.85,0.80}; //TEST
+float SpikeArmorGainArr[]={0.0,0.1,0.20,0.3,0.40}; 
+float SpikeReturnDmgArr[]={0.0,0.05,0.10,0.15,0.2}; 
 
 //skill 3
-new BeetleDamage=10;
-new Float:BeetleChanceArr[]={0.0,0.05,0.1,0.15,0.20};
+int BeetleDamage =10;
+float BeetleChanceArr[]={0.0,0.05,0.1,0.15,0.20};
 
 //ultimate
 #if defined SOURCECRAFT
-new Float:ultmaxdistance = 800.0;
-new max_ult = 0;
+float ultmaxdistance = 800.0;
+int max_ult = 0;
 #else
-new Handle:ultCooldownCvar;
-new Handle:ultRangeCvar;
-new Handle:ultMaxCvar;
+Handle ultCooldownCvar;
+Handle ultRangeCvar;
+Handle ultMaxCvar;
 #endif
-new Float:LocustDamagePercent[]={0.0,0.1,0.2,0.3,0.4};
+float LocustDamagePercent[]={0.0,0.1,0.2,0.3,0.4};
 new UltimateUsed[MAXPLAYERS+1]; 
 
 //new String:ultimateSound[]="war3source/locustswarmloop.wav";
-new String:ultimateSound[256]; //="war3source/locustswarmloop.mp3";
+char ultimateSound[256]; //="war3source/locustswarmloop.mp3";
 
-public OnPluginStart()
+public void OnPluginStart()
 {
 #if !defined SOURCECRAFT    
     ultCooldownCvar=CreateConVar("war3_crypt_locust_cooldown","20","Cooldown between ultimate usage");
@@ -56,7 +57,7 @@ public OnPluginStart()
     LoadTranslations("w3s.race.crypt.phrases");
 }
 
-public OnWar3LoadRaceOrItemOrdered(num)
+public void OnWar3LoadRaceOrItemOrdered(num)
 {
     if(num==80)
     {                        
@@ -116,22 +117,22 @@ public OnWar3LoadRaceOrItemOrdered(num)
 
 }
 
-public OnMapStart()
+public void OnMapStart()
 {
     War3_AddSoundFolder(ultimateSound, sizeof(ultimateSound), "locustswarmloop.mp3");
     War3_AddCustomSound(ultimateSound);
 }
 
-public OnUltimateCommand(client,race,bool:pressed)
+public void OnUltimateCommand(client,race,bool:pressed)
 {
 
     if(race==thisRaceID && pressed && ValidPlayer(client,true) )
     {
-        new ult_level=War3_GetSkillLevel(client,race,ULT_LOCUST);
+        int ult_level =War3_GetSkillLevel(client,race,ULT_LOCUST);
         if(ult_level>0)
         {
 #if !defined SOURCECRAFT
-            new max_ult=GetConVarInt(ultMaxCvar);
+            int max_ult =GetConVarInt(ultMaxCvar);
 #endif
             if(max_ult<0)
                 max_ult*=-ult_level;
@@ -143,22 +144,22 @@ public OnUltimateCommand(client,race,bool:pressed)
 
             if(!Silenced(client)&&War3_SkillNotInCooldown(client,thisRaceID,ULT_LOCUST,true))
             {
-                new Float:posVec[3];
+                float posVec[3];
                 GetClientAbsOrigin(client,posVec);
-                new Float:otherVec[3];
-                new Float:bestTargetDistance=999999.0; 
-                new team = GetClientTeam(client);
-                new bestTarget=0;
+                float otherVec[3];
+                float bestTargetDistance=999999.0; 
+                int team = GetClientTeam(client);
+                int bestTarget =0;
                 
 #if !defined SOURCECRAFT
-                new Float:ultmaxdistance=GetConVarFloat(ultRangeCvar);
+                float ultmaxdistance=GetConVarFloat(ultRangeCvar);
 #endif
-                for(new i=1;i<=MaxClients;i++)
+                for(int i =1;i<=MaxClients;i++)
                 {
                     if(ValidPlayer(i,true)&&GetClientTeam(i)!=team&&!W3HasImmunity(i,Immunity_Ultimates))
                     {
                         GetClientAbsOrigin(i,otherVec);
-                        new Float:dist=GetVectorDistance(posVec,otherVec);
+                        float dist=GetVectorDistance(posVec,otherVec);
                         if(dist<bestTargetDistance&&dist<ultmaxdistance)
                         {
                             bestTarget=i;
@@ -173,7 +174,7 @@ public OnUltimateCommand(client,race,bool:pressed)
                 }
                 else
                 {
-                    new damage=RoundFloat(float(War3_GetMaxHP(bestTarget))*LocustDamagePercent[ult_level]);
+                    int damage =RoundFloat(float(War3_GetMaxHP(bestTarget))*LocustDamagePercent[ult_level]);
                     if(damage>0)
                     {
                         
@@ -184,7 +185,7 @@ public OnUltimateCommand(client,race,bool:pressed)
                             
                             W3EmitSoundToAll(ultimateSound,client);
 #if defined SOURCECRAFT
-                            new Float:cooldown= GetUpgradeCooldown(thisRaceID,ULT_LOCUST);
+                            float cooldown= GetUpgradeCooldown(thisRaceID,ULT_LOCUST);
                             War3_CooldownMGR(client,cooldown,thisRaceID,ULT_LOCUST,false,true);
 #else
                             War3_CooldownMGR(client,GetConVarFloat(ultCooldownCvar),thisRaceID,ULT_LOCUST,false,true);
@@ -204,12 +205,12 @@ public OnUltimateCommand(client,race,bool:pressed)
 
 
 
-public OnW3TakeDmgBulletPre(victim,attacker,Float:damage){
+public void OnW3TakeDmgBulletPre(victim,attacker,Float:damage){
     if(ValidPlayer(victim,true)&&ValidPlayer(attacker,true)&&GetClientTeam(victim)!=GetClientTeam(attacker))
     {
         if(War3_GetRace(victim)==thisRaceID)
         {
-            new skill_level=War3_GetSkillLevel(victim,thisRaceID,SKILL_SPIKE);
+            int skill_level =War3_GetSkillLevel(victim,thisRaceID,SKILL_SPIKE);
             if(skill_level>0&&!Hexed(victim,false) )
             {
 #if defined SOURCECRAFT
@@ -220,14 +221,14 @@ public OnW3TakeDmgBulletPre(victim,attacker,Float:damage){
         }    
     }
 }
-public OnWar3EventPostHurt(victim, attacker, Float:damage, const String:weapon[32], bool:isWarcraft)
+public void OnWar3EventPostHurt(victim, attacker, Float:damage, const String:weapon[32], bool:isWarcraft)
 {
     if(!isWarcraft&&ValidPlayer(victim,true)&&ValidPlayer(attacker,true)&&GetClientTeam(victim)!=GetClientTeam(attacker))
     {
     
         if(War3_GetRace(victim)==thisRaceID &&W3Chance(W3ChanceModifier(attacker)) )
         {
-            new skill_level=War3_GetSkillLevel(victim,thisRaceID,SKILL_SPIKE);
+            int skill_level =War3_GetSkillLevel(victim,thisRaceID,SKILL_SPIKE);
             if(skill_level>0&&!Hexed(victim,false))
             {
                 if(!W3HasImmunity(attacker,Immunity_Skills)){
@@ -237,14 +238,14 @@ public OnWar3EventPostHurt(victim, attacker, Float:damage, const String:weapon[3
 #endif
                     if(War3_GetGame()==Game_CS)
                     {
-                        new armor=War3_GetCSArmor(victim);
-                        new armor_add=RoundFloat(damage*SpikeArmorGainArr[skill_level]);
+                        int armor =War3_GetCSArmor(victim);
+                        int armor_add =RoundFloat(damage*SpikeArmorGainArr[skill_level]);
                         if(armor_add>20) armor_add=20;
                         War3_SetCSArmor(victim,armor+armor_add);
                         
                         
                     }
-                    new returndmg=RoundFloat((SpikeReturnDmgArr[skill_level] * damage));
+                    int returndmg =RoundFloat((SpikeReturnDmgArr[skill_level] * damage));
                     returndmg=returndmg<40?returndmg:40;
                     if(GAMETF)  // Team Fortress 2 is stable with code below:
                     {
@@ -286,8 +287,8 @@ public OnWar3EventPostHurt(victim, attacker, Float:damage, const String:weapon[3
         }
         if(War3_GetRace(attacker)==thisRaceID)
         {
-            new Float:chance_mod=W3ChanceModifier(attacker);
-            new skill_level = War3_GetSkillLevel(attacker,thisRaceID,SKILL_BEETLES);
+            float chance_mod=W3ChanceModifier(attacker);
+            int skill_level = War3_GetSkillLevel(attacker,thisRaceID,SKILL_BEETLES);
             if(!Hexed(attacker,false)&&GetRandomFloat(0.0,1.0)<=BeetleChanceArr[skill_level]*chance_mod)
             {
                 if(W3HasImmunity(victim,Immunity_Skills))
@@ -330,7 +331,7 @@ public OnWar3EventPostHurt(victim, attacker, Float:damage, const String:weapon[3
 }
 
 // Events
-public OnWar3EventSpawn(client)
+public void OnWar3EventSpawn(client)
 {
     if(War3_GetRace(client)==thisRaceID)
         UltimateUsed[client]=0;

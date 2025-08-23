@@ -9,10 +9,10 @@
 // Stocks
 stock StrToken(const String:inputstr[],tokennum,String:outputstr[],maxlen)
 {
-    new String:buf[maxlen+1];
-    new cur_idx;
-    new idx;
-    new curind;
+    char buf[maxlen+1];
+    int cur_idx;
+    int idx;
+    int curind;
     idx=BreakString(inputstr,buf,maxlen);
     if(tokennum==1)
     {
@@ -35,10 +35,10 @@ stock StrToken(const String:inputstr[],tokennum,String:outputstr[],maxlen)
 
 stock StrTokenCount(const String:input[])
 {
-    decl String:buf[32];
-    new cur_idx;
-    new idx;
-    new curind;
+    char buf[32];
+    int cur_idx;
+    int idx;
+    int curind;
     while(idx!=-1)
     {
         cur_idx+=idx;

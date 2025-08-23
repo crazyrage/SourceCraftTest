@@ -1,8 +1,66 @@
-# README #
+# SourceCraft - SourceMod 1.12 Compatible
 
-This README would normally document whatever steps are necessary to get your application up and running.
+This is a SourceMod 1.12 compatible version of SourceCraft, upgraded to use modern SourcePawn (newdecls) syntax.
 
-### What is this repository for? ###
+## Build Status
+
+[![Compile SourcePawn Plugins](https://github.com/crazyrage/SourceCraftTest/actions/workflows/compile.yml/badge.svg)](https://github.com/crazyrage/SourceCraftTest/actions/workflows/compile.yml)
+
+## What is SourceCraft?
+
+SourceCraft is a mod for TF2, DoD, Counter-Strike, CS-GO and other games built on Valve's SourceEngine. It adds Role Playing (RPG) and Real Time Strategy (RTS) elements into the game.  It does not directly modify any of the core game mechanics or classes, but instead allows players to choose a race to augment the class they are playing with new and enhanced abilities. For example, some races have movement rate improvements which allow them to run faster, many increase damage output, and some add damage absorption (armor or shields). Others add completely new abilities, such as a grappling hook or a jetpack. No one race is the best, and each player must decide what fits their play-style the best.
+
+## Build Requirements
+
+- **SourceMod 1.12** or later
+- **Modern SourcePawn Compiler** (spcomp from SM 1.12+)
+
+## Building
+
+### Automated Building (CI)
+
+This repository includes GitHub Actions CI that automatically compiles all plugins against SourceMod 1.12. Compiled plugins are available as artifacts from successful CI runs.
+
+### Manual Building
+
+1. Download SourceMod 1.12 from [AlliedModders](https://www.sourcemod.net/downloads.php)
+2. Extract the SourceMod package
+3. Compile the main plugin:
+   ```bash
+   ./spcomp -i../../path/to/sourcemod/scripting/include -i../include -i. SourceCraft.sp
+   ```
+4. Compile individual race plugins as needed
+
+## SourceMod 1.12 Migration
+
+This codebase has been upgraded from legacy SourcePawn to SourceMod 1.12 compatible syntax:
+
+### Key Changes Made
+- ✅ Added `#pragma newdecls required` to all files
+- ✅ Updated plugin info: `public Plugin myinfo = { ... }`
+- ✅ Converted variable declarations:
+  - `new String:` → `char`
+  - `new Float:` → `float`  
+  - `new bool:` → `bool`
+  - `new Handle:` → `Handle`
+- ✅ Updated function signatures with proper types
+- ✅ Modernized native function declarations
+- ✅ Fixed enum casting with `view_as<>`
+
+### Files Updated
+- **Core Engine**: All files in `scripting/SourceCraft/sc/engine/`
+- **Main Plugin**: `scripting/SourceCraft/SourceCraft.sp`
+- **Race Plugins**: All 80+ race plugins in `scripting/SourceCraft/`
+- **Interface Layer**: War3Source compatibility includes
+- **Support Libraries**: All utility includes
+
+## Installation
+
+1. Download compiled plugins from CI artifacts or build manually
+2. Upload `.smx` files to your server's `addons/sourcemod/plugins/` directory
+3. Configure as needed using existing SourceCraft configuration guides
+
+## Original README Content
 
 SourceCraft is a mod for TF2, DoD, Counter-Strike, CS-GO and other games built on Valve's SourceEngine. It adds Role Playing (RPG) and Real Time Strategy (RTS) elements into the game.  It does not directly modify any of the core game mechanics or classes, but instead allows players to choose a race to augment the class they are playing with new and enhanced abilities. For example, some races have movement rate improvements which allow them to run faster, many increase damage output, and some add damage absorption (armor or shields). Others add completely new abilities, such as a grappling hook or a jetpack. No one race is the best, and each player must decide what fits their play-style the best.
 

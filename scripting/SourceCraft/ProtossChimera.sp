@@ -6,6 +6,7 @@
  */
  
 #pragma semicolon 1
+#pragma newdecls required
 
 #include <sourcemod>
 #include <sdktools>
@@ -173,9 +174,9 @@ public int OnSourceCraftReady()
     GetConfigFloatArray("shields_amount", g_InitialShields, sizeof(g_InitialShields),
                         g_InitialShields, raceID, shieldsID);
 
-    for (new level=0; level < sizeof(g_ShieldsPercent); level++)
+    for (int level =0; level < sizeof(g_ShieldsPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "shields_percent_level_%d", level);
         GetConfigFloatArray(key, g_ShieldsPercent[level], sizeof(g_ShieldsPercent[]),
                             g_ShieldsPercent[level], raceID, shieldsID);
@@ -277,18 +278,18 @@ public Action OnRaceSelected(int client, int oldrace, int newrace)
     {
         m_ScarabAttackTime[client] = 0.0;
 
-        new shields_level = GetUpgradeLevel(client,raceID,shieldsID);
+        int shields_level = GetUpgradeLevel(client,raceID,shieldsID);
         SetupShields(client, shields_level, g_InitialShields, g_ShieldsPercent);
 
         if (IsValidClientAlive(client))
         {
-            new cloaking_level=GetUpgradeLevel(client,raceID,cloakID);
+            int cloaking_level =GetUpgradeLevel(client,raceID,cloakID);
             if (cloaking_level > 0 && cfgAllowInvisibility)
             {
                 PrepareAndEmitSoundToAll(cloakReadyWav,client);
             }
 
-            new detecting_level=GetUpgradeLevel(client,raceID,sensorID);
+            int detecting_level =GetUpgradeLevel(client,raceID,sensorID);
             if ((detecting_level > 0 || shields_level > 0 ||
                 ((cloaking_level > 0 && cfgAllowInvisibility))))
             {
@@ -392,7 +393,7 @@ public int OnUltimateCommand(int client, int race, bool pressed, int arg)
                         {
                             PrepareAndEmitSoundToClient(client,deniedWav);
 
-                            decl String:upgradeName[64];
+                            char upgradeName[64];
                             GetUpgradeName(raceID, mineID, upgradeName, sizeof(upgradeName), client);
                             DisplayMessage(client, Display_Ultimate, "%t", "NotAsMole", upgradeName);
                         }
@@ -413,7 +414,7 @@ public int OnUltimateCommand(int client, int race, bool pressed, int arg)
                     }
                     else
                     {
-                        decl String:upgradeName[64];
+                        char upgradeName[64];
                         GetUpgradeName(raceID, mineID, upgradeName, sizeof(upgradeName), client);
                         PrintHintText(client,"%t", "IsNotAvailable", upgradeName);
                     }
@@ -430,7 +431,7 @@ public int OnUltimateCommand(int client, int race, bool pressed, int arg)
                         {
                             PrepareAndEmitSoundToClient(client,deniedWav);
 
-                            decl String:upgradeName[64];
+                            char upgradeName[64];
                             GetUpgradeName(raceID, mineID, upgradeName, sizeof(upgradeName), client);
                             DisplayMessage(client, Display_Ultimate, "%t", "NotAsMole", upgradeName);
                         }
@@ -456,7 +457,7 @@ public int OnUltimateCommand(int client, int race, bool pressed, int arg)
                     }
                     else
                     {
-                        decl String:upgradeName[64];
+                        char upgradeName[64];
                         GetUpgradeName(raceID, mineID, upgradeName, sizeof(upgradeName), client);
                         PrintHintText(client,"%t", "IsNotAvailable", upgradeName);
                     }
@@ -467,7 +468,7 @@ public int OnUltimateCommand(int client, int race, bool pressed, int arg)
                 int ult_level=GetUpgradeLevel(client,raceID,controlID);
                 if (ult_level > 0)
                 {
-                    decl String:upgradeName[64];
+                    char upgradeName[64];
                     GetUpgradeName(raceID, controlID, upgradeName, sizeof(upgradeName), client);
 
                     if (!m_MindControlAvailable)
@@ -522,16 +523,16 @@ public int OnPlayerSpawnEvent(Handle event, int client, int race)
     {
         m_ScarabAttackTime[client] = 0.0;
 
-        new cloaking_level=GetUpgradeLevel(client,raceID,cloakID);
+        int cloaking_level =GetUpgradeLevel(client,raceID,cloakID);
         if (cloaking_level > 0 && cfgAllowInvisibility)
         {
             PrepareAndEmitSoundToAll(cloakReadyWav,client);
         }
 
-        new shields_level = GetUpgradeLevel(client,raceID,shieldsID);
+        int shields_level = GetUpgradeLevel(client,raceID,shieldsID);
         SetupShields(client, shields_level, g_InitialShields, g_ShieldsPercent);
 
-        new detecting_level=GetUpgradeLevel(client,raceID,sensorID);
+        int detecting_level =GetUpgradeLevel(client,raceID,sensorID);
         if (detecting_level > 0 || shields_level > 0 ||
             (cloaking_level > 0 && cfgAllowInvisibility))
         {

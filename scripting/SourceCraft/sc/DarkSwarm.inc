@@ -38,7 +38,7 @@ stock DarkSwarm(client, raceId, upgradeId, level, Float:swarmRange[])
     if (IsEntLimitReached(.client=client,
                           .message="Unable to spawn anymore dark swarm clouds"))
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceId, upgradeId, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "NoEntitiesAvailable");
         return;
@@ -46,27 +46,27 @@ stock DarkSwarm(client, raceId, upgradeId, level, Float:swarmRange[])
     else if (GetRestriction(client,Restriction_NoUltimates) ||
              GetRestriction(client,Restriction_Stunned))
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceId, upgradeId, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
         PrepareAndEmitSoundToClient(client,deniedWav);
     }
     else if (CanInvokeUpgrade(client, raceId, upgradeId))
     {
-        new Float:location[3];
+        float location[3];
         GetClientAbsOrigin(client, location);
         m_DarkSwarmPos[client] = location;
 
-        new String:originData[64];
+        char originData[64];
         Format(originData, sizeof(originData), "%f %f %f",
                location[0], location[1], location[2]);
 
         // Create the Dark Swarm Cloud
-        new String:size[5];
-        new String:name[128];
+        char size[5];
+        char name[128];
         Format(size, sizeof(size), "%1.0f", swarmRange[level]);
         Format(name, sizeof(name), "DarkSwarm%i", client);
-        new cloud = CreateEntityByName("env_smokestack");
+        int cloud = CreateEntityByName("env_smokestack");
         if (cloud > 0 && IsValidEdict(cloud))
         {
             DispatchKeyValue(cloud,"targetname", name);
@@ -87,8 +87,8 @@ stock DarkSwarm(client, raceId, upgradeId, level, Float:swarmRange[])
 
             PrepareAndEmitSoundToAll(darkSwarmWav,client);
 
-            new Float:length = 3.0 * float(level);
-            new Handle:entitypack = CreateDataPack();
+            float length = 3.0 * float(level);
+            Handle entitypack = CreateDataPack();
             CreateTimer(length, RemoveDarkSwarm, entitypack);
             WritePackCell(entitypack, EntIndexToEntRef(cloud));
             WritePackCell(entitypack, client);
@@ -96,7 +96,7 @@ stock DarkSwarm(client, raceId, upgradeId, level, Float:swarmRange[])
 
             if (m_DarkSwarmTimers[client] == INVALID_HANDLE)
             {
-                new Handle:pack;
+                Handle pack;
                 m_DarkSwarmTimers[client] = CreateDataTimer(0.2, DarkSwarmTimer, pack,
                                                             TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
                 if (pack != INVALID_HANDLE)
@@ -106,7 +106,7 @@ stock DarkSwarm(client, raceId, upgradeId, level, Float:swarmRange[])
                 }
             }
 
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceId, upgradeId, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "PervadesTheLand", upgradeName);
             CreateCooldown(client, raceId, upgradeId);
@@ -116,25 +116,25 @@ stock DarkSwarm(client, raceId, upgradeId, level, Float:swarmRange[])
     }
 }
 
-public Action:DarkSwarmTimer(Handle:timer, Handle:pack)
+public Action DarkSwarmTimer(Handle:timer, Handle:pack)
 {
     if (pack != INVALID_HANDLE)
     {
         ResetPack(pack);
-        new client = ReadPackCell(pack);
-        new Float:range = ReadPackFloat(pack);
+        int client = ReadPackCell(pack);
+        float range = ReadPackFloat(pack);
 
-        new team = GetClientTeam(client);
+        int team = GetClientTeam(client);
         if (team > 1)
         {
-            for (new index=1;index<=MaxClients;index++)
+            for (int index =1;index<=MaxClients;index++)
             {
                 if (IsClientInGame(index) && IsPlayerAlive(index) &&
                     (index == client || GetClientTeam(index) == team))
                 {
-                    new Float:indexLoc[3];
+                    float indexLoc[3];
                     GetClientAbsOrigin(index, indexLoc);
-                    new bool:inRange = (index == client ||
+                    bool inRange = (index == client ||
                                         (IsPointInRange(m_DarkSwarmPos[client],indexLoc,range) &&
                                          TraceTargetIndex(client, index, m_DarkSwarmPos[client], indexLoc)));
 
@@ -167,14 +167,14 @@ public Action:DarkSwarmTimer(Handle:timer, Handle:pack)
 
 stock ResetDarkSwarm(client)
 {
-    new Handle:timer = m_DarkSwarmTimers[client];
+    Handle timer = m_DarkSwarmTimers[client];
     if (timer != INVALID_HANDLE)
     {
         KillTimer(timer, true);
         m_DarkSwarmTimers[client] = INVALID_HANDLE;	
     }
 
-    for (new index=1;index<=MaxClients;index++)
+    for (int index =1;index<=MaxClients;index++)
     {
         SetImmunity(index,Immunity_RangedAttacks,false);
         if (m_Swarmed[client][index])
@@ -192,17 +192,17 @@ stock ResetProtected(index)
     {
         SetImmunity(index,Immunity_RangedAttacks,false);
 
-        for (new client=1;client<=MaxClients;client++)
+        for (int client =1;client<=MaxClients;client++)
         m_Swarmed[client][index] = false;
     }
 }
 
-public Action:RemoveDarkSwarm(Handle:timer, Handle:entitypack)
+public Action RemoveDarkSwarm(Handle:timer, Handle:entitypack)
 {
     ResetPack(entitypack);
-    new cloud = EntRefToEntIndex(ReadPackCell(entitypack));
-    new client = ReadPackCell(entitypack);
-    new Float:length = ReadPackFloat(entitypack);
+    int cloud = EntRefToEntIndex(ReadPackCell(entitypack));
+    int client = ReadPackCell(entitypack);
+    float length = ReadPackFloat(entitypack);
 
     ResetDarkSwarm(client);
 
@@ -213,11 +213,11 @@ public Action:RemoveDarkSwarm(Handle:timer, Handle:entitypack)
     }
 }
 
-public Action:KillDarkSwarm(Handle:timer, Handle:entitypack)
+public Action KillDarkSwarm(Handle:timer, Handle:entitypack)
 {
     ResetPack(entitypack);
 
-    new cloud = EntRefToEntIndex(ReadPackCell(entitypack));
+    int cloud = EntRefToEntIndex(ReadPackCell(entitypack));
     if (cloud > 0 && IsValidEntity(cloud))
         AcceptEntityInput(cloud, "Kill");
 

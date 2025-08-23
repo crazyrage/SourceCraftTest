@@ -38,9 +38,9 @@ stock Cloak(client, level, bool:apply=false)
                                    RENDERFX_STROBE_SLOW};
     if (level > 0)
     {
-        new alpha = alphaTable[level];
-        new Float:delay = delayTable[level];
-        new Float:duration = durationTable[level];
+        int alpha = alphaTable[level];
+        float delay = delayTable[level];
+        float duration = durationTable[level];
 
         /* If the Player also has the Cloak of Shadows,
          * Decrease the delay and Increase the duration.
@@ -55,10 +55,10 @@ stock Cloak(client, level, bool:apply=false)
             duration *= 1.10;
         }
 
-        new Float:start[3];
+        float start[3];
         GetClientAbsOrigin(client, start);
 
-        new lightning = Lightning();
+        int lightning = Lightning();
         static const color[4] = { 0, 255, 50, 128 };
         TE_SetupBeamRingPoint(start, 30.0, 60.0, lightning, lightning,
                               0, 1, 2.0, 10.0, 0.0, color, 10, 0);
@@ -91,14 +91,14 @@ stock AlphaCloak(client, level, bool:allowInvisibility, bool:apply=false)
 
     if (level > 0)
     {
-        new alpha = alphaTable[level];
-        new Float:melee = factorTable[level];
-        new Float:movement = factorTable[level];
+        int alpha = alphaTable[level];
+        float melee = factorTable[level];
+        float movement = factorTable[level];
 
         /* If the Player also has the Cloak of Shadows,
          * Decrease the delay and Increase the duration.
          */
-        new cloak = FindShopItem("cloak");
+        int cloak = FindShopItem("cloak");
         if (cloak != -1 && GetOwnsItem(client,cloak))
         {
             alpha    *= 0.90;
@@ -106,10 +106,10 @@ stock AlphaCloak(client, level, bool:allowInvisibility, bool:apply=false)
             movement *= 1.10;
         }
 
-        new Float:start[3];
+        float start[3];
         GetClientAbsOrigin(client, start);
 
-        new lightning = Lightning();
+        int lightning = Lightning();
         static const color[4] = { 0, 255, 50, 128 };
         TE_SetupBeamRingPoint(start, 30.0, 60.0, lightning, lightning,
                               0, 1, 2.0, 10.0, 0.0, color, 10, 0);

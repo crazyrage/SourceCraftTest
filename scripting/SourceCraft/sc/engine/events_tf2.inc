@@ -555,16 +555,16 @@ bool:HookTFEvents()
 
 public PlayerChargeDeployed(Handle:event,const String:name[],bool:dontBroadcast)
 {
-    new userid = GetEventInt(event,"userid");
+    int userid = GetEventInt(event,"userid");
     if (userid > 0)
     {
-        new index = GetClientOfUserId(userid);
+        int index = GetClientOfUserId(userid);
         if (IsValidClient(index))
         {
-            new weaponent = GetEntPropEnt(index, Prop_Send, "m_hActiveWeapon");
+            int weaponent = GetEntPropEnt(index, Prop_Send, "m_hActiveWeapon");
             if (weaponent > 0)
             {
-                new weaponindex = GetEntProp(weaponent, Prop_Send, "m_iItemDefinitionIndex");
+                int weaponindex = GetEntProp(weaponent, Prop_Send, "m_iItemDefinitionIndex");
                 if (weaponindex == 998) // Vaccinator
                     return; // Don't give anything for the Vaccinator
             }
@@ -579,13 +579,13 @@ public PlayerBuiltObject(Handle:event,const String:name[],bool:dontBroadcast)
 {
     if (g_RoundState >= RoundActive && g_RoundState < RoundOver)
     {
-        new userid = GetEventInt(event,"userid");
+        int userid = GetEventInt(event,"userid");
         if (userid > 0)
         {
-            new index = GetClientOfUserId(userid);
+            int index = GetClientOfUserId(userid);
             if (IsValidClient(index))
             {
-                new obj = GetEventInt(event,"index");
+                int obj = GetEventInt(event,"index");
                 new TFObjectType:type = TFObjectType:GetEventInt(event,"object");
 
                 TraceInto("Events_TF2", "PlayerBuiltObject", "object=%d,type=%d,userid=%d,%D:%N", \
@@ -613,21 +613,21 @@ public PlayerBuiltObject(Handle:event,const String:name[],bool:dontBroadcast)
 
 public EventObjectDestroyed(Handle:event,const String:name[],bool:dontBroadcast)
 {
-    new obj = GetEventInt(event,"index");
+    int obj = GetEventInt(event,"index");
     if (obj > 0)
         m_ObjectBuilt[obj] = 0;
 
     if (g_RoundState >= RoundActive && g_RoundState < RoundOver)
     {
-        new userid = GetEventInt(event,"userid");
-        new index  = GetClientOfUserId(userid);
+        int userid = GetEventInt(event,"userid");
+        int index = GetClientOfUserId(userid);
         new TFObjectType:type = TFObjectType:GetEventInt(event,"objecttype");
 
-        new attacker = GetEventInt(event,"attacker"); // user ID who killed
-        new attacker_index = GetClientOfUserId(attacker);
+        int attacker = GetEventInt(event,"attacker"); // user ID who killed
+        int attacker_index = GetClientOfUserId(attacker);
 
-        new assister = GetEventInt(event,"assister"); // user ID of assister
-        new assister_index = GetClientOfUserId(assister);
+        int assister = GetEventInt(event,"assister"); // user ID of assister
+        int assister_index = GetClientOfUserId(assister);
 
         TraceInto("Events_TF2", "EventObjectDestroyed", "object=%d,type=%d,userid=%d,%D:%N, attacker=%d,%d:%N, assister=%d,%d:%N", \
                   obj, type, userid,index, ValidClientIndex(index), \
@@ -636,7 +636,7 @@ public EventObjectDestroyed(Handle:event,const String:name[],bool:dontBroadcast)
 
         if (attacker > 0 && attacker != userid)
         {
-            //new attacker_index = GetClientOfUserId(attacker);
+            //int attacker_index = GetClientOfUserId(attacker);
             if (attacker_index > 0)
                 GiveObjectDestroyedXP(attacker_index,type);
         }
@@ -647,7 +647,7 @@ public EventObjectDestroyed(Handle:event,const String:name[],bool:dontBroadcast)
 
         if (assister> 0 && assister != userid)
         {
-            //new assister_index = GetClientOfUserId(assister);
+            //int assister_index = GetClientOfUserId(assister);
             if (assister_index > 0)
                 GiveObjectDestroyedXP(assister_index,type);
         }
@@ -658,14 +658,14 @@ public EventObjectDestroyed(Handle:event,const String:name[],bool:dontBroadcast)
 
 public EventObjectRemoved(Handle:event,const String:name[],bool:dontBroadcast)
 {
-    new obj = GetEventInt(event,"index");
+    int obj = GetEventInt(event,"index");
     if (obj > 0)
         m_ObjectBuilt[obj] = 0;
 
     if (g_RoundState >= RoundActive && g_RoundState < RoundOver)
     {
-        new userid = GetEventInt(event,"userid");
-        new index  = GetClientOfUserId(userid);
+        int userid = GetEventInt(event,"userid");
+        int index = GetClientOfUserId(userid);
         if (index > 0)
         {
             new TFObjectType:type = TFObjectType:GetEventInt(event,"objecttype");
@@ -684,13 +684,13 @@ public EventObjectUpgraded(Handle:event,const String:name[],bool:dontBroadcast)
 {
     if (g_RoundState >= RoundActive && g_RoundState < RoundOver)
     {
-        new userid = GetEventInt(event,"userid");
-        new index  = GetClientOfUserId(userid);
+        int userid = GetEventInt(event,"userid");
+        int index = GetClientOfUserId(userid);
         new TFObjectType:type = TFObjectType:GetEventInt(event,"object");
-        new bool:isBuilder = GetEventBool(event,"isbuilder");
+        bool isBuilder = GetEventBool(event,"isbuilder");
 
         #if defined _TRACE
-            new obj = GetEventInt(event,"index");
+            int obj = GetEventInt(event,"index");
             TraceInto("Events_TF2", "EventObjectUpgraded", "object=%d,type=%d,userid=%d,%D:%N",
                       obj, type, userid,index, ValidClientIndex(index));
         #endif
@@ -705,10 +705,10 @@ public EventObjectUpgraded(Handle:event,const String:name[],bool:dontBroadcast)
 
 public EventFlagEvent(Handle:event,const String:name[],bool:dontBroadcast)
 {
-    new player = GetEventInt(event,"player");
+    int player = GetEventInt(event,"player");
 
     #if defined _TRACE
-        new index = GetClientOfUserId(player); // Is player a client or a userid?
+        int index = GetClientOfUserId(player); // Is player a client or a userid?
         TraceInto("Events_TF2", "EventFlagEvent", "player=%d,%d:%N, index=%d:%N, eventtype=%d",
                   player, ValidClientIndex(player), index, ValidClientIndex(index),
                   GetEventInt(event,"eventtype"));
@@ -716,7 +716,7 @@ public EventFlagEvent(Handle:event,const String:name[],bool:dontBroadcast)
 
     if (IsValidClient(player))
     {
-        new eventtype = GetEventInt(event,"eventtype");
+        int eventtype = GetEventInt(event,"eventtype");
         if (eventtype == TF_FLAGEVENT_CAPTURED)
         {
             GiveFlagCapturedXP(player);
@@ -737,15 +737,15 @@ public EventFlagEvent(Handle:event,const String:name[],bool:dontBroadcast)
 
 public EventPointCapture(Handle:event,const String:name[],bool:dontBroadcast)
 {
-    decl String:cappers[MAXPLAYERS+1];
+    char cappers[MAXPLAYERS+1];
     GetEventString(event,"cappers", cappers, MAXPLAYERS);
     if (strlen(cappers)>0)
     {
-        new bool:startcap = StrEqual(name, "teamplay_point_startcapture");
-        new len = strlen(cappers);
-        for(new i=0;i<len;i++)
+        bool startcap = StrEqual(name, "teamplay_point_startcapture");
+        int len = strlen(cappers);
+        for(int i =0;i<len;i++)
         {
-            new index = cappers[i];
+            int index = cappers[i];
             if (IsValidClient(index))
             {
                 if (startcap)
@@ -762,10 +762,10 @@ public EventPointCapture(Handle:event,const String:name[],bool:dontBroadcast)
 
 public EventCaptureBlocked(Handle:event,const String:name[],bool:dontBroadcast)
 {
-    new blocker=GetEventInt(event,"blocker");
+    int blocker =GetEventInt(event,"blocker");
 
     #if defined _TRACE
-        new index = GetClientOfUserId(blocker); // Is blocker a client or a userid?
+        int index = GetClientOfUserId(blocker); // Is blocker a client or a userid?
         TraceInto("Events_TF2", "EventCaptureBlocked", "blocker=%d:%N, index=%d:%N",
                   blocker, ValidClientIndex(blocker), index, ValidClientIndex(index));
     #endif
@@ -783,10 +783,10 @@ public EventCaptureBlocked(Handle:event,const String:name[],bool:dontBroadcast)
 
 public EventEscortScore(Handle:event,const String:name[],bool:dontBroadcast)
 {
-    new player = GetEventInt(event,"player");
+    int player = GetEventInt(event,"player");
 
     #if defined _TRACE
-        new index = GetClientOfUserId(player); // Is player a client or a userid?
+        int index = GetClientOfUserId(player); // Is player a client or a userid?
         TraceInto("Events_TF2", "EventEscortScore", "player=%d,%d:%N, index=%d:%N, points=%d",
                   player, ValidClientIndex(player), index, ValidClientIndex(index),
                   GetEventInt(event,"points"));
@@ -794,7 +794,7 @@ public EventEscortScore(Handle:event,const String:name[],bool:dontBroadcast)
 
     if (IsValidClient(player))
     {
-        new points = GetEventInt(event,"points");
+        int points = GetEventInt(event,"points");
         GiveEscortXP(player, points);
         GiveEscortCrystalsAndGas(player, points);
     }
@@ -806,10 +806,10 @@ public EventEscortScore(Handle:event,const String:name[],bool:dontBroadcast)
 
 public EventBomberKilled(Handle:event,const String:name[],bool:dontBroadcast)
 {
-    new player = GetEventInt(event,"player");
+    int player = GetEventInt(event,"player");
 
     #if defined _TRACE
-        new index = GetClientOfUserId(player); // Is player a client or a userid?
+        int index = GetClientOfUserId(player); // Is player a client or a userid?
         TraceInto("Events_TF2", "EventBomberKilled", "player=%d,%d:%N, index=%d:%N",
                   player, ValidClientIndex(player), index, ValidClientIndex(index));
     #endif
@@ -836,8 +836,8 @@ public EventRoundSetupFinished(Handle:event,const String:name[],bool:dontBroadca
 
 public EventScorePanel(Handle:event,const String:name[],bool:dontBroadcast)
 {
-    new team  = GetEventInt(event,"winning_team");
-    new score = (team == 2) ? GetEventInt(event,"blue_score")
+    int team = GetEventInt(event,"winning_team");
+    int score = (team == 2) ? GetEventInt(event,"blue_score")
                             : GetEventInt(event,"red_score");
 
     SetTraceCategory("Event,Round");
@@ -847,7 +847,7 @@ public EventScorePanel(Handle:event,const String:name[],bool:dontBroadcast)
         LogRoundEvent(event,name,dontBroadcast);
     #endif
 
-    for(new index=1;index<=MaxClients;index++)
+    for(int index =1;index<=MaxClients;index++)
     {
         if (IsClientInGame(index))
         {
@@ -860,10 +860,10 @@ public EventScorePanel(Handle:event,const String:name[],bool:dontBroadcast)
         }
     }
 
-    new player = GetEventInt(event, "player_1");
+    int player = GetEventInt(event, "player_1");
     if (IsValidClient(player))
     {
-        new points = GetEventInt(event,"player_1_points");
+        int points = GetEventInt(event,"player_1_points");
         if (points == 0)
             points = GetEventInt(event,"player_1_damage") / 10;
         if (points == 0)
@@ -874,7 +874,7 @@ public EventScorePanel(Handle:event,const String:name[],bool:dontBroadcast)
     }
 
     #if defined _TRACE
-        new index = GetClientOfUserId(player);
+        int index = GetClientOfUserId(player);
         Trace("EventScorePanel; player_1=%d:%N, index=%d:%N", \
               player, ValidClientIndex(player), \
               index, ValidClientIndex(index));
@@ -883,7 +883,7 @@ public EventScorePanel(Handle:event,const String:name[],bool:dontBroadcast)
     player = GetEventInt(event, "player_2");
     if (IsValidClient(player))
     {
-        new points = GetEventInt(event,"player_2_points");
+        int points = GetEventInt(event,"player_2_points");
         if (points == 0)
             points = GetEventInt(event,"player_2_damage") / 10;
         if (points == 0)
@@ -903,7 +903,7 @@ public EventScorePanel(Handle:event,const String:name[],bool:dontBroadcast)
     player = GetEventInt(event, "player_3");
     if (IsValidClient(player))
     {
-        new points = GetEventInt(event,"player_3_points");
+        int points = GetEventInt(event,"player_3_points");
         if (points == 0)
             points = GetEventInt(event,"player_3_damage") / 10;
         if (points == 0)
@@ -923,7 +923,7 @@ public EventScorePanel(Handle:event,const String:name[],bool:dontBroadcast)
     player = GetEventInt(event, "player_4");
     if (IsValidClient(player))
     {
-        new points = GetEventInt(event,"player_4_points");
+        int points = GetEventInt(event,"player_4_points");
         if (points == 0)
             points = GetEventInt(event,"player_4_damage") / 10;
         if (points == 0)
@@ -943,7 +943,7 @@ public EventScorePanel(Handle:event,const String:name[],bool:dontBroadcast)
     player = GetEventInt(event, "player_5");
     if (IsValidClient(player))
     {
-        new points = GetEventInt(event,"player_5_points");
+        int points = GetEventInt(event,"player_5_points");
         if (points == 0)
             points = GetEventInt(event,"player_5_damage") / 10;
         if (points == 0)
@@ -963,7 +963,7 @@ public EventScorePanel(Handle:event,const String:name[],bool:dontBroadcast)
     player = GetEventInt(event, "player_6");
     if (IsValidClient(player))
     {
-        new points = GetEventInt(event,"player_6_points");
+        int points = GetEventInt(event,"player_6_points");
         if (points == 0)
             points = GetEventInt(event,"player_6_damage") / 10;
         if (points == 0)
@@ -987,7 +987,7 @@ public EventScorePanel(Handle:event,const String:name[],bool:dontBroadcast)
 
 public EventDoomsday(Handle:event,const String:name[],bool:dontBroadcast)
 {
-    new team  = GetEventInt(event,"team");
+    int team = GetEventInt(event,"team");
 
     SetTraceCategory("Event,Round");
     TraceInto("Events_TF2", "EventDoomsday", "team=%d", team);
@@ -996,7 +996,7 @@ public EventDoomsday(Handle:event,const String:name[],bool:dontBroadcast)
         LogRoundEvent(event,name,dontBroadcast);
     #endif
 
-    for(new index=1;index<=MaxClients;index++)
+    for(int index =1;index<=MaxClients;index++)
     {
         if (IsClientInGame(index))
         {
@@ -1023,7 +1023,7 @@ public EventMissionComplete(Handle:event,const String:name[],bool:dontBroadcast)
         LogRoundEvent(event,name,dontBroadcast);
     #endif
 
-    for(new index=1;index<=MaxClients;index++)
+    for(int index =1;index<=MaxClients;index++)
     {
         if (IsClientInGame(index))
         {
@@ -1043,17 +1043,17 @@ public EventMissionComplete(Handle:event,const String:name[],bool:dontBroadcast)
 
 GiveTeamMvpAwards(team)
 {
-    new ScoreOffset; // = FindSendPropOffs("CTFPlayerResource", "m_iTotalScore");
+    int ScoreOffset; // = FindSendPropOffs("CTFPlayerResource", "m_iTotalScore");
     FindSendPropInfo("CTFPlayerResource", "m_iTotalScore", .local_offset=ScoreOffset);
-    new EntPlayerManager = FindEntityByClassname(-1, "tf_player_manager");
+    int EntPlayerManager = FindEntityByClassname(-1, "tf_player_manager");
     if (EntPlayerManager > 0 && ScoreOffset > 0)
     {
         new Scores[MaxClients][2];
-        new client;
+        int client;
 
         // For sorting purpose, fill Scores[][] array from zero index
         //
-        for (new i = 0; i < MaxClients; i++)
+        for (int i = 0; i < MaxClients; i++)
         {
             client = i + 1;
             Scores[i][0] = client;
@@ -1065,7 +1065,7 @@ GiveTeamMvpAwards(team)
 
         SortCustom2D(Scores, MaxClients, SortScoreDesc);
 
-        for (new n = 0; n <= 5; n++)
+        for (int n = 0; n <= 5; n++)
         {
             if (Scores[n][0] > 0  && Scores[n][1] > 0)
             {
@@ -1088,7 +1088,7 @@ public SortScoreDesc(x[], y[], array[][], Handle:data)
 
 public EventBroadcast(Handle:event,const String:name[],bool:dontBroadcast)
 {
-    decl String:sound[64];
+    char sound[64];
     GetEventString(event, "sound", sound, sizeof(sound));
 
     TraceInto("Events_TF2", "EventBroadcast", "sound=%s", sound);
@@ -1099,7 +1099,7 @@ public EventBroadcast(Handle:event,const String:name[],bool:dontBroadcast)
     TraceReturn();
 }
 
-public Action:LogScanner(const String:message[])
+public Action LogScanner(const String:message[])
 {
     if (StrContains(message, "changed map", false) >= 0 ||
         StrContains(message, "changing map", false) >= 0)
@@ -1110,7 +1110,7 @@ public Action:LogScanner(const String:message[])
     return Plugin_Continue;
 }
 
-public Action:OnLogAction(Handle:source, Identity:ident, client, target, const String:message[])
+public Action OnLogAction(Handle:source, Identity:ident, client, target, const String:message[])
 {
     if (StrContains(message, "changed map", false) >= 0 ||
         StrContains(message, "changing map", false) >= 0)
@@ -1142,14 +1142,14 @@ public EntityOutput_OnAnimationBegun(const String:output[], caller, activator, F
 {
 	if (IsValidEntity(caller))
 	{
-		new String:modelname[128];
+		char modelname[128];
 		GetEntPropString(caller, Prop_Data, "m_ModelName", modelname, 128);
 		if (StrEqual(modelname, "models/props_gameplay/resupply_locker.mdl"))
 		{
 			decl Float:pos[3], Float:orig[3];
 			GetEntPropVector(caller, Prop_Send, "m_vecOrigin", pos);
 
-			for (new index=1;index<=MaxClients;index++)
+			for (int index =1;index<=MaxClients;index++)
 			{
                 if (IsClientInGame(index) && IsPlayerAlive(index))
 				{
@@ -1182,12 +1182,12 @@ public TF2_OnWaitingForPlayersEnd()
     g_RoundState = RoundActive;
 }
 
-public Action:EntityHurtEvent(Handle:event,const String:name[],bool:dontBroadcast)
+public Action EntityHurtEvent(Handle:event,const String:name[],bool:dontBroadcast)
 {
     new Action:result = Plugin_Continue;
-    new attacker_index = GetClientOfUserId(GetEventInt(event,"attacker_player"));
-    new victim_index = GetEventInt(event,"entindex");
-    new damage = GetEventInt(event,"damageamount");
+    int attacker_index = GetClientOfUserId(GetEventInt(event,"attacker_player"));
+    int victim_index = GetEventInt(event,"entindex");
+    int damage = GetEventInt(event,"damageamount");
 
     SetTraceCategory("Event");
     TraceInto("Events_TF2", "EntityHurtEvent", "event=%s, entindex=%d, attacker_player=%d:%N, health=%d, weaponid=%d, damage=%d, crit=%d", \
@@ -1203,11 +1203,11 @@ public Action:EntityHurtEvent(Handle:event,const String:name[],bool:dontBroadcas
 
 public EntityDeathEvent(Handle:event,const String:name[],bool:dontBroadcast)
 {
-    new attacker_index = GetEventInt(event,"player_entindex");
-    new attacker_race  = (attacker_index > 0) ? GetRace(attacker_index) : -1;
+    int attacker_index = GetEventInt(event,"player_entindex");
+    int attacker_race = (attacker_index > 0) ? GetRace(attacker_index) : -1;
 
-    new assister_index=0;
-    new assister_race=-1;
+    int assister_index =0;
+    int assister_race =-1;
 
     #if defined _TRACE
         LogEvent(event, name, dontBroadcast);
@@ -1215,7 +1215,7 @@ public EntityDeathEvent(Handle:event,const String:name[],bool:dontBroadcast)
 
     if (attacker_index > 0)
     {
-        new victim_level = GetEventInt(event,"level");
+        int victim_level = GetEventInt(event,"level");
         GiveBossKillCrystalsAndGas(attacker_index, victim_level);
         GiveBossKillXP(attacker_index, victim_level, false);
 
@@ -1228,7 +1228,7 @@ public EntityDeathEvent(Handle:event,const String:name[],bool:dontBroadcast)
         }
     }
 
-    new victim_index = -1;
+    int victim_index = -1;
     if (StrContains(name, "pumpkin_lord") >= 0)
         victim_index = FindEntityByClassname(victim_index, "headless_hatman");
     else if (StrContains(name, "eyeball_boss") >= 0)
@@ -1240,7 +1240,7 @@ public EntityDeathEvent(Handle:event,const String:name[],bool:dontBroadcast)
         victim_index = FindEntityByClassname(victim_index, "tank_boss");
 
         static const team = 3; // Players are only on the red team, bots are on blue
-        for(new index=1;index<=MaxClients;index++)
+        for(int index =1;index<=MaxClients;index++)
         {
             if (IsClientInGame(index))
             {
@@ -1273,11 +1273,11 @@ public EntityDeathEvent(Handle:event,const String:name[],bool:dontBroadcast)
 
 public EntityStunnedEvent(Handle:event,const String:name[],bool:dontBroadcast)
 {
-    new attacker_index = GetEventInt(event,"player_entindex");
-    new attacker_race  = (attacker_index > 0) ? GetRace(attacker_index) : -1;
+    int attacker_index = GetEventInt(event,"player_entindex");
+    int attacker_race = (attacker_index > 0) ? GetRace(attacker_index) : -1;
 
-    new assister_index=0;
-    new assister_race=-1;
+    int assister_index =0;
+    int assister_race =-1;
 
     #if defined _TRACE
         LogEvent(event, name, dontBroadcast);
@@ -1285,7 +1285,7 @@ public EntityStunnedEvent(Handle:event,const String:name[],bool:dontBroadcast)
 
     if (attacker_index > 0)
     {
-        new victim_level = GetEventInt(event,"level");
+        int victim_level = GetEventInt(event,"level");
         GiveBossStunCrystalsAndGas(attacker_index, victim_level);
         GiveBossStunXP(attacker_index, victim_level, false);
 
@@ -1298,7 +1298,7 @@ public EntityStunnedEvent(Handle:event,const String:name[],bool:dontBroadcast)
         }
     }
 
-    new victim_index = -1;
+    int victim_index = -1;
     if (StrContains(name, "eyeball_boss") > 0)
         victim_index = FindEntityByClassname(victim_index, "eyeball_boss");
     else if (StrContains(name, "merasmus") > 0)

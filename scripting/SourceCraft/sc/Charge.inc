@@ -33,7 +33,7 @@ Charge(client, race, upgrade, level, immunity, damage, Float:force, Float:impuls
     {
         if (IsMole(client))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(race, upgrade, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "NotAsMole", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -77,8 +77,8 @@ Charge(client, race, upgrade, level, immunity, damage, Float:force, Float:impuls
                 PrepareAndEmitSoundToAll(g_ChargeSound, client);
                 m_ChargeActive[client] = true;
 
-                new Float:velocity = float(level) * impulse;
-                new Float:vecAngles[3], Float:vecVelocity[3];    
+                float velocity = float(level) * impulse;
+                float vecAngles[3], Float:vecVelocity[3];    
                 GetEntPropVector(client, Prop_Data, "m_vecVelocity", vecVelocity);
                 GetClientEyeAngles(client, vecAngles);
 
@@ -88,7 +88,7 @@ Charge(client, race, upgrade, level, immunity, damage, Float:force, Float:impuls
                 vecVelocity[1] = ( Sine(vecAngles[1])   * velocity ) + vecVelocity[1];
                 vecVelocity[2] = ( Sine(DegToRad(vecAngles[0]))  * velocity ) + vecVelocity[2];
 
-                new Handle:pack;
+                Handle pack;
                 CreateDataTimer(0.2, ChargeTimer, pack, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
                 if (pack != INVALID_HANDLE)
                 {
@@ -109,15 +109,15 @@ Charge(client, race, upgrade, level, immunity, damage, Float:force, Float:impuls
     }
 }
 
-public Action:ChargeTimer(Handle:timer,any:pack)
+public Action ChargeTimer(Handle:timer,any:pack)
 {
     static const chargeColor[4] = {139, 69, 19, 255};
 
     if (pack != INVALID_HANDLE)
     {
         ResetPack(pack);
-        new count=ReadPackCell(pack);
-        new client=ReadPackCell(pack);
+        int count =ReadPackCell(pack);
+        int client =ReadPackCell(pack);
         if (m_ChargeActive[client] && IsValidClientAlive(client) &&
             !GetRestriction(client,Restriction_NoUltimates) &&
             !GetRestriction(client,Restriction_Stunned))
@@ -150,27 +150,27 @@ public Action:ChargeTimer(Handle:timer,any:pack)
                     TF2_RemovePlayerDisguise(client);
             }
 
-            new level=ReadPackCell(pack);
-            new immunity=ReadPackCell(pack);
-            new base_damage=ReadPackCell(pack);
-            new Float:base_force=ReadPackFloat(pack);
+            int level =ReadPackCell(pack);
+            int immunity =ReadPackCell(pack);
+            int base_damage =ReadPackCell(pack);
+            float base_force=ReadPackFloat(pack);
 
-            new Float:range = 50.0 + float(level)*50.0;
-            new dmg = level*base_damage;
+            float range = 50.0 + float(level)*50.0;
+            int dmg = level*base_damage;
 
-            new Float:force = float(level) * base_force * -1.0;
-            new Float:minVert = base_force * 4.0;
-            new Float:vertForce = force * -2.0;
+            float force = float(level) * base_force * -1.0;
+            float minVert = base_force * 4.0;
+            float vertForce = force * -2.0;
             if (vertForce < minVert)
                 vertForce = minVert;
 
-            new Float:indexLoc[3];
-            new Float:clientLoc[3];
+            float indexLoc[3];
+            float clientLoc[3];
             GetClientAbsOrigin(client, clientLoc);
             clientLoc[2] += 50.0; // Adjust trace position to the middle of the person instead of the feet.
 
-            new team = GetClientTeam(client);
-            for (new index=1;index<=MaxClients;index++)
+            int team = GetClientTeam(client);
+            for (int index =1;index<=MaxClients;index++)
             {
                 if (client != index && IsClientInGame(index) &&
                     IsPlayerAlive(index) && GetClientTeam(index) != team)
@@ -189,7 +189,7 @@ public Action:ChargeTimer(Handle:timer,any:pack)
                             Push(index, indexLoc, clientLoc, force, vertForce);
                         }
 
-                        new bool:isUber = IsInvulnerable(index);
+                        bool isUber = IsInvulnerable(index);
                         if ((immunity >= 2 || !GetImmunity(index,Immunity_HealthTaking)) &&
                             (immunity >= 3 || !GetImmunity(index,Immunity_Ultimates)) &&
                             (immunity >= 4 || !isUber))
@@ -198,7 +198,7 @@ public Action:ChargeTimer(Handle:timer,any:pack)
                                                0, 1, 10.0, 10.0,10.0,2,50.0,chargeColor,255);
                             TE_SendQEffectToAll(client,index);
 
-                            new dmgamt=RoundFloat(float(dmg)*(1.0+g_ChargePercent[level]));
+                            int dmgamt =RoundFloat(float(dmg)*(1.0+g_ChargePercent[level]));
                             if (isUber)
                                 dmgamt /= 2;
 
@@ -224,15 +224,15 @@ public Action:ChargeTimer(Handle:timer,any:pack)
                     return Plugin_Stop;
                 }
 
-                new Float:cloakMeter = TF2_GetCloakMeter(client);
+                float cloakMeter = TF2_GetCloakMeter(client);
                 if (cloakMeter > 0.0 && cloakMeter <= 100.0)
                     TF2_SetCloakMeter(client, 0.0);
 
                 // Damage Structures
                 //
-                new Float:pos[3];
-                new maxents = GetMaxEntities();
-                for (new ent = MaxClients; ent < maxents; ent++)
+                float pos[3];
+                int maxents = GetMaxEntities();
+                for (int ent = MaxClients; ent < maxents; ent++)
                 {
                     if (IsValidEdict(ent) && IsValidEntity(ent))
                     {
@@ -255,13 +255,13 @@ public Action:ChargeTimer(Handle:timer,any:pack)
 
             // Push charging player forward
             //
-            new Float:vecVelocity[3];
+            float vecVelocity[3];
             vecVelocity[0]=ReadPackFloat(pack);
             vecVelocity[1]=ReadPackFloat(pack);
             vecVelocity[2]=ReadPackFloat(pack);
             TeleportPlayer(client, NULL_VECTOR, NULL_VECTOR, vecVelocity);
 
-            new num = GetRandomInt(0,sizeof(g_ChargeAttackSound)-1);
+            int num = GetRandomInt(0,sizeof(g_ChargeAttackSound)-1);
             PrepareAndEmitSoundToAll(g_ChargeAttackSound[num], client);
 
             if (++count < level*6)
@@ -283,7 +283,7 @@ Push(victim, Float:victimLoc[3], const Float:clientLoc[3], Float:force, Float:ve
     TE_SetupSparks(victimLoc,victimLoc,255,1);
     TE_SendEffectToAll();
 
-    new Float:vector[3];
+    float vector[3];
     MakeVectorFromPoints(victimLoc, clientLoc, vector);
             
     NormalizeVector(vector, vector);

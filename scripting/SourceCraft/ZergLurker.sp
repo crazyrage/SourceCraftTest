@@ -6,6 +6,7 @@
  */
  
 #pragma semicolon 1
+#pragma newdecls required
 
 #include <sourcemod>
 #include <sdktools>
@@ -46,11 +47,11 @@ new raceID, carapaceID, regenerationID, warrenID;
 new missileID, augmentsID, poisonID, spineID;
 
 new g_MissileAttackChance[]             = { 5, 15, 25, 35, 45 };
-new Float:g_MissileAttackPercent[]      = { 0.05, 0.10, 0.25, 0.50, 0.70 };
+float g_MissileAttackPercent[]      = { 0.05, 0.10, 0.25, 0.50, 0.70 };
 
-new Float:g_SpeedLevels[]               = { 0.60, 0.70, 0.80, 0.90, 1.00 };
+float g_SpeedLevels[]               = { 0.60, 0.70, 0.80, 0.90, 1.00 };
 
-new Float:g_SpineRange[]                = { 350.0, 400.0, 650.0, 750.0, 900.0 };
+float g_SpineRange[]                = { 350.0, 400.0, 650.0, 750.0, 900.0 };
 new g_SpineDamage[][2]                  = { { 25, 50},
                                             { 50, 75},
                                             { 75, 100},
@@ -58,14 +59,14 @@ new g_SpineDamage[][2]                  = { { 25, 50},
                                             {125, 150} };
 
 new const String:g_ArmorName[]          = "Carapace";
-new Float:g_InitialArmor[]              = { 0.05, 0.10, 0.25, 0.50, 0.75 };
-new Float:g_ArmorPercent[][2]           = { {0.05, 0.10},
+float g_InitialArmor[]              = { 0.05, 0.10, 0.25, 0.50, 0.75 };
+float g_ArmorPercent[][2]           = { {0.05, 0.10},
                                             {0.10, 0.20},
                                             {0.15, 0.30},
                                             {0.20, 0.40},
                                             {0.25, 0.50} };
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Zerg Lurker",
     author = "-=|JFH|=-Naris",
@@ -74,7 +75,7 @@ public Plugin:myinfo =
     url = "http://jigglysfunhouse.net/"
 };
 
-public OnPluginStart()
+public void OnPluginStart()
 {
     LoadTranslations("sc.common.phrases.txt");
     LoadTranslations("sc.lurker.phrases.txt");
@@ -84,7 +85,7 @@ public OnPluginStart()
         OnSourceCraftReady();
 }
 
-public OnSourceCraftReady()
+public void OnSourceCraftReady()
 {
     raceID          = CreateRace("lurker", -1, -1, 28, 100.0, -1.0, 1.0,
                                  Zerg, Biological, "hydralisk");
@@ -111,9 +112,9 @@ public OnSourceCraftReady()
     GetConfigFloatArray("armor_amount", g_InitialArmor, sizeof(g_InitialArmor),
                         g_InitialArmor, raceID, carapaceID);
 
-    for (new level=0; level < sizeof(g_ArmorPercent); level++)
+    for (int level =0; level < sizeof(g_ArmorPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "armor_percent_level_%d", level);
         GetConfigFloatArray(key, g_ArmorPercent[level], sizeof(g_ArmorPercent[]),
                             g_ArmorPercent[level], raceID, carapaceID);
@@ -128,9 +129,9 @@ public OnSourceCraftReady()
     GetConfigFloatArray("damage_percent", g_MissileAttackPercent, sizeof(g_MissileAttackPercent),
                         g_MissileAttackPercent, raceID, missileID);
 
-    for (new level=0; level < sizeof(g_SpineDamage); level++)
+    for (int level =0; level < sizeof(g_SpineDamage); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "damage_level_%d", level);
         GetConfigArray(key, g_SpineDamage[level], sizeof(g_SpineDamage[]),
                        g_SpineDamage[level], raceID, spineID);
@@ -140,7 +141,7 @@ public OnSourceCraftReady()
                         g_SpineRange, raceID, spineID);
 }
 
-public OnMapStart()
+public void OnMapStart()
 {
     SetupSpeed();
 
@@ -157,21 +158,21 @@ public OnMapStart()
     SetupSound(poisonExpireWav);
     SetupMissileAttack(g_MissileAttackSound);
 
-    for (new i = 0; i < sizeof(spineAttackWav); i++)
+    for (int i = 0; i < sizeof(spineAttackWav); i++)
         SetupSound(spineAttackWav[i]);
 }
 
-public OnMapEnd()
+public void OnMapEnd()
 {
     ResetAllClientTimers();
 }
 
-public OnClientDisconnect(client)
+public void OnClientDisconnect(client)
 {
     KillClientTimer(client);
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -183,15 +184,15 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
     return Plugin_Continue;
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
-        new carapace_level = GetUpgradeLevel(client,raceID,carapaceID);
+        int carapace_level = GetUpgradeLevel(client,raceID,carapaceID);
         SetupArmor(client, carapace_level, g_InitialArmor,
                    g_ArmorPercent, g_ArmorName);
 
-        new augments_level = GetUpgradeLevel(client,raceID,augmentsID);
+        int augments_level = GetUpgradeLevel(client,raceID,augmentsID);
         SetSpeedBoost(client, augments_level, true, g_SpeedLevels);
 
         if (IsValidClientAlive(client))
@@ -206,7 +207,7 @@ public Action:OnRaceSelected(client,oldrace,newrace)
         return Plugin_Continue;
 }
 
-public OnUpgradeLevelChanged(client,race,upgrade,new_level)
+public void OnUpgradeLevelChanged(client,race,upgrade,new_level)
 {
     if (race == raceID && GetRace(client) == raceID)
     {
@@ -221,9 +222,9 @@ public OnUpgradeLevelChanged(client,race,upgrade,new_level)
     }
 }
 
-public OnItemPurchase(client,item)
+public void OnItemPurchase(client,item)
 {
-    new race=GetRace(client);
+    int race =GetRace(client);
     if (race == raceID && IsValidClientAlive(client))
     {
         if (g_bootsItem < 0)
@@ -231,13 +232,13 @@ public OnItemPurchase(client,item)
 
         if (item == g_bootsItem)
         {
-            new augments_level = GetUpgradeLevel(client,race,augmentsID);
+            int augments_level = GetUpgradeLevel(client,race,augmentsID);
             SetSpeedBoost(client, augments_level, true, g_SpeedLevels);
         }
     }
 }
 
-public OnUltimateCommand(client,race,bool:pressed,arg)
+public void OnUltimateCommand(client,race,bool:pressed,arg)
 {
     if (pressed && race==raceID && IsValidClientAlive(client))
     {
@@ -251,7 +252,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
             {
                 if (IsBurrowed(client) >= BURROWED_COMPLETELY)
                 {
-                    new spine_level=GetUpgradeLevel(client,race,spineID);
+                    int spine_level =GetUpgradeLevel(client,race,spineID);
                     SpineAttack(client, spine_level);
                 }
                 else
@@ -266,7 +267,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
 }
 
 // Events
-public OnPlayerSpawnEvent(Handle:event, client, race)
+public void OnPlayerSpawnEvent(Handle:event, client, race)
 {
     // Don't do anything if unburrowing
     if (race == raceID && IsBurrowed(client) <= -1)
@@ -275,11 +276,11 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
 
         SetOverrideVisiblity(client, -1);
 
-        new carapace_level = GetUpgradeLevel(client,raceID,carapaceID);
+        int carapace_level = GetUpgradeLevel(client,raceID,carapaceID);
         SetupArmor(client, carapace_level, g_InitialArmor,
                    g_ArmorPercent, g_ArmorName);
 
-        new augments_level = GetUpgradeLevel(client,raceID,augmentsID);
+        int augments_level = GetUpgradeLevel(client,raceID,augmentsID);
         SetSpeedBoost(client, augments_level, true, g_SpeedLevels);
 
         CreateClientTimer(client, 1.0, Regeneration,
@@ -287,7 +288,7 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     new Action:returnCode = Plugin_Continue;
@@ -296,7 +297,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
         attacker_index != victim_index &&
         attacker_race == raceID)
     {
-        new poison_level=GetUpgradeLevel(attacker_index, raceID, poisonID);
+        int poison_level =GetUpgradeLevel(attacker_index, raceID, poisonID);
         if (GetRandomInt(1,100)<=g_MissileAttackChance[poison_level])
         {
             if (!GetRestriction(attacker_index, Restriction_NoUltimates) &&
@@ -324,7 +325,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
             }
         }
 
-        new missile_level=GetUpgradeLevel(attacker_index,raceID,missileID);
+        int missile_level =GetUpgradeLevel(attacker_index,raceID,missileID);
         if (MissileAttack(raceID, missileID, missile_level, event, damage + absorbed, victim_index,
                           attacker_index, victim_index, false, sizeof(g_MissileAttackChance),
                           g_MissileAttackPercent, g_MissileAttackChance,
@@ -338,14 +339,14 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
 }
 
 
-public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
+public Action OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
                                   assister_index, assister_race, damage,
                                   absorbed)
 {
     new Action:returnCode = Plugin_Continue;
     if (assister_race == raceID)
     {
-        new poison_level=GetUpgradeLevel(assister_index, raceID, poisonID);
+        int poison_level =GetUpgradeLevel(assister_index, raceID, poisonID);
         if (GetRandomInt(1,100)<=g_MissileAttackChance[poison_level])
         {
             if (!GetRestriction(assister_index, Restriction_NoUltimates) &&
@@ -373,7 +374,7 @@ public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
             }
         }
 
-        new missile_level=GetUpgradeLevel(assister_index,raceID,missileID);
+        int missile_level =GetUpgradeLevel(assister_index,raceID,missileID);
         if (MissileAttack(raceID, missileID, missile_level, event, damage + absorbed, victim_index,
                           assister_index, victim_index, false, sizeof(g_MissileAttackChance),
                           g_MissileAttackPercent, g_MissileAttackChance,
@@ -386,7 +387,7 @@ public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
     return returnCode;
 }
 
-public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
+public void OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
                           attacker_race, assister_index, assister_race, damage,
                           const String:weapon[], bool:is_equipment, customkill,
                           bool:headshot, bool:backstab, bool:melee)
@@ -399,9 +400,9 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
     }
 }
 
-public Action:Regeneration(Handle:timer, any:userid)
+public Action Regeneration(Handle:timer, any:userid)
 {
-    new client = GetClientOfUserId(userid);
+    int client = GetClientOfUserId(userid);
     if (IsValidClientAlive(client))
     {
         if (GetRace(client) == raceID &&
@@ -409,11 +410,11 @@ public Action:Regeneration(Handle:timer, any:userid)
             !GetRestriction(client,Restriction_Stunned))
         {
             // Double regeneration while burrowed.
-            new amount = GetUpgradeLevel(client,raceID,regenerationID)+1;
+            int amount = GetUpgradeLevel(client,raceID,regenerationID)+1;
             if (IsBurrowed(client))
             {
                 amount += amount;
-                new level = GetUpgradeLevel(client,raceID,warrenID);
+                int level = GetUpgradeLevel(client,raceID,warrenID);
                 if (level > 0)
                     SetEnergy(client,GetEnergy(client) + float(level));
             }
@@ -427,7 +428,7 @@ public Action:Regeneration(Handle:timer, any:userid)
 
 SpineAttack(client, level)
 {
-    decl String:upgradeName[64];
+    char upgradeName[64];
     GetUpgradeName(raceID, spineID, upgradeName, sizeof(upgradeName), client);
 
     if (GetRestriction(client,Restriction_NoUltimates) ||
@@ -442,25 +443,25 @@ SpineAttack(client, level)
     }
     else if (CanInvokeUpgrade(client, raceID, spineID))
     {
-        new Float:range = g_SpineRange[level];
-        new dmg = GetRandomInt(g_SpineDamage[level][0],
+        float range = g_SpineRange[level];
+        int dmg = GetRandomInt(g_SpineDamage[level][0],
                                g_SpineDamage[level][1]);
 
-        new Float:indexLoc[3];
-        new Float:targetLoc[3];
-        new Float:clientLoc[3];
+        float indexLoc[3];
+        float targetLoc[3];
+        float clientLoc[3];
         GetClientEyePosition(client, clientLoc);
 
-        new lightning  = Lightning();
-        new haloSprite = HaloSprite();
+        int lightning = Lightning();
+        int haloSprite = HaloSprite();
         static const spineColor[4] = {139, 69, 19, 255};
 
-        new count   = 0;
-        new plevel  = level+1;
-        new dlevel  = plevel*2;
-        new xplevel = level+5;
-        new team    = GetClientTeam(client);
-        new target  = GetClientAimTarget(client);
+        int count = 0;
+        int plevel = level+1;
+        int dlevel = plevel*2;
+        int xplevel = level+5;
+        int team = GetClientTeam(client);
+        int target = GetClientAimTarget(client);
         if (target > 0)
         {
             GetClientAbsOrigin(target, targetLoc);
@@ -478,7 +479,7 @@ SpineAttack(client, level)
                                        0, 1, 10.0, 10.0,10.0,2,50.0,spineColor,255);
                     TE_SendQEffectToAll(client,target);
 
-                    new num = GetRandomInt(0,sizeof(spineAttackWav)-1);
+                    int num = GetRandomInt(0,sizeof(spineAttackWav)-1);
                     PrepareAndEmitSoundToAll(spineAttackWav[num], target);
 
                     PlagueInfect(client, target, dlevel, plevel,
@@ -505,8 +506,8 @@ SpineAttack(client, level)
             targetLoc = clientLoc;
         }
 
-        new b_count=0;
-        new alt_count=0;
+        int b_count =0;
+        int alt_count =0;
         new list[MaxClients+1];
         new alt_list[MaxClients+1];
         SetupOBeaconLists(list, alt_list, b_count, alt_count, client);
@@ -527,7 +528,7 @@ SpineAttack(client, level)
             TE_Send(alt_list, alt_count, 0.0);
         }
 
-        new num = GetRandomInt(0,sizeof(spineAttackWav)-1);
+        int num = GetRandomInt(0,sizeof(spineAttackWav)-1);
         PrepareAndEmitSoundToAll(spineAttackWav[num], client);
 
         SetOverrideVisiblity(client, 255, true);
@@ -535,7 +536,7 @@ SpineAttack(client, level)
 
         targetLoc[2] += 50.0; // Adjust trace position to the middle of the person instead of the feet.
 
-        for (new index=1;index<=MaxClients;index++)
+        for (int index =1;index<=MaxClients;index++)
         {
             if (index != client && index != target && IsClientInGame(index) &&
                 IsPlayerAlive(index) && GetClientTeam(index) != team)
@@ -590,9 +591,9 @@ SpineAttack(client, level)
     }
 }
 
-public Action:ReCloak(Handle:timer,any:userid)
+public Action ReCloak(Handle:timer,any:userid)
 {
-    new index = GetClientOfUserId(userid);
+    int index = GetClientOfUserId(userid);
     if (IsValidClient(index))
     {
         SetOverrideVisiblity(index, -1, IsPlayerAlive(index));

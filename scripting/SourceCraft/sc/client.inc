@@ -51,9 +51,9 @@ stock CountClients(team=COUNT_ALL, bool:countFakeClients=true, bool:inGameOnly=t
         return GetClientCount(inGameOnly);
     else
     {
-        new numClients = 0;
+        int numClients = 0;
 
-        for (new client=1; client <= MaxClients; client++)
+        for (int client =1; client <= MaxClients; client++)
         {
             if (!inGameOnly && !IsClientInGame(client))
             {
@@ -65,7 +65,7 @@ stock CountClients(team=COUNT_ALL, bool:countFakeClients=true, bool:inGameOnly=t
             }
             else
             {
-                new clientTeam = GetClientTeam(client);
+                int clientTeam = GetClientTeam(client);
                 if (team == COUNT_ALL || (team >= 0 && clientTeam == team) ||
                     (team == COUNT_ACTIVE && clientTeam >= 2 && clientTeam <= 3))
                 {
@@ -93,9 +93,9 @@ stock bool:CheckClientCount(num, team=COUNT_ALL, bool:countFakeClients=true)
         return (GetClientCount() >= num);
     else
     {
-        new numClients = 0;
+        int numClients = 0;
 
-        for (new client=1; client <= MaxClients; client++)
+        for (int client =1; client <= MaxClients; client++)
         {
             if (!IsClientInGame(client))
             {
@@ -107,7 +107,7 @@ stock bool:CheckClientCount(num, team=COUNT_ALL, bool:countFakeClients=true)
             }
             else
             {
-                new clientTeam = GetClientTeam(client);
+                int clientTeam = GetClientTeam(client);
                 if (team == COUNT_ALL || (team >= 0 && clientTeam == team) ||
                     (team == COUNT_ACTIVE && clientTeam >= 2 && clientTeam <= 3))
                 {

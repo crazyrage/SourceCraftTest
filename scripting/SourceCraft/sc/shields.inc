@@ -38,7 +38,7 @@ stock SetupShields(client, level, const Float:initialArmor[],
                    ArmorFlags:flags=Armor_IsShield, maxShields=-1,
                    bool:upgrade=false)
 {
-    new amount = SetupArmor(client, level, initialArmor, armorPercent,
+    int amount = SetupArmor(client, level, initialArmor, armorPercent,
                             "Shields", flags, maxShields, upgrade);
 
     SetShieldRegen(client, (regenRate >= 0.0) ? regenRate : float(level));
@@ -63,22 +63,22 @@ stock SetupArmorAndShields(client, armor_level, shields_level, const Float:initi
                            const Float:armorPercent[][2], const Float:maxShields[],
                            ArmorFlags:flags=Armor_IsShield, bool:upgrade=false)
 {
-    new amount = 0;
+    int amount = 0;
     ResetMaxHealth(client);
     if (armor_level > 0 || shields_level > 0)
     {
-        new maxhp = GetPlayerMaxHealth(client);
+        int maxhp = GetPlayerMaxHealth(client);
         amount = RoundFloat(float(maxhp)*(initialArmor[armor_level]+maxShields[shields_level]));
     }
 
     if (upgrade)
     {
-        new oldArmor = m_savedArmor[client];
+        int oldArmor = m_savedArmor[client];
         if (amount > oldArmor)
             amount = oldArmor;
         else
         {
-            new armor = GetArmor(client);
+            int armor = GetArmor(client);
             if (armor > m_savedArmor[client])
                 m_savedArmor[client] = armor;
         }
@@ -86,8 +86,8 @@ stock SetupArmorAndShields(client, armor_level, shields_level, const Float:initi
     else
         m_savedArmor[client] = amount;
 
-    new bool:hasShields = (shields_level > 0);
-    new level = (armor_level > shields_level) ? armor_level : shields_level;
+    bool hasShields = (shields_level > 0);
+    int level = (armor_level > shields_level) ? armor_level : shields_level;
     SetArmor(client, amount, armorPercent[level],
              (hasShields) ? "Shields" : "Armor",
              (hasShields) ? flags : Armor_Default);

@@ -12,7 +12,7 @@
 
 stock Float:DistanceBetween(const Float:startvec[3],const Float:endvec[3])
 {
-    new Float:distance = GetVectorDistance(startvec,endvec);
+    float distance = GetVectorDistance(startvec,endvec);
     if (distance < 0)
         distance *= -1;
 
@@ -26,8 +26,8 @@ stock bool:IsPointInRange(const Float:start[3], const Float:end[3],Float:maxdist
 
 stock bool:IsInRange(client,index,Float:maxdistance)
 {
-    new Float:start[3];
-    new Float:end[3];
+    float start[3];
+    float end[3];
     GetClientAbsOrigin(client,start);
     GetClientAbsOrigin(index,end);
     return (DistanceBetween(start,end)<maxdistance);
@@ -40,12 +40,12 @@ stock PowerOfRange(Float:location[3],Float:radius,Float:check_location[3],maxhp,
         return maxhp;
     else
     {
-        new Float:distance=DistanceBetween(location,check_location);
+        float distance=DistanceBetween(location,check_location);
         if (limit && distance > radius)
             return 0;
         else
         {
-            new Float:healthtakeaway=1-FloatDiv(distance,radius)+factor;
+            float healthtakeaway=1-FloatDiv(distance,radius)+factor;
             return (healthtakeaway > 0.0) ? RoundFloat(float(maxhp)*healthtakeaway) : 0;
         }
     }

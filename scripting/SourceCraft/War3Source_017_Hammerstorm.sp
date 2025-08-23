@@ -1,27 +1,28 @@
-#pragma semicolon 1    ///WE RECOMMEND THE SEMICOLON
+#pragma semicolon 1
+#pragma newdecls required    ///WE RECOMMEND THE SEMICOLON
 
 #include <sourcemod>
 #include "W3SIncs/War3Source_Interface"
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "War3Source - Race - Hammerstorm",
     author = "War3Source Team",
     description = "The Hammerstorm race for War3Source."
 };
 
-new thisRaceID;
+int thisRaceID;
 new SKILL_BOLT, SKILL_CLEAVE, SKILL_WARCRY, ULT_STRENGTH;
 
 // Tempents
-new g_BeamSprite;
-new g_HaloSprite;
+int g_BeamSprite;
+int g_HaloSprite;
 
 // Storm Bolt 
 new BoltDamage[5] = {0,5,10,15,20};
-new Float:BoltRange[5]={0.0,150.0,175.0,200.0,225.0};
-new Float:BoltStunDuration=0.3;
-new Float:StormCooldownTime=15.0;
+float BoltRange[5]={0.0,150.0,175.0,200.0,225.0};
+float BoltStunDuration=0.3;
+float StormCooldownTime=15.0;
 
 
 new const StormCol[4] = {255, 255, 255, 155}; // Color of the beacon
@@ -29,27 +30,27 @@ new const StormCol[4] = {255, 255, 255, 155}; // Color of the beacon
 
 
 // Cleave Multiplayer
-new Float:CleaveDistance=150.0;
-new Float:CleaveMultiplier[5] = {0.0,0.1,0.2,0.3,0.4};
+float CleaveDistance=150.0;
+float CleaveMultiplier[5] = {0.0,0.1,0.2,0.3,0.4};
 
 // Warcry Buffs
-new Float:WarcrySpeed[5]={1.0,1.06,1.09,1.12,1.15};
+float WarcrySpeed[5]={1.0,1.06,1.09,1.12,1.15};
 new WarcryArmor[5]={0,1,2,3,4};
 
 // Gods Strength
-new Float:GodsStrength[5]={1.0,1.20,1.30,1.40,1.50};
-new bool:bStrengthActivated[MAXPLAYERSCUSTOM];
+float GodsStrength[5]={1.0,1.20,1.30,1.40,1.50};
+bool bStrengthActivated[MAXPLAYERSCUSTOM];
 
 #if !defined SOURCECRAFT
-new Handle:ultCooldownCvar; // cooldown
+Handle ultCooldownCvar; // cooldown
 #endif
 
 // Sounds
-new String:hammerboltsound[256]; //="war3source/hammerstorm/stun.mp3";
-new String:ultsnd[256]; //="war3source/hammerstorm/ult.mp3";
+char hammerboltsound[256]; //="war3source/hammerstorm/stun.mp3";
+char ultsnd[256]; //="war3source/hammerstorm/ult.mp3";
 //new String:galvanizesnd[]="war3source/hammerstorm/galvanize.mp3";
 
-public OnWar3LoadRaceOrItemOrdered(num)
+public void OnWar3LoadRaceOrItemOrdered(num)
 {
     if(num==170)
     {
@@ -114,7 +115,7 @@ public OnWar3LoadRaceOrItemOrdered(num)
     }
 }
 
-public OnPluginStart()
+public void OnPluginStart()
 {
 #if !defined SOURCECRAFT
     ultCooldownCvar=CreateConVar("war3_hammerstorm_strength_cooldown","25","Cooldown timer.");
@@ -122,7 +123,7 @@ public OnPluginStart()
     LoadTranslations("w3s.race.hammerstorm.phrases");
 }
 
-public OnMapStart()
+public void OnMapStart()
 {
     War3_AddSoundFolder(hammerboltsound, sizeof(hammerboltsound), "hammerstorm/stun.mp3");
     War3_AddSoundFolder(ultsnd, sizeof(ultsnd), "hammerstorm/ult.mp3");
@@ -135,18 +136,18 @@ public OnMapStart()
     War3_AddCustomSound(ultsnd);
 }
 
-public OnWar3EventSpawn(client)
+public void OnWar3EventSpawn(client)
 {
     bStrengthActivated[client] = false;
     W3ResetPlayerColor(client, thisRaceID);
 }
 
-public OnW3TakeDmgBulletPre(victim,attacker,Float:damage){
+public void OnW3TakeDmgBulletPre(victim,attacker,Float:damage){
     if(ValidPlayer(victim,true)&&ValidPlayer(attacker,false)&&GetClientTeam(victim)!=GetClientTeam(attacker))
     {
         if(War3_GetRace(attacker)==thisRaceID)
         {
-            new skilllvl;
+            int skilllvl;
             if(bStrengthActivated[attacker])
             {
                 // GODS STRENGTH!
@@ -158,7 +159,7 @@ public OnW3TakeDmgBulletPre(victim,attacker,Float:damage){
     }
 }
             
-public OnW3TakeDmgBullet(victim,attacker,Float:damage){
+public void OnW3TakeDmgBullet(victim,attacker,Float:damage){
     if(ValidPlayer(victim,true)&&ValidPlayer(attacker,false)&&GetClientTeam(victim)!=GetClientTeam(attacker))
     {
         if(War3_GetRace(attacker)==thisRaceID)
@@ -168,22 +169,22 @@ public OnW3TakeDmgBullet(victim,attacker,Float:damage){
             {
 #endif
             // Cleave
-            new skilllvl = War3_GetSkillLevel(attacker,thisRaceID,SKILL_CLEAVE);
-            new splashdmg = RoundToFloor(damage * CleaveMultiplier[skilllvl]);
+            int skilllvl = War3_GetSkillLevel(attacker,thisRaceID,SKILL_CLEAVE);
+            int splashdmg = RoundToFloor(damage * CleaveMultiplier[skilllvl]);
             // AWP? AWP!
             if(splashdmg>40)
             {
                 splashdmg = 40;
             }
-            new Float:dist = CleaveDistance;
-            new AttackerTeam = GetClientTeam(attacker);
-            new Float:OriginalVictimPos[3];
+            float dist = CleaveDistance;
+            int AttackerTeam = GetClientTeam(attacker);
+            float OriginalVictimPos[3];
             GetClientAbsOrigin(victim,OriginalVictimPos);
-            new Float:VictimPos[3];
+            float VictimPos[3];
             
             if(attacker>0)
             {
-                for(new i=1;i<=MaxClients;i++)
+                for(int i =1;i<=MaxClients;i++)
                 {
                     if(ValidPlayer(i,true)&&(GetClientTeam(i)!=AttackerTeam)&&(victim!=i))
                     {
@@ -203,21 +204,21 @@ public OnW3TakeDmgBullet(victim,attacker,Float:damage){
     }
 }
 
-public OnAbilityCommand(client,ability,bool:pressed)
+public void OnAbilityCommand(client,ability,bool:pressed)
 {
     if(War3_GetRace(client)==thisRaceID && ability==0 && pressed && IsPlayerAlive(client))
     {
-        new skilllvl = War3_GetSkillLevel(client,thisRaceID,SKILL_BOLT);
+        int skilllvl = War3_GetSkillLevel(client,thisRaceID,SKILL_BOLT);
         if(skilllvl > 0)
         {
             
             if(!Silenced(client)&&War3_SkillNotInCooldown(client,thisRaceID,SKILL_BOLT,true))
             {
-                new damage = BoltDamage[skilllvl];
-                new Float:AttackerPos[3];
+                int damage = BoltDamage[skilllvl];
+                float AttackerPos[3];
                 GetClientAbsOrigin(client,AttackerPos);
-                new AttackerTeam = GetClientTeam(client);
-                new Float:VictimPos[3];
+                int AttackerTeam = GetClientTeam(client);
+                float VictimPos[3];
                 
                 TE_SetupBeamRingPoint(AttackerPos, 10.0, BoltRange[skilllvl]*2.0, g_BeamSprite, g_HaloSprite, 0, 25, 0.5, 5.0, 0.0, StormCol, 10, 0);
                 TE_SendToAll();
@@ -228,7 +229,7 @@ public OnAbilityCommand(client,ability,bool:pressed)
                 W3EmitSoundToAll(hammerboltsound,client);
                 W3EmitSoundToAll(hammerboltsound,client);
                 
-                for(new i=1;i<=MaxClients;i++)
+                for(int i =1;i<=MaxClients;i++)
                 {
                     if(ValidPlayer(i,true)){
                         GetClientAbsOrigin(i,VictimPos);
@@ -258,17 +259,17 @@ public OnAbilityCommand(client,ability,bool:pressed)
     }
 }
 
-public Action:UnstunPlayer(Handle:timer,any:client)
+public Action UnstunPlayer(Handle:timer,any:client)
 {
     War3_SetBuff(client,bStunned,thisRaceID,false);
     W3ResetPlayerColor(client, thisRaceID);
 }
 
-public OnUltimateCommand(client,race,bool:pressed)
+public void OnUltimateCommand(client,race,bool:pressed)
 {
     if(race==thisRaceID && pressed && ValidPlayer(client,true))
     {
-        new skilllvl = War3_GetSkillLevel(client,thisRaceID,ULT_STRENGTH);
+        int skilllvl = War3_GetSkillLevel(client,thisRaceID,ULT_STRENGTH);
         if(skilllvl>0)
         {    
             if(!Silenced(client)&&War3_SkillNotInCooldown(client,thisRaceID,ULT_STRENGTH,true ))
@@ -281,7 +282,7 @@ public OnUltimateCommand(client,race,bool:pressed)
                 
                 //EmitSoundToAll(ultsnd,client);  
 #if defined SOURCECRAFT
-                new Float:cooldown= GetUpgradeCooldown(thisRaceID,ULT_STRENGTH);
+                float cooldown= GetUpgradeCooldown(thisRaceID,ULT_STRENGTH);
                 War3_CooldownMGR(client,cooldown,thisRaceID,ULT_STRENGTH);
 #else
                 War3_CooldownMGR(client,GetConVarFloat(ultCooldownCvar),thisRaceID,ULT_STRENGTH);
@@ -292,7 +293,7 @@ public OnUltimateCommand(client,race,bool:pressed)
 }
 
 
-public Action:stopUltimate(Handle:t,any:client){
+public Action stopUltimate(Handle:t,any:client){
     bStrengthActivated[client] = false;
     if(ValidPlayer(client,true)){
         PrintHintText(client,"%T","You feel less powerful",client);

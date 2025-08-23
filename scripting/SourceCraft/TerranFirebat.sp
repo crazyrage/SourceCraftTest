@@ -6,6 +6,7 @@
  */
  
 #pragma semicolon 1
+#pragma newdecls required
 
 // Pump up the memory!
 #pragma dynamic 65536
@@ -52,26 +53,26 @@ new const String:deathWav[][]        = { "sc/tfbdth00.wav",    // Death sounds
 new raceID, weaponsID, armorID, plasmaID, flamethrowerID, bunkerID;
 
 new const String:g_ArmorName[]       = "Armor";
-new Float:g_InitialArmor[]           = { 0.0, 0.10, 0.25, 0.50, 0.75 };
-new Float:g_ArmorPercent[][2]        = { {0.00, 0.00},
+float g_InitialArmor[]           = { 0.0, 0.10, 0.25, 0.50, 0.75 };
+float g_ArmorPercent[][2]        = { {0.00, 0.00},
                                          {0.00, 0.10},
                                          {0.00, 0.20},
                                          {0.10, 0.40},
                                          {0.20, 0.50} };
 
-new Float:g_SpeedLevels[]            = { -1.0, 1.10, 1.15, 1.20, 1.25 };
+float g_SpeedLevels[]            = { -1.0, 1.10, 1.15, 1.20, 1.25 };
 
-new Float:g_BunkerPercent[]          = { 0.00, 0.10, 0.25, 0.50, 0.75 };
+float g_BunkerPercent[]          = { 0.00, 0.10, 0.25, 0.50, 0.75 };
 
-new Float:g_InfantryWeaponsPercent[] = { 0.00, 0.10, 0.25, 0.40, 0.50 };
+float g_InfantryWeaponsPercent[] = { 0.00, 0.10, 0.25, 0.40, 0.50 };
 
-new Float:g_ExplodeRadius[]          = { 0.0, 300.0, 450.0, 500.0, 650.0 };
+float g_ExplodeRadius[]          = { 0.0, 300.0, 450.0, 500.0, 650.0 };
 
-new Float:m_FireTime[MAXPLAYERS+1][MAXPLAYERS+1];
+float m_FireTime[MAXPLAYERS+1][MAXPLAYERS+1];
 
 #include "sc/Stimpacks"
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Unit - Terran Firebat",
     author = "-=|JFH|=-Naris",
@@ -80,7 +81,7 @@ public Plugin:myinfo =
     url = "http://jigglysfunhouse.net/"
 };
 
-public OnPluginStart()
+public void OnPluginStart()
 {
     LoadTranslations("sc.common.phrases.txt");
     LoadTranslations("sc.firebat.phrases.txt");
@@ -91,7 +92,7 @@ public OnPluginStart()
         OnSourceCraftReady();
 }
 
-public OnSourceCraftReady()
+public void OnSourceCraftReady()
 {
     raceID    = CreateRace("firebat", -1, 0, 24, .faction=Terran,
                            .type=Biological, .parent="marine");
@@ -129,9 +130,9 @@ public OnSourceCraftReady()
     GetConfigFloatArray("armor_amount", g_InitialArmor, sizeof(g_InitialArmor),
                         g_InitialArmor, raceID, armorID);
 
-    for (new level=0; level < sizeof(g_ArmorPercent); level++)
+    for (int level =0; level < sizeof(g_ArmorPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "armor_percent_level_%d", level);
         GetConfigFloatArray(key, g_ArmorPercent[level], sizeof(g_ArmorPercent[]),
                             g_ArmorPercent[level], raceID, armorID);
@@ -150,7 +151,7 @@ public OnSourceCraftReady()
                         g_ExplodeRadius, raceID, flamethrowerID);
 }
 
-public OnLibraryAdded(const String:name[])
+public void OnLibraryAdded(const String:name[])
 {
     if (StrEqual(name, "sm_flame"))
         IsFlamethrowerAvailable(true);
@@ -158,7 +159,7 @@ public OnLibraryAdded(const String:name[])
         IsROFAvailable(true);
 }
 
-public OnLibraryRemoved(const String:name[])
+public void OnLibraryRemoved(const String:name[])
 {
     if (StrEqual(name, "sm_flame"))
         m_FlamethrowerAvailable = false;
@@ -166,7 +167,7 @@ public OnLibraryRemoved(const String:name[])
         m_ROFAvailable = false;
 }
 
-public OnMapStart()
+public void OnMapStart()
 {
     SetupHaloSprite();
     SetupLightning();
@@ -178,19 +179,19 @@ public OnMapStart()
 
     SetupSound(spawnWav);
 
-    for (new i = 0; i < sizeof(flameWav); i++)
+    for (int i = 0; i < sizeof(flameWav); i++)
         SetupSound(flameWav[i]);
 
-    for (new i = 0; i < sizeof(deathWav); i++)
+    for (int i = 0; i < sizeof(deathWav); i++)
         SetupSound(deathWav[i]);
 }
 
-public OnPlayerAuthed(client)
+public void OnPlayerAuthed(client)
 {
     m_StimpacksActive[client] = false;
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -210,21 +211,21 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
     return Plugin_Continue;
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
         m_StimpacksActive[client] = false;
 
-        new armor_level = GetUpgradeLevel(client,raceID,armorID);
+        int armor_level = GetUpgradeLevel(client,raceID,armorID);
         SetImmunity(client,Immunity_Burning,(armor_level > 0));
         SetupArmor(client, armor_level, g_InitialArmor,
                    g_ArmorPercent, g_ArmorName);
 
-        new stimpacks_level = GetUpgradeLevel(client,raceID,stimpacksID);
+        int stimpacks_level = GetUpgradeLevel(client,raceID,stimpacksID);
         SetSpeedBoost(client, stimpacks_level, true, g_SpeedLevels);
 
-        new flamethrower_level=GetUpgradeLevel(client,raceID,flamethrowerID);
+        int flamethrower_level =GetUpgradeLevel(client,raceID,flamethrowerID);
         if (flamethrower_level > 0)
         {
             GiveFlamethrower(client, flamethrower_level*3,
@@ -242,7 +243,7 @@ public Action:OnRaceSelected(client,oldrace,newrace)
         return Plugin_Continue;
 }
 
-public OnUpgradeLevelChanged(client,race,upgrade,new_level)
+public void OnUpgradeLevelChanged(client,race,upgrade,new_level)
 {
     if (race == raceID && GetRace(client) == raceID)
     {
@@ -263,7 +264,7 @@ public OnUpgradeLevelChanged(client,race,upgrade,new_level)
     }
 }
 
-public OnItemPurchase(client,item)
+public void OnItemPurchase(client,item)
 {
     if (GetRace(client) == raceID && IsValidClientAlive(client))
     {
@@ -272,14 +273,14 @@ public OnItemPurchase(client,item)
 
         if (item == g_bootsItem)
         {
-            new level = GetUpgradeLevel(client,raceID,stimpacksID);
+            int level = GetUpgradeLevel(client,raceID,stimpacksID);
             if (level > 0)
                 SetSpeedBoost(client, level, true, g_SpeedLevels);
         }
     }
 }
 
-public OnUltimateCommand(client,race,bool:pressed,arg)
+public void OnUltimateCommand(client,race,bool:pressed,arg)
 {
     if (pressed && race==raceID && IsValidClientAlive(client))
     {
@@ -287,15 +288,15 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
         {
             case 4,3: // Ultimate Stimpack
             {
-                new stimpacks_level=GetUpgradeLevel(client,race,stimpacksID);
+                int stimpacks_level =GetUpgradeLevel(client,race,stimpacksID);
                 if (stimpacks_level > 0)
                     Stimpacks(client, stimpacks_level,race,stimpacksID);
                 else
                 {
-                    new bunker_level = GetUpgradeLevel(client,race,bunkerID);
+                    int bunker_level = GetUpgradeLevel(client,race,bunkerID);
                     if (bunker_level > 0)
                     {
-                        new armor = RoundToNearest(float(GetPlayerMaxHealth(client))
+                        int armor = RoundToNearest(float(GetPlayerMaxHealth(client))
                                                    * g_BunkerPercent[bunker_level]);
 
                         EnterBunker(client, armor, raceID, bunkerID);
@@ -307,13 +308,13 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                         {
                             PrepareAndEmitSoundToClient(client,deniedWav);
 
-                            decl String:upgradeName[64];
+                            char upgradeName[64];
                             GetUpgradeName(raceID, flamethrowerID, upgradeName, sizeof(upgradeName), client);
                             DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
                         }
                         else                            
                         {
-                            new num = GetRandomInt(0,sizeof(flameWav)-1);
+                            int num = GetRandomInt(0,sizeof(flameWav)-1);
                             SetFlamethrowerSound(flameWav[num]);
                             UseFlamethrower(client);
                         }
@@ -322,10 +323,10 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
             }
             case 2: // Enter Bunker
             {
-                new bunker_level = GetUpgradeLevel(client,race,bunkerID);
+                int bunker_level = GetUpgradeLevel(client,race,bunkerID);
                 if (bunker_level > 0)
                 {
-                    new armor = RoundToNearest(float(GetPlayerMaxHealth(client))
+                    int armor = RoundToNearest(float(GetPlayerMaxHealth(client))
                                                * g_BunkerPercent[bunker_level]);
 
                     EnterBunker(client, armor, raceID, bunkerID);
@@ -337,13 +338,13 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                     {
                         PrepareAndEmitSoundToClient(client,deniedWav);
 
-                        decl String:upgradeName[64];
+                        char upgradeName[64];
                         GetUpgradeName(raceID, flamethrowerID, upgradeName, sizeof(upgradeName), client);
                         DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
                     }
                     else                            
                     {
-                        new num = GetRandomInt(0,sizeof(flameWav)-1);
+                        int num = GetRandomInt(0,sizeof(flameWav)-1);
                         SetFlamethrowerSound(flameWav[num]);
                         UseFlamethrower(client);
                     }
@@ -358,30 +359,30 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                     {
                         PrepareAndEmitSoundToClient(client,deniedWav);
 
-                        decl String:upgradeName[64];
+                        char upgradeName[64];
                         GetUpgradeName(raceID, flamethrowerID, upgradeName, sizeof(upgradeName), client);
                         DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
                     }
                     else                            
                     {
-                        new num = GetRandomInt(0,sizeof(flameWav)-1);
+                        int num = GetRandomInt(0,sizeof(flameWav)-1);
                         SetFlamethrowerSound(flameWav[num]);
                         UseFlamethrower(client);
                     }
                 }
                 else
                 {
-                    new bunker_level = GetUpgradeLevel(client,race,bunkerID);
+                    int bunker_level = GetUpgradeLevel(client,race,bunkerID);
                     if (bunker_level > 0)
                     {
-                        new armor = RoundToNearest(float(GetPlayerMaxHealth(client))
+                        int armor = RoundToNearest(float(GetPlayerMaxHealth(client))
                                                    * g_BunkerPercent[bunker_level]);
 
                         EnterBunker(client, armor, raceID, bunkerID);
                     }
                     else
                     {
-                        new stimpacks_level=GetUpgradeLevel(client,race,stimpacksID);
+                        int stimpacks_level =GetUpgradeLevel(client,race,stimpacksID);
                         if (stimpacks_level > 0)
                             Stimpacks(client, stimpacks_level,race,stimpacksID);
                     }
@@ -392,7 +393,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
 }
 
 // Events
-public OnPlayerSpawnEvent(Handle:event, client, race)
+public void OnPlayerSpawnEvent(Handle:event, client, race)
 {
     if (race == raceID)
     {
@@ -400,15 +401,15 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
 
         PrepareAndEmitSoundToAll(spawnWav,client);
 
-        new armor_level = GetUpgradeLevel(client,raceID,armorID);
+        int armor_level = GetUpgradeLevel(client,raceID,armorID);
         SetImmunity(client,Immunity_Burning,(armor_level > 0));
         SetupArmor(client, armor_level, g_InitialArmor,
                    g_ArmorPercent, g_ArmorName);
 
-        new stimpacks_level = GetUpgradeLevel(client,raceID,stimpacksID);
+        int stimpacks_level = GetUpgradeLevel(client,raceID,stimpacksID);
         SetSpeedBoost(client, stimpacks_level, true, g_SpeedLevels);
 
-        new flamethrower_level=GetUpgradeLevel(client,raceID,flamethrowerID);
+        int flamethrower_level =GetUpgradeLevel(client,raceID,flamethrowerID);
         if (flamethrower_level > 0)
         {
             GiveFlamethrower(client, flamethrower_level*3,
@@ -417,7 +418,7 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
     }
 }
 
-public Action:OnEntityHurtEvent(Handle:event, victim_index, attacker_index, attacker_race, damage)
+public Action OnEntityHurtEvent(Handle:event, victim_index, attacker_index, attacker_race, damage)
 {
     if (attacker_race == raceID)
     {
@@ -428,7 +429,7 @@ public Action:OnEntityHurtEvent(Handle:event, victim_index, attacker_index, atta
         return Plugin_Continue;
 }
 
-public Action:OnEntityAssistEvent(Handle:event, victim_index, assister_index, assister_race, damage)
+public Action OnEntityAssistEvent(Handle:event, victim_index, assister_index, assister_race, damage)
 {
     if (assister_race == raceID)
     {
@@ -440,7 +441,7 @@ public Action:OnEntityAssistEvent(Handle:event, victim_index, assister_index, as
 }
 
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     new Action:returnCode = Plugin_Continue;
@@ -459,7 +460,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
     return returnCode;
 }
 
-public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
+public Action OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
                                   assister_index, assister_race, damage,
                                   absorbed)
 {
@@ -477,7 +478,7 @@ public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
     return returnCode;
 }
 
-public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
+public void OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
                           attacker_race, assister_index, assister_race, damage,
                           const String:weapon[], bool:is_equipment, customkill,
                           bool:headshot, bool:backstab, bool:melee)
@@ -489,16 +490,16 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
         else if (m_ROFAvailable)
             SetROF(victim_index, 0.0, 0.0);
 
-        new num = GetRandomInt(0,sizeof(deathWav)-1);
+        int num = GetRandomInt(0,sizeof(deathWav)-1);
         PrepareAndEmitSoundToAll(deathWav[num],victim_index);
 
-        new level = GetUpgradeLevel(victim_index,raceID,flamethrowerID);
+        int level = GetUpgradeLevel(victim_index,raceID,flamethrowerID);
         if (level > 0 &&
             !GetRestriction(victim_index, Restriction_NoUpgrades) &&
             !GetRestriction(victim_index, Restriction_Stunned))
         {
-            new fuel = (m_FlamethrowerAvailable) ? GetFlamethrowerFuel(victim_index) : level*3;
-            new explode_damage  = (fuel * 125) * GetRandomInt(level,10);
+            int fuel = (m_FlamethrowerAvailable) ? GetFlamethrowerFuel(victim_index) : level*3;
+            int explode_damage = (fuel * 125) * GetRandomInt(level,10);
             ExplodePlayer(victim_index, victim_index, GetClientTeam(victim_index),
                           g_ExplodeRadius[level], explode_damage, explode_damage,
                           FlamingExplosion | OnDeathExplosion, level+5);
@@ -506,7 +507,7 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
     }
 }
 
-public Action:TF2_CalcIsAttackCritical(client, weapon, String:weaponname[], &bool:result)
+public Action TF2_CalcIsAttackCritical(client, weapon, String:weaponname[], &bool:result)
 {
     if (client > 0 && GetRace(client) == raceID)
     {
@@ -519,7 +520,7 @@ public Action:TF2_CalcIsAttackCritical(client, weapon, String:weaponname[], &boo
     return Plugin_Continue;
 }
 
-public OnEntityCreated(entity, const String:classname[])
+public void OnEntityCreated(entity, const String:classname[])
 {
 	if (StrEqual(classname, "tf_projectile_arrow"))
 		SDKHook(entity, SDKHook_Spawn, FlameArrow);
@@ -527,14 +528,14 @@ public OnEntityCreated(entity, const String:classname[])
 
 public FlameArrow(entity)
 {
-    new owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
+    int owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
     if (owner > 0 && GetRace(owner) == raceID)
     {
         SetEntProp(entity, Prop_Send, "m_bArrowAlight", 1);
     }
 }
 
-public Action:OnPlayerFlamed(attacker,victim)
+public Action OnPlayerFlamed(attacker,victim)
 {
     if (GetRace(attacker) != raceID)
         return Plugin_Continue;
@@ -554,7 +555,7 @@ public Action:OnPlayerFlamed(attacker,victim)
 
 bool:InfantryWeapons(Handle:event, damage, victim_index, index)
 {
-    new weapons_level = GetUpgradeLevel(index, raceID, weaponsID);
+    int weapons_level = GetUpgradeLevel(index, raceID, weaponsID);
     if (weapons_level > 0)
     {
         if (!GetRestriction(index, Restriction_NoUpgrades) &&
@@ -565,18 +566,18 @@ bool:InfantryWeapons(Handle:event, damage, victim_index, index)
         {
             if (GetRandomInt(1,100) <= 25)
             {
-                decl String:weapon[64];
-                new bool:is_equipment=GetWeapon(event,index,weapon,sizeof(weapon));
+                char weapon[64];
+                bool is_equipment=GetWeapon(event,index,weapon,sizeof(weapon));
                 if (!IsMelee(weapon, is_equipment,index,victim_index))
                 {
-                    new health_take = RoundFloat(float(damage)*g_InfantryWeaponsPercent[weapons_level]);
+                    int health_take = RoundFloat(float(damage)*g_InfantryWeaponsPercent[weapons_level]);
                     if (health_take > 0 && CanInvokeUpgrade(index, raceID, weaponsID, .notify=false))
                     {
-                        new Float:indexLoc[3];
+                        float indexLoc[3];
                         GetClientAbsOrigin(index, indexLoc);
                         indexLoc[2] += 50.0;
 
-                        new Float:victimLoc[3];
+                        float victimLoc[3];
                         GetEntityAbsOrigin(victim_index, victimLoc);
                         victimLoc[2] += 50.0;
 
@@ -600,7 +601,7 @@ bool:InfantryWeapons(Handle:event, damage, victim_index, index)
 
 bool:ViralPlasma(victim_index, index)
 {
-    new plasma_level = GetUpgradeLevel(index, raceID, plasmaID);
+    int plasma_level = GetUpgradeLevel(index, raceID, plasmaID);
     if (plasma_level > 0 && GetRandomInt(1,100) <= plasma_level*20)
     {
         if (!GetRestriction(index, Restriction_NoUpgrades) &&
@@ -608,7 +609,7 @@ bool:ViralPlasma(victim_index, index)
             !GetImmunity(victim_index,Immunity_Burning) &&
             !IsInvulnerable(victim_index))
         {
-            new Float:lastTime = m_FireTime[index][victim_index];
+            float lastTime = m_FireTime[index][victim_index];
             if ((lastTime == 0.0 || GetGameTime() - lastTime > 10.0) &&
                 CanInvokeUpgrade(index, raceID, plasmaID, .notify=false))
             {
@@ -621,7 +622,7 @@ bool:ViralPlasma(victim_index, index)
                 else
                     IgniteEntity(victim_index, 10.0);
 
-                decl String:upgradeName[64];
+                char upgradeName[64];
                 GetUpgradeName(raceID, plasmaID, upgradeName, sizeof(upgradeName), victim_index);
                 DisplayMessage(victim_index, Display_Enemy_Message, "%t", "SetOnFire", index, upgradeName);
                 return true;

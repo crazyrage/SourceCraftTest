@@ -37,7 +37,7 @@ stock W3AddFile(const String:filename[])
 stock W3AddSound(const String:sound[], bool:precache = false, bool:preload = false)
 {
 #if !defined SOURCECRAFT
-	decl String:path[PLATFORM_MAX_PATH];
+	char path[PLATFORM_MAX_PATH];
 	Format(path, sizeof(path), "sound/%s", sound);
 	if (FileExists(path)) {
 		AddFileToDownloadsTable(path);
@@ -73,7 +73,7 @@ stock WC3PrecacheModel(const String:model[], bool:preload=false)
 #else
 stock bool:War3_PrecacheSound(String:sound[]){
 
-	new String:longsound[512];
+	char longsound[512];
 	
 	Format(longsound,sizeof(longsound), "sound/%s", sound);
 	
@@ -158,10 +158,10 @@ stock War3_PrecacheParticle( const String:p_strEffectName[] )
 
 //probably usefull since it allready gots a getbyshortname brother
 stock War3_GetRaceIDByName(const String:racename[64]) {
-	new RacesLoaded = War3_GetRacesLoaded();
-	decl String:buffer[64],id;
+	int RacesLoaded = War3_GetRacesLoaded();
+	char buffer[64],id;
 	id=-1;//so.. -1 means invalid/not found
-	for(new x=1;x<=RacesLoaded;x++)
+	for(int x =1;x<=RacesLoaded;x++)
 	{
 		War3_GetRaceName(x,buffer,sizeof(buffer));
 		if(StrEqual(buffer,racename)) {

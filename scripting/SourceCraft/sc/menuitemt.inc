@@ -28,7 +28,7 @@ stock AddMenuItemT(Handle:menu,
                     lang=LANG_SERVER,
 					style=ITEMDRAW_DEFAULT)
 {
-    decl String:translated[128];
+    char translated[128];
     Format(translated, sizeof(translated), "%T", display, lang);
     return AddMenuItem(menu, info, translated, style);
 }

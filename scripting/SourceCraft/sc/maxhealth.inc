@@ -34,7 +34,7 @@ stock GetPlayerMaxHealth(entity)
     }
     else
     {
-        //new offset = GetEntSendPropOffs(entity, "m_iMaxHealth", true);
+        //int offset = GetEntSendPropOffs(entity, "m_iMaxHealth", true);
         //return (offset > 0) ? GetEntData(entity, offset) : -1;
         return GetEntProp(entity, Prop_Data, "m_iMaxHealth");
     }
@@ -46,7 +46,7 @@ stock GetMaxHealth(entity)
         return GetEntProp(entity, Prop_Data, "m_iMaxHealth");
     else
     {
-        new max = g_maxHealth[entity];
+        int max = g_maxHealth[entity];
         return (max > 0) ? max : 100;
     }
 }
@@ -61,8 +61,8 @@ stock SetMaxHealth(entity,amount)
 
 stock SetIncreasedHealth(client, amount, armor=0, const String:name[]="")
 {
-    new maxhp = GetMaxHealth(client);
-    new health = GetClientHealth(client)+amount;
+    int maxhp = GetMaxHealth(client);
+    int health = GetClientHealth(client)+amount;
     if (health > maxhp)
     {
         SetMaxHealth(client, health);
@@ -85,9 +85,9 @@ stock SetIncreasedHealth(client, amount, armor=0, const String:name[]="")
 
 stock IncreaseHealth(client, amount)
 {
-    new maxhp = GetMaxHealth(client);
-    new classmax = GetPlayerMaxHealth(client)+amount;
-    new health = GetClientHealth(client)+amount;
+    int maxhp = GetMaxHealth(client);
+    int classmax = GetPlayerMaxHealth(client)+amount;
+    int health = GetClientHealth(client)+amount;
     if (health > classmax)
         health = classmax;
     if (health > maxhp)
@@ -109,7 +109,7 @@ stock ResetMaxHealth(client)
 {
     if (GameType == tf2 && IsClientInGame(client))
     {
-        new maxhp = GetPlayerMaxHealth(client); // TF2_GetPlayerResourceData(client,TFResource_MaxHealth);
+        int maxhp = GetPlayerMaxHealth(client); // TF2_GetPlayerResourceData(client,TFResource_MaxHealth);
         SetMaxHealth(client, maxhp);
 
         #if defined HEALTH_ADDS_ARMOR

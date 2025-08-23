@@ -9,7 +9,7 @@ stock bool:Spying(client) {
 }
 //team 2 3 swapped if spying
 stock GetApparentTeam(client) {
-    new team = GetClientTeam(client);
+    int team = GetClientTeam(client);
     if (Spying(client)) {
         if (team == 2)
             team++;
@@ -29,10 +29,10 @@ stock GetFlagCarrier(team)
 {
     if (War3_GetGame() == Game_TF)
     {
-        new ent = -1;
+        int ent = -1;
         while ((ent = FindEntityByClassname(ent, "item_teamflag")) != -1)
         {
-            new owner = GetEntPropEnt(ent, Prop_Data, "m_hOwnerEntity");
+            int owner = GetEntPropEnt(ent, Prop_Data, "m_hOwnerEntity");
             if (owner > 0)
             {
                 if (GetClientTeam(owner) == team)
@@ -52,8 +52,8 @@ stock bool:War3_IsUbered(client)
 {
     if (War3_GetGame() == Game_TF)
     {
-        new m_nPlayerCond = FindSendPropInfo("CTFPlayer","m_nPlayerCond") ;
-        new cond = GetEntData(client, m_nPlayerCond);
+        int m_nPlayerCond = FindSendPropInfo("CTFPlayer","m_nPlayerCond") ;
+        int cond = GetEntData(client, m_nPlayerCond);
         if(cond & 32)
         {
             return true;
@@ -81,8 +81,8 @@ stock bool:War3_IsCloaked(client)
 {
     if (War3_GetGame() == Game_TF)
     {
-        new m_nPlayerCond = FindSendPropInfo("CTFPlayer","m_nPlayerCond") ;
-        new cond = GetEntData(client, m_nPlayerCond);
+        int m_nPlayerCond = FindSendPropInfo("CTFPlayer","m_nPlayerCond") ;
+        int cond = GetEntData(client, m_nPlayerCond);
         if(cond & 16)
         {
             return true;
@@ -102,12 +102,12 @@ stock Handle:War3_NearBuilding(client,Float:distance=150.0)
 {
     if(War3_GetGame()==Game_TF)
     {
-        new Handle:hEnts=CreateDataPack();
+        Handle hEnts=CreateDataPack();
         WritePackString(hEnts,"obj_dispenser");
         WritePackString(hEnts,"obj_sentrygun");
         WritePackString(hEnts,"obj_teleporter_entrance");
         WritePackString(hEnts,"obj_teleporter_exit");
-        new Handle:result=War3_NearEntsByName(client,hEnts,4,distance);
+        Handle result=War3_NearEntsByName(client,hEnts,4,distance);
         CloseHandle(hEnts);
         return result;
     }
@@ -118,7 +118,7 @@ stock Float:TF2_GetUberLevel(client)
 {
     if (TF2_GetPlayerClass(client) == TFClass_Medic)
     {
-        new index = GetPlayerWeaponSlot(client, 1);
+        int index = GetPlayerWeaponSlot(client, 1);
         if (index > 0)
         {
             return GetEntPropFloat(index, Prop_Send, "m_flChargeLevel");
@@ -137,7 +137,7 @@ stock TF2_SetUberLevel(client, Float:uberlevel)
 {
     if (TF2_GetPlayerClass(client) == TFClass_Medic)
     {
-        new index = GetPlayerWeaponSlot(client, 1);
+        int index = GetPlayerWeaponSlot(client, 1);
         if (index > 0)
         {
             SetEntPropFloat(index, Prop_Send, "m_flChargeLevel", uberlevel);
@@ -158,7 +158,7 @@ stock War3_TF_ParticleToClient( client=0, const String:Name[],
                                 Float:delay=0.0)
 {
     // find string table
-    new tblidx = FindStringTable("ParticleEffectNames");
+    int tblidx = FindStringTable("ParticleEffectNames");
     if (tblidx==INVALID_STRING_TABLE) 
     {
         LogError("Could not find string table: ParticleEffectNames");
@@ -166,10 +166,10 @@ stock War3_TF_ParticleToClient( client=0, const String:Name[],
     }
     
     // find particle index
-    new String:tmp[256];
-    new count = GetStringTableNumStrings(tblidx);
-    new stridx = INVALID_STRING_INDEX;
-    new i;
+    char tmp[256];
+    int count = GetStringTableNumStrings(tblidx);
+    int stridx = INVALID_STRING_INDEX;
+    int i;
     for (i=0; i<count; i++)
     {
         ReadStringTable(tblidx, i, tmp, sizeof(tmp));

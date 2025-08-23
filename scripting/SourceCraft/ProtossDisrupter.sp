@@ -6,6 +6,7 @@
  */
 
 #pragma semicolon 1
+#pragma newdecls required
 
 #include <sourcemod>
 #include <sdktools>
@@ -55,27 +56,27 @@ new raceID, armorID, shieldsID, speedID, missileID, hallucinationID;
 new disruptionID, guardianShieldID, forceFieldID, nullVoidID;
 
 new g_MissileAttackChance[]             = { 5, 10, 15, 25, 35 };
-new Float:g_MissileAttackPercent[]      = { 0.25, 0.35, 0.50, 0.60, 0.75 };
+float g_MissileAttackPercent[]      = { 0.25, 0.35, 0.50, 0.60, 0.75 };
 
 new g_HallucinateChance[]               = { 15, 25, 35, 50, 75 };
-new Float:g_SpeedLevels[]               = { 0.80, 0.90, 0.95, 1.00, 1.05 };
-new Float:g_DisruptionRadius[]          = { 300.0, 450.0, 650.0, 750.0, 900.0 };
-new Float:g_NullVoidRadius[]            = { 300.0, 500.0, 700.0, 1000.0, 1500.0 };
+float g_SpeedLevels[]               = { 0.80, 0.90, 0.95, 1.00, 1.05 };
+float g_DisruptionRadius[]          = { 300.0, 450.0, 650.0, 750.0, 900.0 };
+float g_NullVoidRadius[]            = { 300.0, 500.0, 700.0, 1000.0, 1500.0 };
 
-new Float:g_InitialArmor[]              = { 0.10, 0.20, 0.30, 0.40, 0.50 };
-new Float:g_InitialShields[]            = { 0.10, 0.20, 0.30, 0.40, 0.50 };
-new Float:g_ShieldsPercent[][2]         = { {0.05, 0.10},
+float g_InitialArmor[]              = { 0.10, 0.20, 0.30, 0.40, 0.50 };
+float g_InitialShields[]            = { 0.10, 0.20, 0.30, 0.40, 0.50 };
+float g_ShieldsPercent[][2]         = { {0.05, 0.10},
                                             {0.10, 0.20},
                                             {0.15, 0.30},
                                             {0.20, 0.40},
                                             {0.25, 0.50} };
 
-new bool:m_ForceFieldInvoked[MAXPLAYERS+1];
-new bool:m_DisruptionActive[MAXPLAYERS+1];
+bool m_ForceFieldInvoked[MAXPLAYERS+1];
+bool m_DisruptionActive[MAXPLAYERS+1];
 
-new bool:m_HasBeenDisrupted[MAXPLAYERS+1][MAXPLAYERS+1];
+bool m_HasBeenDisrupted[MAXPLAYERS+1][MAXPLAYERS+1];
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Protoss Disrupter",
     author = "-=|JFH|=-Naris",
@@ -84,7 +85,7 @@ public Plugin:myinfo =
     url = "http://jigglysfunhouse.net/"
 };
 
-public OnPluginStart()
+public void OnPluginStart()
 {
     LoadTranslations("sc.common.phrases.txt");
     LoadTranslations("sc.detector.phrases.txt");
@@ -95,7 +96,7 @@ public OnPluginStart()
         OnSourceCraftReady();
 }
 
-public OnSourceCraftReady()
+public void OnSourceCraftReady()
 {
     raceID           = CreateRace("disrupter", -1, -1, 21, 60.0, 200.0, 2.0,
                                   .faction=Protoss, .type=Cybernetic,
@@ -144,9 +145,9 @@ public OnSourceCraftReady()
     GetConfigFloatArray("shields_amount", g_InitialShields, sizeof(g_InitialShields),
                         g_InitialShields, raceID, shieldsID);
 
-    for (new level=0; level < sizeof(g_ShieldsPercent); level++)
+    for (int level =0; level < sizeof(g_ShieldsPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "shields_percent_level_%d", level);
         GetConfigFloatArray(key, g_ShieldsPercent[level], sizeof(g_ShieldsPercent[]),
                             g_ShieldsPercent[level], raceID, shieldsID);
@@ -171,7 +172,7 @@ public OnSourceCraftReady()
                         g_NullVoidRadius, raceID, nullVoidID);
 }
 
-public OnLibraryAdded(const String:name[])
+public void OnLibraryAdded(const String:name[])
 {
     if (StrEqual(name, "hgrsource"))
         IsHGRSourceAvailable(true);
@@ -181,7 +182,7 @@ public OnLibraryAdded(const String:name[])
         IsSidewinderAvailable(true);
 }
 
-public OnLibraryRemoved(const String:name[])
+public void OnLibraryRemoved(const String:name[])
 {
     if (StrEqual(name, "hgrsource"))
         m_HGRSourceAvailable = false;
@@ -191,7 +192,7 @@ public OnLibraryRemoved(const String:name[])
         m_UberShieldAvailable = false;
 }
 
-public OnMapStart()
+public void OnMapStart()
 {
     SetupSpeed();
     SetupHaloSprite();
@@ -212,19 +213,19 @@ public OnMapStart()
     SetupMissileAttack(g_MissileAttackSound);
 }
 
-public OnPlayerAuthed(client)
+public void OnPlayerAuthed(client)
 {
     m_DisruptionActive[client] = false;
 }
 
-public OnClientDisconnect(client)
+public void OnClientDisconnect(client)
 {
     m_DisruptionActive[client] = false;
 
     ResetDetected(client);
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -237,7 +238,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
     return Plugin_Continue;
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
@@ -247,16 +248,16 @@ public Action:OnRaceSelected(client,oldrace,newrace)
         {
             PrepareAndEmitSoundToAll(spawnWav, client);
 
-            new speed_level = GetUpgradeLevel(client,raceID,speedID);
+            int speed_level = GetUpgradeLevel(client,raceID,speedID);
             SetSpeedBoost(client, speed_level, true, g_SpeedLevels);
 
-            new force_field_level=GetUpgradeLevel(client,raceID,forceFieldID);
-            new guardian_shield_level=GetUpgradeLevel(client,raceID,guardianShieldID);
+            int force_field_level =GetUpgradeLevel(client,raceID,forceFieldID);
+            int guardian_shield_level =GetUpgradeLevel(client,raceID,guardianShieldID);
             if (force_field_level > 0 || guardian_shield_level > 0)
                 SetupUberShield(client, force_field_level, guardian_shield_level);
 
-            new armor_level = GetUpgradeLevel(client,raceID,armorID);
-            new shields_level = GetUpgradeLevel(client,raceID,shieldsID);
+            int armor_level = GetUpgradeLevel(client,raceID,armorID);
+            int shields_level = GetUpgradeLevel(client,raceID,shieldsID);
             SetupArmorAndShields(client, armor_level, shields_level,
                                  g_InitialArmor, g_ShieldsPercent,
                                  g_InitialShields);
@@ -267,7 +268,7 @@ public Action:OnRaceSelected(client,oldrace,newrace)
         return Plugin_Continue;
 }
 
-public OnUpgradeLevelChanged(client,race,upgrade,new_level)
+public void OnUpgradeLevelChanged(client,race,upgrade,new_level)
 {
     if (race == raceID && GetRace(client) == raceID)
     {
@@ -279,17 +280,17 @@ public OnUpgradeLevelChanged(client,race,upgrade,new_level)
             SetupUberShield(client, GetUpgradeLevel(client,race,forceFieldID), new_level);
         else if (upgrade==armorID || upgrade==shieldsID)
         {
-            new armor_level = (upgrade==armorID) ? new_level : GetUpgradeLevel(client,raceID,armorID);
-            new shields_level = (upgrade==shieldsID) ? new_level : GetUpgradeLevel(client,raceID,shieldsID);
+            int armor_level = (upgrade==armorID) ? new_level : GetUpgradeLevel(client,raceID,armorID);
+            int shields_level = (upgrade==shieldsID) ? new_level : GetUpgradeLevel(client,raceID,shieldsID);
             SetupArmorAndShields(client, armor_level, shields_level, g_InitialArmor,
                                  g_ShieldsPercent, g_InitialShields, .upgrade=true);
         }
     }
 }
 
-public OnItemPurchase(client,item)
+public void OnItemPurchase(client,item)
 {
-    new race=GetRace(client);
+    int race =GetRace(client);
     if (race == raceID && IsValidClientAlive(client))
     {
         if (g_bootsItem < 0)
@@ -297,13 +298,13 @@ public OnItemPurchase(client,item)
 
         if (item == g_bootsItem)
         {
-            new speed_level = GetUpgradeLevel(client,race,speedID);
+            int speed_level = GetUpgradeLevel(client,race,speedID);
             SetSpeedBoost(client, speed_level, true, g_SpeedLevels);
         }
     }
 }
 
-public OnUltimateCommand(client,race,bool:pressed,arg)
+public void OnUltimateCommand(client,race,bool:pressed,arg)
 {
     if (pressed && race==raceID && IsValidClientAlive(client))
     {
@@ -311,22 +312,22 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
         {
             case 4:
             {
-                new force_field_level=GetUpgradeLevel(client,race,forceFieldID);
+                int force_field_level =GetUpgradeLevel(client,race,forceFieldID);
                 if (force_field_level > 0)
                     ForceField(client, force_field_level);
                 else
                 {
-                    new disruption_level=GetUpgradeLevel(client,race,disruptionID);
+                    int disruption_level =GetUpgradeLevel(client,race,disruptionID);
                     if (disruption_level)
                         InvokeDisruption(client, disruption_level);
                     else
                     {
-                        new null_void_level=GetUpgradeLevel(client,race,nullVoidID);
+                        int null_void_level =GetUpgradeLevel(client,race,nullVoidID);
                         if (null_void_level)
                             NullVoid(client, null_void_level);
                         else
                         {
-                            new guardian_shield_level=GetUpgradeLevel(client,race,guardianShieldID);
+                            int guardian_shield_level =GetUpgradeLevel(client,race,guardianShieldID);
                             if (guardian_shield_level)
                                 GuardianShield(client, guardian_shield_level);
                         }
@@ -335,22 +336,22 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
             }
             case 3:
             {
-                new guardian_shield_level=GetUpgradeLevel(client,race,guardianShieldID);
+                int guardian_shield_level =GetUpgradeLevel(client,race,guardianShieldID);
                 if (guardian_shield_level)
                     GuardianShield(client, guardian_shield_level);
                 else
                 {
-                    new force_field_level=GetUpgradeLevel(client,race,forceFieldID);
+                    int force_field_level =GetUpgradeLevel(client,race,forceFieldID);
                     if (force_field_level > 0)
                         ForceField(client, force_field_level);
                     else
                     {
-                        new disruption_level=GetUpgradeLevel(client,race,disruptionID);
+                        int disruption_level =GetUpgradeLevel(client,race,disruptionID);
                         if (disruption_level)
                             InvokeDisruption(client, disruption_level);
                         else
                         {
-                            new null_void_level=GetUpgradeLevel(client,race,nullVoidID);
+                            int null_void_level =GetUpgradeLevel(client,race,nullVoidID);
                             if (null_void_level)
                                 NullVoid(client, null_void_level);
                         }
@@ -359,22 +360,22 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
             }
             case 2:
             {
-                new null_void_level=GetUpgradeLevel(client,race,nullVoidID);
+                int null_void_level =GetUpgradeLevel(client,race,nullVoidID);
                 if (null_void_level)
                     NullVoid(client, null_void_level);
                 else
                 {
-                    new guardian_shield_level=GetUpgradeLevel(client,race,guardianShieldID);
+                    int guardian_shield_level =GetUpgradeLevel(client,race,guardianShieldID);
                     if (guardian_shield_level)
                         GuardianShield(client, guardian_shield_level);
                     else
                     {
-                        new force_field_level=GetUpgradeLevel(client,race,forceFieldID);
+                        int force_field_level =GetUpgradeLevel(client,race,forceFieldID);
                         if (force_field_level > 0)
                             ForceField(client, force_field_level);
                         else
                         {
-                            new disruption_level=GetUpgradeLevel(client,race,disruptionID);
+                            int disruption_level =GetUpgradeLevel(client,race,disruptionID);
                             if (disruption_level)
                                 InvokeDisruption(client, disruption_level);
                         }
@@ -383,22 +384,22 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
             }
             default:
             {
-                new disruption_level=GetUpgradeLevel(client,race,disruptionID);
+                int disruption_level =GetUpgradeLevel(client,race,disruptionID);
                 if (disruption_level)
                     InvokeDisruption(client, disruption_level);
                 else
                 {
-                    new null_void_level=GetUpgradeLevel(client,race,nullVoidID);
+                    int null_void_level =GetUpgradeLevel(client,race,nullVoidID);
                     if (null_void_level)
                         NullVoid(client, null_void_level);
                     else
                     {
-                        new guardian_shield_level=GetUpgradeLevel(client,race,guardianShieldID);
+                        int guardian_shield_level =GetUpgradeLevel(client,race,guardianShieldID);
                         if (guardian_shield_level)
                             GuardianShield(client, guardian_shield_level);
                         else
                         {
-                            new force_field_level=GetUpgradeLevel(client,race,forceFieldID);
+                            int force_field_level =GetUpgradeLevel(client,race,forceFieldID);
                             if (force_field_level > 0)
                                 ForceField(client, force_field_level);
                         }
@@ -409,7 +410,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
     }
 }
 
-public OnPlayerSpawnEvent(Handle:event, client, race)
+public void OnPlayerSpawnEvent(Handle:event, client, race)
 {
     if (race == raceID)
     {
@@ -417,26 +418,26 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
 
         PrepareAndEmitSoundToAll(spawnWav, client);
 
-        new speed_level = GetUpgradeLevel(client,raceID,speedID);
+        int speed_level = GetUpgradeLevel(client,raceID,speedID);
         SetSpeedBoost(client, speed_level, true, g_SpeedLevels);
 
-        new armor_level = GetUpgradeLevel(client,raceID,armorID);
-        new shields_level = GetUpgradeLevel(client,raceID,shieldsID);
+        int armor_level = GetUpgradeLevel(client,raceID,armorID);
+        int shields_level = GetUpgradeLevel(client,raceID,shieldsID);
         SetupArmorAndShields(client, armor_level, shields_level, g_InitialArmor,
                              g_ShieldsPercent, g_InitialShields);
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     new Action:returnCode = Plugin_Continue;
 
     if (victim_race == raceID)
     {
-        new armor_level = GetUpgradeLevel(victim_index,raceID,armorID);
-        new shields_level = GetUpgradeLevel(victim_index,raceID,shieldsID);
-        new level = (GetShields(victim_index) > g_InitialArmor[armor_level])
+        int armor_level = GetUpgradeLevel(victim_index,raceID,armorID);
+        int shields_level = GetUpgradeLevel(victim_index,raceID,shieldsID);
+        int level = (GetShields(victim_index) > g_InitialArmor[armor_level])
                     ? shields_level : armor_level;
 
         SetShieldsPercent(victim_index, g_ShieldsPercent[level]);
@@ -446,8 +447,8 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
         attacker_index != victim_index &&
         attacker_race == raceID)
     {
-        new Float:amount = GetUpgradeEnergy(raceID,hallucinationID);
-        new level = GetUpgradeLevel(attacker_index,raceID,hallucinationID);
+        float amount = GetUpgradeEnergy(raceID,hallucinationID);
+        int level = GetUpgradeLevel(attacker_index,raceID,hallucinationID);
         if (Hallucinate(victim_index, attacker_index, level, amount, g_HallucinateChance))
         {
             returnCode = Plugin_Handled;
@@ -460,7 +461,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
         }
         else
         {
-            new weapons_level=GetUpgradeLevel(attacker_index,raceID,missileID);
+            int weapons_level =GetUpgradeLevel(attacker_index,raceID,missileID);
             if (weapons_level > 0)
             {
                 if (MissileAttack(raceID, missileID, weapons_level, event, damage + absorbed, victim_index,
@@ -477,7 +478,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
     return returnCode;
 }
 
-public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
+public Action OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
                                   assister_index, assister_race, damage,
                                   absorbed)
 {
@@ -485,8 +486,8 @@ public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
 
     if (assister_race == raceID)
     {
-        new Float:amount = GetUpgradeEnergy(raceID,hallucinationID);
-        new level = GetUpgradeLevel(assister_index,raceID,hallucinationID);
+        float amount = GetUpgradeEnergy(raceID,hallucinationID);
+        int level = GetUpgradeLevel(assister_index,raceID,hallucinationID);
         if (Hallucinate(victim_index, assister_index, level, amount, g_HallucinateChance))
         {
             returnCode = Plugin_Handled;
@@ -504,7 +505,7 @@ public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
     return returnCode;
 }
 
-public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
+public void OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
                           attacker_race, assister_index, assister_race, damage,
                           const String:weapon[], bool:is_equipment, customkill,
                           bool:headshot, bool:backstab, bool:melee)
@@ -521,7 +522,7 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
     }
 }
 
-public Action:OnPlayerRestored(client)
+public Action OnPlayerRestored(client)
 {
     ResetDetected(client);
 }
@@ -533,14 +534,14 @@ InvokeDisruption(client, level)
         if (GetRestriction(client,Restriction_NoUltimates) ||
             GetRestriction(client,Restriction_Stunned))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, disruptionID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);
         }
         else if (IsMole(client))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, disruptionID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "CantUseAsMole", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -565,9 +566,9 @@ InvokeDisruption(client, level)
     }
 }
 
-public Action:EndDisruption(Handle:timer,any:userid)
+public Action EndDisruption(Handle:timer,any:userid)
 {
-    new client = GetClientOfUserId(userid);
+    int client = GetClientOfUserId(userid);
     if (client > 0 && m_DisruptionActive[client])
     {
         m_DisruptionActive[client]=false;
@@ -619,12 +620,12 @@ bool:Disruption(client, target, damage)
 
     if (CanProcessUpgrade(client, raceID, disruptionID))
     {
-        for(new x=1;x<=MaxClients;x++)
+        for(int x =1;x<=MaxClients;x++)
             m_HasBeenDisrupted[client][x]=false;
 
-        new Float:energy = GetEnergy(client);
-        new Float:amount = GetUpgradeRecurringEnergy(raceID,disruptionID);
-        new level=GetUpgradeLevel(client,raceID,disruptionID);
+        float energy = GetEnergy(client);
+        float amount = GetUpgradeRecurringEnergy(raceID,disruptionID);
+        int level =GetUpgradeLevel(client,raceID,disruptionID);
         DoDisruption(client,g_DisruptionRadius[level],damage,target,level*3, amount, energy);
         SetEnergy(client, energy);
         return true;
@@ -634,14 +635,14 @@ bool:Disruption(client, target, damage)
 
 DoDisruption(client,Float:distance,dmg,last,count, Float:amount, &Float:energy)
 {
-    new team=GetClientTeam(client);
-    new Float:lastLoc[3];
+    int team =GetClientTeam(client);
+    float lastLoc[3];
     GetEntityAbsOrigin(last,lastLoc);
 
-    new target=-1;
+    int target =-1;
     while (target <= 0)
     {
-        for (new index=1;index<=MaxClients;index++)
+        for (int index =1;index<=MaxClients;index++)
         {
             if (client != index && !m_HasBeenDisrupted[client][index] &&
                 IsClientInGame(index) && IsPlayerAlive(index) &&
@@ -650,9 +651,9 @@ DoDisruption(client,Float:distance,dmg,last,count, Float:amount, &Float:energy)
                 !GetImmunity(index,Immunity_HealthTaking) &&
                 !IsInvulnerable(index))
             {
-                new Float:indexLoc[3];
+                float indexLoc[3];
                 GetClientAbsOrigin(index,indexLoc);
-                new Float:check=GetVectorDistance(lastLoc,indexLoc);
+                float check=GetVectorDistance(lastLoc,indexLoc);
                 if (check < distance && TraceTargetIndex(client, index, lastLoc, indexLoc))
                 {
                     // found a candidate, whom is currently the closest
@@ -665,7 +666,7 @@ DoDisruption(client,Float:distance,dmg,last,count, Float:amount, &Float:energy)
         if (target < 0)
         {
             target = 0;
-            for(new x=1;x<=MaxClients;x++)
+            for(int x =1;x<=MaxClients;x++)
                 m_HasBeenDisrupted[client][x]=false;
         }
         else
@@ -679,7 +680,7 @@ DoDisruption(client,Float:distance,dmg,last,count, Float:amount, &Float:energy)
         HurtPlayer(target, dmg, client, "sc_disruption",
                    .type=DMG_ENERGYBEAM);
 
-        new Float:targetLoc[3];
+        float targetLoc[3];
         GetClientAbsOrigin(target,targetLoc);
         targetLoc[2] += 50.0;
         lastLoc[2]   += 50.0;
@@ -702,7 +703,7 @@ DoDisruption(client,Float:distance,dmg,last,count, Float:amount, &Float:energy)
 
 NullVoid(client, level)
 {
-    decl String:upgradeName[64];
+    char upgradeName[64];
     GetUpgradeName(raceID, nullVoidID, upgradeName, sizeof(upgradeName), client);
 
     if (GetRestriction(client,Restriction_NoUltimates) ||
@@ -720,13 +721,13 @@ NullVoid(client, level)
                 TF2_RemovePlayerDisguise(client);
         }
 
-        new Float:radius = g_NullVoidRadius[level];
-        new Float:targetLoc[3];
+        float radius = g_NullVoidRadius[level];
+        float targetLoc[3];
         TraceAimPosition(client, targetLoc, true);
 
         PrepareAndEmitSoundToAll(nullVoidWav,client, .origin=targetLoc);
 
-        new team = GetClientTeam(client);
+        int team = GetClientTeam(client);
         new beamColor[4];
         if (team==2)
         {
@@ -737,9 +738,9 @@ NullVoid(client, level)
             beamColor[0]=0;beamColor[1]=0;beamColor[2]=255;beamColor[3]=255;
         }
 
-        new count=0;
-        new b_count=0;
-        new alt_count=0;
+        int count =0;
+        int b_count =0;
+        int alt_count =0;
         new list[MaxClients+1];
         new alt_list[MaxClients+1];
         SetupOBeaconLists(list, alt_list, b_count, alt_count, client);
@@ -774,25 +775,25 @@ NullVoid(client, level)
             TE_Send(alt_list, alt_count, 0.0);
         }
 
-        for (new index=1;index<=MaxClients;index++)
+        for (int index =1;index<=MaxClients;index++)
         {
             if (index != client && IsClientInGame(index) &&
                 IsPlayerAlive(index))
             {
                 if (GetClientTeam(index) != team)
                 {
-                    new bool:detect = !GetImmunity(index,Immunity_Ultimates) &&
+                    bool detect = !GetImmunity(index,Immunity_Ultimates) &&
                                       IsInRange(client,index,radius);
                     if (detect)
                     {
-                        new Float:indexLoc[3];
+                        float indexLoc[3];
                         GetClientAbsOrigin(index, indexLoc);
                         detect = TraceTargetIndex(client, index, targetLoc, indexLoc);
                     }
 
                     if (detect)
                     {
-                        new bool:uncloaked = false;
+                        bool uncloaked = false;
 
                         if (GameType == tf2 &&
                             !GetImmunity(index,Immunity_Uncloaking) &&
@@ -801,7 +802,7 @@ NullVoid(client, level)
                             TF2_RemovePlayerDisguise(index);
                             TF2_RemoveCondition(client,TFCond_Cloaked);
 
-                            new Float:cloakMeter = TF2_GetCloakMeter(index);
+                            float cloakMeter = TF2_GetCloakMeter(index);
                             if (cloakMeter > 0.0 && cloakMeter <= 100.0)
                                 TF2_SetCloakMeter(index, 0.0);
 
@@ -831,19 +832,19 @@ NullVoid(client, level)
                             }
                         }
 
-                        new Float:energyDrinkMeter = TF2_GetEnergyDrinkMeter(index);
+                        float energyDrinkMeter = TF2_GetEnergyDrinkMeter(index);
                         if (energyDrinkMeter > 0.0 && energyDrinkMeter <= 100.0)
                             TF2_SetEnergyDrinkMeter(index, 0.0);
 
-                        new Float:chargeMeter = TF2_GetChargeMeter(index);
+                        float chargeMeter = TF2_GetChargeMeter(index);
                         if (chargeMeter > 0.0 && chargeMeter <= 100.0)
                             TF2_SetChargeMeter(index, 0.0);
 
-                        new Float:rageMeter = TF2_GetRageMeter(index);
+                        float rageMeter = TF2_GetRageMeter(index);
                         if (rageMeter > 0.0 && rageMeter <= 100.0)
                             TF2_SetRageMeter(index, 0.0);
 
-                        new Float:hypeMeter = TF2_GetHypeMeter(index);
+                        float hypeMeter = TF2_GetHypeMeter(index);
                         if (hypeMeter > 0.0 && hypeMeter <= 100.0)
                             TF2_SetHypeMeter(index, 0.0);
                     }
@@ -881,9 +882,9 @@ NullVoid(client, level)
 
         if (GameType == tf2)
         {
-            new Float:pos[3];
-            new maxents = GetMaxEntities();
-            for (new ent = MaxClients; ent < maxents; ent++)
+            float pos[3];
+            int maxents = GetMaxEntities();
+            for (int ent = MaxClients; ent < maxents; ent++)
             {
                 if (IsValidEdict(ent) && IsValidEntity(ent))
                 {
@@ -926,9 +927,9 @@ NullVoid(client, level)
     }
 }
 
-public Action:EnableObject(Handle:timer, any:ref)
+public Action EnableObject(Handle:timer, any:ref)
 {
-    new ent = EntRefToEntIndex(ref);
+    int ent = EntRefToEntIndex(ref);
     if (ent > 0 && IsValidEntity(ent) && IsValidEdict(ent))
     {
         if (!GetEntProp(ent, Prop_Send, "m_bHasSapper"))
@@ -982,7 +983,7 @@ ShieldFlags:GetGuardianShieldFlags(level)
 
 GuardianShield(client, null_flux_level)
 {
-    decl String:upgradeName[64];
+    char upgradeName[64];
     GetUpgradeName(raceID, guardianShieldID, upgradeName, sizeof(upgradeName), client);
 
     if (!m_UberShieldAvailable)
@@ -1015,7 +1016,7 @@ GuardianShield(client, null_flux_level)
         }
         else if (CanInvokeUpgrade(client, raceID, guardianShieldID, false))
         {
-            new Float:duration = float(null_flux_level) * 3.0;
+            float duration = float(null_flux_level) * 3.0;
             UberShieldTarget(client, duration, GetGuardianShieldFlags(null_flux_level));
             DisplayMessage(client,Display_Ultimate,"%t", "Invoked", upgradeName);
             CreateCooldown(client, raceID, guardianShieldID);
@@ -1030,7 +1031,7 @@ ForceField(client, force_field_level)
     {
         PrepareAndEmitSoundToClient(client,deniedWav);
 
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, forceFieldID, upgradeName, sizeof(upgradeName), client);
         PrintHintText(client, "%t", "IsNotAvailable", upgradeName);
     }
@@ -1038,14 +1039,14 @@ ForceField(client, force_field_level)
     {
         if (IsMole(client))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, forceFieldID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "CantUseAsMole", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);
         }
         else if (GameType == tf2 && TF2_HasTheFlag(client))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, forceFieldID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "CantUseWithFlag", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -1053,7 +1054,7 @@ ForceField(client, force_field_level)
         else if (GetRestriction(client,Restriction_NoUltimates) ||
                  GetRestriction(client,Restriction_Stunned))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, forceFieldID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -1062,7 +1063,7 @@ ForceField(client, force_field_level)
         {
             m_ForceFieldInvoked[client] = true;
 
-            new Float:duration = float(force_field_level) + 1.0;
+            float duration = float(force_field_level) + 1.0;
             UberShieldTarget(client, duration, Shield_Immobilize |
                                                Shield_Target_Enemy |
                                                Shield_Target_Location |
@@ -1073,16 +1074,16 @@ ForceField(client, force_field_level)
     }
 }
 
-public Action:OnDeployUberShield(client, target)
+public Action OnDeployUberShield(client, target)
 {
     if (GetRace(client) == raceID)
     {
-        new upgradeID = m_ForceFieldInvoked[client] ? forceFieldID : guardianShieldID;
+        int upgradeID = m_ForceFieldInvoked[client] ? forceFieldID : guardianShieldID;
 
         if (GetRestriction(client,Restriction_NoUltimates) ||
             GetRestriction(client,Restriction_Stunned))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, upgradeID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -1090,7 +1091,7 @@ public Action:OnDeployUberShield(client, target)
         }
         else if (IsMole(client))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, upgradeID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "CantUseAsMole", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -1098,7 +1099,7 @@ public Action:OnDeployUberShield(client, target)
         }
         else if (target > 0 && GameType == tf2 && TF2_HasTheFlag(target))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, upgradeID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "CantUseOnFlagCarrier", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -1106,7 +1107,7 @@ public Action:OnDeployUberShield(client, target)
         }
         else if (target > 0 && m_HGRSourceAvailable && IsGrabbed(target))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, upgradeID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "CantUseOnSomeoneBeingHeld", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);

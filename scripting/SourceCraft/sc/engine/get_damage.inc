@@ -37,7 +37,7 @@ stock GetSavedHealth(client)
 
 stock SaveAllHealth()
 {
-    for(new x=1;x<=MaxClients;x++)
+    for(int x =1;x<=MaxClients;x++)
     {
         if (IsClientInGame(x) && !IsFakeClient(x))
         {
@@ -56,7 +56,7 @@ stock CreateHealthTimer(client)
 
 stock KillHealthTimer(client)
 {
-    new Handle:timer=g_HealthTimers[client];
+    Handle timer=g_HealthTimers[client];
     if (timer != INVALID_HANDLE)
     {
         KillTimer(timer);
@@ -66,17 +66,17 @@ stock KillHealthTimer(client)
 
 stock KillAllHealthTimers()
 {
-    for (new i = 1; i <= MaxClients; i++)
+    for (int i = 1; i <= MaxClients; i++)
         KillHealthTimer(i);
 }
 
 stock ResetAllHealthTimers()
 {
-    for (new i = 1; i <= MaxClients; i++)
+    for (int i = 1; i <= MaxClients; i++)
         ResetHealthTimer(i);
 }
 
-public Action:Timer_SaveHealth(Handle:timer, any:client)
+public Action Timer_SaveHealth(Handle:timer, any:client)
 {
     g_savedHealth[client] = GetClientHealth(client);
 }
@@ -84,7 +84,7 @@ public Action:Timer_SaveHealth(Handle:timer, any:client)
 
 stock GetDamage(Handle:event, client=0)
 {
-    new damage;
+    int damage;
 
     switch (GameType)
     {
@@ -102,7 +102,7 @@ stock GetDamage(Handle:event, client=0)
 
             if (client)
             {
-                new prevHealth = g_savedHealth[client]; 
+                int prevHealth = g_savedHealth[client]; 
                 if (prevHealth)
                 {
                     damage = prevHealth - GetEventInt(event,"health");
@@ -122,10 +122,10 @@ stock GetDamage(Handle:event, client=0)
 
     if (client)
     {
-        new prevHealth = g_savedHealth[client]; 
+        int prevHealth = g_savedHealth[client]; 
         if (prevHealth)
         {
-            new calc_damage = prevHealth - GetEventInt(event,"health");
+            int calc_damage = prevHealth - GetEventInt(event,"health");
             if (calc_damage < 0)
                 calc_damage = 0;
 

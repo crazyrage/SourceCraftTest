@@ -6,6 +6,7 @@
  */
  
 #pragma semicolon 1
+#pragma newdecls required
 
 #include <sourcemod>
 #include <sdktools>
@@ -45,29 +46,29 @@ new const String:deathWav[]     = "sc/zdrdth00.wav";
 new const String:burrowUpWav[]  = "sc/burrowup.wav";
 new const String:burrowDownWav[] = "sc/burrowdn.wav";
 
-new raceID;
+int raceID;
 
 #include "sc/Mutate"
 
 new const String:g_ArmorName[]  = "Carapace";
-new Float:g_InitialArmor[]      = { 0.0, 0.10, 0.20, 0.30, 0.40 };
-new Float:g_ArmorPercent[][2]   = { {0.00, 0.00},
+float g_InitialArmor[]      = { 0.0, 0.10, 0.20, 0.30, 0.40 };
+float g_ArmorPercent[][2]   = { {0.00, 0.00},
                                     {0.00, 0.10},
                                     {0.00, 0.30},
                                     {0.10, 0.40},
                                     {0.20, 0.50} };
 
-new Float:g_NydusCanalRate[]    = { 0.0, 8.0, 6.0, 3.0, 1.0 };
+float g_NydusCanalRate[]    = { 0.0, 8.0, 6.0, 3.0, 1.0 };
 
 new carapaceID, regenerationID, creepID, nydusCanalID;
 new evolutionID, mutateID, burrowID, burrowStructID, hiveQueenID;
 
-new g_hiveQueenRace = -1;
+int g_hiveQueenRace = -1;
 
-new cfgMaxObjects;
-new cfgAllowSentries;
+int cfgMaxObjects;
+int cfgAllowSentries;
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Zerg Drone",
     author = "-=|JFH|=-Naris",
@@ -76,7 +77,7 @@ public Plugin:myinfo =
     url = "http://jigglysfunhouse.net/"
 };
 
-public OnPluginStart()
+public void OnPluginStart()
 {
     LoadTranslations("sc.objects.phrases.txt");
     LoadTranslations("sc.mutate.phrases.txt");
@@ -91,7 +92,7 @@ public OnPluginStart()
         OnSourceCraftReady();
 }
 
-public OnSourceCraftReady()
+public void OnSourceCraftReady()
 {
     if (GameType == tf2)
     {
@@ -172,9 +173,9 @@ public OnSourceCraftReady()
     GetConfigFloatArray("armor_amount", g_InitialArmor, sizeof(g_InitialArmor),
                         g_InitialArmor, raceID, carapaceID);
 
-    for (new level=0; level < sizeof(g_ArmorPercent); level++)
+    for (int level =0; level < sizeof(g_ArmorPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "armor_percent_level_%d", level);
         GetConfigFloatArray(key, g_ArmorPercent[level], sizeof(g_ArmorPercent[]),
                             g_ArmorPercent[level], raceID, carapaceID);
@@ -189,33 +190,33 @@ public OnSourceCraftReady()
         m_MutateMultiplyEnergy = bool:GetConfigNum("multiply_energy", true, raceID, mutateID);
         m_MutateMultiplyVespene = bool:GetConfigNum("multiply_vespene", true, raceID, mutateID);
 
-        for (new level=0; level < sizeof(m_MutateAmpRange); level++)
+        for (int level =0; level < sizeof(m_MutateAmpRange); level++)
         {
-            decl String:key[32];
+            char key[32];
             Format(key, sizeof(key), "amp_range_level_%d", level);
             GetConfigFloatArray(key, m_MutateAmpRange[level], sizeof(m_MutateAmpRange[]),
                                 m_MutateAmpRange[level], raceID, mutateID);
         }
 
-        for (new level=0; level < sizeof(m_MutateNodeRange); level++)
+        for (int level =0; level < sizeof(m_MutateNodeRange); level++)
         {
-            decl String:key[32];
+            char key[32];
             Format(key, sizeof(key), "node_range_level_%d", level);
             GetConfigFloatArray(key, m_MutateNodeRange[level], sizeof(m_MutateNodeRange[]),
                                 m_MutateNodeRange[level], raceID, mutateID);
         }
 
-        for (new level=0; level < sizeof(m_MutateNodeRegen); level++)
+        for (int level =0; level < sizeof(m_MutateNodeRegen); level++)
         {
-            decl String:key[32];
+            char key[32];
             Format(key, sizeof(key), "node_regen_level_%d", level);
             GetConfigArray(key, m_MutateNodeRegen[level], sizeof(m_MutateNodeRegen[]),
                            m_MutateNodeRegen[level], raceID, mutateID);
         }
 
-        for (new level=0; level < sizeof(m_MutateNodeShells); level++)
+        for (int level =0; level < sizeof(m_MutateNodeShells); level++)
         {
-            decl String:key[32];
+            char key[32];
             Format(key, sizeof(key), "node_shells_level_%d", level);
             GetConfigArray(key, m_MutateNodeShells[level], sizeof(m_MutateNodeShells[]),
                            m_MutateNodeShells[level], raceID, mutateID);
@@ -226,7 +227,7 @@ public OnSourceCraftReady()
     }
 }
 
-public OnLibraryAdded(const String:name[])
+public void OnLibraryAdded(const String:name[])
 {
     if (StrEqual(name, "tf2teleporter"))
         IsTeleporterAvailable(true);
@@ -238,7 +239,7 @@ public OnLibraryAdded(const String:name[])
         IsAmpNodeAvailable(true);
 }
 
-public OnLibraryRemoved(const String:name[])
+public void OnLibraryRemoved(const String:name[])
 {
     if (StrEqual(name, "tf2teleporter"))
         m_TeleporterAvailable = false;
@@ -250,7 +251,7 @@ public OnLibraryRemoved(const String:name[])
         m_AmpNodeAvailable = false;
 }
 
-public OnMapStart()
+public void OnMapStart()
 {
     SetupRedGlow();
     SetupBlueGlow();
@@ -268,17 +269,17 @@ public OnMapStart()
     SetupSound(burrowDownWav);
 }
 
-public OnMapEnd()
+public void OnMapEnd()
 {
     ResetAllClientTimers();
 }
 
-public OnClientDisconnect(client)
+public void OnClientDisconnect(client)
 {
     KillClientTimer(client);
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -317,18 +318,18 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
     }
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
-        new regeneration_level=GetUpgradeLevel(client,raceID,regenerationID);
+        int regeneration_level =GetUpgradeLevel(client,raceID,regenerationID);
         SetHealthRegen(client, float(regeneration_level));
 
-        new carapace_level = GetUpgradeLevel(client,raceID,carapaceID);
+        int carapace_level = GetUpgradeLevel(client,raceID,carapaceID);
         SetupArmor(client, carapace_level, g_InitialArmor,
                    g_ArmorPercent, g_ArmorName);
 
-        new teleporter_level = GetUpgradeLevel(client,raceID,nydusCanalID);
+        int teleporter_level = GetUpgradeLevel(client,raceID,nydusCanalID);
         if (teleporter_level > 0)
             SetupTeleporter(client, teleporter_level);
 
@@ -349,7 +350,7 @@ public Action:OnRaceSelected(client,oldrace,newrace)
         return Plugin_Continue;
 }
 
-public OnUpgradeLevelChanged(client,race,upgrade,new_level)
+public void OnUpgradeLevelChanged(client,race,upgrade,new_level)
 {
     if (race == raceID && GetRace(client) == raceID)
     {
@@ -386,7 +387,7 @@ public OnUpgradeLevelChanged(client,race,upgrade,new_level)
     }
 }
 
-public OnUltimateCommand(client,race,bool:pressed,arg)
+public void OnUltimateCommand(client,race,bool:pressed,arg)
 {
     if (race==raceID)
     {
@@ -415,7 +416,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
             }
             case 2:
             {
-                new burrow_level=GetUpgradeLevel(client,race,burrowID);
+                int burrow_level =GetUpgradeLevel(client,race,burrowID);
                 if (burrow_level > 0)
                 {
                     if (pressed)
@@ -434,7 +435,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
             }
             default:
             {
-                new mutate_level = GetUpgradeLevel(client,race,mutateID);
+                int mutate_level = GetUpgradeLevel(client,race,mutateID);
                 if (mutate_level && m_BuildAvailable && GameType == tf2 && cfgAllowSentries >= 1)
                 {
                     if (pressed)
@@ -450,7 +451,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                 }
                 else
                 {
-                    new burrow_level=GetUpgradeLevel(client,race,burrowID);
+                    int burrow_level =GetUpgradeLevel(client,race,burrowID);
                     if (burrow_level > 0)
                     {
                         if (pressed)
@@ -468,7 +469,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
 }
 
 // Events
-public OnPlayerSpawnEvent(Handle:event, client, race)
+public void OnPlayerSpawnEvent(Handle:event, client, race)
 {
     if (race == raceID)
     {
@@ -476,10 +477,10 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
         
         SetOverrideSpeed(client, -1.0);
 
-        new regeneration_level=GetUpgradeLevel(client,raceID,regenerationID);
+        int regeneration_level =GetUpgradeLevel(client,raceID,regenerationID);
         SetHealthRegen(client, float(regeneration_level));
 
-        new carapace_level = GetUpgradeLevel(client,raceID,carapaceID);
+        int carapace_level = GetUpgradeLevel(client,raceID,carapaceID);
         SetupArmor(client, carapace_level, g_InitialArmor,
                    g_ArmorPercent, g_ArmorName);
 
@@ -493,7 +494,7 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
     }
 }
 
-public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
+public void OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_index,
                           attacker_race, assister_index, assister_race, damage,
                           const String:weapon[], bool:is_equipment, customkill,
                           bool:headshot, bool:backstab, bool:melee)
@@ -520,16 +521,16 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
     }
 }
 
-public Action:CreepTimer(Handle:timer, any:userid)
+public Action CreepTimer(Handle:timer, any:userid)
 {
-    new client = GetClientOfUserId(userid);
+    int client = GetClientOfUserId(userid);
     if (IsValidClientNotSpec(client))
     {
         if (GetRace(client) == raceID &&
             !GetRestriction(client,Restriction_NoUpgrades) &&
             !GetRestriction(client,Restriction_Stunned))
         {
-            new creep_level=GetUpgradeLevel(client,raceID,creepID);
+            int creep_level =GetUpgradeLevel(client,raceID,creepID);
             if (creep_level && (cfgAllowSentries >= 2) &&
                 (GetUpgradeLevel(client,raceID,mutateID) ||
                  TF2_GetPlayerClass(client) == TFClass_Engineer))
@@ -560,12 +561,12 @@ ReplenishObject(client, obj, TFObjectType:type, amount, num_rockets)
     if (GetEntPropEnt(obj, Prop_Send, "m_hBuilder") == client &&
         GetEntPropFloat(obj, Prop_Send, "m_flPercentageConstructed") >= 1.0)
     {
-        new iLevel = GetEntProp(obj, Prop_Send, "m_bMiniBuilding") ? 0 : 
+        int iLevel = GetEntProp(obj, Prop_Send, "m_bMiniBuilding") ? 0 : 
                      GetEntProp(obj, Prop_Send, "m_iUpgradeLevel");
 
         if (iLevel > 0 && iLevel < 3)
         {
-            new iUpgrade = GetEntProp(obj, Prop_Send, "m_iUpgradeMetal");
+            int iUpgrade = GetEntProp(obj, Prop_Send, "m_iUpgradeMetal");
             if (iUpgrade < TF2_MaxUpgradeMetal)
             {
                 iUpgrade += amount;
@@ -575,8 +576,8 @@ ReplenishObject(client, obj, TFObjectType:type, amount, num_rockets)
             }                                        
         }
 
-        new max_health = GetEntProp(obj, Prop_Data, "m_iMaxHealth");
-        new health = GetEntProp(obj, Prop_Send, "m_iHealth");
+        int max_health = GetEntProp(obj, Prop_Data, "m_iMaxHealth");
+        int health = GetEntProp(obj, Prop_Send, "m_iHealth");
         if (health < max_health)
         {
             health += amount;
@@ -590,7 +591,7 @@ ReplenishObject(client, obj, TFObjectType:type, amount, num_rockets)
         {
             case TFObject_Dispenser:
             {
-                new iMetal = GetEntProp(obj, Prop_Send, "m_iAmmoMetal");
+                int iMetal = GetEntProp(obj, Prop_Send, "m_iAmmoMetal");
                 if (iMetal < TF2_MaxDispenserMetal)
                 {
                     iMetal += amount;
@@ -601,8 +602,8 @@ ReplenishObject(client, obj, TFObjectType:type, amount, num_rockets)
             }
             case TFObject_Sentry:
             {
-                new maxShells = TF2_MaxSentryShells[iLevel];
-                new iShells = GetEntProp(obj, Prop_Send, "m_iAmmoShells");
+                int maxShells = TF2_MaxSentryShells[iLevel];
+                int iShells = GetEntProp(obj, Prop_Send, "m_iAmmoShells");
                 if (iShells < maxShells)
                 {
                     iShells += amount;
@@ -613,8 +614,8 @@ ReplenishObject(client, obj, TFObjectType:type, amount, num_rockets)
 
                 if (iLevel > 2)
                 {
-                    new maxRockets = TF2_MaxSentryRockets[iLevel];
-                    new iRockets = GetEntProp(obj, Prop_Send, "m_iAmmoRockets");
+                    int maxRockets = TF2_MaxSentryRockets[iLevel];
+                    int iRockets = GetEntProp(obj, Prop_Send, "m_iAmmoRockets");
                     if (iRockets < maxRockets)
                     {
                         iRockets += num_rockets;
@@ -641,7 +642,7 @@ EvolveHiveQueen(client)
 
     if (g_hiveQueenRace < 0)
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, hiveQueenID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "IsNotAvailable", upgradeName);
         LogError("***The Zerg Hive Queen race is not Available!");
@@ -655,7 +656,7 @@ EvolveHiveQueen(client)
     }
     else if (HasCooldownExpired(client, raceID, hiveQueenID))
     {
-        new Float:clientLoc[3];
+        float clientLoc[3];
         GetClientAbsOrigin(client, clientLoc);
         clientLoc[2] += 40.0; // Adjust position to the middle
 
