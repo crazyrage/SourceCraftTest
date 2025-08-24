@@ -14,6 +14,10 @@ static ArrayList g_RaceImages;
 static ArrayList g_RaceTranslations;
 static ArrayList g_RaceUpgrades;
 
+// Forward handles for lifecycle events
+static Handle g_OnRaceRegisteredForward = null;
+static Handle g_OnUpgradeRegisteredForward = null;
+
 public void SC2_InitCore()
 {
     if (g_Races == null)
@@ -25,6 +29,10 @@ public void SC2_InitCore()
         g_RaceImages = new ArrayList(ByteCountToCells(64));
         g_RaceTranslations = new ArrayList(ByteCountToCells(64));
         g_RaceUpgrades = new ArrayList();
+
+        // Create forwards for lifecycle events
+        g_OnRaceRegisteredForward = CreateGlobalForward("SC2_OnRaceRegistered", ET_Ignore, Param_Cell, Param_String);
+        g_OnUpgradeRegisteredForward = CreateGlobalForward("SC2_OnUpgradeRegistered", ET_Ignore, Param_Cell, Param_String);
     }
 }
 
@@ -65,7 +73,12 @@ public SC2Race SC2_RegisterRace(const char[] shortName, const char[] longName, i
         LoadTranslations(tfile);
     }
 
-    SC2_OnRaceRegistered(view_as<SC2Race>(id), shortName);
+    // Call forward
+    Call_StartForward(g_OnRaceRegisteredForward);
+    Call_PushCell(view_as<int>(id));
+    Call_PushString(shortName);
+    Call_Finish();
+
     return view_as<SC2Race>(id);
 }
 
@@ -79,7 +92,12 @@ public int SC2_RegisterUpgrade(SC2Race race, const char[] key, SC2UpgradeCategor
     // Store a tiny placeholder record for now
     int idx = raceUpgrades.Push(0);
 
-    SC2_OnUpgradeRegistered(race, key);
+    // Call forward
+    Call_StartForward(g_OnUpgradeRegisteredForward);
+    Call_PushCell(view_as<int>(race));
+    Call_PushString(key);
+    Call_Finish();
+
     return idx;
 }
 

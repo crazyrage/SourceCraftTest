@@ -5,6 +5,15 @@
 #include "sourcecraft2"
 #include "core/api"
 
+public Plugin myinfo =
+{
+    name = "SourceCraft2 Example: Protoss Probe",
+    author = "Clean-room remake",
+    description = "Example race plugin for SourceCraft2",
+    version = "0.1.0",
+    url = ""
+};
+
 static SC2Race g_Race = SC2Race_Invalid;
 
 public void OnAllPluginsLoaded()
