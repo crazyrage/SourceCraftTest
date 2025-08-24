@@ -1,0 +1,37 @@
+name: Build (SM 1.12)
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download SourceMod 1.12
+        shell: bash
+        run: |
+          set -e
+          curl -sL https://sm.alliedmods.net/smdrop/1.12/sourcemod-1.12.0-git7144-linux.tar.gz -o sm.tar.gz
+          mkdir -p sm && tar -xzf sm.tar.gz -C sm --strip-components=1
+          sm/scripting/spcomp -v
+
+      - name: Compile SourceCraft2 (SM 1.12)
+        shell: bash
+        run: |
+          set -e
+          mkdir -p build
+          echo "Compiling new sourcecraft2 plugins only..."
+          find scripting/sourcecraft2 -name '*.sp' -type f | sort > files.txt
+          while read -r f; do
+            echo "::group::Compiling $f"
+            sm/scripting/spcomp -i sm/scripting/include -i scripting/include -i scripting "$f" -o "build/$(basename "${f%.sp}").smx"
+            echo "::endgroup::"
+          done < files.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: smx
+          path: build
