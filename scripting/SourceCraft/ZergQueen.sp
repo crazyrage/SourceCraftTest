@@ -35,42 +35,42 @@
 #include "effect/BeamSprite"
 #include "effect/HaloSprite"
 
-new const String:queenFireWav[] = "sc/zqufir00.wav";
-new const String:ensnareHitWav[] = "sc/zquens00.wav";
-new const String:infestedHitWav[] = "sc/zquhit02.wav";
-new const String:parasiteHitWav[] = "sc/zqutag01.wav";
-new const String:parasiteFireWav[] = "sc/zqutag00.wav";
-new const String:broodlingHitWav[] = "sc/zqutag01.wav";
+char queenFireWav[] = "sc/zqufir00.wav";
+char ensnareHitWav[] = "sc/zquens00.wav";
+char infestedHitWav[] = "sc/zquhit02.wav";
+char parasiteHitWav[] = "sc/zqutag01.wav";
+char parasiteFireWav[] = "sc/zqutag00.wav";
+char broodlingHitWav[] = "sc/zqutag01.wav";
 
-new const String:g_ArmorName[]  = "Carapace";
-new Float:g_InitialArmor[]      = { 0.0, 0.10, 0.25, 0.35, 0.50 };
-new Float:g_ArmorPercent[][2]   = { {0.00, 0.00},
-                                    {0.00, 0.05},
-                                    {0.00, 0.10},
-                                    {0.05, 0.20},
-                                    {0.10, 0.40} };
+char g_ArmorName[]  = "Carapace";
+float g_InitialArmor[]      = { 0.0, 0.10, 0.25, 0.35, 0.50 };
+float g_ArmorPercent[][2]   = { {0.00, 0.00},
+                                {0.00, 0.05},
+                                {0.00, 0.10},
+                                {0.05, 0.20},
+                                {0.10, 0.40} };
 
-new g_JetpackFuel[]             = { 0,     40,   50,   70, 90 };
-new Float:g_JetpackRefuelTime[] = { 0.0, 45.0, 35.0, 25.0, 15.0 };
+int g_JetpackFuel[]             = { 0,     40,   50,   70, 90 };
+float g_JetpackRefuelTime[] = { 0.0, 45.0, 35.0, 25.0, 15.0 };
 
-new Float:g_BroodlingRange[]    = { 350.0, 400.0, 650.0, 750.0, 900.0 };
-new Float:g_InfestRange[]       = { 350.0, 400.0, 650.0, 750.0, 900.0 };
-new Float:g_SpeedLevels[]       = { -1.0, 1.10, 1.15, 1.20, 1.25 };
+float g_BroodlingRange[]    = { 350.0, 400.0, 650.0, 750.0, 900.0 };
+float g_InfestRange[]       = { 350.0, 400.0, 650.0, 750.0, 900.0 };
+float g_SpeedLevels[]       = { -1.0, 1.10, 1.15, 1.20, 1.25 };
 
-new Float:g_EnsnareSpeed[]      = { 0.95, 0.90, 0.80, 0.70, 0.60 };
-new g_EnsnareChance[]           = {    5,   15,   25,   35, 45 };
+float g_EnsnareSpeed[]      = { 0.95, 0.90, 0.80, 0.70, 0.60 };
+int g_EnsnareChance[]           = {    5,   15,   25,   35, 45 };
 
-new raceID, armorID, regenerationID, pneumatizedID, parasiteID, ensnareID;
-new jetpackID, meiosisID, broodlingID, infestID;
+int raceID, armorID, regenerationID, pneumatizedID, parasiteID, ensnareID;
+int jetpackID, meiosisID, broodlingID, infestID;
 
-new g_broodlingRace = -1;
-new g_infestedRace = -1;
+int g_broodlingRace = -1;
+int g_infestedRace = -1;
 
-new bool:m_Ensnared[MAXPLAYERS+1];
-new Handle:m_ParasiteTimer[MAXPLAYERS+1];
-new m_ParasiteCount[MAXPLAYERS+1];
+bool m_Ensnared[MAXPLAYERS+1];
+Handle m_ParasiteTimer[MAXPLAYERS+1];
+int m_ParasiteCount[MAXPLAYERS+1];
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Zerg Queen",
     author = "-=|JFH|=-Naris",
