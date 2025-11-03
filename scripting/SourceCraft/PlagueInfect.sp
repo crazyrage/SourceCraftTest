@@ -37,23 +37,23 @@
 #include "effect/FlashScreen"
 #include "effect/Shake"
 
-new const String:explodeWav[] = "weapons/explode5.wav";
+char explodeWav[] = "weapons/explode5.wav";
 
-new const String:HurtSound[][] = { "player/pain.wav",     "player/pl_pain5.wav",
+char HurtSound[][] = { "player/pain.wav",     "player/pl_pain5.wav",
                                    "player/pl_pain6.wav", "player/pl_pain7.wav" };
 
-new m_PlagueDuration[MAXPLAYERS+1];
-new m_PlagueAmount[MAXPLAYERS+1];
-new m_PlagueInflicter[MAXPLAYERS+1];
-new bool:m_HasExploded[MAXPLAYERS+1];
-new PlagueType:m_PlagueType[MAXPLAYERS+1];
-new Handle:m_PlagueVictimTimers[MAXPLAYERS+1];
-new String:m_PlagueShort[MAXPLAYERS+1][32];
-new String:m_PlagueName[MAXPLAYERS+1][64];
+int m_PlagueDuration[MAXPLAYERS+1];
+int m_PlagueAmount[MAXPLAYERS+1];
+int m_PlagueInflicter[MAXPLAYERS+1];
+bool m_HasExploded[MAXPLAYERS+1];
+int PlagueType:m_PlagueType[MAXPLAYERS+1];
+Handle m_PlagueVictimTimers[MAXPLAYERS+1];
+char m_PlagueShort[MAXPLAYERS+1][32];
+char m_PlagueName[MAXPLAYERS+1][64];
 
-new Handle:m_TransmitTimer = INVALID_HANDLE;
+Handle m_TransmitTimer = INVALID_HANDLE;
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Upgrade - Plague Infect",
     author = "-=|JFH|=-Naris",
@@ -116,7 +116,7 @@ public OnClientDisconnect(client)
     m_HasExploded[client]=false;
 }
 
-public Action:OnPlayerRestored(client)
+public Action OnPlayerRestored(client)
 {
     ResetPlagueVictim(client);
     return Plugin_Continue;
@@ -156,7 +156,7 @@ ResetPlagueVictim(client)
     SetVisibility(client, NormalVisibility);
 }
 
-public Action:PlagueVictimTimer(Handle:timer, any:client)
+public Action PlagueVictimTimer(Handle:timer, any:client)
 {
     SetTraceCategory("Damage,Immunity");
     TraceInto("PlagueInfect", "PlagueVictimTimer", "client=%d:%N", \
@@ -322,7 +322,7 @@ ExplodePlayer(client, inflicter=0, team=0, Float:radius=500.0, damage=800, build
                 KillPlayer(client, inflicter, weapon_name, weapon_desc, .explode=true);
         }
 
-        new Float:client_location[3];
+        float client_location[3];
         GetClientAbsOrigin(client,client_location);
         client_location[2] += 50.0; // Adjust trace position to the middle of the person instead of the feet.
 
@@ -374,11 +374,11 @@ ExplodePlayer(client, inflicter=0, team=0, Float:radius=500.0, damage=800, build
         else
             immunity_flag = Immunity_None;
 
-        new bool:flaming         = ((type & FlamingExplosion) == FlamingExplosion);
-        new bool:ignoreHealth    = ((type & IgnoreHealthImmunity) == IgnoreHealthImmunity);
-        new bool:ignoreBurning   = ((type & IgnoreBurningImmunity) == IgnoreBurningImmunity);
-        new bool:ignoreExplosion = ((type & IgnoreExplosionImmunity) == IgnoreExplosionImmunity);
-        new bool:ignoreStructure = ((type & IgnoreStructureImmunity) == IgnoreStructureImmunity);
+        bool flaming         = ((type & FlamingExplosion) == FlamingExplosion);
+        bool ignoreHealth    = ((type & IgnoreHealthImmunity) == IgnoreHealthImmunity);
+        bool ignoreBurning   = ((type & IgnoreBurningImmunity) == IgnoreBurningImmunity);
+        bool ignoreExplosion = ((type & IgnoreExplosionImmunity) == IgnoreExplosionImmunity);
+        bool ignoreStructure = ((type & IgnoreStructureImmunity) == IgnoreStructureImmunity);
         for (new index=1;index<=MaxClients;index++)
         {
             if (index != client && IsClientInGame(index) &&
@@ -388,10 +388,10 @@ ExplodePlayer(client, inflicter=0, team=0, Float:radius=500.0, damage=800, build
                     (immunity_flag == Immunity_None || !GetImmunity(index,immunity_flag)) &&
                     !IsInvulnerable(index))
                 {
-                    new Float:check_location[3];
+                    float check_location[3];
                     GetClientAbsOrigin(index,check_location);
 
-                    new Float:distance;
+                    float distance;
                     new dmg = PowerOfRange(client_location, radius, check_location,
                                            damage, .distance=distance);
                     if (dmg > 0 || flaming)
@@ -407,7 +407,7 @@ ExplodePlayer(client, inflicter=0, team=0, Float:radius=500.0, damage=800, build
                                     /*
                                     if (!IsFakeClient(client))
                                     {
-                                        new Float:factor = (radius-distance)/radius;
+                                        float factor = (radius-distance)/radius;
                                         if (factor > 0.0 &&
                                             !GetSetting(client,Remove_Queasiness) &&
                                             !GetImmunity(client,Immunity_Drugs))
@@ -435,7 +435,7 @@ ExplodePlayer(client, inflicter=0, team=0, Float:radius=500.0, damage=800, build
                                 /*
                                 if (!IsFakeClient(client))
                                 {
-                                    new Float:factor = (radius-distance)/radius;
+                                    float factor = (radius-distance)/radius;
                                     if (factor > 0.0 &&
                                         !GetSetting(client,Remove_Queasiness) &&
                                         !GetImmunity(client,Immunity_Drugs))
@@ -463,7 +463,7 @@ ExplodePlayer(client, inflicter=0, team=0, Float:radius=500.0, damage=800, build
 
         if (building > 0 && GetGameType() == tf2)
         {
-            new Float:pos[3];
+            float pos[3];
             new maxents = GetMaxEntities();
 
             for (new ent = MaxClients; ent < maxents; ent++)
@@ -498,7 +498,7 @@ ExplodePlayer(client, inflicter=0, team=0, Float:radius=500.0, damage=800, build
     }
 }
 
-public Action:TransmitPlague(Handle:timer)
+public Action TransmitPlague(Handle:timer)
 {
     static Float:InfectedVec[MAXPLAYERS + 1][3];
     static Float:NotInfectedVec[MAXPLAYERS + 1][3];
@@ -537,7 +537,7 @@ public Action:TransmitPlague(Handle:timer)
     }
 
     new check;
-    new Float:distance = 2000.0; // GetConVarFloat(Cvar_SpreadDistance);
+    float distance = 2000.0; // GetConVarFloat(Cvar_SpreadDistance);
     for (new infected = 0; infected < InfectedCount; infected++)
     {
         for (check = 0; check < NotInfectedCount; check++)
@@ -612,7 +612,7 @@ public Native_PlagueInfect(Handle:plugin,numParams)
     if (IsClient(index) &&
         m_PlagueInflicter[index] != inflicter)
     {
-        new bool:immune = GetImmunity(index,Immunity_Restore) ||
+        bool immune = GetImmunity(index,Immunity_Restore) ||
                           IsInvulnerable(index);
 
         new PlagueType:plagueType = PlagueType:GetNativeCell(5);
@@ -711,8 +711,8 @@ public Native_PlagueInfect(Handle:plugin,numParams)
  */
 public Native_ExplodePlayer(Handle:plugin,numParams)
 {
-    decl String:short[sizeof(m_PlagueShort[])];
-    decl String:name[sizeof(m_PlagueName[])];
+    char short[sizeof(m_PlagueShort[])];
+    char name[sizeof(m_PlagueName[])];
 
     GetNativeString(9,short,sizeof(short));
     GetNativeString(10,name,sizeof(name));

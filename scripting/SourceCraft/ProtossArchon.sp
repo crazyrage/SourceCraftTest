@@ -41,53 +41,53 @@
 #include "effect/FlashScreen"
 #include "effect/PlasmaHaloSprite"
 
-new const String:deathWav[]       = "sc/pardth00.wav";
-new const String:summonWav[]      = "sc/parrdy00.wav";
-new const String:rageReadyWav[]   = "sc/parwht03.wav";
-new const String:rageExpireWav[]  = "sc/parwht01.wav";
-new const String:psionicBoltWav[] = "sc/parwht02.wav";
+char deathWav[]       = "sc/pardth00.wav";
+char summonWav[]      = "sc/parrdy00.wav";
+char rageReadyWav[]   = "sc/parwht03.wav";
+char rageExpireWav[]  = "sc/parwht01.wav";
+char psionicBoltWav[] = "sc/parwht02.wav";
 
-new const String:archonWav[][]    = { "sc/paryes00.wav" ,
+char archonWav[][]    = { "sc/paryes00.wav" ,
                                       "sc/paryes01.wav" ,
                                       "sc/paryes02.wav" ,
                                       "sc/paryes03.wav" ,
                                       "sc/parwht00.wav" };
 
-new const String:g_FeedbackSound[]= "sc/mind.mp3";
+char g_FeedbackSound[]= "sc/mind.mp3";
 
-new raceID, shockwaveID, shieldsID, levitationID, rageID;
-new feedbackID, hallucinationID, boltID, ultimateFeedbackID;
+int raceID, shockwaveID, shieldsID, levitationID, rageID;
+int feedbackID, hallucinationID, boltID, ultimateFeedbackID;
 
-new Float:g_ShockwavePercent[]    = { 0.30, 0.40, 0.50, 0.60, 0.80 };
+float g_ShockwavePercent[]    = { 0.30, 0.40, 0.50, 0.60, 0.80 };
 
-new Float:g_InitialShields[]      = { 0.10, 0.25, 0.50, 0.75, 1.0 };
-new Float:g_ShieldsPercent[][2]   = { { 0.05, 0.10 },
+float g_InitialShields[]      = { 0.10, 0.25, 0.50, 0.75, 1.0 };
+float g_ShieldsPercent[][2]   = { { 0.05, 0.10 },
                                       { 0.10, 0.20 },
                                       { 0.15, 0.30 },
                                       { 0.20, 0.40 },
                                       { 0.25, 0.50 } };
 
-new Float:g_BoltRange[]           = { 350.0, 400.0, 650.0, 750.0, 900.0};
-new g_BoltDamage[][2]             = { { 5, 15},
+float g_BoltRange[]           = { 350.0, 400.0, 650.0, 750.0, 900.0};
+int g_BoltDamage[][2]             = { { 5, 15},
                                       {15, 25},
                                       {25, 50},
                                       {50, 75},
                                       {75, 100} };
 
-new g_HallucinateChance[]         = { 0, 15, 25, 35, 50 };
+int g_HallucinateChance[]         = { 0, 15, 25, 35, 50 };
 
-new Float:g_LevitationLevels[]    = { 0.92, 0.733, 0.5466, 0.36, 0.26 };
+float g_LevitationLevels[]    = { 0.92, 0.733, 0.5466, 0.36, 0.26 };
 
-new g_FeedbackChance[]            = { 10, 15, 25, 35, 50 };
-new Float:g_FeedbackPercent[][2]  = { { 0.10, 1.00 },
+int g_FeedbackChance[]            = { 10, 15, 25, 35, 50 };
+float g_FeedbackPercent[][2]  = { { 0.10, 1.00 },
                                       { 0.25, 1.00 },
                                       { 0.40, 1.00 },
                                       { 0.50, 1.00 },
                                       { 0.75, 1.00 } };
 
-new Float:g_FeedbackRange[]       = { 350.0, 400.0, 650.0, 750.0, 900.0 };
+float g_FeedbackRange[]       = { 350.0, 400.0, 650.0, 750.0, 900.0 };
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Protoss Archon",
     author = "-=|JFH|=-Naris",
@@ -140,7 +140,7 @@ public OnSourceCraftReady()
 
     for (new level=0; level < sizeof(g_ShieldsPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "shields_percent_level_%d", level);
         GetConfigFloatArray(key, g_ShieldsPercent[level], sizeof(g_ShieldsPercent[]),
                             g_ShieldsPercent[level], raceID, shieldsID);
@@ -151,7 +151,7 @@ public OnSourceCraftReady()
 
     for (new level=0; level < sizeof(g_BoltDamage); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "damage_level_%d", level);
         GetConfigArray(key, g_BoltDamage[level], sizeof(g_BoltDamage[]),
                        g_BoltDamage[level], raceID, boltID);
@@ -165,7 +165,7 @@ public OnSourceCraftReady()
 
     for (new level=0; level < sizeof(g_ShieldsPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "damage_percent_level_%d", level);
         GetConfigFloatArray(key, g_FeedbackPercent[level], sizeof(g_FeedbackPercent[]),
                             g_FeedbackPercent[level], raceID, feedbackID);
@@ -220,7 +220,7 @@ public OnClientDisconnect(client)
     KillClientTimer(client);
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -235,7 +235,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
     return Plugin_Continue;
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
@@ -306,7 +306,7 @@ public OnItemPurchase(client,item)
     }
 }
 
-public Action:OnDropPlayer(client, target)
+public Action OnDropPlayer(client, target)
 {
     if (IsValidClientAlive(target) && GetRace(target) == raceID)
     {
@@ -358,7 +358,7 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     new Action:returnCode = Plugin_Continue;
@@ -379,7 +379,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
         if (attacker_race == raceID)
         {
             new hallucination_level = GetUpgradeLevel(attacker_index,raceID,hallucinationID);
-            new Float:hallucination_amount = GetUpgradeEnergy(raceID,hallucinationID);
+            float hallucination_amount = GetUpgradeEnergy(raceID,hallucinationID);
             if (Hallucinate(victim_index, attacker_index, hallucination_level,
                             hallucination_amount, g_HallucinateChance))
 
@@ -397,7 +397,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
     return returnCode;
 }
 
-public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
+public Action OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
                                   assister_index, assister_race, damage,
                                   absorbed)
 {
@@ -406,7 +406,7 @@ public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
     if (assister_race == raceID)
     {
         new hallucination_level = GetUpgradeLevel(assister_index,raceID,hallucinationID);
-        new Float:hallucination_amount = GetUpgradeEnergy(raceID,hallucinationID);
+        float hallucination_amount = GetUpgradeEnergy(raceID,hallucinationID);
         if (Hallucinate(victim_index, assister_index, hallucination_level,
                         hallucination_amount, g_HallucinateChance))
 
@@ -440,7 +440,7 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
     }
 }
 
-public bool:PsionicShockwave(damage, victim_index, index)
+public bool PsionicShockwave(damage, victim_index, index)
 {
     new shockwave_level=GetUpgradeLevel(index,raceID,shockwaveID);
     if (!GetRestriction(index, Restriction_NoUpgrades) &&
@@ -456,7 +456,7 @@ public bool:PsionicShockwave(damage, victim_index, index)
             new dmgamt = RoundFloat(float(damage)*g_ShockwavePercent[shockwave_level]);
             if (dmgamt > 0 && CanInvokeUpgrade(index, raceID, shockwaveID, .notify=false))
             {
-                new Float:Origin[3];
+                float Origin[3];
                 GetEntityAbsOrigin(victim_index, Origin);
                 Origin[2] += 5;
 
@@ -555,14 +555,14 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
     }
 }
 
-public Action:Exclaimation(Handle:timer, any:userid) // Every 3.0 seconds
+public Action Exclaimation(Handle:timer, any:userid) // Every 3.0 seconds
 {
     new client = GetClientOfUserId(userid);
     if (IsValidClientAlive(client))
     {
         if (GetRace(client) == raceID)
         {
-            new Float:vec[3];
+            float vec[3];
             GetClientEyePosition(client, vec);
             
             new num = GetRandomInt(0,sizeof(archonWav)-1);
@@ -577,7 +577,7 @@ PsionicBolt(client, level)
     if (GetRestriction(client,Restriction_NoUltimates) ||
         GetRestriction(client,Restriction_Stunned))
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, boltID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
         PrepareAndEmitSoundToClient(client,deniedWav);
@@ -592,13 +592,13 @@ PsionicBolt(client, level)
 
         static const lightningColor[4] = { 10, 200, 255, 255 };
 
-        new Float:range = g_BoltRange[level];
+        float range = g_BoltRange[level];
         new dmg = GetRandomInt(g_BoltDamage[level][0],
                                g_BoltDamage[level][1]);
 
-        new Float:lastLoc[3];
-        new Float:indexLoc[3];
-        new Float:targetLoc[3];
+        float lastLoc[3];
+        float indexLoc[3];
+        float targetLoc[3];
         GetClientAbsOrigin(client, lastLoc);
         lastLoc[2] += 50.0; // Adjust trace position to the middle of the person instead of the feet.
 
@@ -715,7 +715,7 @@ PsionicBolt(client, level)
             }
         }
 
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, boltID, upgradeName, sizeof(upgradeName), client);
 
         if (count)

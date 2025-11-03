@@ -24,17 +24,17 @@
 /////////////
 /* Globals */
 
-static const String:strGhostModels[][64] = {
+static const char strGhostModels[][64] = {
 	"models/props_halloween/ghost.mdl",
 	"models/props_halloween/ghost_no_hat.mdl"
 };
-static const String:strGhostMoans[][64] = {
+static const char strGhostMoans[][64] = {
 	"vo/halloween_moan1.wav",
 	"vo/halloween_moan2.wav",
 	"vo/halloween_moan3.wav",
 	"vo/halloween_moan4.wav"
 };
-static const String:strGhostBoos[][64] = {
+static const char strGhostBoos[][64] = {
 	"vo/halloween_boo1.wav",
 	"vo/halloween_boo2.wav",
 	"vo/halloween_boo3.wav",
@@ -43,7 +43,7 @@ static const String:strGhostBoos[][64] = {
 	"vo/halloween_boo6.wav",
 	"vo/halloween_boo7.wav"
 };
-static const String:strGhostEffects[][64] = {
+static const char strGhostEffects[][64] = {
 	"vo/halloween_haunted1.wav",
 	"vo/halloween_haunted2.wav",
 	"vo/halloween_haunted3.wav",
@@ -51,51 +51,51 @@ static const String:strGhostEffects[][64] = {
 	"vo/halloween_haunted5.wav"
 };
 
-new Handle:fwdCanPlayAsGhost = INVALID_HANDLE;
-new Handle:fwdCanBeScared = INVALID_HANDLE;
+Handle fwdCanPlayAsGhost = INVALID_HANDLE;
+Handle fwdCanBeScared = INVALID_HANDLE;
 
-new Handle:sm_tf2btg_version = INVALID_HANDLE;
-new Handle:sm_tf2btg_debug = INVALID_HANDLE;
-new Handle:sm_tf2btg_notify = INVALID_HANDLE;
-new Handle:sm_tf2btg_adminonly = INVALID_HANDLE;
-new Handle:sm_tf2btg_scary_delay = INVALID_HANDLE;
-new Handle:sm_tf2btg_scary_distance = INVALID_HANDLE;
-new Handle:sm_tf2btg_scary_distance_admin = INVALID_HANDLE;
-new Handle:sm_tf2btg_scary_duration = INVALID_HANDLE;
-new Handle:sm_tf2btg_scary_duration_admin = INVALID_HANDLE;
-new Handle:sm_tf2btg_ghost_speed = INVALID_HANDLE;
-new Handle:sm_tf2btg_ghost_speed_admin = INVALID_HANDLE;
-new Handle:sm_tf2btg_scary_objects = INVALID_HANDLE;
-new Handle:sm_tf2btg_spawnroom_protect = INVALID_HANDLE;
+Handle sm_tf2btg_version = INVALID_HANDLE;
+Handle sm_tf2btg_debug = INVALID_HANDLE;
+Handle sm_tf2btg_notify = INVALID_HANDLE;
+Handle sm_tf2btg_adminonly = INVALID_HANDLE;
+Handle sm_tf2btg_scary_delay = INVALID_HANDLE;
+Handle sm_tf2btg_scary_distance = INVALID_HANDLE;
+Handle sm_tf2btg_scary_distance_admin = INVALID_HANDLE;
+Handle sm_tf2btg_scary_duration = INVALID_HANDLE;
+Handle sm_tf2btg_scary_duration_admin = INVALID_HANDLE;
+Handle sm_tf2btg_ghost_speed = INVALID_HANDLE;
+Handle sm_tf2btg_ghost_speed_admin = INVALID_HANDLE;
+Handle sm_tf2btg_scary_objects = INVALID_HANDLE;
+Handle sm_tf2btg_spawnroom_protect = INVALID_HANDLE;
 
-new bool:bDebugMode = false;
-new nNotifications = 2;
-new bool:bAdminOnly = true;
-new Float:flCheckDelay = 0.1;
-new Float:flCheckDistance = 240.0;
-new Float:flACheckDistance = 240.0;
-new Float:flStunDuration = 5.0;
-new Float:flAStunDuration = 5.0;
-new Float:flGhostSpeed = 200.0;
-new Float:flAGhostSpeed = 200.0;
-new nDisableObjects = 0;
-new bool:bSpawnProtect = true;
+bool bDebugMode = false;
+int nNotifications = 2;
+bool bAdminOnly = true;
+float flCheckDelay = 0.1;
+float flCheckDistance = 240.0;
+float flACheckDistance = 240.0;
+float flStunDuration = 5.0;
+float flAStunDuration = 5.0;
+float flGhostSpeed = 200.0;
+float flAGhostSpeed = 200.0;
+int nDisableObjects = 0;
+bool bSpawnProtect = true;
 
-new bool:bLateLoaded = false;
+bool bLateLoaded = false;
 
-new bool:bGhostEnabled[MAXPLAYERS+1];
-new bool:bGhostStatus[MAXPLAYERS+1];
-new bool:bGhostInvisible[MAXPLAYERS+1];
+bool bGhostEnabled[MAXPLAYERS+1];
+bool bGhostStatus[MAXPLAYERS+1];
+bool bGhostInvisible[MAXPLAYERS+1];
 
-new bool:bInSpawnRoom[MAXPLAYERS+1];
+bool bInSpawnRoom[MAXPLAYERS+1];
 
-new Float:flDefaultSpeed[MAXPLAYERS+1];
-new bool:bSkipUpdateCheck[MAXPLAYERS+1];
+float flDefaultSpeed[MAXPLAYERS+1];
+bool bSkipUpdateCheck[MAXPLAYERS+1];
 
 /////////////////
 /* Plugin info */
 
-public Plugin:myinfo = {
+public Plugin myinfo = {
 	name = "[TF2] Be The Ghost",
 	author = "Leonardo",
 	description = "...",
@@ -160,7 +160,7 @@ public OnPluginStart()
 	sm_tf2btg_spawnroom_protect = CreateConVar( "sm_tf2btg_spawnroom_protect", "1", "Enable/diable spawnroom protection", FCVAR_NONE, true, 0.0, true, 1.0 );
 	HookConVarChange( sm_tf2btg_spawnroom_protect, OnConVarChanged );
 	
-	decl String:strGameDir[8];
+	char strGameDir[8];
 	GetGameFolderName(strGameDir, sizeof(strGameDir));
 	if(!StrEqual(strGameDir, "tf", false) && !StrEqual(strGameDir, "tf_beta", false))
 		SetFailState("THIS PLUGIN IS FOR TEAM FORTRESS 2 ONLY!");
@@ -240,7 +240,7 @@ public OnMapStart()
 	PrecacheSounds( strGhostEffects, sizeof(strGhostEffects) );
 }
 
-public OnEntityCreated( iEntity, const String:strClassname[] )
+public OnEntityCreated( iEntity, const char strClassname[] )
 {
 	if( StrEqual( strClassname, "func_respawnroom", false ) )
 	{
@@ -260,7 +260,7 @@ public OnEntityCreated( iEntity, const String:strClassname[] )
 	}
 }
 
-public OnLibraryAdded( const String:strName[] )
+public OnLibraryAdded( const char strName[] )
 {
 #if defined _updater_included
 	if( strcmp( strName, "updater", nope ) == 0 )
@@ -341,13 +341,13 @@ public OnSpawnRoomEndTouch( iSpawn, iOther )
 		bInSpawnRoom[iOther] = false;
 }
 
-public Action:OnCPTouch( iPoint, iOther )
+public Action OnCPTouch( iPoint, iOther )
 {
 	if( IsValidClient(iOther) && bGhostStatus[iOther] )
 		return Plugin_Handled;
 	return Plugin_Continue;
 }
-public Action:OnFlagTouch( iFlag, iOther )
+public Action OnFlagTouch( iFlag, iOther )
 {
 	if( IsValidClient(iOther) && bGhostStatus[iOther] )
 		return Plugin_Handled;
@@ -357,7 +357,7 @@ public Action:OnFlagTouch( iFlag, iOther )
 /////////////////
 /* Game Events */
 
-public OnRoundEnd( Handle:hEvent, const String:strEventName[], bool:bDontBroadcast )
+public OnRoundEnd( Handle:hEvent, const char strEventName[], bool:bDontBroadcast )
 {
 	for( new iClient = 1; iClient <= MaxClients; iClient++ )
 	{
@@ -371,7 +371,7 @@ public OnRoundEnd( Handle:hEvent, const String:strEventName[], bool:bDontBroadca
 	}
 }
 
-public OnPlayerActivate( Handle:hEvent, const String:strEventName[], bool:bDontBroadcast )
+public OnPlayerActivate( Handle:hEvent, const char strEventName[], bool:bDontBroadcast )
 {
 	new iClient = GetClientOfUserId( GetEventInt( hEvent, "userid" ) );
 	if( !IsValidClient(iClient) )
@@ -383,14 +383,14 @@ public OnPlayerActivate( Handle:hEvent, const String:strEventName[], bool:bDontB
 	bSkipUpdateCheck[iClient] = false;
 }
 
-public OnPlayerUpdate( Handle:hEvent, const String:strEventName[], bool:bDontBroadcast )
+public OnPlayerUpdate( Handle:hEvent, const char strEventName[], bool:bDontBroadcast )
 {
 	new iClient = GetClientOfUserId( GetEventInt( hEvent, "userid" ) );
 	if( IsValidClient(iClient) && IsPlayerAlive(iClient) && bGhostEnabled[iClient] && !bSkipUpdateCheck[iClient] )
 		BeTheGhost( iClient );
 }
 
-public Action:OnPlayerDeath( Handle:hEvent, const String:strEventName[], bool:bDontBroadcast )
+public Action OnPlayerDeath( Handle:hEvent, const char strEventName[], bool:bDontBroadcast )
 {
 	new iClient = GetClientOfUserId( GetEventInt( hEvent, "userid" ) );
 	if( IsValidClient(iClient) && bGhostStatus[iClient] )
@@ -398,7 +398,7 @@ public Action:OnPlayerDeath( Handle:hEvent, const String:strEventName[], bool:bD
 	return Plugin_Continue;
 }
 
-public Action:NormalSoundHook( iClients[64], &iNumClients, String:strSample[PLATFORM_MAX_PATH], &iEntity, &iChannel, &Float:flVolume, &iLevel, &iPitch, &iFlags )
+public Action NormalSoundHook( iClients[64], &iNumClients, String:strSample[PLATFORM_MAX_PATH], &iEntity, &iChannel, &Float:flVolume, &iLevel, &iPitch, &iFlags )
 {
 	if( !IsValidClient( iEntity ) || !bGhostStatus[iEntity] && !bGhostInvisible[iEntity] )
 		return Plugin_Continue;
@@ -424,7 +424,7 @@ public Action:NormalSoundHook( iClients[64], &iNumClients, String:strSample[PLAT
 //////////////////
 /* CMDs & CVars */
 
-public Action:Command_ParticleFix( iClient, nArgs )
+public Action Command_ParticleFix( iClient, nArgs )
 {
 	for( new i = 1; i <= MaxClients; i++ )
 		Timer_FixParticles( INVALID_HANDLE, i );
@@ -432,11 +432,11 @@ public Action:Command_ParticleFix( iClient, nArgs )
 	return Plugin_Handled;
 }
 
-public Action:Command_ToggleEffect( iClient, nArgs )
+public Action Command_ToggleEffect( iClient, nArgs )
 {
-	new bool:bHasAccess = ( IsValidClient(iClient) && ( !bAdminOnly || CheckCommandAccess( iClient, "sm_betheghost_override", ADMFLAG_GENERIC ) ) );
+	bool bHasAccess = ( IsValidClient(iClient) && ( !bAdminOnly || CheckCommandAccess( iClient, "sm_betheghost_override", ADMFLAG_GENERIC ) ) );
 	
-	decl String:strCommandName[16];
+	char strCommandName[16];
 	GetCmdArg( 0, strCommandName, sizeof(strCommandName) );
 	
 	if( nArgs == 0 && IsValidClient(iClient) ) 
@@ -456,7 +456,7 @@ public Action:Command_ToggleEffect( iClient, nArgs )
 	}
 	else if( nArgs == 1 ) 
 	{
-		decl String:strTargets[64];
+		char strTargets[64];
 		GetCmdArg( 1, strTargets, sizeof(strTargets) );
 		
 		if( IsCharNumeric(strTargets[0]) )
@@ -484,10 +484,10 @@ public Action:Command_ToggleEffect( iClient, nArgs )
 		else if( !bHasAccess )
 			return Plugin_Continue;
 		
-		decl String:target_name[MAX_TARGET_LENGTH];
+		char target_name[MAX_TARGET_LENGTH];
 		decl iTargets[MAXPLAYERS];
 		decl nTargets;
-		decl bool:tn_is_ml;
+		bool tn_is_ml;
 		if((nTargets = ProcessTargetString(strTargets, iClient, iTargets, MAXPLAYERS, 0, target_name, sizeof(target_name), tn_is_ml)) <= 0)
 		{
 			ReplyToTargetError( iClient, nTargets );
@@ -512,15 +512,15 @@ public Action:Command_ToggleEffect( iClient, nArgs )
 		if( !bHasAccess )
 			return Plugin_Continue;
 		
-		decl String:strState[2];
+		char strState[2];
 		GetCmdArg( 2, strState, sizeof(strState) );
-		new bool:bState = StringToInt( strState ) != 0;
+		bool bState = StringToInt( strState ) != 0;
 		
-		decl String:target_name[MAX_TARGET_LENGTH];
+		char target_name[MAX_TARGET_LENGTH];
 		decl iTargets[MAXPLAYERS];
 		decl nTargets;
-		decl bool:tn_is_ml;
-		decl String:strTargets[64];
+		bool tn_is_ml;
+		char strTargets[64];
 		GetCmdArg( 1, strTargets, sizeof(strTargets) );
 		if((nTargets = ProcessTargetString(strTargets, iClient, iTargets, MAXPLAYERS, 0, target_name, sizeof(target_name), tn_is_ml)) <= 0)
 		{
@@ -551,14 +551,14 @@ public Action:Command_ToggleEffect( iClient, nArgs )
 	return Plugin_Handled;
 }
 
-public OnConVarChanged_PluginVersion( Handle:hConVar, const String:strOldValue[], const String:strNewValue[] )
+public OnConVarChanged_PluginVersion( Handle:hConVar, const char strOldValue[], const char strNewValue[] )
 	if( strcmp( strNewValue, PLUGIN_VERSION, false ) != 0 )
 		SetConVarString( hConVar, PLUGIN_VERSION, true, true );
 
-public OnConVarChanged( Handle:hConVar, const String:strOldValue[], const String:strNewValue[] )
+public OnConVarChanged( Handle:hConVar, const char strOldValue[], const char strNewValue[] )
 	OnConfigsExecuted();
 
-public Action:OnPlayerRunCmd( iClient, &iButtons, &iImpulse, Float:vecVelocity[3], Float:vecAngles[3], &iWeapon )
+public Action OnPlayerRunCmd( iClient, &iButtons, &iImpulse, Float:vecVelocity[3], Float:vecAngles[3], &iWeapon )
 {
 	static iLastButtons[MAXPLAYERS+1];
 	
@@ -567,10 +567,10 @@ public Action:OnPlayerRunCmd( iClient, &iButtons, &iImpulse, Float:vecVelocity[3
 	
 	if( GetEntityMoveType( iClient ) == MOVETYPE_FLY )
 	{
-		new Float:flMaxSpeed = GetEntPropFloat( iClient, Prop_Data, "m_flMaxspeed" );
-		new Float:flFallVel = GetEntPropFloat( iClient, Prop_Send, "m_flFallVelocity" ) * -1.0;
+		float flMaxSpeed = GetEntPropFloat( iClient, Prop_Data, "m_flMaxspeed" );
+		float flFallVel = GetEntPropFloat( iClient, Prop_Send, "m_flFallVelocity" ) * -1.0;
 		
-		new Float:flMaxSpeedLimit = CheckCommandAccess( iClient, "sm_betheghost_adminspeed", ADMFLAG_GENERIC ) ? flAGhostSpeed : flGhostSpeed;
+		float flMaxSpeedLimit = CheckCommandAccess( iClient, "sm_betheghost_adminspeed", ADMFLAG_GENERIC ) ? flAGhostSpeed : flGhostSpeed;
 		if( flMaxSpeed > flMaxSpeedLimit )
 			flMaxSpeed = flMaxSpeedLimit;
 		
@@ -618,7 +618,7 @@ public Action:OnPlayerRunCmd( iClient, &iButtons, &iImpulse, Float:vecVelocity[3
 	{
 		SetEntityMoveType( iClient, MOVETYPE_FLY );
 		
-		new Float:vecOrigin[3];
+		float vecOrigin[3];
 		GetClientAbsOrigin( iClient, vecOrigin );
 		
 		vecOrigin[0] = vecOrigin[0] + 2.0 * Cosine( DegToRad(vecAngles[1]) );
@@ -633,7 +633,7 @@ public Action:OnPlayerRunCmd( iClient, &iButtons, &iImpulse, Float:vecVelocity[3
 	iLastButtons[iClient] = iButtons;
 	return Plugin_Changed;
 }
-public Action:Timer_FixParticles( Handle:hTimer, any:iClient )
+public Action Timer_FixParticles( Handle:hTimer, any:iClient )
 {
 	if( !IsValidClient(iClient) )
 		return Plugin_Stop;
@@ -727,7 +727,7 @@ DontBeTheGhost( iClient, bool:bInvisibility = false )
 	SetEntProp( iClient, Prop_Send, "m_bDrawViewmodel", 1 );
 }
 
-SetGhostModel( iClient, const String:strModelName[] )
+SetGhostModel( iClient, const char strModelName[] )
 {
 	if( !IsValidClient( iClient ) )
 		return;
@@ -780,12 +780,12 @@ ScarePlayer( iGhost, iClient )
 		EmitSoundToAll( strGhostBoos[ GetRandomInt( 0, sizeof(strGhostBoos)-1 ) ], iGhost );
 	}
 	
-	new Handle:hData;
+	Handle hData;
 	CreateDataTimer( 0.5, Timer_StunPlayer, hData, TIMER_FLAG_NO_MAPCHANGE|TIMER_DATA_HNDL_CLOSE );
 	WritePackCell( hData, iGhost );
 	WritePackCell( hData, iClient );
 }
-public Action:Timer_StunPlayer( Handle:hTimer, any:hData )
+public Action Timer_StunPlayer( Handle:hTimer, any:hData )
 {
 	ResetPack( hData );
 	new iGhost = ReadPackCell( hData );
@@ -794,15 +794,15 @@ public Action:Timer_StunPlayer( Handle:hTimer, any:hData )
 		TF2_StunPlayer( iClient, CheckCommandAccess( iGhost, "sm_betheghost_adminstun", ADMFLAG_GENERIC ) ? flAStunDuration : flStunDuration, _, TF_STUNFLAGS_GHOSTSCARE );
 	return Plugin_Stop;
 }
-DisableObjects( iGhost, Float:vecGhostOrigin[3], const String:strClassname[] )
+DisableObjects( iGhost, Float:vecGhostOrigin[3], const char strClassname[] )
 {
 	if( !IsValidClient(iGhost) || !bGhostStatus[iGhost] || bGhostInvisible[iGhost] )
 		return;
 	
-	new Float:flDuration = ( CheckCommandAccess( iGhost, "sm_betheghost_adminstun", ADMFLAG_GENERIC ) ? flAStunDuration : flStunDuration );
+	float flDuration = ( CheckCommandAccess( iGhost, "sm_betheghost_adminstun", ADMFLAG_GENERIC ) ? flAStunDuration : flStunDuration );
 	
 	new offsBuilder = -1;
-	decl String:strNetClass[32];
+	char strNetClass[32];
 	
 	new iObject = -1, iOwner, Float:flDistance, Float:vecOrigin[3];
 	while( ( iObject = FindEntityByClassname( iObject, strClassname ) ) != -1 )
@@ -830,7 +830,7 @@ DisableObjects( iGhost, Float:vecGhostOrigin[3], const String:strClassname[] )
 			}
 		}
 }
-public Action:Timer_ObjectWakeUp( Handle:hTimer, any:iEntRef )
+public Action Timer_ObjectWakeUp( Handle:hTimer, any:iEntRef )
 {
 	new iEntity = EntRefToEntIndex( iEntRef );
 	if( IsValidEntity(iEntity) && GameRules_GetRoundState() != RoundState_TeamWin )
@@ -858,12 +858,12 @@ PrintStatus( iClient )
 	}
 }
 
-AttachParticle(iEntity, const String:strParticleEffect[], const String:strAttachPoint[]="", Float:flOffsetZ=0.0, Float:flSelfDestruct=0.0)
+AttachParticle(iEntity, const char strParticleEffect[], const char strAttachPoint[]="", Float:flOffsetZ=0.0, Float:flSelfDestruct=0.0)
 {
 	new iParticle = CreateEntityByName("info_particle_system");
 	if(iParticle > MaxClients && IsValidEntity(iParticle))
 	{
-		new Float:flPos[3];
+		float flPos[3];
 		GetEntPropVector(iEntity, Prop_Send, "m_vecOrigin", flPos);
 		flPos[2] += flOffsetZ;
 		
@@ -892,7 +892,7 @@ AttachParticle(iEntity, const String:strParticleEffect[], const String:strAttach
 	
 	return 0;
 }
-public Action:Timer_DeleteParticle(Handle:hTimer, any:iRefEnt)
+public Action Timer_DeleteParticle(Handle:hTimer, any:iRefEnt)
 {
 	new iEntity = EntRefToEntIndex(iRefEnt);
 	if(iEntity > MaxClients)
@@ -931,16 +931,16 @@ public Native_IsPlayerGhost( Handle:hPlugin, nParams )
 ////////////
 /* Stocks */
 
-stock Error( iFlags = ERROR_NONE, iNativeErrCode = SP_ERROR_NONE, const String:strMessage[], any:... )
+stock Error( iFlags = ERROR_NONE, iNativeErrCode = SP_ERROR_NONE, const char strMessage[], any:... )
 {
-	decl String:strBuffer[1024];
+	char strBuffer[1024];
 	VFormat( strBuffer, sizeof(strBuffer), strMessage, 4 );
 	
 	if( iFlags )
 	{
 		if( iFlags & ERROR_LOG )
 		{
-			decl String:strFile[PLATFORM_MAX_PATH];
+			char strFile[PLATFORM_MAX_PATH];
 			FormatTime( strFile, sizeof(strFile), "%Y%m%d" );
 			Format( strFile, sizeof(strFile), "TF2BTG%s", strFile );
 			BuildPath( Path_SM, strFile, sizeof(strFile), "logs/%s.log", strFile );
@@ -965,7 +965,7 @@ stock SetWeaponsAlpha( iClient, iAlpha )
 {
 	if( IsClientInGame(iClient) )
 	{
-		decl String:classname[64];
+		char classname[64];
 		new m_hMyWeapons = FindSendPropOffs("CBasePlayer", "m_hMyWeapons");
 		for(new i = 0, weapon; i < 47; i += 4)
 		{
@@ -1011,13 +1011,13 @@ stock SetWeaponsAlpha( iClient, iAlpha )
 	}
 }
 
-stock PrecacheModels( const String:strModels[][], iArraySize )
+stock PrecacheModels( const char strModels[][], iArraySize )
 {
 	for( new i = 0; i < iArraySize; i++ )
 		if( PrecacheModel( strModels[i], true ) == 0 )
 			Error( ERROR_LOG, _, "Faild to precache model: %s", strModels[i] );
 }
-stock PrecacheSounds( const String:strSounds[][], iArraySize )
+stock PrecacheSounds( const char strSounds[][], iArraySize )
 {
 	for( new i = 0; i < iArraySize; i++ )
 		if( !PrecacheSound( strSounds[i] ) )

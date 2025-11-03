@@ -4,41 +4,41 @@
 #include "W3SIncs/War3Source_Interface"  
 //#include "W3SIncs/War3Source_Effects"
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "War3Source - Race - Rarity",
     author = "War3Source Team",
     description = "The Rarity race for War3Source."
 };
 
-new thisRaceID;
+int thisRaceID;
 
-new SKILL_SMITTEN,SKILL_HEARTACHE,SKILL_SLEEP,ULTIMATE;
+int SKILL_SMITTEN,SKILL_HEARTACHE,SKILL_SLEEP,ULTIMATE;
 ///based on succubus HON
 
 
-new Float:smittenCooldown=15.0;
-new Float:smittenDuration=10.0;
-new Float:smittenMultiplier[]={1.0,0.9,0.83,0.76,0.7};
-new bSmittened[MAXPLAYERSCUSTOM];
-new Float:SmittendMultiplier[MAXPLAYERSCUSTOM];
+float smittenCooldown=15.0;
+float smittenDuration=10.0;
+float smittenMultiplier[]={1.0,0.9,0.83,0.76,0.7};
+int bSmittened[MAXPLAYERSCUSTOM];
+float SmittendMultiplier[MAXPLAYERSCUSTOM];
 
 
-new Float:sleepCooldown=15.0;
-new Float:sleepDuration[]={0.0,3.0,3.5,4.0,4.5};
-new Float:sleepDistance=400.0;
+float sleepCooldown=15.0;
+float sleepDuration[]={0.0,3.0,3.5,4.0,4.5};
+float sleepDistance=400.0;
 
-new Handle:SleepHandle[MAXPLAYERSCUSTOM]; //the trie
-new Handle:SleepTimer[MAXPLAYERSCUSTOM]; //the timer that ends the sleep
+Handle SleepHandle[MAXPLAYERSCUSTOM]; //the trie
+Handle SleepTimer[MAXPLAYERSCUSTOM]; //the timer that ends the sleep
 
-new Float:heartacheChance[]={0.0,0.06,0.9,0.12,0.15};
+float heartacheChance[]={0.0,0.06,0.9,0.12,0.15};
 
 
-new Float:ultDuration[]={0.0,1.5,1.75,2.0,2.25};
-new Float:ultDistance=500.0;
+float ultDuration[]={0.0,1.5,1.75,2.0,2.25};
+float ultDistance=500.0;
 
-new holdingvictim[MAXPLAYERSCUSTOM]; //the victim being held
-new Handle:holdingTimer[MAXPLAYERSCUSTOM];
+int holdingvictim[MAXPLAYERSCUSTOM]; //the victim being held
+Handle holdingTimer[MAXPLAYERSCUSTOM];
 
 public OnWar3LoadRaceOrItemOrdered(num)
 {
@@ -131,7 +131,7 @@ public OnW3TakeDmgBulletPre(victim,attacker,Float:damage)
             SleepHandle[victim]=INVALID_HANDLE;
             
             UnSleep(victim);
-            new Float:duration;
+            float duration;
             GetTrieValue(SleepHandle[attacker],"originalduration",duration);
             SleepTimer[attacker]=CreateTimer(duration,EndSleep,attacker);
             Sleep(attacker);
@@ -142,7 +142,7 @@ public OnW3TakeDmgBulletPre(victim,attacker,Float:damage)
     ///need to do sleep transfer, beware of sleep trie which you  need to close
 }
 
-public Action:UnSmitten(Handle:timer,any:client)
+public Action UnSmitten(Handle:timer,any:client)
 {
     bSmittened[client]=false;
 }
@@ -193,7 +193,7 @@ public OnWar3EventPostHurt(victim, attacker, Float:damage, const String:weapon[3
 
 
 
-public bool:AbilityFilter(client)
+public bool AbilityFilter(client)
 {
     return (!IsSkillImmune(client));
 }
@@ -214,7 +214,7 @@ public OnAbilityCommand(client,ability,bool:pressed)
                 new target = War3_GetTargetInViewCone(client,sleepDistance,_,_,AbilityFilter);
                 if(target>0)
                 {    
-                    new Float:duration=sleepDuration[lvl];
+                    float duration=sleepDuration[lvl];
                     SleepHandle[target]=CreateTrie();
                     SleepTimer[target]=CreateTimer(duration,EndSleep,target);
                     //SetTrieValue(sleepTrie,"timer",timer);
@@ -243,7 +243,7 @@ Sleep(client){
     }
 }
 
-public Action:EndSleep(Handle:t,any:client){
+public Action EndSleep(Handle:t,any:client){
 
     SleepTimer[client]=INVALID_HANDLE;
     CloseHandle(SleepHandle[client]);
@@ -287,7 +287,7 @@ public OnUltimateCommand(client,race,bool:pressed)
                     if(holdingTimer[client]!=INVALID_HANDLE){
                         TriggerTimer(holdingTimer[client]);
                     }
-                    new Float:duration = ultDuration[level];
+                    float duration = ultDuration[level];
                     ///hold it right there
                     holdingvictim[client]=target;
                     holdingTimer[client]=CreateTimer(duration,EndHold,client);
@@ -295,7 +295,7 @@ public OnUltimateCommand(client,race,bool:pressed)
                     War3_SetBuff(target,bStunned,thisRaceID,true);
                     
 #if defined SOURCECRAFT
-					new Float:cooldown= GetUpgradeCooldown(thisRaceID,ULTIMATE);
+					float cooldown= GetUpgradeCooldown(thisRaceID,ULTIMATE);
 					War3_CooldownMGR(client,cooldown,thisRaceID,ULTIMATE);
 #else
                     War3_CooldownMGR(client,20.0,thisRaceID,ULTIMATE);
@@ -310,11 +310,11 @@ public OnUltimateCommand(client,race,bool:pressed)
 }
 
 //return true to allow targeting
-public bool:UltimateFilter(client)
+public bool UltimateFilter(client)
 {
     return (!IsUltImmune(client));
 }
-public Action:EndHold(Handle:t,any:client){
+public Action EndHold(Handle:t,any:client){
     new victim=holdingvictim[client];
     War3_SetBuff(victim,bStunned,thisRaceID,false);
     War3_SetBuff(client,bStunned,thisRaceID,false);

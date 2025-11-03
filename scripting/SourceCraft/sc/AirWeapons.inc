@@ -35,17 +35,17 @@ bool:AirWeapons(race, upgrade, Handle:event, damage, victim_index, index,
         {
             if (GetRandomInt(1,100)<=weaponsChance[weapons_level])
             {
-                decl String:weapon[64];
-                new bool:is_equipment=GetWeapon(event,index,weapon,sizeof(weapon));
+                char weapon[64];
+                bool is_equipment=GetWeapon(event,index,weapon,sizeof(weapon));
                 if (!IsMelee(weapon, is_equipment,index,victim_index))
                 {
                     if (CanInvokeUpgrade(index, race, upgrade, .notify=false))
                     {
-                        new Float:indexLoc[3];
+                        float indexLoc[3];
                         GetClientAbsOrigin(index, indexLoc);
                         indexLoc[2] += 50.0;
 
-                        new Float:victimLoc[3];
+                        float victimLoc[3];
                         GetEntityAbsOrigin(victim_index, victimLoc);
                         victimLoc[2] += 50.0;
 

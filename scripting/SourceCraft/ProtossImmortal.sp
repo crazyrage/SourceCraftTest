@@ -42,28 +42,28 @@
 #include "effect/HaloSprite"
 #include "effect/SendEffects"
 
-new const String:spawnWav[]         = "sc/pdryes06.wav";
-new const String:deathWav[]         = "sc/pdrdth00.wav";
+char spawnWav[]         = "sc/pdryes06.wav";
+char deathWav[]         = "sc/pdrdth00.wav";
 
-new String:g_MissileAttackSound[]   = "sc/pdrfir00.wav";
+char g_MissileAttackSound[]   = "sc/pdrfir00.wav";
 
-new raceID, immunityID, speedID, shieldsID, missileID, hardenedShieldsID,  collosusID;
+int raceID, immunityID, speedID, shieldsID, missileID, hardenedShieldsID,  collosusID;
 
-new g_MissileAttackChance[]         = { 5, 10, 15, 25, 35 };
-new Float:g_MissileAttackPercent[]  = { 0.15, 0.30, 0.40, 0.50, 0.70 };
+int g_MissileAttackChance[]         = { 5, 10, 15, 25, 35 };
+float g_MissileAttackPercent[]  = { 0.15, 0.30, 0.40, 0.50, 0.70 };
 
-new Float:g_SpeedLevels[]           = { 0.80, 0.90, 0.95, 1.00, 1.05 };
+float g_SpeedLevels[]           = { 0.80, 0.90, 0.95, 1.00, 1.05 };
 
-new Float:g_InitialShields[]        = { 0.05, 0.10, 0.25, 0.50, 0.75 };
-new Float:g_ShieldsPercent[][2]     = { {0.05, 0.10},
+float g_InitialShields[]        = { 0.05, 0.10, 0.25, 0.50, 0.75 };
+float g_ShieldsPercent[][2]     = { {0.05, 0.10},
                                         {0.10, 0.20},
                                         {0.15, 0.30},
                                         {0.20, 0.40},
                                         {0.25, 0.50} };
 
-new g_collosusRace = -1;
+int g_collosusRace = -1;
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Protoss Immortal",
     author = "-=|JFH|=-Naris",
@@ -117,7 +117,7 @@ public OnSourceCraftReady()
 
     for (new level=0; level < sizeof(g_ShieldsPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "shields_percent_level_%d", level);
         GetConfigFloatArray(key, g_ShieldsPercent[level], sizeof(g_ShieldsPercent[]),
                             g_ShieldsPercent[level], raceID, shieldsID);
@@ -169,7 +169,7 @@ public OnMapStart()
     SetupMissileAttack(g_MissileAttackSound);
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -199,7 +199,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
     return Plugin_Continue;
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
@@ -306,7 +306,7 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     if (!from_sc && attacker_index > 0 &&
@@ -362,7 +362,7 @@ DoImmunity(client, level, bool:value)
 
     if (value && IsValidClientAlive(client))
     {
-        new Float:start[3];
+        float start[3];
         GetClientAbsOrigin(client, start);
 
         static const color[4] = { 0, 255, 50, 128 };
@@ -379,7 +379,7 @@ SummonCollosus(client)
 
     if (g_collosusRace < 0)
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, collosusID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "IsNotAvailable", upgradeName);
         LogError("***The Protoss Collosus race is not Available!");
@@ -394,7 +394,7 @@ SummonCollosus(client)
     }
     else if (CanInvokeUpgrade(client, raceID, collosusID))
     {
-        new Float:clientLoc[3];
+        float clientLoc[3];
         GetClientAbsOrigin(client, clientLoc);
         clientLoc[2] += 40.0; // Adjust position to the middle
 
@@ -448,7 +448,7 @@ ShieldFlags:GetShieldFlags(level)
 
 HardenedShields(client, hard_shields_level)
 {
-    decl String:upgradeName[64];
+    char upgradeName[64];
     GetUpgradeName(raceID, hardenedShieldsID, upgradeName, sizeof(upgradeName), client);
 
     if (!m_UberShieldAvailable)
@@ -481,7 +481,7 @@ HardenedShields(client, hard_shields_level)
         }
         else if (CanInvokeUpgrade(client, raceID, hardenedShieldsID, false))
         {
-            new Float:duration = float(hard_shields_level) * 3.0;
+            float duration = float(hard_shields_level) * 3.0;
             UberShieldTarget(client, duration, GetShieldFlags(hard_shields_level));
             DisplayMessage(client,Display_Ultimate,"%t", "Invoked", upgradeName);
             CreateCooldown(client, raceID, hardenedShieldsID);
@@ -489,14 +489,14 @@ HardenedShields(client, hard_shields_level)
     }
 }
 
-public Action:OnDeployUberShield(client, target)
+public Action OnDeployUberShield(client, target)
 {
     if (GetRace(client) == raceID)
     {
         if (GetRestriction(client,Restriction_NoUltimates) ||
             GetRestriction(client,Restriction_Stunned))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, hardenedShieldsID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -504,7 +504,7 @@ public Action:OnDeployUberShield(client, target)
         }
         else if (IsMole(client))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, hardenedShieldsID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "CantUseAsMole", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -512,7 +512,7 @@ public Action:OnDeployUberShield(client, target)
         }
         else if (target > 0 && GameType == tf2 && TF2_HasTheFlag(target))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, hardenedShieldsID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "CantUseOnFlagCarrier", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -520,7 +520,7 @@ public Action:OnDeployUberShield(client, target)
         }
         else if (target > 0 && m_HGRSourceAvailable && IsGrabbed(target))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, hardenedShieldsID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "CantUseOnSomeoneBeingHeld", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);

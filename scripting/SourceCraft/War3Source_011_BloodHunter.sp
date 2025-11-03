@@ -3,40 +3,40 @@
 #include <sourcemod>
 #include "W3SIncs/War3Source_Interface"
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "War3Source - Race - Blood Hunter",
     author = "War3Source Team",
     description = "The Blood Hunter race for War3Source."
 };
 
-new thisRaceID;
+int thisRaceID;
 
 #if !defined SOURCECRAFT
-new Handle:ultCooldownCvar;
+Handle ultCooldownCvar;
 #endif
 
-new SKILL_CRAZY, SKILL_FEAST,SKILL_SENSE,ULT_RUPTURE;
+int SKILL_CRAZY, SKILL_FEAST,SKILL_SENSE,ULT_RUPTURE;
 
-new Float:CrazyDuration[5] = {0.0, 4.0, 6.0, 8.0, 10.0};
-new Float:CrazyUntil[MAXPLAYERSCUSTOM];
-new bool:bCrazyDot[MAXPLAYERSCUSTOM];
-new CrazyBy[MAXPLAYERSCUSTOM];
+float CrazyDuration[5] = {0.0, 4.0, 6.0, 8.0, 10.0};
+float CrazyUntil[MAXPLAYERSCUSTOM];
+bool bCrazyDot[MAXPLAYERSCUSTOM];
+int CrazyBy[MAXPLAYERSCUSTOM];
 
-new Float:FeastAmount[5]={0.0,0.05,0.1,0.15,0.2}; 
+float FeastAmount[5]={0.0,0.05,0.1,0.15,0.2}; 
 
-new Float:BloodSense[5]={0.0,0.1,0.15,0.2,0.25}; 
+float BloodSense[5]={0.0,0.1,0.15,0.2,0.25}; 
 
-new Float:ultRange = 300.0;
-new Float:ultiDamageMultiPerDistance[5] = {0.0, 0.06, 0.073, 0.086, 0.10}; 
-new Float:ultiDamageMultiPerDistanceCS[5] = {0.0, 0.09, 0.11, 0.13, 0.15}; 
-new Float:lastRuptureLocation[MAXPLAYERSCUSTOM][3];
-new Float:RuptureDuration = 8.0;
-new Float:RuptureUntil[MAXPLAYERSCUSTOM];
-new bool:bRuptured[MAXPLAYERSCUSTOM];
-new RupturedBy[MAXPLAYERSCUSTOM];
+float ultRange = 300.0;
+float ultiDamageMultiPerDistance[5] = {0.0, 0.06, 0.073, 0.086, 0.10}; 
+float ultiDamageMultiPerDistanceCS[5] = {0.0, 0.09, 0.11, 0.13, 0.15}; 
+float lastRuptureLocation[MAXPLAYERSCUSTOM][3];
+float RuptureDuration = 8.0;
+float RuptureUntil[MAXPLAYERSCUSTOM];
+bool bRuptured[MAXPLAYERSCUSTOM];
+int RupturedBy[MAXPLAYERSCUSTOM];
 
-new String:ultsnd[256]; //="war3source/bh/ult.mp3";
+char ultsnd[256]; //="war3source/bh/ult.mp3";
 
 public OnPluginStart()
 {
@@ -135,7 +135,7 @@ public OnUltimateCommand(client,race,bool:pressed)
                     GetClientAbsOrigin(target, lastRuptureLocation[target]);
                     
 #if defined SOURCECRAFT
-                    new Float:cooldown= GetUpgradeCooldown(thisRaceID,ULT_RUPTURE);
+                    float cooldown= GetUpgradeCooldown(thisRaceID,ULT_RUPTURE);
                     War3_CooldownMGR(client,cooldown,thisRaceID,ULT_RUPTURE,true,true);
 #else
                     War3_CooldownMGR(client, GetConVarFloat(ultCooldownCvar), thisRaceID, ULT_RUPTURE, true, true);
@@ -189,12 +189,12 @@ public OnWar3EventDeath(victim, attacker, deathrace)
     }
 }
 
-public Action:RuptureCheckLoop(Handle:h, any:data)
+public Action RuptureCheckLoop(Handle:h, any:data)
 {
-    new Float:origin[3];
+    float origin[3];
     new attacker;
     new skilllevel;
-    new Float:dist;
+    float dist;
     for(new i=1;i<=MaxClients;i++)
     {
         if(!ValidPlayer(i, true) || !bRuptured[i])
@@ -246,7 +246,7 @@ public Action:RuptureCheckLoop(Handle:h, any:data)
         }
     }
 }
-public Action:BloodCrazyDOTLoop(Handle:h,any:data)
+public Action BloodCrazyDOTLoop(Handle:h,any:data)
 {
     new attacker;
     for(new i=1; i <= MaxClients; i++)
@@ -331,7 +331,7 @@ public Gore(client)
 
 WriteParticle(client, String:ParticleName[])
 {
-    decl Float:fPos[3], Float:fAngles[3];
+    float fPos[3], Float:fAngles[3];
 
     fAngles[0] = GetRandomFloat(0.0, 360.0);
     fAngles[1] = GetRandomFloat(0.0, 15.0);

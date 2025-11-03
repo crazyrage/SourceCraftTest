@@ -17,7 +17,7 @@
 #define PLUGIN_VERSION "1.0.0"
 
 // Plugin definitions
-public Plugin:myinfo =
+public Plugin myinfo =
 {
 	name = "Buildable Parenting",
 	author = "WoZeR - Teddy Ruxpin",
@@ -31,11 +31,11 @@ public OnPluginStart()
 	HookEvent("player_builtobject", Event_player_builtobject);
 }
 
-public Action:Event_player_builtobject(Handle:event, const String:name[], bool:dontBroadcast)
+public Action Event_player_builtobject(Handle:event, const char name[], bool:dontBroadcast)
 {
-    decl String:strClassName[64];
-    new Float:vecObjectPos[3];
-    new Float:vecCheckBelow[3];
+    char strClassName[64];
+    float vecObjectPos[3];
+    float vecCheckBelow[3];
     new MaxEntities = GetEntityCount();
     
     for (new i=1;i <= MaxEntities; i++)
@@ -69,7 +69,7 @@ public Action:Event_player_builtobject(Handle:event, const String:name[], bool:d
                             strcmp(String:strClassName, "CObjectTeleporter", true) != 0)
                         {
                             //This part can be redone since BAILOPIN added the ability to read a string_t
-                            new String:strTargetName[64];
+                            char strTargetName[64];
                             IntToString(TRIndex, strTargetName, 64);
 
                             DispatchKeyValue(TRIndex, "targetname", strTargetName);
@@ -88,7 +88,7 @@ public Action:Event_player_builtobject(Handle:event, const String:name[], bool:d
     return Plugin_Continue;
 }
 
-public bool:TraceRayDontHitSelf(entity, mask, any:data)
+public bool TraceRayDontHitSelf(entity, mask, any:data)
 {
     return (entity != data); // Check if the TraceRay hit the owning entity.
 }

@@ -51,7 +51,7 @@ stock War3_ShowHealthLostParticle(client)
 {
     if(ValidPlayer(client, true) && War3_GetGame() == Game_TF)
     {
-        decl Float:fPlayerPos[3];
+        float fPlayerPos[3];
         GetClientAbsOrigin(client, fPlayerPos);
 
         fPlayerPos[2] += 55.0;
@@ -67,7 +67,7 @@ stock War3_ShowHealthGainedParticle(client)
 {
     if(ValidPlayer(client, true) && War3_GetGame() == Game_TF)
     {
-        decl Float:fPlayerPos[3];
+        float fPlayerPos[3];
         GetClientAbsOrigin(client, fPlayerPos);
 
         fPlayerPos[2] += 55.0;

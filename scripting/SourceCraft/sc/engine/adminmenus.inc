@@ -5,13 +5,13 @@
  * Author(s): Naris (Murray Wilson)
  */
 
-new Handle:hTopAdminMenu = INVALID_HANDLE;
-new TopMenuObject:hAdminMenu = INVALID_TOPMENUOBJECT;
+Handle hTopAdminMenu = INVALID_HANDLE;
+int TopMenuObject:hAdminMenu = INVALID_TOPMENUOBJECT;
 
 InitAdminMenu()
 {
     /* Account for late loading */
-    new Handle:topmenu;
+    Handle topmenu;
     if (LibraryExists("adminmenu") && ((topmenu = GetAdminTopMenu()) != INVALID_HANDLE))
     {
         OnAdminMenuReady(topmenu);
@@ -74,7 +74,7 @@ public AdminPlayerMenu(Handle:topmenu, TopMenuAction:action, TopMenuObject:objec
 
 public Action:AdminMenu(client,args)
 {
-    new Handle:adminMenu=CreateMenu(Admin_Selected);
+    Handle adminMenu=CreateMenu(Admin_Selected);
     SetMenuExitButton(adminMenu,true);
     SetMenuTitle(adminMenu,"[SC] %T", "SelectPlayer", client);
     AddTargetsToMenu(adminMenu, client, true, false);
@@ -87,7 +87,7 @@ public Admin_Selected(Handle:menu,MenuAction:action,client,selection)
     if (action == MenuAction_Select)
     {
         new userid, target;
-        decl String:SelectionInfo[SMALL_STRING_LENGTH];
+        char SelectionInfo[SMALL_STRING_LENGTH];
         PrepareAndEmitSoundToClient(client,buttonWav);
         GetMenuItem(menu,selection,SelectionInfo,sizeof(SelectionInfo));
         userid=StringToInt(SelectionInfo);
@@ -104,12 +104,12 @@ public Admin_Selected(Handle:menu,MenuAction:action,client,selection)
 
 Admin_Player(client,target)
 {
-    new Handle:adminMenu_Player=CreateMenu(Admin_Player_Select);
+    Handle adminMenu_Player=CreateMenu(Admin_Player_Select);
     SetMenuExitButton(adminMenu_Player,true);
     SetMenuExitBackButton(adminMenu_Player,true);
     SetMenuTitle(adminMenu_Player,"[SC] %T", "AdministerAPlayer", client, target);
 
-    decl String:buf[SMALL_STRING_LENGTH];
+    char buf[SMALL_STRING_LENGTH];
     Format(buf,sizeof(buf),"%d",target);
 
     new race_style = (GetRaceCount() >= 1) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED;
@@ -139,7 +139,7 @@ public Admin_Player_Select(Handle:menu,MenuAction:action,client,selection)
     {
         PrepareAndEmitSoundToClient(client,buttonWav);
 
-        decl String:SelectionInfo[SMALL_STRING_LENGTH];
+        char SelectionInfo[SMALL_STRING_LENGTH];
         GetMenuItem(menu,selection,SelectionInfo,sizeof(SelectionInfo));
 
         new target = StringToInt(SelectionInfo);
@@ -202,7 +202,7 @@ Admin_Return(Handle:menu,client)
 {
     PrepareAndEmitSoundToClient(client,buttonWav);
 
-    decl String:SelectionInfo[SMALL_STRING_LENGTH];
+    char SelectionInfo[SMALL_STRING_LENGTH];
     GetMenuItem(menu,1,SelectionInfo,sizeof(SelectionInfo));
 
     new target = StringToInt(SelectionInfo);
@@ -219,12 +219,12 @@ Admin_XP(client,target)
 {
     if (IsValidClient(target))
     {
-        new Handle:menu=CreateMenu(Admin_XP_Select);
+        Handle menu=CreateMenu(Admin_XP_Select);
         SetMenuExitButton(menu,true);
         SetMenuExitBackButton(menu,true);
         SetMenuTitle(menu, "[SC] %T", "AdminOption", client, target);
 
-        decl String:buf[SMALL_STRING_LENGTH];
+        char buf[SMALL_STRING_LENGTH];
         Format(buf,sizeof(buf),"%d",target);
 
         AddMenuItemT(menu,buf,"Give100XP",client);
@@ -248,7 +248,7 @@ public Admin_XP_Select(Handle:menu,MenuAction:action,client,selection)
     {
         PrepareAndEmitSoundToClient(client,buttonWav);
 
-        decl String:SelectionInfo[SMALL_STRING_LENGTH];
+        char SelectionInfo[SMALL_STRING_LENGTH];
         GetMenuItem(menu,selection,SelectionInfo,sizeof(SelectionInfo));
 
         new target = StringToInt(SelectionInfo);
@@ -313,20 +313,20 @@ Admin_GiveShopItem(client,target)
 {
     if (IsValidClient(target))
     {
-        new Handle:menu=CreateMenu(Admin_Category_Selected);
+        Handle menu=CreateMenu(Admin_Category_Selected);
         SetMenuTitle(menu,"[SC] %T", "SelectItem", client, target);
         SetMenuExitBackButton(menu,true);
         SetMenuExitButton(menu,true);
 
-        decl String:lastCategory[NAME_STRING_LENGTH];
+        char lastCategory[NAME_STRING_LENGTH];
         lastCategory[0] = '\0';
 
         new count = 0;
         new shopItemCount = GetShopIndexCount();
         for (new x=0;x<shopItemCount;x++)
         {
-            new Handle:itemHandle=GetItemIndexHandle(x);
-            decl String:itemCategory[NAME_STRING_LENGTH];
+            Handle itemHandle=GetItemIndexHandle(x);
+            char itemCategory[NAME_STRING_LENGTH];
             GetItemCategory(itemHandle, itemCategory, sizeof(itemCategory),client);
 
             if (strcmp(itemCategory, lastCategory, false) != 0)
@@ -337,7 +337,7 @@ Admin_GiveShopItem(client,target)
                            "%T", "MiscellaneousItems", client);
                 }
 
-                decl String:itembuf[SMALL_STRING_LENGTH];
+                char itembuf[SMALL_STRING_LENGTH];
                 Format(itembuf,sizeof(itembuf),"%d,%d",target,x);
                 AddMenuItem(menu,itembuf,itemCategory);
                 strcopy(lastCategory, sizeof(lastCategory), itemCategory);
@@ -368,10 +368,10 @@ public Admin_Category_Selected(Handle:menu,MenuAction:action,client,selection)
         {
             PrepareAndEmitSoundToClient(client,buttonWav);
 
-            decl String:SelectionInfo[SMALL_STRING_LENGTH];
+            char SelectionInfo[SMALL_STRING_LENGTH];
             GetMenuItem(menu,selection,SelectionInfo,sizeof(SelectionInfo));
 
-            decl String:SelectionData[2][5];
+            char SelectionData[2][5];
             ExplodeString(SelectionInfo,",",SelectionData, 2, 5);
             new target = StringToInt(SelectionData[0]);
             new index  = StringToInt(SelectionData[1]);
@@ -379,10 +379,10 @@ public Admin_Category_Selected(Handle:menu,MenuAction:action,client,selection)
             new shopItemCount = GetShopIndexCount();
             if (index >= 0 && index < shopItemCount)
             {
-                decl String:theCategory[NAME_STRING_LENGTH];
-                decl String:itemCategory[NAME_STRING_LENGTH];
+                char theCategory[NAME_STRING_LENGTH];
+                char itemCategory[NAME_STRING_LENGTH];
 
-                new Handle:itemMenu = CreateMenu(Admin_Item_Selected);
+                Handle itemMenu = CreateMenu(Admin_Item_Selected);
                 SetMenuTitle(itemMenu,"[SC] %T", "SelectItem", client, target);
                 SetMenuExitBackButton(itemMenu,true);
                 SetMenuExitButton(itemMenu,true);
@@ -392,17 +392,17 @@ public Admin_Category_Selected(Handle:menu,MenuAction:action,client,selection)
                 new count = 0;
                 for (new x=index;x<shopItemCount;x++)
                 {
-                    new Handle:itemHandle=GetItemIndexHandle(x);
+                    Handle itemHandle=GetItemIndexHandle(x);
                     GetItemCategory(itemHandle, itemCategory, sizeof(itemCategory),client);
                     if (strcmp(itemCategory,theCategory,false) != 0)
                         break;
                     else
                     {
-                        decl String:itembuf[SMALL_STRING_LENGTH];
+                        char itembuf[SMALL_STRING_LENGTH];
                         Format(itembuf,sizeof(itembuf),"%d,%d",
                                target,GetItemId(itemHandle));
 
-                        decl String:itemName[NAME_STRING_LENGTH];
+                        char itemName[NAME_STRING_LENGTH];
                         GetItemName(itemHandle, itemName, sizeof(itemName),client);
                         AddMenuItem(itemMenu,itembuf,itemName);
                         count++;
@@ -440,18 +440,18 @@ public Admin_Item_Selected(Handle:menu,MenuAction:action,client,selection)
     {
         PrepareAndEmitSoundToClient(client,buttonWav);
 
-        decl String:SelectionInfo[SMALL_STRING_LENGTH];
+        char SelectionInfo[SMALL_STRING_LENGTH];
         GetMenuItem(menu,selection,SelectionInfo,sizeof(SelectionInfo));
 
-        decl String:SelectionData[2][5];
+        char SelectionData[2][5];
         ExplodeString(SelectionInfo,",",SelectionData, 2, 5);
         new target = StringToInt(SelectionData[0]);
         if (IsValidClient(target))
         {
             new item=StringToInt(SelectionData[1]);
-            new Handle:itemHandle=GetShopItemHandle(item);
+            Handle itemHandle=GetShopItemHandle(item);
             
-            decl String:itemName[NAME_STRING_LENGTH];
+            char itemName[NAME_STRING_LENGTH];
             GetItemName(itemHandle, itemName, sizeof(itemName),client);
 
             new num = GetOwnsItem(target,item);
@@ -499,7 +499,7 @@ public Admin_Item_Selected(Handle:menu,MenuAction:action,client,selection)
         {
             PrepareAndEmitSoundToClient(client,buttonWav);
 
-            decl String:SelectionInfo2[SMALL_STRING_LENGTH];
+            char SelectionInfo2[SMALL_STRING_LENGTH];
             GetMenuItem(menu,1,SelectionInfo2,sizeof(SelectionInfo2));
             Admin_GiveShopItem(client,StringToInt(SelectionInfo2));
         }
@@ -512,7 +512,7 @@ Admin_SetRace(client,target)
 {
     if (IsValidClient(target))
     {
-        new Handle:menu=CreateMenu(Admin_Faction_Selected);
+        Handle menu=CreateMenu(Admin_Faction_Selected);
         SetMenuTitle(menu,"[SC] %T", "SelectRace", client, "", target);
         SetMenuExitBackButton(menu,true);
         SetMenuExitButton(menu,true);
@@ -521,22 +521,22 @@ Admin_SetRace(client,target)
         new Faction:lastFaction = Unassigned;
         for(new index=1; index < indexCount; index++)
         {
-            new Handle:raceHandle = GetRaceIndexHandle(index);
+            Handle raceHandle = GetRaceIndexHandle(index);
             new Faction:faction   = GetRaceFaction(raceHandle);
             if (faction != lastFaction)
             {
                 lastFaction = faction;
                 if (index < indexCount)
                 {
-                    new Handle:nextHandle   = GetRaceIndexHandle(index+1);
+                    Handle nextHandle   = GetRaceIndexHandle(index+1);
                     new Faction:nextFaction = GetRaceFaction(nextHandle);
                     if (nextFaction != faction)
                     {
-                        decl String:item[ITEM_STRING_LENGTH];
+                        char item[ITEM_STRING_LENGTH];
                         GetRaceMenuItem(item, sizeof(item), client, raceHandle, 0, false);
                         if (item[0] != 0)
                         {
-                            decl String:rbuf[SMALL_STRING_LENGTH];
+                            char rbuf[SMALL_STRING_LENGTH];
                             Format(rbuf,sizeof(rbuf),"%d,%d",target,GetRaceId(raceHandle));
                             AddMenuItem(menu,rbuf,item,ITEMDRAW_DEFAULT);
                             continue;
@@ -544,15 +544,15 @@ Admin_SetRace(client,target)
                     }
                 }
 
-                decl String:name[NAME_STRING_LENGTH];
+                char name[NAME_STRING_LENGTH];
                 GetFactionName(faction,name,sizeof(name), client);
                 if (name[0] == '\0')
                     Format(name, sizeof(name), "%T", "Miscellaneous", client);
 
-                decl String:item[ITEM_STRING_LENGTH];
+                char item[ITEM_STRING_LENGTH];
                 Format(item, sizeof(item), "%T", "FactionItem", client, name);
 
-                decl String:rbuf[SMALL_STRING_LENGTH];
+                char rbuf[SMALL_STRING_LENGTH];
                 Format(rbuf,sizeof(rbuf),"%d,%d",target,-index);
                 AddMenuItem(menu,rbuf,item,ITEMDRAW_DEFAULT);
             }
@@ -570,10 +570,10 @@ public Admin_Faction_Selected(Handle:menu,MenuAction:action,client,selection)
 {
     if (action == MenuAction_Select)
     {
-        decl String:SelectionInfo[SMALL_STRING_LENGTH];
+        char SelectionInfo[SMALL_STRING_LENGTH];
         GetMenuItem(menu,selection,SelectionInfo,sizeof(SelectionInfo));
 
-        decl String:SelectionData[2][5];
+        char SelectionData[2][5];
         ExplodeString(SelectionInfo,",",SelectionData, 2, 5);
         new target = StringToInt(SelectionData[0]);
         new index  = StringToInt(SelectionData[1]);
@@ -597,10 +597,10 @@ public Admin_SetRace_Select(Handle:menu,MenuAction:action,client,selection)
     {
         PrepareAndEmitSoundToClient(client,buttonWav);
 
-        decl String:SelectionInfo[SMALL_STRING_LENGTH];
+        char SelectionInfo[SMALL_STRING_LENGTH];
         GetMenuItem(menu,selection,SelectionInfo,sizeof(SelectionInfo));
 
-        decl String:SelectionData[2][5];
+        char SelectionData[2][5];
         ExplodeString(SelectionInfo,",",SelectionData, 2, 5);
 
         new target = StringToInt(SelectionData[0]);
@@ -608,7 +608,7 @@ public Admin_SetRace_Select(Handle:menu,MenuAction:action,client,selection)
         {
             new race=StringToInt(SelectionData[1]);
             SetRace(target, race, false);
-            decl String:racename[NAME_STRING_LENGTH];
+            char racename[NAME_STRING_LENGTH];
             GetRaceName(GetRaceHandle(race),racename,sizeof(racename),client);
 
             LogAction(client, target, "[SC] %L set %L's race to %s", client, target, racename);
@@ -627,7 +627,7 @@ public Admin_SetRace_Select(Handle:menu,MenuAction:action,client,selection)
         {
             PrepareAndEmitSoundToClient(client,buttonWav);
 
-            decl String:SelectionInfo2[SMALL_STRING_LENGTH];
+            char SelectionInfo2[SMALL_STRING_LENGTH];
             GetMenuItem(menu,1,SelectionInfo2,sizeof(SelectionInfo2));
             Admin_SetRace(client,StringToInt(SelectionInfo2));
         }
@@ -641,10 +641,10 @@ AdminFactionMenu(client, target, start)
     new indexCount = GetRaceIndexCount();
     if (start > 0 && start < indexCount)
     {
-        new Handle:menu      = CreateMenu(Admin_SetRace_Select);
+        Handle menu      = CreateMenu(Admin_SetRace_Select);
         new Faction:theFaction = GetRaceFaction(GetRaceIndexHandle(start));
 
-        decl String:factionName[NAME_STRING_LENGTH];
+        char factionName[NAME_STRING_LENGTH];
         GetFactionName(theFaction,factionName,sizeof(factionName), client);
 
         SetMenuTitle(menu,"[SC] %T", "SelectRace", client, factionName, target);
@@ -653,16 +653,16 @@ AdminFactionMenu(client, target, start)
 
         for(new index = start; index < indexCount; index++)
         {
-            new Handle:raceHandle=GetRaceIndexHandle(index);
+            Handle raceHandle=GetRaceIndexHandle(index);
             if (GetRaceFaction(raceHandle) != theFaction)
                 break;
             else
             {
-                decl String:item[ITEM_STRING_LENGTH];
+                char item[ITEM_STRING_LENGTH];
                 GetRaceMenuItem(item, sizeof(item), client, raceHandle, 0, false);
                 if (item[0] != 0)
                 {
-                    decl String:rbuf[SMALL_STRING_LENGTH];
+                    char rbuf[SMALL_STRING_LENGTH];
                     Format(rbuf,sizeof(rbuf),"%d,%d",target,GetRaceId(raceHandle));
                     AddMenuItem(menu,rbuf,item,ITEMDRAW_DEFAULT);
                 }
@@ -676,13 +676,13 @@ Admin_Level(client,target)
 {
     if (IsValidClient(target))
     {
-        new Handle:menu=CreateMenu(Admin_Level_Select);
+        Handle menu=CreateMenu(Admin_Level_Select);
         SetMenuExitButton(menu,true);
         SetMenuExitBackButton(menu,true);
 
         SetMenuTitle(menu, "[SC] %T", "AdminOption", client, target);
 
-        decl String:buf[SMALL_STRING_LENGTH];
+        char buf[SMALL_STRING_LENGTH];
         Format(buf,sizeof(buf),"%d",target);
 
         AddMenuItemT(menu,buf,"GiveLevel",client);
@@ -702,7 +702,7 @@ public Admin_Level_Select(Handle:menu,MenuAction:action,client,selection)
     {
         PrepareAndEmitSoundToClient(client,buttonWav);
 
-        decl String:SelectionInfo[SMALL_STRING_LENGTH];
+        char SelectionInfo[SMALL_STRING_LENGTH];
         GetMenuItem(menu,selection,SelectionInfo,sizeof(SelectionInfo));
 
         new target = StringToInt(SelectionInfo);
@@ -764,13 +764,13 @@ Admin_Crystals(client,target)
 {
     if (IsValidClient(target))
     {
-        new Handle:menu=CreateMenu(Admin_Crystals_Select);
+        Handle menu=CreateMenu(Admin_Crystals_Select);
         SetMenuExitButton(menu,true);
         SetMenuExitBackButton(menu,true);
 
         SetMenuTitle(menu, "[SC] %T", "AdminOption", client, target);
 
-        decl String:buf[SMALL_STRING_LENGTH];
+        char buf[SMALL_STRING_LENGTH];
         Format(buf,sizeof(buf),"%d",target);
 
         AddMenuItemT(menu,buf,"Give1Crystal",client);
@@ -797,7 +797,7 @@ public Admin_Crystals_Select(Handle:menu,MenuAction:action,client,selection)
     {
         PrepareAndEmitSoundToClient(client,buttonWav);
 
-        decl String:SelectionInfo[SMALL_STRING_LENGTH];
+        char SelectionInfo[SMALL_STRING_LENGTH];
         GetMenuItem(menu,selection,SelectionInfo,sizeof(SelectionInfo));
 
         new target = StringToInt(SelectionInfo);
@@ -865,13 +865,13 @@ Admin_Vespene(client,target)
 {
     if (IsValidClient(target))
     {
-        new Handle:menu=CreateMenu(Admin_Vespene_Select);
+        Handle menu=CreateMenu(Admin_Vespene_Select);
         SetMenuExitButton(menu,true);
         SetMenuExitBackButton(menu,true);
 
         SetMenuTitle(menu, "[SC] %T", "AdminOption", client, target);
 
-        decl String:buf[SMALL_STRING_LENGTH];
+        char buf[SMALL_STRING_LENGTH];
         Format(buf,sizeof(buf),"%d",target);
 
         AddMenuItemT(menu,buf,"Give1Vespene",client);
@@ -899,7 +899,7 @@ public Admin_Vespene_Select(Handle:menu,MenuAction:action,client,selection)
     {
         PrepareAndEmitSoundToClient(client,buttonWav);
 
-        decl String:SelectionInfo[SMALL_STRING_LENGTH];
+        char SelectionInfo[SMALL_STRING_LENGTH];
         GetMenuItem(menu,selection,SelectionInfo,sizeof(SelectionInfo));
 
         new target = StringToInt(SelectionInfo);
@@ -969,13 +969,13 @@ Admin_Energy(client,target)
 {
     if (IsValidClient(target))
     {
-        new Handle:menu=CreateMenu(Admin_Energy_Select);
+        Handle menu=CreateMenu(Admin_Energy_Select);
         SetMenuExitButton(menu,true);
         SetMenuExitBackButton(menu,true);
 
         SetMenuTitle(menu, "[SC] %T", "AdminOption", client, target);
 
-        decl String:buf[SMALL_STRING_LENGTH];
+        char buf[SMALL_STRING_LENGTH];
         Format(buf,sizeof(buf),"%d",target);
 
         AddMenuItemT(menu,buf,"Give1Energy",client);
@@ -1004,7 +1004,7 @@ public Admin_Energy_Select(Handle:menu,MenuAction:action,client,selection)
     {
         PrepareAndEmitSoundToClient(client,buttonWav);
 
-        decl String:SelectionInfo[SMALL_STRING_LENGTH];
+        char SelectionInfo[SMALL_STRING_LENGTH];
         GetMenuItem(menu,selection,SelectionInfo,sizeof(SelectionInfo));
 
         new target = StringToInt(SelectionInfo);
@@ -1012,7 +1012,7 @@ public Admin_Energy_Select(Handle:menu,MenuAction:action,client,selection)
         {
             if (selection < 5) // Give energy
             {
-                new Float:add;
+                float add;
                 switch(selection)
                 {
                     case 0: add=1.0;
@@ -1032,7 +1032,7 @@ public Admin_Energy_Select(Handle:menu,MenuAction:action,client,selection)
             }
             else
             {
-                new Float:rem;
+                float rem;
                 switch(selection)
                 {
                     case 5: rem=1.0;
@@ -1041,7 +1041,7 @@ public Admin_Energy_Select(Handle:menu,MenuAction:action,client,selection)
                     case 8: rem=50.0;
                     case 9: rem=100.0;
                 }
-                new Float:energy = GetEnergy(target)-rem;
+                float energy = GetEnergy(target)-rem;
                 if (energy < 0.0)
                     energy = 0.0;
                 SetEnergy(target,energy);
@@ -1072,11 +1072,11 @@ Admin_Disable(client,target)
 {
     if (IsValidClient(target))
     {
-        new Handle:menu=CreateMenu(Admin_Disable_Confirm);
+        Handle menu=CreateMenu(Admin_Disable_Confirm);
         SetMenuExitButton(menu,true);
         SetMenuExitBackButton(menu,true);
 
-        decl String:buf[SMALL_STRING_LENGTH];
+        char buf[SMALL_STRING_LENGTH];
         Format(buf,sizeof(buf),"%d",target);
 
         if (GetPlayerStatus(target) == PlayerDisabled)
@@ -1107,7 +1107,7 @@ public Admin_Disable_Confirm(Handle:menu,MenuAction:action,client,selection)
     {
         PrepareAndEmitSoundToClient(client,buttonWav);
 
-        decl String:SelectionInfo[SMALL_STRING_LENGTH];
+        char SelectionInfo[SMALL_STRING_LENGTH];
         GetMenuItem(menu,selection,SelectionInfo,sizeof(SelectionInfo));
 
         new target = StringToInt(SelectionInfo);
@@ -1163,13 +1163,13 @@ Admin_Delete(client,target)
 {
     if (IsValidClient(target))
     {
-        new Handle:menu=CreateMenu(Admin_Delete_Confirm);
+        Handle menu=CreateMenu(Admin_Delete_Confirm);
         SetMenuExitButton(menu,true);
         SetMenuExitBackButton(menu,true);
 
         SetMenuTitle(menu,"[SC] %T", "ConfirmDelete", client, target);
 
-        decl String:buf[SMALL_STRING_LENGTH];
+        char buf[SMALL_STRING_LENGTH];
         Format(buf,sizeof(buf),"%d",target);
 
         AddMenuItemT(menu, buf, "DeletePlayer", client);
@@ -1190,7 +1190,7 @@ public Admin_Delete_Confirm(Handle:menu,MenuAction:action,client,selection)
     {
         PrepareAndEmitSoundToClient(client,buttonWav);
 
-        decl String:SelectionInfo[SMALL_STRING_LENGTH];
+        char SelectionInfo[SMALL_STRING_LENGTH];
         GetMenuItem(menu,selection,SelectionInfo,sizeof(SelectionInfo));
 
         new target = StringToInt(SelectionInfo);

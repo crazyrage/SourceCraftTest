@@ -10,18 +10,18 @@
 #include <entlimit>
 #include <tf2_uber>
 
-new Handle:m_PackageTimer[MAXENTITIES];
-new Float:m_PackageEnergy[MAXENTITIES];
-new m_PackageRefs[MAXENTITIES];
-new m_PackageVictim[MAXENTITIES];
-new m_PackageCrystals[MAXENTITIES];
-new m_PackagePCrystals[MAXENTITIES];
-new m_PackageMoney[MAXENTITIES];
-new m_PackageXP[MAXENTITIES];
-new m_SpawnRace[MAXPLAYERS+1];
-new m_SpawnLevel[MAXPLAYERS+1];
+Handle m_PackageTimer[MAXENTITIES];
+float m_PackageEnergy[MAXENTITIES];
+int m_PackageRefs[MAXENTITIES];
+int m_PackageVictim[MAXENTITIES];
+int m_PackageCrystals[MAXENTITIES];
+int m_PackagePCrystals[MAXENTITIES];
+int m_PackageMoney[MAXENTITIES];
+int m_PackageXP[MAXENTITIES];
+int m_SpawnRace[MAXPLAYERS+1];
+int m_SpawnLevel[MAXPLAYERS+1];
 
-new g_PackageCount = 0;
+int g_PackageCount = 0;
 
 bool:HookEvents()
 {
@@ -112,7 +112,7 @@ public PlayerSpawnEvent(Handle:event,const String:name[],bool:dontBroadcast)
         PendingCheck(client);
 
         new race=GetRace(client);
-        new Handle:raceHandle = (race > 0) ? GetRaceHandle(race) : INVALID_HANDLE;
+        Handle raceHandle = (race > 0) ? GetRaceHandle(race) : INVALID_HANDLE;
 
         if (IsFakeClient(client))
         {
@@ -170,7 +170,7 @@ public PlayerSpawnEvent(Handle:event,const String:name[],bool:dontBroadcast)
             }
         }
 
-        new Float:initial = GetInitialEnergy(client);
+        float initial = GetInitialEnergy(client);
 
         Trace("%d:%N's initial energy is %1.0f", \
               client, ValidClientIndex(client), initial);
@@ -180,7 +180,7 @@ public PlayerSpawnEvent(Handle:event,const String:name[],bool:dontBroadcast)
             initial = GetRaceInitialEnergy(raceHandle);
 
             #if defined _TRACE
-                decl String:rname[64]; GetRaceName(GetRaceHandle(race),rname,sizeof(rname));
+                char rname[64]; GetRaceName(GetRaceHandle(race),rname,sizeof(rname));
                 Trace("Race %d:%s's initial energy is %d", race, rname, initial);
             #endif
         }
@@ -214,7 +214,7 @@ public PlayerSpawnEvent(Handle:event,const String:name[],bool:dontBroadcast)
             if (GameType == tf2)
             {
                 new hp = m_BaseHealth[client] = m_SpawnHealth[client] = GetClientHealth(client);
-                new Float:speed = m_BaseSpeed[client] = m_SpawnSpeed[client] = GetEntPropFloat(client, Prop_Send, "m_flMaxspeed");
+                float speed = m_BaseSpeed[client] = m_SpawnSpeed[client] = GetEntPropFloat(client, Prop_Send, "m_flMaxspeed");
                 TraceCat("Speed", "%d:%N spawned with %d hp and speed=%1.0f", client, ValidClientIndex(client), hp, speed);
             }
         #endif
@@ -268,12 +268,12 @@ public Action:OnWeaponSwitch(client, weapon)
     #if defined _TRACE
         if (weapon > 0)
         {
-            decl String:sWeapon[32];
+            char sWeapon[32];
             GetEdictClassname(weapon, sWeapon, sizeof(sWeapon));
             Trace("weapon class=%s", sWeapon);
         }
 
-        new Float:speed = m_BaseSpeed[client] = GetEntPropFloat(client, Prop_Send, "m_flMaxspeed");
+        float speed = m_BaseSpeed[client] = GetEntPropFloat(client, Prop_Send, "m_flMaxspeed");
         TraceCat("Speed", "%d:%N's speed=%1.0f", client, ValidClientIndex(client), speed);
     #endif
 
@@ -312,7 +312,7 @@ public Action:OnTakeDamage(victim,&attacker,&inflictor,&Float:damage,&damagetype
 
             if (GameType == tf2 && GetGameMode() != MvM)
             {
-                decl Float:pos[3];
+                float pos[3];
                 GetClientEyePosition(victim, pos);
                 pos[2] += 4.0;
                 TE_SetupParticle("miss_text", pos);
@@ -723,7 +723,7 @@ public Action:PlayerHurtEvent(Handle:event,const String:name[],bool:dontBroadcas
 
             new victim_race   = GetRace(victim_index);
             new attacker_race = (attacker_index > 0) ? GetRace(attacker_index) : 0;
-            new bool:from_sc  = (injured_by == attacker_index) ||
+            bool from_sc  = (injured_by == attacker_index) ||
                                 GetEventBool(event, "sourcecraft");
 
             Call_StartForward(g_OnPlayerHurtEventHandle);
@@ -797,8 +797,8 @@ public PlayerDeathEvent(Handle:event,const String:name[],bool:dontBroadcast)
     {
         new customkill;
         new deathFlags;
-        new bool:backstab;
-        new bool:headshot;
+        bool backstab;
+        bool headshot;
 
         g_InjuredBy[victim_index] = 0;
         g_KilledBy[victim_index] = 0;
@@ -852,8 +852,8 @@ public PlayerDeathEvent(Handle:event,const String:name[],bool:dontBroadcast)
         new assister_index=GetClientOfUserId(GetEventInt(event,"assister"));
         new assister_race=(assister_index > 0) ? GetRace(assister_index) : -1;
 
-        decl String:weapon[64];
-        new bool:is_equipment = GetWeapon(event, attacker_index,
+        char weapon[64];
+        bool is_equipment = GetWeapon(event, attacker_index,
                                           weapon, sizeof(weapon));
 
         KillHUDTimer(victim_index);
@@ -872,7 +872,7 @@ public PlayerDeathEvent(Handle:event,const String:name[],bool:dontBroadcast)
         ClearSyncHud(victim_index, m_HudSynch[3]);
 
         new damage     = GetDamage(event, victim_index);
-        new bool:melee = backstab || IsMelee(weapon, is_equipment,
+        bool melee = backstab || IsMelee(weapon, is_equipment,
                                              attacker_index,
                                              victim_index);
 
@@ -959,8 +959,8 @@ public PlayerDeathEvent(Handle:event,const String:name[],bool:dontBroadcast)
                 }
             }
 
-            new Float:energy = GetEnergy(victim_index);
-            new Float:drop_energy = (energy >= g_fMinPackageEnergy)
+            float energy = GetEnergy(victim_index);
+            float drop_energy = (energy >= g_fMinPackageEnergy)
                                   ? ((energy <= g_fMaxPackageEnergy && g_fMaxPackageEnergy > 0.0) ? energy : g_fMaxPackageEnergy)
                                   : 0.0;
 
@@ -988,13 +988,13 @@ public PlayerDeathEvent(Handle:event,const String:name[],bool:dontBroadcast)
                     SetEntityModel(pkg, mdlPackage[drop_model]);
                     DispatchSpawn(pkg);
 
-                    new Float:origin[3];
+                    float origin[3];
                     GetClientAbsOrigin(victim_index, origin);
 
-                    new Float:angles[3];
+                    float angles[3];
                     GetClientEyeAngles(victim_index, angles);
 
-                    new Float:velocity[3];
+                    float velocity[3];
                     GetAngleVectors(angles, velocity, NULL_VECTOR, NULL_VECTOR);
                     NormalizeVector(velocity,velocity);
                     ScaleVector(velocity,350.0);
@@ -1108,12 +1108,12 @@ public PlayerDeathEvent(Handle:event,const String:name[],bool:dontBroadcast)
 
         if (victim_index > 0)
         {
-            new Float:initial = GetInitialEnergy(victim_index);
+            float initial = GetInitialEnergy(victim_index);
             if (initial < 0.0 && victim_race > 0)
                 initial = GetRaceInitialEnergy(GetRaceHandle(victim_race));
 
             // Accumulate energy and zero the players active energy.
-            new Float:energy = GetEnergy(victim_index) - initial;
+            float energy = GetEnergy(victim_index) - initial;
             if (energy > 0.0 && victim_race > 0)
                 IncrementAccumulatedEnergy(victim_index, victim_race, energy);
 
@@ -1125,7 +1125,7 @@ public PlayerDeathEvent(Handle:event,const String:name[],bool:dontBroadcast)
             {
                 if (PendingCheck(victim_index) < 0)
                 {
-                    new Handle:raceHandle = GetRaceHandle(race);
+                    Handle raceHandle = GetRaceHandle(race);
                     new parentRace = GetRaceParentId(raceHandle);
                     if (parentRace > 0)
                     {
@@ -1161,7 +1161,7 @@ public PlayerDeathEvent(Handle:event,const String:name[],bool:dontBroadcast)
                 new mole = FindShopItem("mole");
                 if (mole >= 0)
                 {
-                    new Handle:moleHandle = GetShopItemHandle(mole);
+                    Handle moleHandle = GetShopItemHandle(mole);
                     if (moleHandle && amount >= GetItemCrystals(moleHandle))
                         PurchaseShopItem(victim_index, mole);
                 }
@@ -1182,7 +1182,7 @@ public Action:OnPackageTouched(pkg, client)
         m_PackageRefs[pkg] = INVALID_ENT_REFERENCE;
         g_PackageCount--;
 
-        new Handle:timer = m_PackageTimer[pkg];
+        Handle timer = m_PackageTimer[pkg];
         if (timer != INVALID_HANDLE)
         {
             PrepareAndEmitSoundToClient(client, sndPickup, .channel=SNDCHAN_WEAPON);
@@ -1224,8 +1224,8 @@ public Action:OnPackageTouched(pkg, client)
                     m_PackagePCrystals[pkg] = 0;
                 }
 
-                new Float:energy = m_PackageEnergy[pkg];
-                new Float:extra  = GetRandomFloat(0.0, 10.0) - GetEnergy(client);
+                float energy = m_PackageEnergy[pkg];
+                float extra  = GetRandomFloat(0.0, 10.0) - GetEnergy(client);
                 if (extra > 0)
                     energy += extra;
 
@@ -1325,7 +1325,7 @@ public PlayerChangeClassEvent(Handle:event,const String:name[],bool:dontBroadcas
                 m_IsChangingClass[index] = true;
 
             // Reset energy when changing class
-            new Float:initial = GetInitialEnergy(index);
+            float initial = GetInitialEnergy(index);
 
             Trace("%d:%N's initial energy is %1.0f", \
                   index, ValidClientIndex(index), initial);
@@ -1333,13 +1333,13 @@ public PlayerChangeClassEvent(Handle:event,const String:name[],bool:dontBroadcas
             new race = GetRace(index);
             if (race > 0)
             {
-                new Handle:raceHandle = GetRaceHandle(race);
+                Handle raceHandle = GetRaceHandle(race);
                 if (raceHandle && initial < 0.0)
                 {
                     initial = GetRaceInitialEnergy(raceHandle);
 
                     #if defined _TRACE
-                        decl String:rname[64]; GetRaceName(GetRaceHandle(race),rname,sizeof(rname));
+                        char rname[64]; GetRaceName(GetRaceHandle(race),rname,sizeof(rname));
                         Trace("Race %d:%s's initial energy is %1.0f", race, rname, initial);
                     #endif
                 }
@@ -1364,10 +1364,10 @@ public RoundStart(Handle:event,const String:name[],bool:dontBroadcast)
 
     if (GameType == cstrike)
     {
-        new Handle:freezeTimeCvar=FindConVar("mp_freezetime");
+        Handle freezeTimeCvar=FindConVar("mp_freezetime");
         if (freezeTimeCvar)
         {
-            new Float:fFreezeTime=GetConVarFloat(freezeTimeCvar);
+            float fFreezeTime=GetConVarFloat(freezeTimeCvar);
             if (fFreezeTime>0.0)
             {
                 CreateTimer(fFreezeTime,EndFreezeTime,g_iRoundNumber);

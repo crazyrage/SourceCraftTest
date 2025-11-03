@@ -43,15 +43,15 @@ stock bool:MissileAttack(race, upgrade, level, Handle:event, damage, victim_inde
         !GetImmunity(victim_index, Immunity_Upgrades) &&
         !IsInvulnerable(victim_index))
     {
-        decl String:weapon[64];
-        new bool:is_equipment=GetWeapon(event,index,weapon,sizeof(weapon));
+        char weapon[64];
+        bool is_equipment=GetWeapon(event,index,weapon,sizeof(weapon));
         if (IsGrenadeOrRocket(weapon, is_equipment) ||
             (!grenadesOnly && (IsNotMelee(weapon, is_equipment, index, victim_index) &&
                                TargetRange(index, victim_index) > 500.0)))
         {
             if (level >= num_levels)
             {
-                decl String:raceName[64];
+                char raceName[64];
                 GetRaceName(race, raceName, sizeof(raceName));
                 LogError("%d:%N has too many levels in %d::%s level=%d, max=%d",
                          index, index, race, raceName, level, num_levels);
@@ -61,12 +61,12 @@ stock bool:MissileAttack(race, upgrade, level, Handle:event, damage, victim_inde
             if (GetRandomInt(1,100)<=missileAttackChance[level] &&
                 CanInvokeUpgrade(index, race, upgrade, .notify=false))
             {
-                new Float:percent = missileAttackPercent[level];
+                float percent = missileAttackPercent[level];
                 new health_take = RoundFloat(float(damage)*percent);
                 if (health_take < 1)
                     health_take = 1;
 
-                new Float:Origin[3];
+                float Origin[3];
                 GetEntityAbsOrigin(victim_index, Origin);
                 Origin[2] += 5;
 

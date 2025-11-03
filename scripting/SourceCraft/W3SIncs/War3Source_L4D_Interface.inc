@@ -113,7 +113,7 @@ stock bool:War3_IsCommonInfected(iEntity)
 {
 	if(iEntity > 0 && IsValidEntity(iEntity) && IsValidEdict(iEntity))
 	{
-		decl String:strClassName[64];
+		char strClassName[64];
 		GetEdictClassname(iEntity, strClassName, sizeof(strClassName));
 		
 		return StrEqual(strClassName, "infected");
@@ -126,7 +126,7 @@ stock bool:War3_IsUncommonInfected(iEntity)
 {
 	if(iEntity > 0 && IsValidEntity(iEntity) && IsValidEdict(iEntity))
 	{
-		decl String:ModelName[128];
+		char ModelName[128];
 		GetEntPropString(iEntity, Prop_Data, "m_ModelName", ModelName, sizeof(ModelName));
 		
 		return (StrEqual(ModelName, "models/infected/common_male_riot.mdl") ||
@@ -144,7 +144,7 @@ stock bool:War3_IsWitch(iEntity)
 {
 	if(iEntity > 0 && IsValidEntity(iEntity) && IsValidEdict(iEntity))
 	{
-		decl String:strClassName[64];
+		char strClassName[64];
 		GetEdictClassname(iEntity, strClassName, sizeof(strClassName));
 		return StrEqual(strClassName, "witch");
 	}
@@ -164,7 +164,7 @@ stock bool:IsPlayerGhost(client)
 
 stock Float:GetSurvivorTempHealth(client)
 {
-	new Float:temphp = GetEntPropFloat(client, Prop_Send, "m_healthBuffer") - ((GetGameTime() - GetEntPropFloat(client, Prop_Send, "m_healthBufferTime")) * GetConVarFloat(FindConVar("pain_pills_decay_rate")));
+	float temphp = GetEntPropFloat(client, Prop_Send, "m_healthBuffer") - ((GetGameTime() - GetEntPropFloat(client, Prop_Send, "m_healthBufferTime")) * GetConVarFloat(FindConVar("pain_pills_decay_rate")));
 	return temphp > 0.0 ? temphp : 0.0;
 }
 
@@ -229,7 +229,7 @@ stock GetMaxMagSize(const String:weapon[])
 
 stock GetCurrentBackupAmmo(client)
 {
-	decl String:weapon[64];
+	char weapon[64];
 	new iWeapon = GetPlayerWeaponSlot(client, 0);
 	GetEdictClassname(iWeapon, weapon, sizeof(weapon));
 	
@@ -311,7 +311,7 @@ stock GetMaxBackupAmmo(const String:weapon[])
 
 stock SetBackupAmmo(client, ammo)
 {
-	decl String:weapon[64];
+	char weapon[64];
 	new iWeapon = GetPlayerWeaponSlot(client, 0);
 	GetEdictClassname(iWeapon, weapon, sizeof(weapon));
 	
@@ -382,7 +382,7 @@ stock GetEntityHP(entity)
  * 
  * public Action:OnWeaponCanUse(client, weapon)
 {
-	decl String:entityName[64];
+	char entityName[64];
 	GetEdictClassname(weapon, entityName, sizeof(entityName));
 	
 	if (IsWeapon(entityName))
@@ -845,7 +845,7 @@ stock L4D2_SetEntGlow_Range(entity, range)
  */
 stock bool:L4D2_SetEntGlow(entity, L4D2GlowType:type, range, minRange, colorOverride[3], bool:flashing)
 {
-	decl String:netclass[128];
+	char netclass[128];
 	GetEntityNetClass(entity, netclass, 128);
 
 	new offset = FindSendPropInfo(netclass, "m_iGlowType");

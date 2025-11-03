@@ -53,7 +53,7 @@
 #define HALLOWEEN_MEDKIT_MEDIUM_MODEL   "models/props_halloween/halloween_medkit_medium.mdl"
 #define HALLOWEEN_MEDKIT_SMALL_MODEL    "models/props_halloween/halloween_medkit_small.mdl"
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "TF2 Medipacks",
     author = "Hunter",
@@ -62,38 +62,38 @@ public Plugin:myinfo =
     url = "http://forums.alliedmods.net/showthread.php?t=65315"
 }
 
-new bool:g_NativeControl = false;
-new bool:g_MedicButtonDown[MAXPLAYERS+1];
-new Float:g_MedicPosition[MAXPLAYERS+1][3];
-new g_NativeMedipacks[MAXPLAYERS+1];
-new g_NativeUberCharge[MAXPLAYERS+1];
-new g_MedicUberCharge[MAXPLAYERS+1];
-new g_MedipacksCount = 0;
-new g_FilteredEntity = -1;
-new TFHoliday:g_Holiday;
+bool g_NativeControl = false;
+bool g_MedicButtonDown[MAXPLAYERS+1];
+float g_MedicPosition[MAXPLAYERS+1][3];
+int g_NativeMedipacks[MAXPLAYERS+1];
+int g_NativeUberCharge[MAXPLAYERS+1];
+int g_MedicUberCharge[MAXPLAYERS+1];
+int g_MedipacksCount = 0;
+int g_FilteredEntity = -1;
+int TFHoliday:g_Holiday;
 
-new g_MedkitSmallModel = 0;
-new g_MedkitMediumModel = 0;
-new g_MedkitLargeModel = 0;
-new g_BirthdayMedkitSmallModel = 0;
-new g_BirthdayMedkitMediumModel = 0;
-new g_BirthdayMedkitLargeModel = 0;
-new g_HalloweenMedkitSmallModel = 0;
-new g_HalloweenMedkitMediumModel = 0;
-new g_HalloweenMedkitLargeModel = 0;
+int g_MedkitSmallModel = 0;
+int g_MedkitMediumModel = 0;
+int g_MedkitLargeModel = 0;
+int g_BirthdayMedkitSmallModel = 0;
+int g_BirthdayMedkitMediumModel = 0;
+int g_BirthdayMedkitLargeModel = 0;
+int g_HalloweenMedkitSmallModel = 0;
+int g_HalloweenMedkitMediumModel = 0;
+int g_HalloweenMedkitLargeModel = 0;
 
-new Handle:g_IsMedipacksOn = INVALID_HANDLE;
-new Handle:g_Advertise = INVALID_HANDLE;
-new Handle:g_DefUberCharge = INVALID_HANDLE;
-new Handle:g_MedipacksSmall = INVALID_HANDLE;
-new Handle:g_MedipacksMedium = INVALID_HANDLE;
-new Handle:g_MedipacksFull = INVALID_HANDLE;
-new Handle:g_MedipacksDeploy = INVALID_HANDLE;
-new Handle:g_MedipacksKeep = INVALID_HANDLE;
-new Handle:g_MedipacksTeam = INVALID_HANDLE;
-new Handle:g_MedipacksLimit = INVALID_HANDLE;
-new Handle:g_MedipacksTime = INVALID_HANDLE;
-new Handle:g_MedipacksRef = INVALID_HANDLE;
+Handle g_IsMedipacksOn = INVALID_HANDLE;
+Handle g_Advertise = INVALID_HANDLE;
+Handle g_DefUberCharge = INVALID_HANDLE;
+Handle g_MedipacksSmall = INVALID_HANDLE;
+Handle g_MedipacksMedium = INVALID_HANDLE;
+Handle g_MedipacksFull = INVALID_HANDLE;
+Handle g_MedipacksDeploy = INVALID_HANDLE;
+Handle g_MedipacksKeep = INVALID_HANDLE;
+Handle g_MedipacksTeam = INVALID_HANDLE;
+Handle g_MedipacksLimit = INVALID_HANDLE;
+Handle g_MedipacksTime = INVALID_HANDLE;
+Handle g_MedipacksRef = INVALID_HANDLE;
 
 public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
 {
@@ -148,7 +148,7 @@ public OnPluginStart()
     AutoExecConfig(true);
 }
 
-public Action:TF2_OnIsHolidayActive(TFHoliday:holiday, &bool:result)
+public Action TF2_OnIsHolidayActive(TFHoliday:holiday, &bool:result)
 {
     // Stash the holiday flag
     g_Holiday = holiday;
@@ -196,7 +196,7 @@ public OnClientPutInServer(client)
         CreateTimer(45.0, Timer_Advert, client);
 }
 
-public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:angles[3], &weapon)
+public Action OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:angles[3], &weapon)
 {
     if (buttons & IN_ATTACK2 && !g_MedicButtonDown[client])
     {
@@ -208,7 +208,7 @@ public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:ang
         {
             if (TF2_ExIsUberCharge(client) == 0.0)
             {
-                new String:classname[64];
+                char classname[64];
                 GetCurrentWeaponClass(client, classname, sizeof(classname));
                 if (StrEqual(classname, "CWeaponMedigun") &&
                     g_MedicUberCharge[client] < GetConVarInt(g_MedipacksDeploy))
@@ -230,12 +230,12 @@ public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:ang
     return Plugin_Continue;
 }
 
-public ConVarChange_Version(Handle:convar, const String:oldValue[], const String:newValue[])
+public ConVarChange_Version(Handle:convar, const char oldValue[], const char newValue[])
 {
     SetConVarString(convar, PL_VERSION);
 }
 
-public ConVarChange_IsMedipacksOn(Handle:convar, const String:oldValue[], const String:newValue[])
+public ConVarChange_IsMedipacksOn(Handle:convar, const char oldValue[], const char newValue[])
 {
     if (StringToInt(newValue) > 0)
         PrintToChatAll("[SM] %t", "Enabled Medipacks");
@@ -243,12 +243,12 @@ public ConVarChange_IsMedipacksOn(Handle:convar, const String:oldValue[], const 
         PrintToChatAll("[SM] %t", "Disabled Medipacks");
 }
 
-public ConVarChange_Advertise(Handle:convar, const String:oldValue[], const String:newValue[])
+public ConVarChange_Advertise(Handle:convar, const char oldValue[], const char newValue[])
 {
     SetConVarInt(convar, StringToInt(newValue));
 }
 
-public Action:Command_Medipack(client, args)
+public Action Command_Medipack(client, args)
 {
     new MedipacksOn = g_NativeControl ? g_NativeMedipacks[client]
                                       : GetConVarInt(g_IsMedipacksOn);
@@ -259,7 +259,7 @@ public Action:Command_Medipack(client, args)
     if (class != TFClass_Medic)
         return Plugin_Handled;
 
-    new String:classname[64];
+    char classname[64];
     GetCurrentWeaponClass(client, classname, 64);
     if(!StrEqual(classname, "CWeaponMedigun"))
         return Plugin_Handled;
@@ -269,7 +269,7 @@ public Action:Command_Medipack(client, args)
     return Plugin_Handled;
 }
 
-public Action:Command_UberCharge(client, args)
+public Action Command_UberCharge(client, args)
 {
     if (args < 1)
     {
@@ -277,7 +277,7 @@ public Action:Command_UberCharge(client, args)
         return Plugin_Handled;
     }
 
-    new String:arg1[32], String:arg2[32];
+    char arg1[32], String:arg2[32];
     GetCmdArg(1, arg1, sizeof(arg1));
 
     new target = FindTarget(client, arg1);
@@ -286,10 +286,10 @@ public Action:Command_UberCharge(client, args)
         return Plugin_Handled;
     }
 
-    new String:name[MAX_NAME_LENGTH];
+    char name[MAX_NAME_LENGTH];
     GetClientName(target, name, sizeof(name));
 
-    new bool:alive = IsPlayerAlive(target);
+    bool alive = IsPlayerAlive(target);
     if (!alive)
     {
         ReplyToCommand(client, "[SM] %t", "Cannot be performed on dead", name);
@@ -321,9 +321,9 @@ public Action:Command_UberCharge(client, args)
     return Plugin_Handled;
 }
 
-public Action:Command_Spawn(client,args)
+public Action Command_Spawn(client,args)
 {
-    decl String:command[64];
+    char command[64];
     GetCmdArg(0, command, sizeof(command));
 
     if (args != 1)
@@ -347,7 +347,7 @@ public Action:Command_Spawn(client,args)
     else        
         holiday = g_Holiday;
 
-    decl String:buffer[128];
+    char buffer[128];
     GetCmdArg(1, buffer, sizeof(buffer));
 
     if (StrEqual(buffer, "full", false))
@@ -376,7 +376,7 @@ public Action:Command_Spawn(client,args)
     return Plugin_Handled;
 }
 
-public Action:Timer_Advert(Handle:timer, any:client)
+public Action Timer_Advert(Handle:timer, any:client)
 {
     if (IsClientConnected(client) && IsClientInGame(client))
     {
@@ -396,7 +396,7 @@ public Action:Timer_Advert(Handle:timer, any:client)
     }
 }
 
-public Action:Timer_Caching(Handle:timer)
+public Action Timer_Caching(Handle:timer)
 {
     for (new i = 1; i <= MaxClients; i++)
     {
@@ -418,7 +418,7 @@ public Action:Timer_Caching(Handle:timer)
             new time = GetArrayCell(g_MedipacksTime, c);
             if (time > 0)
             {
-                new bool:valid = (EntRefToEntIndex(GetArrayCell(g_MedipacksRef, c)) == c &&
+                bool valid = (EntRefToEntIndex(GetArrayCell(g_MedipacksRef, c)) == c &&
                                  IsValidEdict(c));
                 if (valid)
                 {
@@ -441,12 +441,12 @@ public Action:Timer_Caching(Handle:timer)
     }
 }
 
-public Action:Timer_ButtonUp(Handle:timer, any:client)
+public Action Timer_ButtonUp(Handle:timer, any:client)
 {
     g_MedicButtonDown[client] = false;
 }
 
-public Action:Timer_PlayerDefDelay(Handle:timer, any:client)
+public Action Timer_PlayerDefDelay(Handle:timer, any:client)
 {
     if (!IsClientInGame(client))
         return;
@@ -460,7 +460,7 @@ public Action:Timer_PlayerDefDelay(Handle:timer, any:client)
         TF2_ExSetUberLevel(client, DefUberCharge*0.01);
 }
 
-public Action:Event_PlayerSpawn(Handle:event, const String:name[], bool:dontBroadcast)
+public Action Event_PlayerSpawn(Handle:event, const char name[], bool:dontBroadcast)
 {
     new client = GetClientOfUserId(GetEventInt(event, "userid"));
     new TFClassType:class = TF2_GetPlayerClass(client);
@@ -470,7 +470,7 @@ public Action:Event_PlayerSpawn(Handle:event, const String:name[], bool:dontBroa
     CreateTimer(0.25, Timer_PlayerDefDelay, client);
 }
 
-public Action:Event_PlayerClass(Handle:event, const String:name[], bool:dontBroadcast)
+public Action Event_PlayerClass(Handle:event, const char name[], bool:dontBroadcast)
 {
     new client = GetClientOfUserId(GetEventInt(event, "userid"));
     new any:class = GetEventInt(event, "class");
@@ -480,7 +480,7 @@ public Action:Event_PlayerClass(Handle:event, const String:name[], bool:dontBroa
     CreateTimer(0.25, Timer_PlayerDefDelay, client);
 }
 
-public Action:Event_PlayerDeath(Handle:event, const String:name[], bool:dontBroadcast)
+public Action Event_PlayerDeath(Handle:event, const char name[], bool:dontBroadcast)
 {
     // Skip feigned deaths.
     if (GetEventInt(event, "death_flags") & TF_DEATHFLAG_DEADRINGER)
@@ -508,7 +508,7 @@ public Action:Event_PlayerDeath(Handle:event, const String:name[], bool:dontBroa
     TF_DropMedipack(client, false, g_Holiday);
 }
 
-public Action:Event_PlayerTeam(Handle:event, const String:name[], bool:dontBroadcast)
+public Action Event_PlayerTeam(Handle:event, const char name[], bool:dontBroadcast)
 {
     new disconnect = GetEventInt(event, "disconnect");
     if (disconnect)
@@ -527,7 +527,7 @@ public Action:Event_PlayerTeam(Handle:event, const String:name[], bool:dontBroad
     g_MedicPosition[client] = NULL_VECTOR;
 }
 
-public Action:Event_TeamplayRoundStart(Handle:event, const String:name[], bool:dontBroadcast)
+public Action Event_TeamplayRoundStart(Handle:event, const char name[], bool:dontBroadcast)
 {
     new full_reset = GetEventInt(event, "full_reset");
     if (full_reset)
@@ -546,7 +546,7 @@ public Action:Event_TeamplayRoundStart(Handle:event, const String:name[], bool:d
     }
 }
 
-public Action:Entity_OnPlayerTouch(const String:output[], caller, activator, Float:delay)
+public Action Entity_OnPlayerTouch(const char output[], caller, activator, Float:delay)
 {
     if (activator > 0 && caller > 0)
     {
@@ -560,14 +560,14 @@ public Action:Entity_OnPlayerTouch(const String:output[], caller, activator, Flo
     }
 }
 
-public bool:MedipackTraceFilter(ent, contentMask)
+public bool MedipackTraceFilter(ent, contentMask)
 {
     return (ent != g_FilteredEntity);
 }
 
 stock TF_SpawnMedipack(client, String:name[], bool:cmd, TFHoliday:holiday)
 {
-    new Float:PlayerPosition[3];
+    float PlayerPosition[3];
     if (cmd)
         GetClientAbsOrigin(client, PlayerPosition);
     else
@@ -580,7 +580,7 @@ stock TF_SpawnMedipack(client, String:name[], bool:cmd, TFHoliday:holiday)
         g_FilteredEntity = client;
         if (cmd)
         {
-            new Float:PlayerPosEx[3], Float:PlayerAngle[3], Float:PlayerPosAway[3];
+            float PlayerPosEx[3], Float:PlayerAngle[3], Float:PlayerPosAway[3];
             GetClientEyeAngles(client, PlayerAngle);
             PlayerPosEx[0] = Cosine((PlayerAngle[1]/180)*FLOAT_PI);
             PlayerPosEx[1] = Sine((PlayerAngle[1]/180)*FLOAT_PI);
@@ -588,18 +588,18 @@ stock TF_SpawnMedipack(client, String:name[], bool:cmd, TFHoliday:holiday)
             ScaleVector(PlayerPosEx, 75.0);
             AddVectors(PlayerPosition, PlayerPosEx, PlayerPosAway);
 
-            new Handle:TraceEx = TR_TraceRayFilterEx(PlayerPosition, PlayerPosAway, MASK_SOLID, RayType_EndPoint, MedipackTraceFilter);
+            Handle TraceEx = TR_TraceRayFilterEx(PlayerPosition, PlayerPosAway, MASK_SOLID, RayType_EndPoint, MedipackTraceFilter);
             TR_GetEndPosition(PlayerPosition, TraceEx);
             CloseHandle(TraceEx);
         }
 
-        new Float:Direction[3];
+        float Direction[3];
         Direction[0] = PlayerPosition[0];
         Direction[1] = PlayerPosition[1];
         Direction[2] = PlayerPosition[2]-1024;
-        new Handle:Trace = TR_TraceRayFilterEx(PlayerPosition, Direction, MASK_SOLID, RayType_EndPoint, MedipackTraceFilter);
+        Handle Trace = TR_TraceRayFilterEx(PlayerPosition, Direction, MASK_SOLID, RayType_EndPoint, MedipackTraceFilter);
 
-        new Float:MediPos[3];
+        float MediPos[3];
         TR_GetEndPosition(MediPos, Trace);
         CloseHandle(Trace);
         MediPos[2] += 4;

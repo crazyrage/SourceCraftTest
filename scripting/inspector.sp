@@ -14,9 +14,9 @@
 
 #define PL_VERSION "1.3"
 
-new Handle:g_InspectionEnabled = INVALID_HANDLE;
+Handle g_InspectionEnabled = INVALID_HANDLE;
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "The Inspector",
     author = "-=|JFH|=-Naris",
@@ -50,7 +50,7 @@ public OnPluginStart()
 
 // Events
 
-public PlayerBuiltObject(Handle:event,const String:name[],bool:dontBroadcast)
+public PlayerBuiltObject(Handle:event,const char name[],bool:dontBroadcast)
 {
     if (GetConVarBool(g_InspectionEnabled))
     {
@@ -71,7 +71,7 @@ public PlayerBuiltObject(Handle:event,const String:name[],bool:dontBroadcast)
     }
 }
 
-public ObjectRemoved(Handle:event,const String:name[],bool:dontBroadcast)
+public ObjectRemoved(Handle:event,const char name[],bool:dontBroadcast)
 {
     if (GetConVarBool(g_InspectionEnabled))
     {
@@ -91,7 +91,7 @@ public ObjectRemoved(Handle:event,const String:name[],bool:dontBroadcast)
     }
 }
 
-public Action:InspectCmd(client, args)
+public Action InspectCmd(client, args)
 {
     new target = GetClientAimTarget(client, false);
     if (target > 0)
@@ -103,11 +103,11 @@ public Action:InspectCmd(client, args)
 
 InspectEntity(client, entity)
 {
-    decl String:class[32];
+    char class[32];
     if (!GetEdictClassname(entity,class,sizeof(class)))
         class[0] = '\0';
 
-    decl String:net_class[32];
+    char net_class[32];
     if (!GetEntityNetClass(entity,net_class,sizeof(net_class)))
         net_class[0] = '\0';
 
@@ -117,16 +117,16 @@ InspectEntity(client, entity)
     new m_nBody = GetEntProp(entity, Prop_Send, "m_nBody");
     new m_iTeamNum = GetEntProp(entity, Prop_Send, "m_iTeamNum");
 
-    new Float:m_vecOrigin[3];
+    float m_vecOrigin[3];
     GetEntPropVector(entity, Prop_Send, "m_vecOrigin", m_vecOrigin);
 
-    new Float:m_angRotation[3];
+    float m_angRotation[3];
     GetEntPropVector(entity, Prop_Send, "m_angRotation", m_vecOrigin);
 
-    new Float:m_vecMaxs[3];
+    float m_vecMaxs[3];
     GetEntPropVector(entity, Prop_Send, "m_vecMaxs", m_vecMaxs);
 
-    new Float:m_vecMins[3];
+    float m_vecMins[3];
     GetEntPropVector(entity, Prop_Send, "m_vecMins", m_vecMins);
 
     LogMessage("%s/%s: flags=%x, skin=%d, body=%d, team=%d, maxs={%f,%f,%f}, mins={%f,%f,%f}, origin={%f,%f,%f}, angle={%f,%f,%f}",
@@ -142,10 +142,10 @@ InspectEntity(client, entity)
 
     if (strncmp(class, "obj_", 4) == 0)
     {
-        new Float:m_vecBuildMaxs[3];
+        float m_vecBuildMaxs[3];
         GetEntPropVector(entity, Prop_Send, "m_vecBuildMaxs", m_vecBuildMaxs);
 
-        new Float:m_vecBuildMins[3];
+        float m_vecBuildMins[3];
         GetEntPropVector(entity, Prop_Send, "m_vecBuildMins", m_vecBuildMins);
 
         new m_iHealth = GetEntProp(entity, Prop_Send, "m_iHealth");
@@ -169,7 +169,7 @@ InspectEntity(client, entity)
 
         new m_hBuilder = GetEntPropEnt(entity, Prop_Send, "m_hBuilder");
 
-        new Float:m_flPercentageConstructed = GetEntPropFloat(entity, Prop_Send, "m_flPercentageConstructed");
+        float m_flPercentageConstructed = GetEntPropFloat(entity, Prop_Send, "m_flPercentageConstructed");
 
         LogMessage("type=%d, mode=%d, mini=%d, oflags=%x, disabled=%d, level=%d, hlevel=%d, BuildMaxs={%f,%f,%f}, BuildMins={%f,%f,%f}",
                    m_iObjectType, m_iObjectMode, m_bMiniBuilding, m_fObjectFlags, m_bDisabled, m_iUpgradeLevel, m_iHighestUpgradeLevel,
@@ -201,7 +201,7 @@ InspectEntity(client, entity)
             new m_hEnemy = GetEntProp(entity, Prop_Send, "m_hEnemy");
             new m_hAutoAimTarget = GetEntProp(entity, Prop_Send, "m_hAutoAimTarget");
 
-            new Float:m_HackedGunPos[3];
+            float m_HackedGunPos[3];
             GetEntPropVector(entity, Prop_Data, "m_HackedGunPos", m_HackedGunPos);
 
             LogMessage("shells=%d, rockets=%d, shielded=%d, state=%d, controlled=%d, enemy=%d, target=%d, GunPos={%f,%f,%f}",
@@ -221,12 +221,12 @@ InspectEntity(client, entity)
     }
 }
 
-public Action:Command_ObjHealth(client, args)
+public Action Command_ObjHealth(client, args)
 {
     new target = GetClientAimTarget(client, false);
     if (target > 0)
     {
-        decl String:class[32];
+        char class[32];
         if (GetEdictClassname(target,class,sizeof(class)))
         {
             if (strncmp(class, "obj_", 4) == 0)
@@ -236,7 +236,7 @@ public Action:Command_ObjHealth(client, args)
 
                 if (args >= 1)
                 {
-                    decl String:arg1[32];
+                    char arg1[32];
                     GetCmdArg(1, arg1, sizeof(arg1));
 
                     new num=StringToInt(arg1);
@@ -258,12 +258,12 @@ public Action:Command_ObjHealth(client, args)
     return Plugin_Handled;
 }
 
-public Action:Command_ObjShells(client, args)
+public Action Command_ObjShells(client, args)
 {
     new target = GetClientAimTarget(client, false);
     if (target > 0)
     {
-        decl String:class[32];
+        char class[32];
         if (GetEdictClassname(target,class,sizeof(class)))
         {
             if (StrEqual(class, "obj_sentrygun"))
@@ -272,7 +272,7 @@ public Action:Command_ObjShells(client, args)
 
                 if (args >= 1)
                 {
-                    decl String:arg1[32];
+                    char arg1[32];
                     GetCmdArg(1, arg1, sizeof(arg1));
 
                     new num=StringToInt(arg1);
@@ -294,12 +294,12 @@ public Action:Command_ObjShells(client, args)
     return Plugin_Handled;
 }
 
-public Action:Command_ObjRockets(client, args)
+public Action Command_ObjRockets(client, args)
 {
     new target = GetClientAimTarget(client, false);
     if (target > 0)
     {
-        decl String:class[32];
+        char class[32];
         if (GetEdictClassname(target,class,sizeof(class)))
         {
             if (StrEqual(class, "obj_sentrygun"))
@@ -308,7 +308,7 @@ public Action:Command_ObjRockets(client, args)
 
                 if (args >= 1)
                 {
-                    decl String:arg1[32];
+                    char arg1[32];
                     GetCmdArg(1, arg1, sizeof(arg1));
 
                     new num=StringToInt(arg1);
@@ -331,7 +331,7 @@ public Action:Command_ObjRockets(client, args)
 }
 
 
-public Action:TF2_CalcIsAttackCritical(client, weapon, String:weaponname[], &bool:result)
+public Action TF2_CalcIsAttackCritical(client, weapon, String:weaponname[], &bool:result)
 {
     if (client > 0 && weapon > 0)
     {

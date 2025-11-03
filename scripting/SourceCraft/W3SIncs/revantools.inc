@@ -13,7 +13,7 @@ Version : 1.0
 
 stock PushEntToVector( edict, Float:pos1[3], Float:power )
 {
-	new Float:pos2[3], Float:main_origin[3], Float:velo1[3], Float:velo2[3];
+	float pos2[3], Float:main_origin[3], Float:velo1[3], Float:velo2[3];
 	GetEntPropVector(edict, Prop_Send, "m_vecOrigin", pos2);
 
 	main_origin[0] = pos1[0] - pos2[0], main_origin[1] = pos1[1] - pos2[1], main_origin[2] = pos1[2] - pos2[2];
@@ -31,7 +31,7 @@ stock CreateParticles(const client,bool:parentent,Float:fLifetime,Float:fAng[3],
 	new particle = CreateEntityByName("env_smokestack");
 	if(IsValidEdict(particle) && IsClientInGame(client))
 	{
-		decl String:Name[32], Float:fPos[3];
+		char Name[32], Float:fPos[3];
 		Format(Name, sizeof(Name), "W3S_particles_%i", client);
 		GetEntPropVector(client, Prop_Send, "m_vecOrigin", fPos);
 		fPos[2] += 50.0;
@@ -76,7 +76,7 @@ stock CreateFire(const client,String:firesize[],String:health[],String:fireattac
 	new fire = CreateEntityByName("env_fire");
 	if(IsValidEdict(fire) && IsClientInGame(client))
 	{
-		decl String:Name[32], Float:fPos[3];
+		char Name[32], Float:fPos[3];
 		Format(Name, sizeof(Name), "W3S_fire_%i", client);
 		GetEntPropVector(client, Prop_Send, "m_vecOrigin", fPos);
 		DispatchKeyValueFloat(fire, "damagescale", damagescale);
@@ -106,7 +106,7 @@ stock CreateTesla(const client,Float:flifetime_min,Float:flifetime_max,Float:thi
 	new point_tesla = CreateEntityByName("point_tesla");
 	if(IsValidEdict(point_tesla) && IsClientInGame(client))
 	{
-		decl String:Name[32], Float:fPos[3];
+		char Name[32], Float:fPos[3];
 		Format(Name, sizeof(Name), "W3S_tesla_%i", client);
 		GetEntPropVector(client, Prop_Send, "m_vecOrigin", fPos);
 		fPos[2]+=42.0;
@@ -163,7 +163,7 @@ public Action:INCTimer_RemoveEntity(Handle:timer, any:edict)
 
 stock SetEntityAimToClient( edict, target)
 {
-	new Float:spos[3],  Float:epos[3], Float:vecles[3], Float:angles[3];
+	float spos[3],  Float:epos[3], Float:vecles[3], Float:angles[3];
 	GetEntPropVector(edict, Prop_Send, "m_vecOrigin", spos);
 	GetClientAbsOrigin( target, epos );
 	SubtractVectors( epos, spos, vecles );

@@ -7,38 +7,38 @@
 #include <sdktools_tempents>
 #include <sdktools_tempents_stocks>
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "War3Source - Race - Soul Reaper",
     author = "War3Source Team",
     description = "The Soul Reaper race for War3Source."
 };
 
-new thisRaceID;
+int thisRaceID;
 
 #if !defined SOURCECRAFT
-new Handle:ultCooldownCvar;
+Handle ultCooldownCvar;
 #endif
 
-new SKILL_JUDGE, SKILL_PRESENCE,SKILL_INHUMAN, ULT_EXECUTE;
+int SKILL_JUDGE, SKILL_PRESENCE,SKILL_INHUMAN, ULT_EXECUTE;
 
 
 // Chance/Data Arrays
-new JudgementAmount[5]={0,10,20,30,40};
-new Float:JudgementCooldownTime=10.0;
-new Float:JudgementRange=200.0;
+int JudgementAmount[5]={0,10,20,30,40};
+float JudgementCooldownTime=10.0;
+float JudgementRange=200.0;
 
-new Float:PresenseAmount[5]={0.0,0.5,1.0,1.5,2.0}; 
-new Float:PresenceRange=400.0;
+float PresenseAmount[5]={0.0,0.5,1.0,1.5,2.0}; 
+float PresenceRange=400.0;
 
-new InhumanAmount[5]={0,5,10,15,20};
-new Float:InhumanRange=400.0;
+int InhumanAmount[5]={0,5,10,15,20};
+float InhumanRange=400.0;
 
-new Float:ultRange=300.0;
-new Float:ultiDamageMulti[5]={0.0,0.4,0.6,0.8,1.0};
+float ultRange=300.0;
+float ultiDamageMulti[5]={0.0,0.4,0.6,0.8,1.0};
 
-new String:judgesnd[256]; //="war3source/sr/judgement.mp3";
-new String:ultsnd[256]; //="war3source/sr/ult.mp3";
+char judgesnd[256]; //="war3source/sr/judgement.mp3";
+char ultsnd[256]; //="war3source/sr/ult.mp3";
 
 public OnPluginStart()
 {
@@ -139,11 +139,11 @@ public OnAbilityCommand(client,ability,bool:pressed)
             {
                 new amount=JudgementAmount[skill_level];
                 
-                new Float:playerOrigin[3];
+                float playerOrigin[3];
                 GetClientAbsOrigin(client,playerOrigin);
                 
                 new team = GetClientTeam(client);
-                new Float:otherVec[3];
+                float otherVec[3];
                 for(new i=1;i<=MaxClients;i++){
                     if(ValidPlayer(i,true)){
                         GetClientAbsOrigin(i,otherVec);
@@ -194,7 +194,7 @@ public OnUltimateCommand(client,race,bool:pressed)
                         PrintToConsole(client,"T%","Executed for {amount} damage",client,War3_GetWar3DamageDealt());
 
 #if defined SOURCECRAFT
-                        new Float:cooldown= GetUpgradeCooldown(thisRaceID,ULT_EXECUTE);
+                        float cooldown= GetUpgradeCooldown(thisRaceID,ULT_EXECUTE);
                         War3_CooldownMGR(client,cooldown,thisRaceID,ULT_EXECUTE,true,true);
 #else
                         War3_CooldownMGR(client,GetConVarFloat(ultCooldownCvar),thisRaceID,ULT_EXECUTE,true,true);
@@ -225,10 +225,10 @@ public PlayerDeathEvent(Handle:event,const String:name[],bool:dontBroadcast)
     
     if(victim>0)
     {
-        new Float:deathvec[3];
+        float deathvec[3];
         GetClientAbsOrigin(victim,deathvec);
         
-        new Float:gainhpvec[3];
+        float gainhpvec[3];
         
         for(new client=1;client<=MaxClients;client++)
         {

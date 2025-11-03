@@ -11,12 +11,12 @@
 // Global Definitions
 #define PLUGIN_VERSION "1.0.0"
 
-new maxclients;
-new maxents;
-new ownerOffset;
+int maxclients;
+int maxents;
+int ownerOffset;
 
 // Functions
-public Plugin:myinfo =
+public Plugin myinfo =
 {
 	name = "Destroy Engineer Buildings",
 	author = "bl4nk",
@@ -41,7 +41,7 @@ public OnPluginStart()
 	maxents = GetMaxEntities();
 }
 
-public Action:Command_Destroy(client, args)
+public Action Command_Destroy(client, args)
 {
 	if (args < 1)
 	{
@@ -49,7 +49,7 @@ public Action:Command_Destroy(client, args)
 		return Plugin_Handled;
 	}
 
-	decl String:text[256], String:arg[64];
+	char text[256], String:arg[64];
 	GetCmdArg(1, text, sizeof(text));
 	GetCmdArg(2, arg, sizeof(arg));
 
@@ -103,7 +103,7 @@ public Action:Command_Destroy(client, args)
 	}
 	else
 	{
-		decl String:target_name[MAX_TARGET_LENGTH];
+		char target_name[MAX_TARGET_LENGTH];
 		decl target_list[MAXPLAYERS], target_count, bool:tn_is_ml;
 
 		if ((target_count = ProcessTargetString(
@@ -127,17 +127,17 @@ public Action:Command_Destroy(client, args)
 	return Plugin_Handled;
 }
 
-stock bool:DestroyBuildingByName(client, const String:name[])
+stock bool:DestroyBuildingByName(client, const char name[])
 {
 	if (strcmp(name, "sentry") == 0)
 	{
-		new bool:destroyed = false;
+		bool destroyed = false;
 		for (new i = maxclients + 1; i <= maxents; i++)
 		{
 			if (!IsValidEntity(i))
 				continue;
 
-			decl String:netclass[32];
+			char netclass[32];
 			GetEntityNetClass(i, netclass, sizeof(netclass));
 
 			if (strcmp(netclass, "CObjectSentrygun") == 0)
@@ -158,13 +158,13 @@ stock bool:DestroyBuildingByName(client, const String:name[])
 	}
 	else if (strcmp(name, "dispenser") == 0)
 	{
-		new bool:destroyed = false;
+		bool destroyed = false;
 		for (new i = maxclients + 1; i <= maxents; i++)
 		{
 			if (!IsValidEntity(i))
 				continue;
 
-			decl String:netclass[32];
+			char netclass[32];
 			GetEntityNetClass(i, netclass, sizeof(netclass));
 
 			if (strcmp(netclass, "CObjectDispenser") == 0)
@@ -185,18 +185,18 @@ stock bool:DestroyBuildingByName(client, const String:name[])
 	}
 	else if (strcmp(name, "entrance") == 0)
 	{
-		new bool:destroyed = false;
+		bool destroyed = false;
 		for (new i = maxclients + 1; i <= maxents; i++)
 		{
 			if (!IsValidEntity(i))
 				continue;
 
-			decl String:netclass[32];
+			char netclass[32];
 			GetEntityNetClass(i, netclass, sizeof(netclass));
 
 			if (strcmp(netclass, "CObjectTeleporter") == 0)
 			{
-				decl String:classname[32];
+				char classname[32];
 				GetEdictClassname(i, classname, sizeof(classname));
 
 				if (strcmp(classname, "obj_teleporter_entrance") == 0)
@@ -218,18 +218,18 @@ stock bool:DestroyBuildingByName(client, const String:name[])
 	}
 	else if (strcmp(name, "exit") == 0)
 	{
-		new bool:destroyed = false;
+		bool destroyed = false;
 		for (new i = maxclients + 1; i <= maxents; i++)
 		{
 			if (!IsValidEntity(i))
 				continue;
 
-			decl String:netclass[32];
+			char netclass[32];
 			GetEntityNetClass(i, netclass, sizeof(netclass));
 
 			if (strcmp(netclass, "CObjectTeleporter") == 0)
 			{
-				decl String:classname[32];
+				char classname[32];
 				GetEdictClassname(i, classname, sizeof(classname));
 
 				if (strcmp(classname, "obj_teleporter_exit") == 0)
@@ -251,13 +251,13 @@ stock bool:DestroyBuildingByName(client, const String:name[])
 	}
 	else if (strcmp(name, "all") == 0)
 	{
-		new bool:destroyed = false;
+		bool destroyed = false;
 		for (new i = maxclients + 1; i <= maxents; i++)
 		{
 			if (!IsValidEntity(i))
 				continue;
 
-			decl String:netclass[32];
+			char netclass[32];
 			GetEntityNetClass(i, netclass, sizeof(netclass));
 
 			if (strcmp(netclass, "CObjectSentrygun") == 0 || strcmp(netclass, "CObjectTeleporter") == 0 || strcmp(netclass, "CObjectDispenser") == 0)

@@ -49,9 +49,9 @@ stock LogEventDamage(Handle:event,damage,const String:source[], race_id)
         race_id == assister_race || race_id < 0)
     {
         new health=0;
-        decl String:team[64];
-        decl String:steamID[64];
-        decl String:attacker_weapon[64];
+        char team[64];
+        char steamID[64];
+        char attacker_weapon[64];
         if (attacker)
         {
             GetClientAuthId(attacker, AuthId_Steam2, steamID, sizeof(steamID));
@@ -66,28 +66,28 @@ stock LogEventDamage(Handle:event,damage,const String:source[], race_id)
             strcopy(steamID,sizeof(steamID), "World");
         }
 
-        decl String:victimID[64];
+        char victimID[64];
         GetClientAuthId(victim, AuthId_Steam2, victimID, sizeof(victimID));
 
-        decl String:victimTeam[64];
+        char victimTeam[64];
         GetTeamName(GetClientTeam(victim), victimTeam, sizeof(victimTeam));
 
         new victimHealth=GetClientHealth(victim);
 
-        decl String:event_weapon[64];
+        char event_weapon[64];
         GetEventString(event,"weapon",event_weapon,sizeof(event_weapon));
 
         new event_damage = GetEventInt(event, "damage");
 
         if (assister)
         {
-            decl String:assisterID[64];
+            char assisterID[64];
             GetClientAuthId(assister, AuthId_Steam2, assisterID, sizeof(assisterID));
 
-            decl String:assisterTeam[64];
+            char assisterTeam[64];
             GetTeamName(GetClientTeam(assister), assisterTeam, sizeof(assisterTeam));
 
-            decl String:assister_weapon[64];
+            char assister_weapon[64];
             GetClientWeapon(assister, assister_weapon, sizeof(assister_weapon));
 
             new assisterHealth=GetClientHealth(assister);

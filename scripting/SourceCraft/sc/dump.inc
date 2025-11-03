@@ -12,11 +12,11 @@
 
 stock DumpSniperDot(client, obj)
 {
-    new Float:m_vecOrigin[3];
-    new Float:m_vecMins[3];
-    new Float:m_vecMaxs[3];
-    new Float:m_vecSpecifiedSurroundingMins[3];
-    new Float:m_vecSpecifiedSurroundingMaxs[3];
+    float m_vecOrigin[3];
+    float m_vecMins[3];
+    float m_vecMaxs[3];
+    float m_vecSpecifiedSurroundingMins[3];
+    float m_vecSpecifiedSurroundingMaxs[3];
 
     //CSniperDot:
     // Sub-Class Table (1 Deep): DT_SniperDot
@@ -30,8 +30,8 @@ stock DumpSniperDot(client, obj)
     new m_clrRender = GetEntData(obj, FindSendPropInfo("CSniperDot","m_clrRender")); // (bits 32)
     new m_iTeamNum = GetEntData(obj, FindSendPropInfo("CSniperDot","m_iTeamNum")); // (bits 6)
     new m_CollisionGroup = GetEntData(obj, FindSendPropInfo("CSniperDot","m_CollisionGroup")); // (bits 5)
-    new Float:m_flElasticity = GetEntDataFloat(obj, FindSendPropInfo("CSniperDot","m_flElasticity"));
-    new Float:m_flShadowCastDistance = GetEntDataFloat(obj, FindSendPropInfo("CSniperDot","m_flShadowCastDistance")); // (bits 12)
+    float m_flElasticity = GetEntDataFloat(obj, FindSendPropInfo("CSniperDot","m_flElasticity"));
+    float m_flShadowCastDistance = GetEntDataFloat(obj, FindSendPropInfo("CSniperDot","m_flShadowCastDistance")); // (bits 12)
     new m_hOwnerEntity = GetEntDataEnt2(obj, FindSendPropInfo("CSniperDot","m_hOwnerEntity")); // (bits 21)
     new m_hEffectEntity = GetEntDataEnt2(obj, FindSendPropInfo("CSniperDot","m_hEffectEntity")); // (bits 21)
     new moveparent = GetEntDataEnt2(obj, FindSendPropInfo("CSniperDot","moveparent")); // (bits 21)
@@ -40,10 +40,10 @@ stock DumpSniperDot(client, obj)
     new movecollide = GetEntData(obj, FindSendPropInfo("CSniperDot","movecollide")); // (bits 3)
     new m_angRotation = GetEntData(obj, FindSendPropInfo("CSniperDot","m_angRotation")); // (bits 13)
     new m_iTextureFrameIndex = GetEntData(obj, FindSendPropInfo("CSniperDot","m_iTextureFrameIndex")); // (bits 8)
-    new bool:m_bSimulatedEveryTick = bool:GetEntData(obj, FindSendPropInfo("CSniperDot","m_bSimulatedEveryTick"));
-    new bool:m_bAnimatedEveryTick = bool:GetEntData(obj, FindSendPropInfo("CSniperDot","m_bAnimatedEveryTick"));
-    new bool:m_bAlternateSorting = bool:GetEntData(obj, FindSendPropInfo("CSniperDot","m_bAlternateSorting"));
-    new Float:m_flChargeStartTime = GetEntDataFloat(obj, FindSendPropInfo("CSniperDot","m_flChargeStartTime"));
+    bool m_bSimulatedEveryTick = bool:GetEntData(obj, FindSendPropInfo("CSniperDot","m_bSimulatedEveryTick"));
+    bool m_bAnimatedEveryTick = bool:GetEntData(obj, FindSendPropInfo("CSniperDot","m_bAnimatedEveryTick"));
+    bool m_bAlternateSorting = bool:GetEntData(obj, FindSendPropInfo("CSniperDot","m_bAlternateSorting"));
+    float m_flChargeStartTime = GetEntDataFloat(obj, FindSendPropInfo("CSniperDot","m_flChargeStartTime"));
 
     //   Sub-Class Table (3 Deep): DT_AnimTimeMustBeFirst
     new m_flAnimTime = GetEntData(obj, FindSendPropInfo("CSniperDot","m_flAnimTime")); // (bits 8)
@@ -60,7 +60,7 @@ stock DumpSniperDot(client, obj)
 
     //   Sub-Class Table (3 Deep): DT_PredictableId
     new m_PredictableID = GetEntData(obj, FindSendPropInfo("CSniperDot","m_PredictableID")); // (bits 31)
-    new bool:m_bIsPlayerSimulated = bool:GetEntData(obj, FindSendPropInfo("CSniperDot","m_bIsPlayerSimulated"));
+    bool m_bIsPlayerSimulated = bool:GetEntData(obj, FindSendPropInfo("CSniperDot","m_bIsPlayerSimulated"));
 
     LogMessage("m_flSimulationTime=%d",m_flSimulationTime);
     LogMessage("m_vecOrigin=(%d,%d,%d)",m_vecOrigin[0],m_vecOrigin[1],m_vecOrigin[2]);

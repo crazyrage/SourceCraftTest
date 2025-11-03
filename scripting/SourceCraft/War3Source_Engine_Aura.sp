@@ -3,33 +3,33 @@
 #include <sourcemod>
 #include "W3SIncs/War3Source_Interface"
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "War3Source - Engine - Aura",
     author = "War3Source Team",
     description = "Aura Engine for War3Source"
 };
 
-new bool:AuraOrigin[MAXPLAYERSCUSTOM][MAXAURAS];
-new bool:AuraOriginLevel[MAXPLAYERSCUSTOM][MAXAURAS];
+bool AuraOrigin[MAXPLAYERSCUSTOM][MAXAURAS];
+bool AuraOriginLevel[MAXPLAYERSCUSTOM][MAXAURAS];
 
-new HasAura[MAXPLAYERSCUSTOM][MAXAURAS]; //int, we just count up
-new HasAuraLevel[MAXPLAYERSCUSTOM][MAXAURAS];
+int HasAura[MAXPLAYERSCUSTOM][MAXAURAS]; //int, we just count up
+int HasAuraLevel[MAXPLAYERSCUSTOM][MAXAURAS];
 
-new String:AuraShort[MAXAURAS][32];
-new Float:AuraDistance[MAXAURAS];
-new bool:AuraTrackOtherTeam[MAXAURAS];
-new AuraCount=0;
+char AuraShort[MAXAURAS][32];
+float AuraDistance[MAXAURAS];
+bool AuraTrackOtherTeam[MAXAURAS];
+int AuraCount=0;
 
-new Handle:g_Forward;
+Handle g_Forward;
 
-new Float:lastCalcAuraTime;
+float lastCalcAuraTime;
 
 public OnPluginStart()
 {
     CreateTimer(0.5,CalcAura,_,TIMER_REPEAT);
 }
-public bool:InitNativesForwards()
+public bool InitNativesForwards()
 {
     
     
@@ -43,7 +43,7 @@ public bool:InitNativesForwards()
 
 public NW3RegisterAura(Handle:plugin,numParams)
 {
-    new String:taurashort[32];
+    char taurashort[32];
     GetNativeString(1,taurashort,32);
     
     for(new aura=1; aura <= AuraCount; aura++)
@@ -106,7 +106,7 @@ ShouldCalcAura(){
         CalcAura(INVALID_HANDLE);
     }
 }
-public Action:CalcAura(Handle:t)
+public Action CalcAura(Handle:t)
 {
     lastCalcAuraTime=GetEngineTime();
     //store old aura count
@@ -123,9 +123,9 @@ public Action:CalcAura(Handle:t)
     }
     
     
-//    new Float:Distances[MAXPLAYERSCUSTOM][MAXPLAYERSCUSTOM];
-    decl Float:vec1[3];
-    decl Float:vec2[3];
+//    float Distances[MAXPLAYERSCUSTOM][MAXPLAYERSCUSTOM];
+    float vec1[3];
+    float vec2[3];
     decl teamtarget;
     decl teamclient;
     for(new client=1;client<=MaxClients;client++)
@@ -140,7 +140,7 @@ public Action:CalcAura(Handle:t)
                     teamclient=GetClientTeam(client);
                     GetClientAbsOrigin(client,vec1);
                     GetClientAbsOrigin(target,vec2);
-                    new Float:dis=GetVectorDistance(vec1,vec2);
+                    float dis=GetVectorDistance(vec1,vec2);
                     //Distances[client][target]=dis;
                     //Distances[target][client]=dis;
                     //DP("aura %d  %f",client,dis);

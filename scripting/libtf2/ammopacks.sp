@@ -46,7 +46,7 @@
 #define LARGE_MODEL     "models/items/ammopack_large.mdl"
 #define MEDIUM_MODEL    "models/items/ammopack_medium.mdl"
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "TF2 Ammopacks",
     author = "Hunter",
@@ -55,26 +55,26 @@ public Plugin:myinfo =
     url = "http://forums.alliedmods.net/showthread.php?t=65355"
 }
 
-new bool:g_NativeControl = false;
-new bool:g_EngiButtonDown[MAXPLAYERS+1];
-new Float:g_EngiPosition[MAXPLAYERS+1][3];
-new g_NativeAmmopacks[MAXPLAYERS+1];
-new g_EngiMetal[MAXPLAYERS+1];
-new g_AmmopacksCount = 0;
-new g_FilteredEntity = -1;
-new Handle:g_IsAmmopacksOn = INVALID_HANDLE;
-new Handle:g_AmmopacksSmall = INVALID_HANDLE;
-new Handle:g_AmmopacksMedium = INVALID_HANDLE;
-new Handle:g_AmmopacksFull = INVALID_HANDLE;
-new Handle:g_AmmopacksKeep = INVALID_HANDLE;
-new Handle:g_AmmopacksTeam = INVALID_HANDLE;
-new Handle:g_AmmopacksLimit = INVALID_HANDLE;
-new Handle:g_AmmopacksTime = INVALID_HANDLE;
-new Handle:g_AmmopacksRef = INVALID_HANDLE;
+bool g_NativeControl = false;
+bool g_EngiButtonDown[MAXPLAYERS+1];
+float g_EngiPosition[MAXPLAYERS+1][3];
+int g_NativeAmmopacks[MAXPLAYERS+1];
+int g_EngiMetal[MAXPLAYERS+1];
+int g_AmmopacksCount = 0;
+int g_FilteredEntity = -1;
+Handle g_IsAmmopacksOn = INVALID_HANDLE;
+Handle g_AmmopacksSmall = INVALID_HANDLE;
+Handle g_AmmopacksMedium = INVALID_HANDLE;
+Handle g_AmmopacksFull = INVALID_HANDLE;
+Handle g_AmmopacksKeep = INVALID_HANDLE;
+Handle g_AmmopacksTeam = INVALID_HANDLE;
+Handle g_AmmopacksLimit = INVALID_HANDLE;
+Handle g_AmmopacksTime = INVALID_HANDLE;
+Handle g_AmmopacksRef = INVALID_HANDLE;
 
-new g_LargeModel = 0;
-new g_SmallModel = 0;
-new g_MediumModel = 0;
+int g_LargeModel = 0;
+int g_SmallModel = 0;
+int g_MediumModel = 0;
 
 public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
 {
@@ -151,7 +151,7 @@ public OnClientPutInServer(client)
         CreateTimer(45.0, Timer_Advert, client);
 }
 
-public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:angles[3], &weapon)
+public Action OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:angles[3], &weapon)
 {
     if (buttons & IN_ATTACK2 && !g_EngiButtonDown[client])
     {
@@ -164,7 +164,7 @@ public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:ang
             g_EngiButtonDown[client] = true;
             CreateTimer(0.5, Timer_ButtonUp, client);
 
-            new String:classname[64];
+            char classname[64];
             GetCurrentWeaponClass(client, classname, 64);
             if(StrEqual(classname, "CTFWrench"))
                 TF_DropAmmopack(client, true);
@@ -173,12 +173,12 @@ public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:ang
     return Plugin_Continue;
 }
 
-public ConVarChange_Version(Handle:convar, const String:oldValue[], const String:newValue[])
+public ConVarChange_Version(Handle:convar, const char oldValue[], const char newValue[])
 {
     SetConVarString(convar, PL_VERSION);
 }
 
-public ConVarChange_IsAmmopacksOn(Handle:convar, const String:oldValue[], const String:newValue[])
+public ConVarChange_IsAmmopacksOn(Handle:convar, const char oldValue[], const char newValue[])
 {
     if (StringToInt(newValue) > 0)
         PrintToChatAll("[SM] %t", "Enabled Ammopacks");
@@ -186,7 +186,7 @@ public ConVarChange_IsAmmopacksOn(Handle:convar, const String:oldValue[], const 
         PrintToChatAll("[SM] %t", "Disabled Ammopacks");
 }
 
-public Action:Command_Ammopack(client, args)
+public Action Command_Ammopack(client, args)
 {
     new AmmopacksOn = g_NativeControl ? g_NativeAmmopacks[client]
                                       : GetConVarInt(g_IsAmmopacksOn);
@@ -197,7 +197,7 @@ public Action:Command_Ammopack(client, args)
     if (class != TFClass_Engineer)
         return Plugin_Handled;
 
-    new String:classname[64];
+    char classname[64];
     GetCurrentWeaponClass(client, classname, 64);
     if(!StrEqual(classname, "CWrench"))
         return Plugin_Handled;
@@ -207,7 +207,7 @@ public Action:Command_Ammopack(client, args)
     return Plugin_Handled;
 }
 
-public Action:Command_MetalAmount(client, args)
+public Action Command_MetalAmount(client, args)
 {
     if (args < 1)
     {
@@ -215,7 +215,7 @@ public Action:Command_MetalAmount(client, args)
         return Plugin_Handled;
     }
 
-    new String:arg1[32], String:arg2[32];
+    char arg1[32], String:arg2[32];
     GetCmdArg(1, arg1, sizeof(arg1));
 
     new target = FindTarget(client, arg1);
@@ -224,10 +224,10 @@ public Action:Command_MetalAmount(client, args)
         return Plugin_Handled;
     }
 
-    new String:name[MAX_NAME_LENGTH];
+    char name[MAX_NAME_LENGTH];
     GetClientName(target, name, sizeof(name));
 
-    new bool:alive = IsPlayerAlive(target);
+    bool alive = IsPlayerAlive(target);
     if (!alive)
     {
         ReplyToCommand(client, "[SM] %t", "Cannot be performed on dead", name);
@@ -259,7 +259,7 @@ public Action:Command_MetalAmount(client, args)
     return Plugin_Handled;
 }
 
-public Action:Timer_Advert(Handle:timer, any:client)
+public Action Timer_Advert(Handle:timer, any:client)
 {
     if (IsClientConnected(client) && IsClientInGame(client))
     {
@@ -276,7 +276,7 @@ public Action:Timer_Advert(Handle:timer, any:client)
     }
 }
 
-public Action:Timer_Caching(Handle:timer)
+public Action Timer_Caching(Handle:timer)
 {
     for (new i = 1; i <= MaxClients; i++)
     {
@@ -298,7 +298,7 @@ public Action:Timer_Caching(Handle:timer)
             new time = GetArrayCell(g_AmmopacksTime, c);
             if (time > 0)
             {
-                new bool:valid = (EntRefToEntIndex(GetArrayCell(g_AmmopacksRef, c)) == c &&
+                bool valid = (EntRefToEntIndex(GetArrayCell(g_AmmopacksRef, c)) == c &&
                                  IsValidEdict(c));
                 if (valid)
                 {
@@ -321,12 +321,12 @@ public Action:Timer_Caching(Handle:timer)
     }
 }
 
-public Action:Timer_ButtonUp(Handle:timer, any:client)
+public Action Timer_ButtonUp(Handle:timer, any:client)
 {
     g_EngiButtonDown[client] = false;
 }
 
-public Action:Event_PlayerDeath(Handle:event, const String:name[], bool:dontBroadcast)
+public Action Event_PlayerDeath(Handle:event, const char name[], bool:dontBroadcast)
 {
     // Skip feigned deaths.
     if (GetEventInt(event, "death_flags") & TF_DEATHFLAG_DEADRINGER)
@@ -354,7 +354,7 @@ public Action:Event_PlayerDeath(Handle:event, const String:name[], bool:dontBroa
     TF_DropAmmopack(client, false);
 }
 
-public Action:Event_PlayerTeam(Handle:event, const String:name[], bool:dontBroadcast)
+public Action Event_PlayerTeam(Handle:event, const char name[], bool:dontBroadcast)
 {
     new disconnect = GetEventInt(event, "disconnect");
     if (disconnect)
@@ -373,7 +373,7 @@ public Action:Event_PlayerTeam(Handle:event, const String:name[], bool:dontBroad
     g_EngiPosition[client] = NULL_VECTOR;
 }
 
-public Action:Event_TeamplayRoundStart(Handle:event, const String:name[], bool:dontBroadcast)
+public Action Event_TeamplayRoundStart(Handle:event, const char name[], bool:dontBroadcast)
 {
     new full_reset = GetEventInt(event, "full_reset");
     if (full_reset)
@@ -392,7 +392,7 @@ public Action:Event_TeamplayRoundStart(Handle:event, const String:name[], bool:d
     }
 }
 
-public Action:Entity_OnPlayerTouch(const String:output[], caller, activator, Float:delay)
+public Action Entity_OnPlayerTouch(const char output[], caller, activator, Float:delay)
 {
     if (activator > 0 && caller > 0)
     {
@@ -406,14 +406,14 @@ public Action:Entity_OnPlayerTouch(const String:output[], caller, activator, Flo
     }
 }
 
-public bool:AmmopackTraceFilter(ent, contentMask)
+public bool AmmopackTraceFilter(ent, contentMask)
 {
     return (ent != g_FilteredEntity);
 }
 
 stock TF_SpawnAmmopack(client, String:name[], bool:cmd)
 {
-    new Float:PlayerPosition[3];
+    float PlayerPosition[3];
     if (cmd)
         GetClientAbsOrigin(client, PlayerPosition);
     else
@@ -426,7 +426,7 @@ stock TF_SpawnAmmopack(client, String:name[], bool:cmd)
         g_FilteredEntity = client;
         if (cmd)
         {
-            new Float:PlayerPosEx[3], Float:PlayerAngle[3], Float:PlayerPosAway[3];
+            float PlayerPosEx[3], Float:PlayerAngle[3], Float:PlayerPosAway[3];
             GetClientEyeAngles(client, PlayerAngle);
             PlayerPosEx[0] = Cosine((PlayerAngle[1]/180)*FLOAT_PI);
             PlayerPosEx[1] = Sine((PlayerAngle[1]/180)*FLOAT_PI);
@@ -434,18 +434,18 @@ stock TF_SpawnAmmopack(client, String:name[], bool:cmd)
             ScaleVector(PlayerPosEx, 75.0);
             AddVectors(PlayerPosition, PlayerPosEx, PlayerPosAway);
 
-            new Handle:TraceEx = TR_TraceRayFilterEx(PlayerPosition, PlayerPosAway, MASK_SOLID, RayType_EndPoint, AmmopackTraceFilter);
+            Handle TraceEx = TR_TraceRayFilterEx(PlayerPosition, PlayerPosAway, MASK_SOLID, RayType_EndPoint, AmmopackTraceFilter);
             TR_GetEndPosition(PlayerPosition, TraceEx);
             CloseHandle(TraceEx);
         }
 
-        new Float:Direction[3];
+        float Direction[3];
         Direction[0] = PlayerPosition[0];
         Direction[1] = PlayerPosition[1];
         Direction[2] = PlayerPosition[2]-1024;
-        new Handle:Trace = TR_TraceRayFilterEx(PlayerPosition, Direction, MASK_SOLID, RayType_EndPoint, AmmopackTraceFilter);
+        Handle Trace = TR_TraceRayFilterEx(PlayerPosition, Direction, MASK_SOLID, RayType_EndPoint, AmmopackTraceFilter);
 
-        new Float:AmmoPos[3];
+        float AmmoPos[3];
         TR_GetEndPosition(AmmoPos, Trace);
         CloseHandle(Trace);
         AmmoPos[2] += 4;

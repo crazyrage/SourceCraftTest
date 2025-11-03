@@ -23,23 +23,23 @@
 
 #define ADMFLAG_MERASMUS ADMFLAG_CUSTOM3
 
-new Float:g_pos[3];
+float g_pos[3];
 
-new Handle:g_Size;
-new Handle:g_Glow;
+Handle g_Size;
+Handle g_Glow;
 
-new Handle:v_HP_Base = INVALID_HANDLE;
-new Handle:v_HP_Per_Player = INVALID_HANDLE;
+Handle v_HP_Base = INVALID_HANDLE;
+Handle v_HP_Per_Player = INVALID_HANDLE;
 
-new g_merasmusModel = 0;
+int g_merasmusModel = 0;
 
-new Handle:hAdminMenu = INVALID_HANDLE;
+Handle hAdminMenu = INVALID_HANDLE;
 
-new bool:g_bNativeOverride = false;
-new bool:g_bSoundsPrecached = false;
-new bool:g_bModelsPrecached = false;
+bool g_bNativeOverride = false;
+bool g_bSoundsPrecached = false;
+bool g_bModelsPrecached = false;
 
-public Plugin:myinfo =
+public Plugin myinfo =
 {
 	name = "[TF2] Merasmus Spawner",
 	author = "Tak (Chaosxk)",
@@ -71,7 +71,7 @@ public OnPluginStart()
 
 	if (LibraryExists("adminmenu"))
 	{
-		new Handle:topmenu = GetAdminTopMenu();
+		Handle topmenu = GetAdminTopMenu();
 		if (topmenu != INVALID_HANDLE)
 			OnAdminMenuReady(topmenu);
 	}
@@ -88,7 +88,7 @@ public OnMapStart()
 	//CacheModels();
 }
 
-public Convar_Changer(Handle:convar, const String:oldValue[], const String:newValue[])
+public Convar_Changer(Handle:convar, const char oldValue[], const char newValue[])
 {
 	new i = -1;
 	while ((i = FindEntityByClassname(i, "merasmus")) != -1)
@@ -101,12 +101,12 @@ public Convar_Changer(Handle:convar, const String:oldValue[], const String:newVa
 
 CheckGame()
 {
-	decl String:strModName[32]; GetGameFolderName(strModName, sizeof(strModName));
+	char strModName[32]; GetGameFolderName(strModName, sizeof(strModName));
 	if (StrEqual(strModName, "tf")) return;
 	SetFailState("[SM] This plugin is only for Team Fortress 2.");
 }
 
-public Action:Meras(client, args)
+public Action Meras(client, args)
 {
     if (g_bNativeOverride)
     {
@@ -122,12 +122,12 @@ public Action:Meras(client, args)
     new iLevel = 0;
     if (args >= 1)
     {
-        decl String:buffer[15];
+        char buffer[15];
         GetCmdArg(1, buffer, sizeof(buffer));
         iLevel = StringToInt(buffer);
     }
 
-    decl String:modelname[PLATFORM_MAX_PATH+1];
+    char modelname[PLATFORM_MAX_PATH+1];
     if (args >= 2)
     {
         GetCmdArg(2, modelname, sizeof(modelname));
@@ -167,7 +167,7 @@ public Action:Meras(client, args)
     return Plugin_Stop;
 }
 		
-SpawnMerasmus(client, iLevel, const String:model[])
+SpawnMerasmus(client, iLevel, const char model[])
 {
     if (GetEntityCount() >= GetMaxEntities()-32)
         return 1;
@@ -193,7 +193,7 @@ SpawnMerasmus(client, iLevel, const String:model[])
             if (model[0] != '\0')
                 SetEntityModel(entity, model);
 
-            new bool:def = (iLevel < 0);
+            bool def = (iLevel < 0);
             if (def || iLevel > 1)
             {
                 new iBaseHP = (def) ? GetConVarInt(v_HP_Base) : 17000;
@@ -221,16 +221,16 @@ SpawnMerasmus(client, iLevel, const String:model[])
 
 SetTeleportEndPoint(client)
 {
-	decl Float:vAngles[3];
-	decl Float:vOrigin[3];
-	decl Float:vBuffer[3];
-	decl Float:vStart[3];
-	decl Float:Distance;
+	float vAngles[3];
+	float vOrigin[3];
+	float vBuffer[3];
+	float vStart[3];
+	float Distance;
 
 	GetClientEyePosition(client,vOrigin);
 	GetClientEyeAngles(client, vAngles);
 
-	new Handle:trace = TR_TraceRayFilterEx(vOrigin, vAngles, MASK_SHOT, RayType_Infinite, TraceEntityFilterPlayer);
+	Handle trace = TR_TraceRayFilterEx(vOrigin, vAngles, MASK_SHOT, RayType_Infinite, TraceEntityFilterPlayer);
 
 	if(TR_DidHit(trace))
 	{
@@ -252,12 +252,12 @@ SetTeleportEndPoint(client)
 	return true;
 }
 
-public bool:TraceEntityFilterPlayer(entity, contentsMask)
+public bool TraceEntityFilterPlayer(entity, contentsMask)
 {
 	return entity > GetMaxClients() || !entity;
 }
 
-CacheModels(const String:model[])
+CacheModels(const char model[])
 {
     if (!g_bModelsPrecached)
     {
@@ -654,7 +654,7 @@ CacheSounds()
     g_bSoundsPrecached = true;
 }
 
-public OnLibraryRemoved(const String:name[])
+public OnLibraryRemoved(const char name[])
 {
 	if (StrEqual(name, "adminmenu")) 
 	{
@@ -710,7 +710,7 @@ public Native_Control(Handle:plugin,numParams)
 
 public Native_SpawnMerasmus(Handle:plugin,numParams)
 {
-    decl String:model[PLATFORM_MAX_PATH+1];
+    char model[PLATFORM_MAX_PATH+1];
     GetNativeString(3, model, sizeof(model));
 
     return SpawnMerasmus(GetNativeCell(1), GetNativeCell(2), model);

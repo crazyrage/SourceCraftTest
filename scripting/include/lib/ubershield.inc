@@ -116,9 +116,9 @@ native UberShield(client,target=0,const Float:pos[3]=NULL_VECTOR,
  * @param stopTime      The duration of the Alternate Shield Stop Sound
  * @return		        none
  */
-native SetAlternateShieldSound(const String:startSound[] = "",
-                               const String:activeSound[] = "",
-                               const String:stopSound[] = "",
+native SetAlternateShieldSound(const char startSound[] = "",
+                               const char activeSound[] = "",
+                               const char stopSound[] = "",
                                Float:startTime=2.0,
                                Float:stopTime=2.0);
 

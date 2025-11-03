@@ -46,39 +46,39 @@
 #include "effect/SendEffects"
 #include "effect/FlashScreen"
 
-new const String:evolveWav[] = "sc/zhawht00.wav";
-new const String:deathWav[] = "sc/zbldgdth.wav";
-new const String:spineWav[] = "sc/zquhit00.wav";
-new const String:spawnWav[] = "sc/zbldgplc.wav";
-new const String:toxicWav[] = "sc/zsbwht00.wav";
-new const String:tunnelWav[] = "sc/zovtra00.wav";
-new const String:transfusionWav[] = "sc/zcbwht00.wav";
+char evolveWav[] = "sc/zhawht00.wav";
+char deathWav[] = "sc/zbldgdth.wav";
+char spineWav[] = "sc/zquhit00.wav";
+char spawnWav[] = "sc/zbldgplc.wav";
+char toxicWav[] = "sc/zsbwht00.wav";
+char tunnelWav[] = "sc/zovtra00.wav";
+char transfusionWav[] = "sc/zcbwht00.wav";
 
-new const String:g_ArmorName[] = "Carapace";
-new Float:g_InitialArmor[]     = { 0.15, 0.25, 0.33, 0.50, 0.75 };
-new Float:g_ArmorPercent[][2]  = { {0.00, 0.10},
+char g_ArmorName[] = "Carapace";
+float g_InitialArmor[]     = { 0.15, 0.25, 0.33, 0.50, 0.75 };
+float g_ArmorPercent[][2]  = { {0.00, 0.10},
                                    {0.01, 0.20},
                                    {0.05, 0.30},
                                    {0.10, 0.40},
                                    {0.20, 0.50} };
 
-new Float:g_SpinePercent[]      = { 0.30, 0.40, 0.50, 0.60, 0.70 };
-new Float:g_NydusCanalRate[]    = { 0.0, 8.0, 6.0, 3.0, 1.0 };
-new Float:g_TransfusionRange[]  = { 150.0, 200.0, 250.0, 350.0, 500.0 };
-new Float:g_ToxicCreepRange[]   = { 150.0, 200.0, 250.0, 350.0, 500.0 };
-new g_ToxicCreepDamage[][2]     = { { 0, 1 },
+float g_SpinePercent[]      = { 0.30, 0.40, 0.50, 0.60, 0.70 };
+float g_NydusCanalRate[]    = { 0.0, 8.0, 6.0, 3.0, 1.0 };
+float g_TransfusionRange[]  = { 150.0, 200.0, 250.0, 350.0, 500.0 };
+float g_ToxicCreepRange[]   = { 150.0, 200.0, 250.0, 350.0, 500.0 };
+int g_ToxicCreepDamage[][2]     = { { 0, 1 },
                                     { 0, 3 },
                                     { 1, 5 },
                                     { 2, 8 },
                                     { 4, 10} };
 
-new raceID, carapaceID, regenerationID, transfusionID, burrowID;
-new nydusCanalID, spinesID, mutateID, tunnelID, toxicID, spawnID;
+int raceID, carapaceID, regenerationID, transfusionID, burrowID;
+int nydusCanalID, spinesID, mutateID, tunnelID, toxicID, spawnID;
 
-new cfgMaxObjects;
-new cfgAllowSentries;
+int cfgMaxObjects;
+int cfgAllowSentries;
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Zerg Hive Queen",
     author = "-=|JFH|=-Naris",
@@ -198,7 +198,7 @@ public OnSourceCraftReady()
 
     for (new level=0; level < sizeof(g_ArmorPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "armor_percent_level_%d", level);
         GetConfigFloatArray(key, g_ArmorPercent[level], sizeof(g_ArmorPercent[]),
                             g_ArmorPercent[level], raceID, carapaceID);
@@ -217,7 +217,7 @@ public OnSourceCraftReady()
 
         for (new level=0; level < sizeof(g_ToxicCreepDamage); level++)
         {
-            decl String:key[32];
+            char key[32];
             Format(key, sizeof(key), "damage_level_%d", level);
             GetConfigArray(key, g_ToxicCreepDamage[level], sizeof(g_ToxicCreepDamage[]),
                            g_ToxicCreepDamage[level], raceID, toxicID);
@@ -229,7 +229,7 @@ public OnSourceCraftReady()
 
         for (new level=0; level < sizeof(m_MutateAmpRange); level++)
         {
-            decl String:key[32];
+            char key[32];
             Format(key, sizeof(key), "amp_range_level_%d", level);
             GetConfigFloatArray(key, m_MutateAmpRange[level], sizeof(m_MutateAmpRange[]),
                                 m_MutateAmpRange[level], raceID, mutateID);
@@ -237,7 +237,7 @@ public OnSourceCraftReady()
 
         for (new level=0; level < sizeof(m_MutateNodeRange); level++)
         {
-            decl String:key[32];
+            char key[32];
             Format(key, sizeof(key), "node_range_level_%d", level);
             GetConfigFloatArray(key, m_MutateNodeRange[level], sizeof(m_MutateNodeRange[]),
                                 m_MutateNodeRange[level], raceID, mutateID);
@@ -245,7 +245,7 @@ public OnSourceCraftReady()
 
         for (new level=0; level < sizeof(m_MutateNodeRegen); level++)
         {
-            decl String:key[32];
+            char key[32];
             Format(key, sizeof(key), "node_regen_level_%d", level);
             GetConfigArray(key, m_MutateNodeRegen[level], sizeof(m_MutateNodeRegen[]),
                            m_MutateNodeRegen[level], raceID, mutateID);
@@ -253,7 +253,7 @@ public OnSourceCraftReady()
 
         for (new level=0; level < sizeof(m_MutateNodeShells); level++)
         {
-            decl String:key[32];
+            char key[32];
             Format(key, sizeof(key), "node_shells_level_%d", level);
             GetConfigArray(key, m_MutateNodeShells[level], sizeof(m_MutateNodeShells[]),
                            m_MutateNodeShells[level], raceID, mutateID);
@@ -264,7 +264,7 @@ public OnSourceCraftReady()
 
         for (new level=0; level < sizeof(m_SpawnAmpRange); level++)
         {
-            decl String:key[32];
+            char key[32];
             Format(key, sizeof(key), "amp_range_level_%d", level);
             GetConfigFloatArray(key, m_SpawnAmpRange[level], sizeof(m_SpawnAmpRange[]),
                                 m_SpawnAmpRange[level], raceID, spawnID);
@@ -272,7 +272,7 @@ public OnSourceCraftReady()
 
         for (new level=0; level < sizeof(m_SpawnNodeRange); level++)
         {
-            decl String:key[32];
+            char key[32];
             Format(key, sizeof(key), "node_range_level_%d", level);
             GetConfigFloatArray(key, m_SpawnNodeRange[level], sizeof(m_SpawnNodeRange[]),
                                 m_SpawnNodeRange[level], raceID, spawnID);
@@ -280,7 +280,7 @@ public OnSourceCraftReady()
 
         for (new level=0; level < sizeof(m_SpawnNodeRegen); level++)
         {
-            decl String:key[32];
+            char key[32];
             Format(key, sizeof(key), "node_regen_level_%d", level);
             GetConfigArray(key, m_SpawnNodeRegen[level], sizeof(m_SpawnNodeRegen[]),
                            m_SpawnNodeRegen[level], raceID, spawnID);
@@ -288,7 +288,7 @@ public OnSourceCraftReady()
 
         for (new level=0; level < sizeof(m_SpawnNodeShells); level++)
         {
-            decl String:key[32];
+            char key[32];
             Format(key, sizeof(key), "node_shells_level_%d", level);
             GetConfigArray(key, m_SpawnNodeShells[level], sizeof(m_SpawnNodeShells[]),
                            m_SpawnNodeShells[level], raceID, spawnID);
@@ -360,7 +360,7 @@ public OnClientDisconnect(client)
     KillClientTimer(client);
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -379,7 +379,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
     return Plugin_Continue;
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
@@ -540,7 +540,7 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     if (!from_sc && attacker_index > 0 &&
@@ -555,7 +555,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
     return Plugin_Continue;
 }
 
-public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
+public Action OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
                                   assister_index, assister_race, damage,
                                   absorbed)
 {
@@ -582,7 +582,7 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
     }
 }
 
-public Action:CreepTimer(Handle:timer, any:userid)
+public Action CreepTimer(Handle:timer, any:userid)
 {
     new client = GetClientOfUserId(userid);
     if (IsValidClientNotSpec(client))
@@ -594,12 +594,12 @@ public Action:CreepTimer(Handle:timer, any:userid)
             static const toxicColor[4]  = {255, 10, 55, 255};
 
             new toxic_level             = GetUpgradeLevel(client,raceID,toxicID);
-            new Float:toxic_range       = g_ToxicCreepRange[toxic_level];
+            float toxic_range       = g_ToxicCreepRange[toxic_level];
             new toxic_amount            = GetRandomInt(g_ToxicCreepDamage[toxic_level][0],
                                                        g_ToxicCreepDamage[toxic_level][1]);
 
             new transfusion_level       = GetUpgradeLevel(client,raceID,transfusionID);
-            new Float:transfusion_range = g_TransfusionRange[transfusion_level];
+            float transfusion_range = g_TransfusionRange[transfusion_level];
             new transfusion_amount      = transfusion_level+1;
             new transfusion_health      = transfusion_amount*5;
             new transfusion_ammo        = transfusion_amount*2;
@@ -688,8 +688,8 @@ public Action:CreepTimer(Handle:timer, any:userid)
 
                             // Heal/Supply teammates and/or Poison enemies
 
-                            new Float:indexLoc[3];
-                            new Float:pos[3];
+                            float indexLoc[3];
+                            float pos[3];
                             GetEntPropVector(ent, Prop_Send, "m_vecOrigin", pos);
                             pos[2] += 15.0;
 
@@ -725,7 +725,7 @@ public Action:CreepTimer(Handle:timer, any:userid)
                                                 PrepareAndEmitSoundToAll(transfusionWav,ent);
                                             }
 
-                                            new Float:energy=GetEnergy(index);
+                                            float energy=GetEnergy(index);
                                             SetEnergy(index, energy+float(transfusion_amount));
                                             SupplyAmmo(index, transfusion_ammo, "Transfusion", 
                                                        (GetRandomInt(0,10) > 8) ? SupplyDefault
@@ -747,7 +747,7 @@ public Action:CreepTimer(Handle:timer, any:userid)
                                             {
                                                 if (toxic_level > 0)
                                                 {
-                                                    new Float:venergy = GetEnergy(index);
+                                                    float venergy = GetEnergy(index);
                                                     if (venergy >= float(toxic_level))
                                                     {
                                                         venergy -= toxic_level;
@@ -900,7 +900,7 @@ DeepTunnel(client)
     {
         PrepareAndEmitSoundToClient(client,deniedWav);
 
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, tunnelID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "NotWithFlag", upgradeName);
     }
@@ -911,7 +911,7 @@ DeepTunnel(client)
             TunnelToIt(client, target);
         else
         {
-            new Handle:menu=CreateMenu(DeepTunnel_Selected);
+            Handle menu=CreateMenu(DeepTunnel_Selected);
             SetMenuTitle(menu,"[SC] %T", "TunnelStructureTitle", client);
 
             new counts[TFOBJECT_COUNT];
@@ -942,7 +942,7 @@ public DeepTunnel_Selected(Handle:menu,MenuAction:action,client,selection)
         
         if (GetRace(client) == raceID)
         {
-            decl String:SelectionInfo[12];
+            char SelectionInfo[12];
             GetMenuItem(menu,selection,SelectionInfo,sizeof(SelectionInfo));
             TunnelToIt(client, EntRefToEntIndex(StringToInt(SelectionInfo)));
         }
@@ -964,7 +964,7 @@ TunnelToIt(client, target)
     {
         PrepareAndEmitSoundToClient(client,deniedWav);
 
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, tunnelID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "NotWithFlag", upgradeName);
         return;
@@ -978,10 +978,10 @@ TunnelToIt(client, target)
             {
                 if (CanInvokeUpgrade(client, raceID, tunnelID))
                 {
-                    new Float:pos[3];
+                    float pos[3];
                     GetEntPropVector(target, Prop_Send, "m_vecOrigin", pos);
 
-                    new Float:size[3];
+                    float size[3];
                     GetEntPropVector(target, Prop_Send, "m_vecBuildMaxs", size);
 
                     pos[2] += size[2] * 1.1;

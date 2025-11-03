@@ -33,32 +33,32 @@
 #define HATMAN_MODEL		"models/bots/headless_hatman.mdl"
 #define BIGAXE_MODEL		"models/weapons/c_models/c_bigaxe/c_bigaxe.mdl"
 
-new Handle:Cvar_Horseman_AllowPublic = INVALID_HANDLE;
-new Handle:Cvar_Horseman_Votesneeded = INVALID_HANDLE;
-new Handle:Cvar_Horseman_VoteDelay = INVALID_HANDLE;
+Handle Cvar_Horseman_AllowPublic = INVALID_HANDLE;
+Handle Cvar_Horseman_Votesneeded = INVALID_HANDLE;
+Handle Cvar_Horseman_VoteDelay = INVALID_HANDLE;
 
-new Handle:hAdminMenu = INVALID_HANDLE;
+Handle hAdminMenu = INVALID_HANDLE;
 
-new Float:g_pos[3];
-new Float:g_fVotesNeeded;
+float g_pos[3];
+float g_fVotesNeeded;
 
-new g_hatManModel = 0;
-new g_bigAxeModel = 0;
+int g_hatManModel = 0;
+int g_bigAxeModel = 0;
 
-new g_voteDelayTime = 0;
-new g_VotesNeeded = 0;
-new g_iVotes = 0;
-new g_Voters = 0;
+int g_voteDelayTime = 0;
+int g_VotesNeeded = 0;
+int g_iVotes = 0;
+int g_Voters = 0;
 
-new bool:g_bIsEnabled = true;
-new bool:g_bVotesStarted = false;
-new bool:g_bNativeOverride = false;
-new bool:g_bSoundsPrecached = false;
-new bool:g_bModelsPrecached = false;
-new bool:g_bHasVoted[MAXPLAYERS + 1] = { false, ... };
-//new bool:g_IsHHH[MAXPLAYERS+1] = { false, ...};
+bool g_bIsEnabled = true;
+bool g_bVotesStarted = false;
+bool g_bNativeOverride = false;
+bool g_bSoundsPrecached = false;
+bool g_bModelsPrecached = false;
+bool g_bHasVoted[MAXPLAYERS + 1] = { false, ... };
+//bool g_IsHHH[MAXPLAYERS+1] = { false, ...};
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
 	name = "[TF2] Horseless Headless Horsemann",
 	author = "Geit, modified by retsam, FlaminSarge and Naris",
@@ -88,7 +88,7 @@ public OnPluginStart()
 
 	if (LibraryExists("adminmenu"))
 	{
-		new Handle:topmenu = GetAdminTopMenu();
+		Handle topmenu = GetAdminTopMenu();
 		if (topmenu != INVALID_HANDLE)
 			OnAdminMenuReady(topmenu);
 	}
@@ -146,7 +146,7 @@ public OnMapStart()
 	g_iVotes = 0;
 }
 
-PrepareHatmanModel(const String:model[])
+PrepareHatmanModel(const char model[])
 {
 	if (!g_bModelsPrecached)
 	{
@@ -203,7 +203,7 @@ PrepareHatmanSounds()
 
 // FUNCTIONS
 
-public Action:Command_VoteSpawnHorseman(client, args)
+public Action Command_VoteSpawnHorseman(client, args)
 {
 	if(client < 1 || !IsClientInGame(client))
 		return Plugin_Handled;
@@ -252,7 +252,7 @@ public Action:Command_VoteSpawnHorseman(client, args)
 	return Plugin_Handled;
 }
 
-public Action:Command_Spawn(client, args)
+public Action Command_Spawn(client, args)
 {
     if (g_bNativeOverride)
 	{
@@ -265,7 +265,7 @@ public Action:Command_Spawn(client, args)
         return Plugin_Stop;
     }
 
-    decl String:modelname[PLATFORM_MAX_PATH+1];
+    char modelname[PLATFORM_MAX_PATH+1];
     if (args == 0)
         modelname[0] = '\0';
     else
@@ -305,7 +305,7 @@ public Action:Command_Spawn(client, args)
     return Plugin_Stop;
 }
 
-SpawnHatman(client, const String:model[])
+SpawnHatman(client, const char model[])
 {
     if (GetEntityCount() >= GetMaxEntities()-32)
     {
@@ -355,17 +355,17 @@ SpawnHatman(client, const String:model[])
 
 SetTeleportEndPoint(client)
 {
-	decl Float:vAngles[3];
-	decl Float:vOrigin[3];
-	decl Float:vBuffer[3];
-	decl Float:vStart[3];
-	decl Float:Distance;
+	float vAngles[3];
+	float vOrigin[3];
+	float vBuffer[3];
+	float vStart[3];
+	float Distance;
 	
 	GetClientEyePosition(client,vOrigin);
 	GetClientEyeAngles(client, vAngles);
 	
 	//get endpoint for teleport
-	new Handle:trace = TR_TraceRayFilterEx(vOrigin, vAngles, MASK_SHOT, RayType_Infinite, TraceEntityFilterPlayer);
+	Handle trace = TR_TraceRayFilterEx(vOrigin, vAngles, MASK_SHOT, RayType_Infinite, TraceEntityFilterPlayer);
 
 	if(TR_DidHit(trace))
 	{   	 
@@ -388,9 +388,9 @@ SetTeleportEndPoint(client)
 }
 
 /*
-public Action:Command_Summon(client, args)
+public Action Command_Summon(client, args)
 {
-    decl String:modelname[256];
+    char modelname[256];
     if (args == 0)
         modelname[0] = '\0';
     else
@@ -432,7 +432,7 @@ public Action:Command_Summon(client, args)
     return Plugin_Stop;
 }
 
-SummonHatman(client, const String:model[])
+SummonHatman(client, const char model[])
 {
 	PrepareHatmanModel(model);
 	if (model[0] != '\0' && !IsModelPrecached(model))
@@ -467,7 +467,7 @@ public Colorize(client, color[4])
 {	
 	//Colorize the weapons
 	new m_hMyWeapons = FindSendPropOffs("CBasePlayer", "m_hMyWeapons");	
-	new String:classname[256];
+	char classname[256];
 	new type;
 	new TFClassType:class = TF2_GetPlayerClass(client);
 	
@@ -500,7 +500,7 @@ public Colorize(client, color[4])
 	InvisibleHideFixes(client, class, type);
 }
 
-SetWearablesRGBA_Impl( client,  const String:entClass[], const String:serverClass[], color[4])
+SetWearablesRGBA_Impl( client,  const char entClass[], const char serverClass[], color[4])
 {
 	new ent = -1;
 	while( (ent = FindEntityByClassname(ent, entClass)) != -1 )
@@ -557,12 +557,12 @@ InvisibleHideFixes(client, TFClassType:class, type)
 }
 */
 
-public bool:TraceEntityFilterPlayer(entity, contentsMask)
+public bool TraceEntityFilterPlayer(entity, contentsMask)
 {
 	return entity > GetMaxClients() || !entity;
 }
 
-public Action:Timer_ResetVotes(Handle:timer)
+public Action Timer_ResetVotes(Handle:timer)
 {
 	if(g_bVotesStarted)
 	{
@@ -591,7 +591,7 @@ ResetAllVotes()
 	}
 }
 
-public Cvars_Changed(Handle:convar, const String:oldValue[], const String:newValue[])
+public Cvars_Changed(Handle:convar, const char oldValue[], const char newValue[])
 {
 	if(convar == Cvar_Horseman_AllowPublic)
 	{
@@ -610,7 +610,7 @@ public Cvars_Changed(Handle:convar, const String:oldValue[], const String:newVal
 	}
 }
 
-public OnLibraryRemoved(const String:name[])
+public OnLibraryRemoved(const char name[])
 {
 	if (StrEqual(name, "adminmenu")) 
 	{
@@ -667,7 +667,7 @@ public Native_Control(Handle:plugin,numParams)
 
 public Native_SpawnHorseMann(Handle:plugin,numParams)
 {
-    decl String:model[PLATFORM_MAX_PATH+1];
+    char model[PLATFORM_MAX_PATH+1];
     GetNativeString(2, model, sizeof(model));
 
     return SpawnHatman(GetNativeCell(1), model);
@@ -676,7 +676,7 @@ public Native_SpawnHorseMann(Handle:plugin,numParams)
 /*
 public Native_SummonHorseMann(Handle:plugin,numParams)
 {
-    decl String:model[PLATFORM_MAX_PATH+1];
+    char model[PLATFORM_MAX_PATH+1];
     GetNativeString(2, model, sizeof(model));
 
     return SummonHatman(GetNativeCell(1), model);

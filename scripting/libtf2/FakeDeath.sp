@@ -20,19 +20,19 @@
 #define PL_VERSION "0.0.2"
 #define SOUND_A "misc/talk.wav"
 
-new String:DeathSound[][] = { "vo/spy_painsevere01.wav", "vo/spy_painsevere02.wav",  "vo/spy_painsevere03.wav",
+char DeathSound[][] = { "vo/spy_painsevere01.wav", "vo/spy_painsevere02.wav",  "vo/spy_painsevere03.wav",
                               "vo/spy_painsevere04.wav",  "vo/spy_painsevere05.wav",  "vo/spy_painsharp01.wav",
                               "vo/spy_painsharp02.wav", "vo/spy_painsharp03.wav", "vo/spy_painsharp04.wav",
 							  "vo/spy_paincrticialdeath01.wav", "vo/spy_paincrticialdeath02.wav", "vo/spy_paincrticialdeath03.wav" };
 
-new String:GenericDeathSound[][]  = { "player/death.wav" };
+char GenericDeathSound[][]  = { "player/death.wav" };
 /*
-new String:GenericDeathSound[][] = { "player/death3.wav", "player/death5.wav",  "player/death5.wav",
+char GenericDeathSound[][] = { "player/death3.wav", "player/death5.wav",  "player/death5.wav",
                                      "player/death7.wav",  "player/death8.wav",  "player/death9.wav",
 			             "player/death10.wav" };
 */
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
 	name = "Fake Death",
 	author = "RIKUSYO",
@@ -41,23 +41,23 @@ public Plugin:myinfo =
 	url = "http://ameblo.jp/rikusyo/"
 }
 
-new Handle:g_PlayerButtonDown[MAXPLAYERS+1] = INVALID_HANDLE;
-new Handle:g_NextBody[MAXPLAYERS+1] = INVALID_HANDLE;
-new Handle:g_IsFakeDeathOn = INVALID_HANDLE;
-new Handle:g_UseCloakMeter = INVALID_HANDLE;
-new Handle:g_IsStartMessageOn = INVALID_HANDLE;
-new Handle:g_IsDeathMessageOn = INVALID_HANDLE;
-new Handle:g_WaitTime = INVALID_HANDLE;
-new Handle:g_FakeLimit = INVALID_HANDLE;
-new Handle:g_Dissolve = INVALID_HANDLE;
+Handle g_PlayerButtonDown[MAXPLAYERS+1] = INVALID_HANDLE;
+Handle g_NextBody[MAXPLAYERS+1] = INVALID_HANDLE;
+Handle g_IsFakeDeathOn = INVALID_HANDLE;
+Handle g_UseCloakMeter = INVALID_HANDLE;
+Handle g_IsStartMessageOn = INVALID_HANDLE;
+Handle g_IsDeathMessageOn = INVALID_HANDLE;
+Handle g_WaitTime = INVALID_HANDLE;
+Handle g_FakeLimit = INVALID_HANDLE;
+Handle g_Dissolve = INVALID_HANDLE;
 
-new AtacanteID[MAXPLAYERS+1];
-new String:WeaponName[MAXPLAYERS+1][32];
+int AtacanteID[MAXPLAYERS+1];
+char WeaponName[MAXPLAYERS+1][32];
 
-new bool:g_NativeControl = false;
-new g_Limit[MAXPLAYERS+1];    // how many fakes player allowed
-new g_Remaining[MAXPLAYERS+1];  // how many fakes player has this spawn
-new bool:g_NativeDissolve[MAXPLAYERS+1];  // which players should dissolve.
+bool g_NativeControl = false;
+int g_Limit[MAXPLAYERS+1];    // how many fakes player allowed
+int g_Remaining[MAXPLAYERS+1];  // how many fakes player has this spawn
+bool g_NativeDissolve[MAXPLAYERS+1];  // which players should dissolve.
 
 public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
 {
@@ -177,7 +177,7 @@ public OnGameFrame()
 // ボタンアップ
 //
 /////////////////////////////////////////////////////////////////////
-public Action:Timer_ButtonUp(Handle:timer, any:client)
+public Action Timer_ButtonUp(Handle:timer, any:client)
 {
 	g_PlayerButtonDown[client] = INVALID_HANDLE;
 }
@@ -187,7 +187,7 @@ public Action:Timer_ButtonUp(Handle:timer, any:client)
 // 次の死体
 //
 /////////////////////////////////////////////////////////////////////
-public Action:Timer_NextBodyTimer(Handle:timer, any:client)
+public Action Timer_NextBodyTimer(Handle:timer, any:client)
 {
 	g_NextBody[client] = INVALID_HANDLE;
 }
@@ -197,7 +197,7 @@ public Action:Timer_NextBodyTimer(Handle:timer, any:client)
 // MODのOn/Off変更
 //
 /////////////////////////////////////////////////////////////////////
-public ConVarChange_IsFakeDeathOn(Handle:convar, const String:oldValue[], const String:newValue[])
+public ConVarChange_IsFakeDeathOn(Handle:convar, const char oldValue[], const char newValue[])
 {
 	if (StringToInt(newValue) > 0)
 		PrintToChatAll("\x05[RMF]\x01 %t", "Enabled Fake Death");
@@ -210,7 +210,7 @@ public ConVarChange_IsFakeDeathOn(Handle:convar, const String:oldValue[], const 
 // クロークメーター使用量の設定
 //
 /////////////////////////////////////////////////////////////////////
-public ConVarChange_UseCloakMeter(Handle:convar, const String:oldValue[], const String:newValue[])
+public ConVarChange_UseCloakMeter(Handle:convar, const char oldValue[], const char newValue[])
 {
 	// 0.0～100.0まで
 	if (StringToFloat(newValue) < 0.0 || StringToFloat(newValue) > 100.0)
@@ -225,7 +225,7 @@ public ConVarChange_UseCloakMeter(Handle:convar, const String:oldValue[], const 
 // 次の死体を出せるまでの待ち時間の設定
 //
 /////////////////////////////////////////////////////////////////////
-public ConVarChange_WaitTime(Handle:convar, const String:oldValue[], const String:newValue[])
+public ConVarChange_WaitTime(Handle:convar, const char oldValue[], const char newValue[])
 {
 	// 0.0～10.0まで
 	if (StringToFloat(newValue) < 0.0 || StringToFloat(newValue) > 10.0)
@@ -240,7 +240,7 @@ public ConVarChange_WaitTime(Handle:convar, const String:oldValue[], const Strin
 // ラウンド開始
 //
 /////////////////////////////////////////////////////////////////////
-public Action:Event_RoundStart(Handle:event, const String:name[], bool:dontBroadcast)
+public Action Event_RoundStart(Handle:event, const char name[], bool:dontBroadcast)
 {
 	new FakeDeathOn = GetConVarInt(g_IsFakeDeathOn)
 	new StartMessageOn = GetConVarInt(g_IsStartMessageOn)
@@ -256,7 +256,7 @@ public Action:Event_RoundStart(Handle:event, const String:name[], bool:dontBroad
 // プレイヤー復活
 //
 /////////////////////////////////////////////////////////////////////
-public Action:Event_PlayerSpawn(Handle:event, const String:name[], bool:dontBroadcast)
+public Action Event_PlayerSpawn(Handle:event, const char name[], bool:dontBroadcast)
 {
 	new client = GetClientOfUserId(GetEventInt(event, "userid"));
 
@@ -293,7 +293,7 @@ public Action:Event_PlayerSpawn(Handle:event, const String:name[], bool:dontBroa
 // プレイヤークラス変更
 //
 /////////////////////////////////////////////////////////////////////
-public Action:Event_PlayerClass(Handle:event, const String:name[], bool:dontBroadcast)
+public Action Event_PlayerClass(Handle:event, const char name[], bool:dontBroadcast)
 {
 	new client = GetClientOfUserId(GetEventInt(event, "userid"));
 
@@ -326,7 +326,7 @@ public Action:Event_PlayerClass(Handle:event, const String:name[], bool:dontBroa
 // プレイヤー死亡
 //
 /////////////////////////////////////////////////////////////////////
-public Action:Event_PlayerDeath(Handle:event, const String:name[], bool:dontBroadcast)
+public Action Event_PlayerDeath(Handle:event, const char name[], bool:dontBroadcast)
 {
 	new client = GetClientOfUserId(GetEventInt(event, "userid"));
 	
@@ -347,7 +347,7 @@ public Action:Event_PlayerDeath(Handle:event, const String:name[], bool:dontBroa
 // プレイヤーチーム変更
 //
 /////////////////////////////////////////////////////////////////////
-public Action:Event_PlayerTeam(Handle:event, const String:name[], bool:dontBroadcast)
+public Action Event_PlayerTeam(Handle:event, const char name[], bool:dontBroadcast)
 {
 	new client = GetClientOfUserId(GetEventInt(event, "userid"));
 
@@ -368,7 +368,7 @@ public Action:Event_PlayerTeam(Handle:event, const String:name[], bool:dontBroad
 // プレイヤーダメージ
 //
 /////////////////////////////////////////////////////////////////////
-public Action:Event_PlayerHurt(Handle:event, const String:name[], bool:dontBroadcast)
+public Action Event_PlayerHurt(Handle:event, const char name[], bool:dontBroadcast)
 {
 	// new victimId = GetEventInt(event, "userid")
 	new client_victim = GetClientOfUserId(GetEventInt(event, "userid"));
@@ -440,19 +440,19 @@ stock TF_SpawnFakeBody(client)
 	{
 		// メーター使用量
 		new TFClassType:class = TF2_GetPlayerClass(client);
-		new Float:UseMeter = (class == TFClass_Spy) ? GetConVarFloat(g_UseCloakMeter) : 0.0;
-		new Float:NowMeter = (UseMeter > 0.0) ? TF2_GetCloakMeter(client) : 1.0;
+		float UseMeter = (class == TFClass_Spy) ? GetConVarFloat(g_UseCloakMeter) : 0.0;
+		float NowMeter = (UseMeter > 0.0) ? TF2_GetCloakMeter(client) : 1.0;
 		// 次に押せるまでの時間
-		new Float:WaitTime = GetConVarFloat(g_WaitTime);
-		new bool:dissolve = g_NativeDissolve[client] || GetConVarBool(g_Dissolve);
-		new bool:explode = false;
+		float WaitTime = GetConVarFloat(g_WaitTime);
+		bool dissolve = g_NativeDissolve[client] || GetConVarBool(g_Dissolve);
+		bool explode = false;
 
 		if( NowMeter > UseMeter  && g_NextBody[client] == INVALID_HANDLE)
 		{
 			if(GetConVarInt(g_IsDeathMessageOn))
 			{
 				new WeaponID;
-				new String:WeaponName2[32];
+				char WeaponName2[32];
 				new CustomID = 0;
 
 				// || !IsClientInGame(AtacanteID[client])
@@ -623,7 +623,7 @@ stock TF_SpawnFakeBody(client)
 					WeaponName[client] = "world"
 				}
 
-				new Handle:hPlayerDeath = CreateEvent("player_death", true);
+				Handle hPlayerDeath = CreateEvent("player_death", true);
 				SetEventInt(hPlayerDeath, "userid", GetClientUserId(client));	
 				SetEventInt(hPlayerDeath, "attacker", AtacanteID[client]);
 				SetEventString(hPlayerDeath, "weapon",	WeaponName2);
@@ -644,8 +644,8 @@ stock TF_SpawnFakeBody(client)
 
 			if (FakeBody > 0 && IsValidEntity(FakeBody) && DispatchSpawn(FakeBody))
 			{
-				new Float:PlayerPosition[3];
-				//new Float:PlayerForce[3];
+				float PlayerPosition[3];
+				//float PlayerForce[3];
 					
 				// 発生位置
 				GetClientAbsOrigin(client, PlayerPosition);
@@ -713,7 +713,7 @@ stock TF_SpawnFakeBody(client)
 	PrepareAndEmitSoundToClient(client, SOUND_A, _, _, _, _, 0.55);
 }
 
-public Action:DissolveRagdoll(Handle:timer, any:ref)
+public Action DissolveRagdoll(Handle:timer, any:ref)
 {
     new ragdoll = EntRefToEntIndex(ref);
     if (ragdoll <= 0 || !IsValidEntity(ragdoll))
@@ -721,7 +721,7 @@ public Action:DissolveRagdoll(Handle:timer, any:ref)
 
     if (!IsEntLimitReached(.message="Unable to spawn an env_entity_dissolver"))
     {
-	    new String:dname[32];
+	    char dname[32];
 	    Format(dname, sizeof(dname), "dis_%d", ragdoll);
 
 	    new ent = CreateEntityByName("env_entity_dissolver");

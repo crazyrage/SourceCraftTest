@@ -35,7 +35,7 @@ enum Touch_t{
 //PrintToServer("%T%T%T", "smeffectitemshop:", LANG_SERVER, "attemp", LANG_SERVER, "main db connect", LANG_SERVER);
 stock PrintToServerT(const String:format[], any:...){
 
-	decl String:txt[1024];
+	char txt[1024];
 	
 	SetGlobalTransTarget(LANG_SERVER);
 	VFormat(txt, sizeof(txt), format, 2);
@@ -46,7 +46,7 @@ stock PrintToServerT(const String:format[], any:...){
 
 stock LogErrorT(const String:format[], any:...){
 
-	decl String:txt[1024];
+	char txt[1024];
 	
 	SetGlobalTransTarget(LANG_SERVER);
 	VFormat(txt, sizeof(txt), format, 2);
@@ -184,7 +184,7 @@ stock bool:makeDamage(attacker, target, damage, damagetype, Float:damageradius, 
 		//목표가 있을 경우 목표 입력, 목표가 없을 경우 범위 공격을 하게된다
 		if(target != -1){
 			
-			decl String:targetname[64];
+			char targetname[64];
 			Format(targetname, 128, "%f%f", GetEngineTime(), GetRandomFloat());
 			DispatchKeyValue(target,"TargetName", targetname);
 			DispatchKeyValue(pointhurt,"DamageTarget", targetname);
@@ -195,7 +195,7 @@ stock bool:makeDamage(attacker, target, damage, damagetype, Float:damageradius, 
 		DispatchKeyValueVector(pointhurt, "Origin", attackposition);
 		
 		//데미지 지정
-		decl String:number[64];
+		char number[64];
 		IntToString(damage, number, 64);
 		DispatchKeyValue(pointhurt,"Damage", number);
 		
@@ -251,7 +251,7 @@ stock makeDamage2(attacker, target, damage, damagetype, Float:damageradius, Floa
 		//목표가 있을 경우 목표 입력, 목표가 없을 경우 범위 공격을 하게된다
 		if(target != -1){
 			
-			decl String:targetname[64];
+			char targetname[64];
 			Format(targetname, 128, "%f%f", GetEngineTime(), GetRandomFloat());
 			DispatchKeyValue(target,"TargetName", targetname);
 			DispatchKeyValue(pointhurt,"DamageTarget", targetname);
@@ -262,7 +262,7 @@ stock makeDamage2(attacker, target, damage, damagetype, Float:damageradius, Floa
 		DispatchKeyValueVector(pointhurt, "Origin", attackposition);
 		
 		//데미지 지정
-		decl String:number[64];
+		char number[64];
 		IntToString(damage, number, 64);
 		DispatchKeyValue(pointhurt,"Damage", number);
 		//데미지타입 지정
@@ -305,7 +305,7 @@ stock makeDamage2(attacker, target, damage, damagetype, Float:damageradius, Floa
 					
 				}else if(damageduration > 0.0){
 					
-					decl String:output[256];
+					char output[256];
 					
 					Format(output, 256, "OnUser1 !self:kill:justkill:%.1f:1", damageduration);
 					
@@ -323,7 +323,7 @@ stock makeDamage2(attacker, target, damage, damagetype, Float:damageradius, Floa
 				
 				if(damageduration > 0.0){
 					
-					decl String:output[256];
+					char output[256];
 					
 					Format(output, 256, "OnUser1 !self:TurnOff:justTurnOff:%.1f:1", damageduration);
 					
@@ -370,7 +370,7 @@ stock makeExplosion(attacker = 0, inflictor = -1, const Float:attackposition[3],
 		
 		DispatchKeyValueVector(explosion, "Origin", attackposition);
 		
-		decl String:intbuffer[64];
+		char intbuffer[64];
 		IntToString(magnitude, intbuffer, 64);
 		DispatchKeyValue(explosion,"iMagnitude", intbuffer);
 		if(radiusoverride > 0){
@@ -442,7 +442,7 @@ stock makeExplosion(attacker = 0, inflictor = -1, const Float:attackposition[3],
 
 stock sendFadeMsg(client, duration, holdtime, fadeflag, r, g, b, a){
 	
-	new Handle:fademsg;
+	Handle fademsg;
 	
 	if (client == 0){
 		
@@ -479,7 +479,7 @@ enum ShakeCommand_t{
 
 stock sendShakeMsg(client, all:shakeflag, Float:amplitude, Float:frequency, Float:duration){
 
-	new Handle:shakemsg;
+	Handle shakemsg;
 	
 	if (client == 0){
 		
@@ -502,7 +502,7 @@ stock sendShakeMsg(client, all:shakeflag, Float:amplitude, Float:frequency, Floa
 //호출 예제 sendHudMsg(client, 6, 0.04, 0.82, 255, 120, 0, 255, 255, 120, 0, 225, 1, 0.1, 1000.0, 10.0, 4.0, totalhud);
 stock sendHudMsg(client, channel, Float:x, Float:y, r1, g1, b1, a1, r2, g2, b2, a2, effect, Float:fadein, Float:fadeout, Float:holdtime, Float:fxtime, const String:msg[]){
 	
-	new Handle:hudhandle = INVALID_HANDLE;
+	Handle hudhandle = INVALID_HANDLE;
 	
 	if (client == 0){
 		
@@ -544,7 +544,7 @@ stock sendHudMsg(client, channel, Float:x, Float:y, r1, g1, b1, a1, r2, g2, b2, 
 //this made effect on css, but no effect at hl2mp
 stock sendKeyHintTextMsg(client, String:msg[], any:...){
 	
-	new Handle:hudhandle = INVALID_HANDLE;
+	Handle hudhandle = INVALID_HANDLE;
 	
 	if (client == 0){
 		
@@ -556,7 +556,7 @@ stock sendKeyHintTextMsg(client, String:msg[], any:...){
 		
 	}
 	
-	new String:txt[255];
+	char txt[255];
 	VFormat(txt, sizeof(txt), msg, 3);	
 	
 	if (hudhandle != INVALID_HANDLE) { 
@@ -572,7 +572,7 @@ stock sendKeyHintTextMsg(client, String:msg[], any:...){
 //it was same as PrintHintText, but it made differant effect at hl2mp, it can print short single line msg
 stock sendHintTextMsg(client, String:msg[], any:...){
 	
-	new Handle:hudhandle = INVALID_HANDLE;
+	Handle hudhandle = INVALID_HANDLE;
 	
 	if (client == 0){
 		
@@ -584,7 +584,7 @@ stock sendHintTextMsg(client, String:msg[], any:...){
 		
 	}
 	
-	new String:txt[255];
+	char txt[255];
 	VFormat(txt, sizeof(txt), msg, 3);	
 	
 	if (hudhandle != INVALID_HANDLE) { 
@@ -600,7 +600,7 @@ stock sendHintTextMsg(client, String:msg[], any:...){
 //this has no effect
 stock sendHudText(client, String:msg[], any:...){
 	
-	new Handle:hudhandle = INVALID_HANDLE;
+	Handle hudhandle = INVALID_HANDLE;
 	
 	if (client == 0){
 		
@@ -612,7 +612,7 @@ stock sendHudText(client, String:msg[], any:...){
 		
 	}
 	
-	new String:txt[255];
+	char txt[255];
 	VFormat(txt, sizeof(txt), msg, 3);	
 	
 	if (hudhandle != INVALID_HANDLE) { 
@@ -631,7 +631,7 @@ stock sendHudText(client, String:msg[], any:...){
 #define HUD_PRINTCENTER	4
 stock sendTextMsg(client, msgtype, const String:msgname[], const String:msg1[] = "", const String:msg2[] = "", const String:msg3[] = "", const String:msg4[] = ""){
 	
-	new Handle:hudhandle = INVALID_HANDLE;
+	Handle hudhandle = INVALID_HANDLE;
 	
 	if (client == 0){
 		
@@ -664,11 +664,11 @@ stock sendTextMsg(client, msgtype, const String:msgname[], const String:msg1[] =
 //not so useful
 stock SendTopLeftText(client, r, g, b, a, level, time, const String:text[], any:...){
 	
-	new String:message[100];
+	char message[100];
 	SetGlobalTransTarget(client);
 	VFormat(message, sizeof(message), text, 9);	
 	
-	new Handle:kv = CreateKeyValues("Stuff", "title", message);
+	Handle kv = CreateKeyValues("Stuff", "title", message);
 	KvSetColor(kv, "color", r, g, b, a);
 	KvSetNum(kv, "level", level);
 	KvSetNum(kv, "time", time);
@@ -698,9 +698,9 @@ stock SendTopLeftText(client, r, g, b, a, level, time, const String:text[], any:
 //세이텍스트올
 stock SayText2ToAll(client, const String:message[], any:...){ 
 	
-	new Handle:buffer = INVALID_HANDLE;
+	Handle buffer = INVALID_HANDLE;
 	
-	new String:txt[255];
+	char txt[255];
 	
 	for(new i = 1; i <= MaxClients; i++){
 		
@@ -730,9 +730,9 @@ stock SayText2ToAll(client, const String:message[], any:...){
 //세이텍스트투
 stock SayText2To(client, target, const String:message[], any:...){ 
 	
-	new Handle:buffer = StartMessageOne("SayText2", target);
+	Handle buffer = StartMessageOne("SayText2", target);
 	
-	new String:txt[255];
+	char txt[255];
 	SetGlobalTransTarget(target);
 	VFormat(txt, sizeof(txt), message, 4);	
 	
@@ -815,17 +815,17 @@ stock SetClientButtons(client, buttons){
 //살아있는 클라이언트의 에임방향으로부터 일정 거리 떨어진 곳을 구해서 돌려준다
 stock bool:getClientAimPosition(client, Float:maxtracedistance, Float:resultvecpos[3], Float:resultvecnormal[3], TraceEntityFilter:function, filter){
 	
-	decl Float:cleyepos[3], Float:cleyeangle[3], Float:eyeanglevector[3];
+	float cleyepos[3], Float:cleyeangle[3], Float:eyeanglevector[3];
 	GetClientEyePosition(client, cleyepos); 
 	GetClientEyeAngles(client, cleyeangle);
 	
-	new Handle:traceresulthandle = INVALID_HANDLE;
+	Handle traceresulthandle = INVALID_HANDLE;
 	
 	traceresulthandle = TR_TraceRayFilterEx(cleyepos, cleyeangle, MASK_SOLID, RayType_Infinite, function, filter);
 	
 	if(TR_DidHit(traceresulthandle) == true){
 		
-		decl Float:endpos[3];
+		float endpos[3];
 		TR_GetEndPosition(endpos, traceresulthandle);
 		TR_GetPlaneNormal(traceresulthandle, resultvecnormal);
 		
@@ -861,17 +861,17 @@ stock bool:getClientAimPosition(client, Float:maxtracedistance, Float:resultvecp
 
 stock GetClientAimEntity(client, &Float:distancetoentity){
 
-	decl Float:cleyepos[3], Float:cleyeangle[3];
+	float cleyepos[3], Float:cleyeangle[3];
 	GetClientEyePosition(client, cleyepos); 
 	GetClientEyeAngles(client, cleyeangle);
 	
-	new Handle:traceresulthandle = INVALID_HANDLE;
+	Handle traceresulthandle = INVALID_HANDLE;
 	
 	traceresulthandle = TR_TraceRayFilterEx(cleyepos, cleyeangle, MASK_SOLID, RayType_Infinite, tracerayfilterdefault, client);
 	
 	if(TR_DidHit(traceresulthandle) == true){
 		
-		decl Float:endpos[3];
+		float endpos[3];
 		TR_GetEndPosition(endpos, traceresulthandle);
 		
 		distancetoentity = GetVectorDistance(cleyepos, endpos);
@@ -891,7 +891,7 @@ stock GetClientAimEntity(client, &Float:distancetoentity){
 
 stock GetClientAimEntity2(client){
 
-	decl Float:temp;
+	float temp;
 	
 	return GetClientAimEntity(client, temp);
 
@@ -899,11 +899,11 @@ stock GetClientAimEntity2(client){
 
 stock GetClientAimEntity3(client, &Float:distancetoentity, Float:endpos[3]){
 
-	decl Float:cleyepos[3], Float:cleyeangle[3];
+	float cleyepos[3], Float:cleyeangle[3];
 	GetClientEyePosition(client, cleyepos); 
 	GetClientEyeAngles(client, cleyeangle);
 	
-	new Handle:traceresulthandle = INVALID_HANDLE;
+	Handle traceresulthandle = INVALID_HANDLE;
 	
 	traceresulthandle = TR_TraceRayFilterEx(cleyepos, cleyeangle, MASK_SOLID, RayType_Infinite, tracerayfilterdefault, client);
 	
@@ -1031,7 +1031,7 @@ stock bool:IsStrBool(const String:str[], bool:onlynumeric = true){
 //엔티티가 충돌 가능한 물체인지를 검사한다!
 stock bool:IsEntityCollidable(entity, bool:includeplayer = true, bool:includehostage = true, bool:includeprojectile = true){
 	
-	decl String:classname[64];
+	char classname[64];
 	GetEdictClassname(entity, classname, 64);
 	
 	if((StrEqual(classname, "player", false) && includeplayer) || (StrEqual(classname, "hostage_entity", false) && includehostage)
@@ -1060,7 +1060,7 @@ stock bool:IsEntityCollidable(entity, bool:includeplayer = true, bool:includehos
 
 stock makeviewpunch(client, Float:angle[3]){
 	
-	decl Float:oldangle[3];
+	float oldangle[3];
 	
 	GetEntPropVector(client, Prop_Send, "m_vecPunchAngle", oldangle);
 	
@@ -1075,7 +1075,7 @@ stock makeviewpunch(client, Float:angle[3]){
 
 stock resetviewpunch(client){
 	
-	new Float:angle[3] = {0.0, 0.0, 0.0};
+	float angle[3] = {0.0, 0.0, 0.0};
 	
 	SetEntPropVector(client, Prop_Send, "m_vecPunchAngle", angle);
 	SetEntPropVector(client, Prop_Send, "m_vecPunchAngleVel", angle);
@@ -1092,7 +1092,7 @@ stock bool:sendRawAudioTo(client, target, const String:sSound[255], iVoicePitch 
 	
 	//Peace-Maker has found how to use this usermsg, well, i helped him lol
 	
-	new Handle:buffer = StartMessageOne("RawAudio", target);
+	Handle buffer = StartMessageOne("RawAudio", target);
 	
 	if (buffer != INVALID_HANDLE){ 
 		
@@ -1122,7 +1122,7 @@ stock bool:sendRawAudioToTeam(client, team, const String:sSound[255], iVoicePitc
 		
 		if(IsClientInGame(i) && GetClientTeam(i) == team){
 			
-			new Handle:buffer = StartMessageOne("RawAudio", i);
+			Handle buffer = StartMessageOne("RawAudio", i);
 			
 			if (buffer != INVALID_HANDLE) { 
 				
@@ -1158,7 +1158,7 @@ stock bool:sendRawAudioToTeamAndSpectator(client, team, const String:sSound[255]
 			
 			if(targetTeam == team || targetTeam == TEAM_SPECTATOR){
 				
-				new Handle:buffer = StartMessageOne("RawAudio", i);
+				Handle buffer = StartMessageOne("RawAudio", i);
 				
 				if (buffer != INVALID_HANDLE) { 
 					
@@ -1188,7 +1188,7 @@ stock bool:sendRawAudioToAll(client, const String:sSound[255], iVoicePitch = 100
 		
 	}
 	
-	new Handle:buffer = StartMessageAll("RawAudio");
+	Handle buffer = StartMessageAll("RawAudio");
 	
 	if (buffer != INVALID_HANDLE) { 
 		
@@ -1217,13 +1217,13 @@ stock bool:sendRadioTextTo(client, target, const String:sText[255], any:...){
 		
 	}
 	
-	new Handle:buffer = StartMessageOne("RadioText", target);
+	Handle buffer = StartMessageOne("RadioText", target);
 	
 	if (buffer != INVALID_HANDLE) { 
 		
-		decl String:sClientName[255];
-		decl String:sPlaceName[255];
-		decl String:msg[255];
+		char sClientName[255];
+		char sPlaceName[255];
+		char msg[255];
 		GetClientName(client, sClientName, 255);
 		GetEntPropString(client, Prop_Data, "m_szLastPlaceName", sPlaceName, 255);
 		
@@ -1271,13 +1271,13 @@ stock bool:sendRadioTextToAll(client, const String:sText[255], any:...){
 		
 		if(IsClientInGame(i)){
 			
-			new Handle:buffer = StartMessageOne("RadioText", i);
+			Handle buffer = StartMessageOne("RadioText", i);
 			
 			if (buffer != INVALID_HANDLE){ 
 				
-				decl String:sClientName[255];
-				decl String:sPlaceName[255];
-				decl String:msg[255];
+				char sClientName[255];
+				char sPlaceName[255];
+				char msg[255];
 				GetClientName(client, sClientName, 255);
 				GetEntPropString(client, Prop_Data, "m_szLastPlaceName", sPlaceName, 255);
 				
@@ -1323,9 +1323,9 @@ stock bool:sendRadioTextToTeam(client, team, const String:sText[], any:...){
 		
 	}
 	
-	decl String:sClientName[255];
-	decl String:sPlaceName[255];
-	decl String:msg[255];
+	char sClientName[255];
+	char sPlaceName[255];
+	char msg[255];
 	GetClientName(client, sClientName, 255);
 	GetEntPropString(client, Prop_Data, "m_szLastPlaceName", sPlaceName, 255);
 	
@@ -1336,7 +1336,7 @@ stock bool:sendRadioTextToTeam(client, team, const String:sText[], any:...){
 			SetGlobalTransTarget(i);
 			VFormat(msg, 255, sText, 3);	
 			
-			new Handle:buffer = StartMessageOne("RadioText", i);
+			Handle buffer = StartMessageOne("RadioText", i);
 			
 			if (buffer != INVALID_HANDLE){ 
 				

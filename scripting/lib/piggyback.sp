@@ -35,29 +35,29 @@ enum PiggyMethod (<<= 1)
     PiggyMethod_Enable
 }
 
-new g_piggy[MAXPLAYERS+1];
-new Float:g_distance[MAXPLAYERS+1];
-new PiggyMethod:g_method[MAXPLAYERS+1];
+int g_piggy[MAXPLAYERS+1];
+float g_distance[MAXPLAYERS+1];
+int PiggyMethod:g_method[MAXPLAYERS+1];
 
-new String:infoText[512];
+char infoText[512];
 
-new bool:IsTF2 = false;
-new bool:gNativeControl = false;
+bool IsTF2 = false;
+bool gNativeControl = false;
 
 // convars
-new Handle:pb_distance;
-new Handle:pb_method;
-new Handle:pb_enable;
-new Handle:pb_info;
+Handle pb_distance;
+Handle pb_method;
+Handle pb_enable;
+Handle pb_info;
 
 // forwards
-new Handle:fwdOnPiggyback;
+Handle fwdOnPiggyback;
 
-static const String:TF2Weapons[][]={"tf_weapon_fists", "tf_weapon_shovel", "tf_weapon_bat",
+static const char TF2Weapons[][]={"tf_weapon_fists", "tf_weapon_shovel", "tf_weapon_bat",
                                     "tf_weapon_fireaxe", "tf_weapon_bonesaw", "tf_weapon_bottle",
                                     "tf_weapon_sword", "tf_weapon_club", "tf_weapon_wrench"};
 
-public Plugin:myinfo = {
+public Plugin myinfo = {
     name = "Piggyback",
     author = "Mecha the Slag",
     description = "Allows players to piggyback another player!",
@@ -83,7 +83,7 @@ public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
 public OnPluginStart()
 {
     // G A M E  C H E C K //
-    decl String:game[32];
+    char game[32];
     GetGameFolderName(game, sizeof(game));
     if (StrEqual(game, "tf"))
     {
@@ -116,7 +116,7 @@ public OnPluginStart()
     }
 }
 
-public Action:Notification(Handle:hTimer)
+public Action Notification(Handle:hTimer)
 {
     if (GetConVarFloat(pb_info) > 0.0)
     {
@@ -128,7 +128,7 @@ public Action:Notification(Handle:hTimer)
     return Plugin_Stop;
 }
 
-public Player_Spawn(Handle:event, const String:name[], bool:dontBroadcast)
+public Player_Spawn(Handle:event, const char name[], bool:dontBroadcast)
 {
     new client = GetClientOfUserId(GetEventInt(event, "userid"));
     RemovePiggy(client, true);
@@ -155,7 +155,7 @@ public Player_Spawn(Handle:event, const String:name[], bool:dontBroadcast)
     }
 }
 
-public Player_Death(Handle:event, const String:name[], bool:dontBroadcast)
+public Player_Death(Handle:event, const char name[], bool:dontBroadcast)
 {
     new client = GetClientOfUserId(GetEventInt(event, "userid"));
     RemovePiggy(client, true);
@@ -171,7 +171,7 @@ public Player_Death(Handle:event, const String:name[], bool:dontBroadcast)
     }
 }
 
-public Flag_Event(Handle:event,const String:name[],bool:dontBroadcast)
+public Flag_Event(Handle:event,const char name[],bool:dontBroadcast)
 {
     new player = GetEventInt(event,"player");
     if (player > 0 && IsClientInGame(player))
@@ -218,11 +218,11 @@ public OnPreThink(client)
     if ((iButtons & IN_ATTACK2) &&
         (g_method[client] & PiggyMethod_Enable))
     {
-        new bool:go = false;
+        bool go = false;
 
         if (IsTF2)
         {
-            decl String:Weapon[128];
+            char Weapon[128];
             GetClientWeapon(client, Weapon, sizeof(Weapon));
             for (new i = 0; i < sizeof(TF2Weapons); i++)
             {
@@ -254,7 +254,7 @@ public OnPreThink(client)
             {
                 if (method & PiggyMethod_ForceView)
                 {
-                    decl Float:vecClientEyeAng[3];
+                    float vecClientEyeAng[3];
                     GetClientEyeAngles(g_piggy[client], vecClientEyeAng); // Get the angle the player is looking
                     TeleportEntity(client, NULL_VECTOR, vecClientEyeAng, NULL_VECTOR);
                 }
@@ -281,15 +281,15 @@ public OnGameFrame()
             new parent = g_piggy[client];
             if (parent > 0)
             {
-                decl Float:vecClientEyePos[3];
+                float vecClientEyePos[3];
                 GetClientEyePosition(parent, vecClientEyePos); // Get the player's location
 
-                decl Float:vecVelocity[3];
+                float vecVelocity[3];
                 GetEntPropVector(parent, Prop_Data, "m_vecVelocity", vecVelocity);
 
                 if (g_method[parent] & PiggyMethod_ForceView)
                 {
-                    decl Float:vecClientEyeAng[3];
+                    float vecClientEyeAng[3];
                     GetClientEyeAngles(parent, vecClientEyeAng); // Get the angle the player is looking
                     TeleportEntity(client, vecClientEyePos, vecClientEyeAng, vecVelocity);
                 }
@@ -336,13 +336,13 @@ public Piggy(entity, other)
             }
         }
 
-        decl Float:PlayerVec[3];
+        float PlayerVec[3];
         GetClientAbsOrigin(other, PlayerVec);
 
-        decl Float:PlayerVec2[3];
+        float PlayerVec2[3];
         GetClientAbsOrigin(entity, PlayerVec2);
 
-        new Float:distance = GetVectorDistance(PlayerVec2, PlayerVec);
+        float distance = GetVectorDistance(PlayerVec2, PlayerVec);
         if (distance <= g_distance[other])
         {
             // Check with other plugins/forward (if any)
@@ -358,7 +358,7 @@ public Piggy(entity, other)
             {
                 static const Float:vecClientVel[3] = {0.0, 0.0, 0.0 };
 
-                decl Float:vecClientEyeAng[3];
+                float vecClientEyeAng[3];
                 GetClientEyeAngles(other, vecClientEyeAng); // Get the angle the player is looking
 
                 CPrintToChatEx(other, entity, "{teamcolor}%N{default} is on your back", entity);
@@ -371,7 +371,7 @@ public Piggy(entity, other)
 
                 if (!IsTF2)
                 {
-                    decl String:tName[32];
+                    char tName[32];
                     GetEntPropString(other, Prop_Data, "m_iName", tName, sizeof(tName));
                     DispatchKeyValue(entity, "parentname", tName);
 
@@ -421,8 +421,8 @@ public RemovePiggy(entity, bool:force)
                 if (IsPlayerAlive(entity))
                 {
                     static const Float:vecClientVel[3] = {0.0, 0.0, 0.0};
-                    decl Float:PlayerVec[3];
-                    decl Float:vecClientEyeAng[3];
+                    float PlayerVec[3];
+                    float vecClientEyeAng[3];
                     GetClientAbsOrigin(other, PlayerVec);
                     GetClientEyeAngles(other, vecClientEyeAng); // Get the angle the player is looking
                     TeleportEntity(entity, PlayerVec, NULL_VECTOR, vecClientVel);
@@ -434,8 +434,8 @@ public RemovePiggy(entity, bool:force)
 
 public TraceTarget(client)
 {
-    decl Float:vecClientEyePos[3];
-    decl Float:vecClientEyeAng[3];
+    float vecClientEyePos[3];
+    float vecClientEyeAng[3];
     GetClientEyePosition(client, vecClientEyePos); // Get the position of the player's eyes
     GetClientEyeAngles(client, vecClientEyeAng); // Get the angle the player is looking
 
@@ -451,7 +451,7 @@ public TraceTarget(client)
     }
 }
 
-public bool:TraceRayDontHitSelf(entity, mask, any:data)
+public bool TraceRayDontHitSelf(entity, mask, any:data)
 {
     return (entity != data); // Check if the TraceRay hit the entity.
 }
@@ -476,7 +476,7 @@ public Native_GivePiggyback(Handle:plugin,numParams)
     else
         g_method[client] = PiggyMethod_None;
 
-    new Float:distance = Float:GetNativeCell(3);
+    float distance = Float:GetNativeCell(3);
     if (distance >= 0.0)
         g_distance[client] = distance;
     else

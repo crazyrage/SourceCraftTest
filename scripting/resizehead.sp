@@ -9,17 +9,17 @@
 
 /* Global Handles */
 
-new Handle:Version;
-new Handle:cvarEnabled;
-new Handle:cvarLogs;
+Handle Version;
+Handle cvarEnabled;
+Handle cvarLogs;
 
 /* Global Variables */
 
-new bool:Enabled;
-new bool:Logs;
-new Float:g_HeadScale[MAXPLAYERS + 1] = 1.0;
+bool Enabled;
+bool Logs;
+float g_HeadScale[MAXPLAYERS + 1] = 1.0;
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
 	name = "[TF2] Resize Heads",
 	author = "Tak + ReFlexPoison",
@@ -30,7 +30,7 @@ public Plugin:myinfo =
 
 public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
 {
-	new String:Game[32];
+	char Game[32];
 	GetGameFolderName(Game, sizeof(Game));
 	if(!StrEqual(Game, "tf"))
 	{
@@ -64,7 +64,7 @@ public OnPluginStart()
 	}
 }
 
-public CVarChange(Handle:convar, const String:oldValue[], const String:newValue[])
+public CVarChange(Handle:convar, const char oldValue[], const char newValue[])
 {
 	if(convar == Version) SetConVarString(Version, PLUGIN_VERSION);
 	if(convar == cvarEnabled)
@@ -104,7 +104,7 @@ public OnGameFrame()
 	}
 }
 
-public Action:ResizeHead(client, args)
+public Action ResizeHead(client, args)
 {
 	if(!Enabled) return Plugin_Continue;
 
@@ -119,11 +119,11 @@ public Action:ResizeHead(client, args)
 		return Plugin_Handled;
 	}
 
-	decl String:arg1[65], String:arg2[65], Float:scale;
+	char arg1[65], String:arg2[65], Float:scale;
 	GetCmdArg(1, arg1, sizeof(arg1));
 	GetCmdArg(2, arg2, sizeof(arg2));
 	scale = StringToFloat(arg2);
-	decl String:target_name[MAX_TARGET_LENGTH];
+	char target_name[MAX_TARGET_LENGTH];
 	decl target_list[MAXPLAYERS], target_count, bool:tn_is_ml;
 	if((target_count = ProcessTargetString(
 			arg1,

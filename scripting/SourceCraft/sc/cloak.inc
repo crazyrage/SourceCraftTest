@@ -39,8 +39,8 @@ stock Cloak(client, level, bool:apply=false)
     if (level > 0)
     {
         new alpha = alphaTable[level];
-        new Float:delay = delayTable[level];
-        new Float:duration = durationTable[level];
+        float delay = delayTable[level];
+        float duration = durationTable[level];
 
         /* If the Player also has the Cloak of Shadows,
          * Decrease the delay and Increase the duration.
@@ -55,7 +55,7 @@ stock Cloak(client, level, bool:apply=false)
             duration *= 1.10;
         }
 
-        new Float:start[3];
+        float start[3];
         GetClientAbsOrigin(client, start);
 
         new lightning = Lightning();
@@ -92,8 +92,8 @@ stock AlphaCloak(client, level, bool:allowInvisibility, bool:apply=false)
     if (level > 0)
     {
         new alpha = alphaTable[level];
-        new Float:melee = factorTable[level];
-        new Float:movement = factorTable[level];
+        float melee = factorTable[level];
+        float movement = factorTable[level];
 
         /* If the Player also has the Cloak of Shadows,
          * Decrease the delay and Increase the duration.
@@ -106,7 +106,7 @@ stock AlphaCloak(client, level, bool:allowInvisibility, bool:apply=false)
             movement *= 1.10;
         }
 
-        new Float:start[3];
+        float start[3];
         GetClientAbsOrigin(client, start);
 
         new lightning = Lightning();

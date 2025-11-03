@@ -36,7 +36,7 @@ stock bool:Hallucinate(victim_index, index, level, Float:amount,
     {
         if (GetRandomInt(1,100) <= hallucinateChance[level])
         {
-            new Float:energy = GetEnergy(index);
+            float energy = GetEnergy(index);
             if (energy >= amount)
             {
                 if (GetSetting(victim_index,Remove_Queasiness) ||

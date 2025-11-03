@@ -55,7 +55,7 @@ SetupLevelUpEffect()
 
 KillXP(level)
 {
-    new Handle:temp;
+    Handle temp;
     if (SAVE_ENABLED)
         temp=GetArrayCell(vecLevelConfiguration,1);
     else
@@ -76,7 +76,7 @@ KillXP(level)
 
 ReqLevelXP(level)
 {
-    new Handle:temp;
+    Handle temp;
     if (SAVE_ENABLED)
         temp=GetArrayCell(vecLevelConfiguration,0);
     else
@@ -105,11 +105,11 @@ DoLevelCheck(client)
     if (GetRaceCount() > 1 &&
         GetDatabaseLoaded(client) != DataLoading)
     {
-        new bool:moreLevels=true;
+        bool moreLevels=true;
         while (moreLevels)
         {
             new race = GetRace(client);
-            new Handle:raceHandle=GetRaceHandle(race);
+            Handle raceHandle=GetRaceHandle(race);
             new level = GetLevel(client,race);
             if (level < GetRaceMaxLevel(raceHandle))
             {
@@ -125,7 +125,7 @@ DoLevelCheck(client)
                     SetLevel(client,race,level, true);
                     SetXP(client,race,curXP-reqXP);
 
-                    new Float:vec[3];
+                    float vec[3];
                     GetClientAbsOrigin(client, vec);
                     vec[2] += 50;
 
@@ -141,7 +141,7 @@ DoLevelCheck(client)
                         CreateParticle("Achieved", 5.0, client, Attach, "head");
                     }
 
-                    decl String:raceName[64];
+                    char raceName[64];
                     GetRaceName(raceHandle,raceName,sizeof(raceName));
 
                     if (IsFakeClient(client))
@@ -168,7 +168,7 @@ DoLevelCheck(client)
                           client, ValidClientIndex(client), race, curXP, reqXP, level, \
                           GetOverallLevel(client));
 
-                    new bool:saveEnabled = (g_bSaveXP && GetRaceCount() > 1 &&
+                    bool saveEnabled = (g_bSaveXP && GetRaceCount() > 1 &&
                                             GetPlayerStatus(client) != PlayerDisabled);
 
                     if (saveEnabled && GetDatabaseLoaded(client) >= DataOK &&
@@ -177,7 +177,7 @@ DoLevelCheck(client)
                     {
                         // Save after about 50 kills (or 5 caps) worth of XP gained
                         // and > 1000 XP and more than 10 minutes since last save.
-                        new Handle:raceInfo = GetRaceInfo(client, race);
+                        Handle raceInfo = GetRaceInfo(client, race);
                         if (raceInfo != INVALID_HANDLE)
                         {
                             new unsavedXP = curXP - GetRaceInfoSavedXP(raceInfo);
@@ -206,10 +206,10 @@ ShowXP(client, Display:displayFlags=Display_XP)
         new race=GetRace(client);
         if (race >= 0)
         {
-            new Handle:raceHandle=GetRaceHandle(race);
+            Handle raceHandle=GetRaceHandle(race);
             if (raceHandle != INVALID_HANDLE)
             {
-                decl String:racename[64];
+                char racename[64];
                 GetRaceName(raceHandle,racename,sizeof(racename));
                 new level=GetLevel(client,race);
                 new maxLevel=GetRaceMaxLevel(raceHandle);
@@ -451,7 +451,7 @@ GiveXP(client, amount, const String:phrase[], place=-1,
 
         if (result != Plugin_Stop)
         {
-            new String:reason[NAME_STRING_LENGTH];
+            char reason[NAME_STRING_LENGTH];
             if (place >= 0 || points >= 0)
             {
                 Format(reason, sizeof(reason), "%T",
@@ -479,7 +479,7 @@ GiveXP(client, amount, const String:phrase[], place=-1,
 
             if (race > 0)
             {
-                new Handle:raceHandle=GetRaceHandle(race);
+                Handle raceHandle=GetRaceHandle(race);
                 if (raceHandle != INVALID_HANDLE &&
                     GetLevel(client,race) < GetRaceMaxLevel(raceHandle))
                 {
@@ -504,7 +504,7 @@ TakeXP(client, amount, const String:phrase[], place=-1,
 
         if (result != Plugin_Stop)
         {
-            new String:reason[NAME_STRING_LENGTH];
+            char reason[NAME_STRING_LENGTH];
             if (place >= 0 || points >= 0)
             {
                 Format(reason, sizeof(reason), "%T",
@@ -527,7 +527,7 @@ TakeXP(client, amount, const String:phrase[], place=-1,
             LogToGame("%N lost %d experience for %s", client, amount, reason);
             DisplayMessage(client, Display_XP, "%t", "LostXP", amount, reason);
 
-            new Handle:raceHandle=GetRaceHandle(race);
+            Handle raceHandle=GetRaceHandle(race);
             if (raceHandle != INVALID_HANDLE &&
                 GetLevel(client,race) < GetRaceMaxLevel(raceHandle))
             {

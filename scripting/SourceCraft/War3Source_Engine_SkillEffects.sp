@@ -1,21 +1,21 @@
 #include <sourcemod>
 #include "W3SIncs/War3Source_Interface"
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "War3Source - Engine - Notifications",
     author = "War3Source Team",
     description = "Centralize some notifications"
 };
 
-new iMaskSoundDelay[MAXPLAYERSCUSTOM];
-new String:sMaskSound[256];
+int iMaskSoundDelay[MAXPLAYERSCUSTOM];
+char sMaskSound[256];
 
 
-new BeamSprite = -1;
-new HaloSprite = -1;
+int BeamSprite = -1;
+int HaloSprite = -1;
 
-public bool:InitNativesForwards()
+public bool InitNativesForwards()
 {
     CreateNative("War3_EvadeDamage", Native_EvadeDamage);
     CreateNative("War3_EffectReturnDamage", Native_EffectReturnDamage);
@@ -61,7 +61,7 @@ public Native_EvadeDamage(Handle:plugin, numParams)
 
         if(War3_GetGame() == Game_TF)
         {
-            decl Float:pos[3];
+            float pos[3];
             GetClientEyePosition(victim, pos);
             pos[2] += 4.0;
             War3_TF_ParticleToClient(0, "miss_text", pos);
@@ -91,8 +91,8 @@ public Native_EffectReturnDamage(Handle:plugin, numParams)
     new beamSprite = War3_PrecacheBeamSprite();
     new haloSprite = War3_PrecacheHaloSprite();
     
-    decl Float:f_AttackerPos[3];
-    decl Float:f_VictimPos[3];
+    float f_AttackerPos[3];
+    float f_VictimPos[3];
 
     if (ValidPlayer(attacker))
     {
@@ -178,15 +178,15 @@ public Native_WardVisualEffect(Handle:plugin, numParams)
     decl beamcolor[4];
     GetNativeArray(2, beamcolor, sizeof(beamcolor));
     
-    decl Float:fWardLocation[3];
+    float fWardLocation[3];
     War3_GetWardLocation(wardindex, fWardLocation);
-    new Float:fInterval = War3_GetWardInterval(wardindex);
+    float fInterval = War3_GetWardInterval(wardindex);
     new wardRadius = War3_GetWardRadius(wardindex);
 
-    new Float:fStartPos[3];
-    new Float:fEndPos[3];
-    new Float:tempVec1[] = {0.0, 0.0, WARDBELOW};
-    new Float:tempVec2[] = {0.0, 0.0, WARDABOVE};
+    float fStartPos[3];
+    float fEndPos[3];
+    float tempVec1[] = {0.0, 0.0, WARDBELOW};
+    float tempVec2[] = {0.0, 0.0, WARDABOVE};
     
     AddVectors(fWardLocation, tempVec1, fStartPos);
     AddVectors(fWardLocation, tempVec2, fEndPos);
@@ -194,7 +194,7 @@ public Native_WardVisualEffect(Handle:plugin, numParams)
     TE_SetupBeamPoints(fStartPos, fEndPos, BeamSprite, HaloSprite, 0, GetRandomInt(30, 100), fInterval, 70.0, 70.0, 0, 30.0, beamcolor, 10);
     TE_SendToAll();
     
-    new Float:StartRadius = wardRadius / 2.0;
+    float StartRadius = wardRadius / 2.0;
     new Speed = RoundToFloor((wardRadius - StartRadius) / fInterval);
     
     TE_SetupBeamRingPoint(fWardLocation, StartRadius, float(wardRadius), BeamSprite, HaloSprite, 0,1, fInterval, 20.0, 1.5, beamcolor, Speed, 0);

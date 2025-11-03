@@ -47,22 +47,22 @@
 #include "effect/BeamSprite"
 #include "effect/SendEffects"
 
-new const String:bunkerWav[]    = "sc/tmedheal.wav";
+char bunkerWav[]    = "sc/tmedheal.wav";
 
-new const String:g_ArmorName[]  = "Armor";
-new Float:g_InitialArmor[]      = { 0.0, 0.10, 0.20, 0.30, 0.40 };
-new Float:g_ArmorPercent[][2]   = { {0.00, 0.00},
+char g_ArmorName[]  = "Armor";
+float g_InitialArmor[]      = { 0.0, 0.10, 0.20, 0.30, 0.40 };
+float g_ArmorPercent[][2]   = { {0.00, 0.00},
                                     {0.00, 0.05},
                                     {0.00, 0.10},
                                     {0.05, 0.15},
                                     {0.10, 0.20} };
 
-new Float:g_BunkerPercent[]     = { 0.00, 0.10, 0.20, 0.30, 0.40 };
-new Float:g_TeleporterRate[]    = { 0.0, 8.0, 6.0, 3.0, 1.0 };
-new Float:g_SupplyBunkerRange[] = { 0.0, 150.0, 250.0, 350.0, 450.0 };
-new g_AmmopackMetal[]           = { 0, 0, 50, 100, 200 };
+float g_BunkerPercent[]     = { 0.00, 0.10, 0.20, 0.30, 0.40 };
+float g_TeleporterRate[]    = { 0.0, 8.0, 6.0, 3.0, 1.0 };
+float g_SupplyBunkerRange[] = { 0.0, 150.0, 250.0, 350.0, 450.0 };
+int g_AmmopackMetal[]           = { 0, 0, 50, 100, 200 };
 
-new Float:g_AmpRange[][]        =
+float g_AmpRange[][]        =
 {
     { 0.0,   0.0,   0.0,   0.0 },
     { 0.0, 100.0, 150.0, 200.0 },
@@ -71,7 +71,7 @@ new Float:g_AmpRange[][]        =
     { 0.0, 250.0, 300.0, 350.0 }
 };
 
-new Float:g_NodeRange[][]       =
+float g_NodeRange[][]       =
 {
     { 0.0,   0.0,   0.0,   0.0 },
     { 0.0, 100.0, 150.0, 200.0 },
@@ -80,7 +80,7 @@ new Float:g_NodeRange[][]       =
     { 0.0, 250.0, 350.0, 500.0 }
 };
 
-new g_NodeRegen[][]             =
+int g_NodeRegen[][]             =
 {
     { 0,  0,  0,  0 },
     { 0, 10, 15, 20 },
@@ -89,7 +89,7 @@ new g_NodeRegen[][]             =
     { 0, 25, 30, 40 }
 };
 
-new g_NodeShells[][]            =
+int g_NodeShells[][]            =
 {
     { 0,  0,  0,  0 },
     { 0,  0,  0,  0 },
@@ -98,21 +98,21 @@ new g_NodeShells[][]            =
     { 0, 10, 15, 20 }
 };
 
-new g_NodeRockets[]             = { 0,  0,  0,  2, 4 };
+int g_NodeRockets[]             = { 0,  0,  0,  2, 4 };
 
-new raceID, armorID, supplyID, supplyBunkerID, ammopackID, teleporterID, immunityID;
-new amplifierID, repairNodeID, tripmineID, nadeID, gravgunID, battlecruiserID, bunkerID;
+int raceID, armorID, supplyID, supplyBunkerID, ammopackID, teleporterID, immunityID;
+int amplifierID, repairNodeID, tripmineID, nadeID, gravgunID, battlecruiserID, bunkerID;
 
-new g_battlecruiserRace = -1;
+int g_battlecruiserRace = -1;
 
-new cfgAllowGravgun;
-new bool:cfgAllowRepair;
-new Float:cfgGravgunDuration;
-new Float:cfgGravgunThrowSpeed;
+int cfgAllowGravgun;
+bool cfgAllowRepair;
+float cfgGravgunDuration;
+float cfgGravgunThrowSpeed;
 
-new Float:m_GravTime[MAXPLAYERS+1];
+float m_GravTime[MAXPLAYERS+1];
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Terran SCV",
     author = "-=|JFH|=-Naris",
@@ -265,7 +265,7 @@ public OnSourceCraftReady()
 
     for (new level=0; level < sizeof(g_ArmorPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "armor_percent_level_%d", level);
         GetConfigFloatArray(key, g_ArmorPercent[level], sizeof(g_ArmorPercent[]),
                             g_ArmorPercent[level], raceID, armorID);
@@ -290,7 +290,7 @@ public OnSourceCraftReady()
 
         for (new level=0; level < sizeof(g_AmpRange); level++)
         {
-            decl String:key[32];
+            char key[32];
             Format(key, sizeof(key), "range_level_%d", level);
             GetConfigFloatArray(key, g_AmpRange[level], sizeof(g_AmpRange[]),
                                 g_AmpRange[level], raceID, amplifierID);
@@ -298,7 +298,7 @@ public OnSourceCraftReady()
 
         for (new level=0; level < sizeof(g_NodeRange); level++)
         {
-            decl String:key[32];
+            char key[32];
             Format(key, sizeof(key), "range_level_%d", level);
             GetConfigFloatArray(key, g_NodeRange[level], sizeof(g_NodeRange[]),
                                 g_NodeRange[level], raceID, repairNodeID);
@@ -306,7 +306,7 @@ public OnSourceCraftReady()
 
         for (new level=0; level < sizeof(g_NodeRegen); level++)
         {
-            decl String:key[32];
+            char key[32];
             Format(key, sizeof(key), "regen_level_%d", level);
             GetConfigArray(key, g_NodeRegen[level], sizeof(g_NodeRegen[]),
                            g_NodeRegen[level], raceID, repairNodeID);
@@ -314,7 +314,7 @@ public OnSourceCraftReady()
 
         for (new level=0; level < sizeof(g_NodeShells); level++)
         {
-            decl String:key[32];
+            char key[32];
             Format(key, sizeof(key), "shells_level_%d", level);
             GetConfigArray(key, g_NodeShells[level], sizeof(g_NodeShells[]),
                            g_NodeShells[level], raceID, repairNodeID);
@@ -392,7 +392,7 @@ public OnClientDisconnect(client)
     KillClientTimer(client);
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -446,7 +446,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
     }
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
@@ -628,7 +628,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
 					}
 					else if (pressed)
 					{
-						decl String:upgradeName[64];
+						char upgradeName[64];
 						GetUpgradeName(raceID, nadeID, upgradeName, sizeof(upgradeName), client);
 						PrintHintText(client,"%t", "IsNotAvailable", upgradeName);
 					}
@@ -680,7 +680,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                     }
                     else if (pressed)
                     {
-                        decl String:upgradeName[64];
+                        char upgradeName[64];
                         GetUpgradeName(raceID, nadeID, upgradeName, sizeof(upgradeName), client);
                         PrintHintText(client,"%t", "IsNotAvailable", upgradeName);
                     }
@@ -722,7 +722,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                             {
                                 if (IsMole(client))
                                 {
-                                    decl String:upgradeName[64];
+                                    char upgradeName[64];
                                     GetUpgradeName(raceID, tripmineID, upgradeName, sizeof(upgradeName), client);
                                     DisplayMessage(client, Display_Ultimate, "%t", "NotAsMole", upgradeName);
                                     PrepareAndEmitSoundToClient(client,deniedWav);
@@ -739,7 +739,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                             }
                             else
                             {
-                                decl String:upgradeName[64];
+                                char upgradeName[64];
                                 GetUpgradeName(raceID, tripmineID, upgradeName, sizeof(upgradeName), client);
                                 PrintHintText(client,"%t", "IsNotAvailable", upgradeName);
                             }
@@ -764,7 +764,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                             }
                             else if (pressed)
                             {
-                                decl String:upgradeName[64];
+                                char upgradeName[64];
                                 GetUpgradeName(raceID, nadeID, upgradeName, sizeof(upgradeName), client);
                                 PrintHintText(client,"%t", "IsNotAvailable", upgradeName);
                             }
@@ -788,7 +788,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                         if (cfgAllowGravgun < 2 && GetGameType() == tf2 &&
                             TF2_GetPlayerClass(client) != TFClass_Engineer)
                         {
-                            decl String:upgradeName[64];
+                            char upgradeName[64];
                             GetUpgradeName(raceID, gravgunID, upgradeName, sizeof(upgradeName), client);
                             DisplayMessage(client, Display_Ultimate, "%t", "EngineersOnly", upgradeName);
                             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -800,7 +800,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                                 if (GetRestriction(client, Restriction_NoUltimates) ||
                                     GetRestriction(client, Restriction_Stunned))
                                 {
-                                    decl String:upgradeName[64];
+                                    char upgradeName[64];
                                     GetUpgradeName(raceID, gravgunID, upgradeName, sizeof(upgradeName), client);
                                     DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
                                     PrepareAndEmitSoundToClient(client,deniedWav);
@@ -814,7 +814,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                     }
                     else if (pressed)
                     {
-                        decl String:upgradeName[64];
+                        char upgradeName[64];
                         GetUpgradeName(raceID, gravgunID, upgradeName, sizeof(upgradeName), client);
                         PrintHintText(client,"%t", "IsNotAvailable", upgradeName);
                     }
@@ -830,7 +830,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                             {
                                 if (IsMole(client))
                                 {
-                                    decl String:upgradeName[64];
+                                    char upgradeName[64];
                                     GetUpgradeName(raceID, tripmineID, upgradeName, sizeof(upgradeName), client);
                                     DisplayMessage(client, Display_Ultimate, "%t", "NotAsMole", upgradeName);
                                     PrepareAndEmitSoundToClient(client,deniedWav);
@@ -847,7 +847,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                             }
                             else
                             {
-                                decl String:upgradeName[64];
+                                char upgradeName[64];
                                 GetUpgradeName(raceID, tripmineID, upgradeName, sizeof(upgradeName), client);
                                 PrintHintText(client,"%t", "IsNotAvailable", upgradeName);
                             }
@@ -872,7 +872,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                             }
                             else if (pressed)
                             {
-                                decl String:upgradeName[64];
+                                char upgradeName[64];
                                 GetUpgradeName(raceID, nadeID, upgradeName, sizeof(upgradeName), client);
                                 PrintHintText(client,"%t", "IsNotAvailable", upgradeName);
                             }
@@ -963,7 +963,7 @@ DoImmunity(client, level, bool:value)
 
     if (value && IsValidClientAlive(client))
     {
-        new Float:start[3];
+        float start[3];
         GetClientAbsOrigin(client, start);
 
         static const color[4] = { 0, 255, 50, 128 };
@@ -1005,8 +1005,8 @@ SetupGravgun(client, level)
                           (cfgAllowGravgun >= 1 &&
                            (GameType != tf2 || TF2_GetPlayerClass(client) == TFClass_Engineer))))
         {
-            new Float:speed = cfgGravgunThrowSpeed * float(level);
-            new Float:duration = cfgGravgunDuration * float(level);
+            float speed = cfgGravgunThrowSpeed * float(level);
+            float duration = cfgGravgunDuration * float(level);
             new permissions=HAS_GRABBER|CAN_STEAL;
 
             if (GameType == tf2)
@@ -1032,7 +1032,7 @@ SetupGravgun(client, level)
     }
 }
 
-public Action:OnPickupObject(client, builder, ent)
+public Action OnPickupObject(client, builder, ent)
 {
     if (GetRace(client) == raceID)
     {
@@ -1050,7 +1050,7 @@ public Action:OnPickupObject(client, builder, ent)
         if (GetRestriction(client, Restriction_NoUltimates) ||
             GetRestriction(client, Restriction_Stunned))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, gravgunID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -1065,25 +1065,25 @@ public Action:OnPickupObject(client, builder, ent)
     return Plugin_Continue;
 }
 
-public Action:OnCarryObject(client,ent,Float:time)
+public Action OnCarryObject(client,ent,Float:time)
 {
     if (GetRace(client) == raceID)
     {
-        new Float:now = GetEngineTime();
-        new Float:amount = GetUpgradeRecurringEnergy(raceID,gravgunID);
+        float now = GetEngineTime();
+        float amount = GetUpgradeRecurringEnergy(raceID,gravgunID);
         if (now-m_GravTime[client] > amount)
         {
             if (GetRestriction(client, Restriction_NoUltimates) ||
                 GetRestriction(client, Restriction_Stunned))
             {
-                decl String:upgradeName[64];
+                char upgradeName[64];
                 GetUpgradeName(raceID, gravgunID, upgradeName, sizeof(upgradeName), client);
                 DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
                 PrepareAndEmitSoundToClient(client,deniedWav);
             }
             else if (CanProcessUpgrade(client, raceID, gravgunID))
             {
-                decl String:upgradeName[64];
+                char upgradeName[64];
                 GetUpgradeName(raceID, gravgunID, upgradeName, sizeof(upgradeName), client);
                 DisplayMessage(client, Display_Energy, "%t", "ConsumedEnergy", upgradeName, amount);
                 m_GravTime[client] = now;
@@ -1091,7 +1091,7 @@ public Action:OnCarryObject(client,ent,Float:time)
             }
             else
             {
-                decl String:upgradeName[64];
+                char upgradeName[64];
                 GetUpgradeName(raceID, gravgunID, upgradeName, sizeof(upgradeName), client);
                 DisplayMessage(client, Display_Energy, "%t", "OutOfEnergy", upgradeName);
                 EmitEnergySoundToClient(client,Terran);
@@ -1111,13 +1111,13 @@ public OnDropObject(client, ent)
     }
 }
 
-public Action:OnThrowObject(client, ent)
+public Action OnThrowObject(client, ent)
 {
     OnDropObject(client, ent);
     return Plugin_Continue;
 }
 
-public Action:SupplyDepot(Handle:timer, any:userid)
+public Action SupplyDepot(Handle:timer, any:userid)
 {
     new client = GetClientOfUserId(userid);
     if (IsValidClientAlive(client) && GetRace(client) == raceID &&
@@ -1136,8 +1136,8 @@ public Action:SupplyDepot(Handle:timer, any:userid)
                 new bunker_amount = bunker_level + 1;
                 new bunker_health = bunker_amount * 5;
                 new bunker_ammo = bunker_amount * 2;
-                new Float:bunker_energy = float(bunker_amount) / 2.0;
-                new Float:bunker_range=g_SupplyBunkerRange[bunker_level];
+                float bunker_energy = float(bunker_amount) / 2.0;
+                float bunker_range=g_SupplyBunkerRange[bunker_level];
 
                 new beamSprite = BeamSprite();
                 new haloSprite = HaloSprite();
@@ -1157,8 +1157,8 @@ public Action:SupplyDepot(Handle:timer, any:userid)
                                 GetEntPropFloat(ent, Prop_Send, "m_flPercentageConstructed") >= 1.0)
                             {
                                 // Heal/Supply teammates
-                                new Float:indexLoc[3];
-                                new Float:pos[3];
+                                float indexLoc[3];
+                                float pos[3];
                                 GetEntPropVector(ent, Prop_Send, "m_vecOrigin", pos);
                                 pos[2] += 25.0; // Adjust trace position to the middle/top of the object instead of the bottom.
 
@@ -1250,7 +1250,7 @@ BuildBattlecruiser(client)
 
     if (g_battlecruiserRace < 0)
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, battlecruiserID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "IsNotAvailable", upgradeName);
         LogError("***The Terran Battlecruiser race is not Available!");
@@ -1265,7 +1265,7 @@ BuildBattlecruiser(client)
     }
     else if (HasCooldownExpired(client, raceID, battlecruiserID))
     {
-        new Float:clientLoc[3];
+        float clientLoc[3];
         GetClientAbsOrigin(client, clientLoc);
         clientLoc[2] += 40.0; // Adjust position to the middle
 
@@ -1280,11 +1280,11 @@ BuildBattlecruiser(client)
     }
 }
 
-public Action:OnAmplify(builder,client,TFCond:condition)
+public Action OnAmplify(builder,client,TFCond:condition)
 {
     if (condition == TFCond_Buffed && builder > 0 && GetRace(builder) == raceID)
     {
-        new Float:energy = GetEnergy(client);
+        float energy = GetEnergy(client);
         if (energy < 4.0)
             return Plugin_Stop;
         else

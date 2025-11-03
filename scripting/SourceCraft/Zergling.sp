@@ -40,35 +40,35 @@
 #include "effect/HaloSprite"
 #include "effect/SendEffects"
 
-new const String:spawnWav[] = "sc/zzerdy00.wav";  // Spawn sound
-new const String:deathWav[] = "sc/zzedth00.wav";  // Death sound
-new const String:bloodlustEndWav[] = "sc/zzewht00.wav";
-new const String:bloodlustWav[] = "sc/zzerdy00.wav";
+char spawnWav[] = "sc/zzerdy00.wav";  // Spawn sound
+char deathWav[] = "sc/zzedth00.wav";  // Death sound
+char bloodlustEndWav[] = "sc/zzewht00.wav";
+char bloodlustWav[] = "sc/zzerdy00.wav";
 
-new const Float:g_SpeedLevels[] = { -1.0, 1.05, 1.10, 1.15, 1.20 };
+int const Float:g_SpeedLevels[] = { -1.0, 1.05, 1.10, 1.15, 1.20 };
 //new const Float:g_SpeedLevels[] = { -1.0, 1.08, 1.19, 1.25, 1.36 };
 
-new const String:g_AdrenalGlandsSound[] = "sc/zulhit00.wav";
-new Float:g_AdrenalGlandsPercent[] = { 0.0, 0.15, 0.30, 0.40, 0.50 };
+char g_AdrenalGlandsSound[] = "sc/zulhit00.wav";
+float g_AdrenalGlandsPercent[] = { 0.0, 0.15, 0.30, 0.40, 0.50 };
 
-new const String:g_ArmorName[] = "Carapace";
-new Float:g_InitialArmor[]     = { 0.0, 0.10, 0.20, 0.30, 0.40 };
-new Float:g_ArmorPercent[][2]  = { {0.00, 0.00},
+char g_ArmorName[] = "Carapace";
+float g_InitialArmor[]     = { 0.0, 0.10, 0.20, 0.30, 0.40 };
+float g_ArmorPercent[][2]  = { {0.00, 0.00},
                                    {0.00, 0.10},
                                    {0.00, 0.20},
                                    {0.10, 0.40},
                                    {0.10, 0.50} };
 
-new cfgMaxRespawns             = 4;
+int cfgMaxRespawns             = 4;
 
-new raceID, boostID, carapaceID, regenerationID, burrowID;
-new meleeID, spawningID, bloodlustID, banelingID;
+int raceID, boostID, carapaceID, regenerationID, burrowID;
+int meleeID, spawningID, bloodlustID, banelingID;
 
-new g_banelingRace = -1;
+int g_banelingRace = -1;
 
-new bool:m_BloodlustActive[MAXPLAYERS+1];
+bool m_BloodlustActive[MAXPLAYERS+1];
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Zergling",
     author = "-=|JFH|=-Naris",
@@ -165,7 +165,7 @@ public OnSourceCraftReady()
 
     for (new level=0; level < sizeof(g_ArmorPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "armor_percent_level_%d", level);
         GetConfigFloatArray(key, g_ArmorPercent[level], sizeof(g_ArmorPercent[]),
                             g_ArmorPercent[level], raceID, carapaceID);
@@ -207,7 +207,7 @@ public OnClientDisconnect(client)
     m_BloodlustActive[client] = false;
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -240,7 +240,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
     }
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
@@ -415,7 +415,7 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     if (!from_sc && attacker_index > 0 &&
@@ -427,9 +427,9 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
         if (bloodlust && !GetRestriction(attacker_index,Restriction_NoUltimates) &&
             !GetRestriction(attacker_index,Restriction_Stunned))
         {
-            decl Float:bloodlustPercent[sizeof(g_AdrenalGlandsPercent)];
+            float bloodlustPercent[sizeof(g_AdrenalGlandsPercent)];
             new bloodlust_level= GetUpgradeLevel(attacker_index,raceID,bloodlustID);
-            new Float:increase = (float(bloodlust_level) * 0.25) + 1.0;
+            float increase = (float(bloodlust_level) * 0.25) + 1.0;
             for (new i = 0; i < sizeof(g_AdrenalGlandsPercent); i++)
             {
                 bloodlustPercent[i] = g_AdrenalGlandsPercent[i] * increase;
@@ -508,7 +508,7 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
         {
             PrepareAndEmitSoundToClient(victim_index,deniedWav);
 
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, spawningID, upgradeName, sizeof(upgradeName), victim_index);
             DisplayMessage(victim_index, Display_Message, "%t", "NotAsMole", upgradeName);
             m_ReincarnationCount[victim_index] = 0;
@@ -595,7 +595,7 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
                     {
                         Respawn(victim_index);
 
-                        decl String:suffix[3];
+                        char suffix[3];
                         count = m_ReincarnationCount[victim_index];
                         GetNumberSuffix(count, suffix, sizeof(suffix));
 
@@ -690,7 +690,7 @@ BanelingMorph(client)
     }
     else if (HasCooldownExpired(client, raceID, banelingID))
     {
-        new Float:clientLoc[3];
+        float clientLoc[3];
         GetClientAbsOrigin(client, clientLoc);
         clientLoc[2] += 40.0; // Adjust position to the middle
 
@@ -714,14 +714,14 @@ Bloodlust(client, level)
         if (GetRestriction(client,Restriction_NoUltimates) ||
             GetRestriction(client,Restriction_Stunned))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, bloodlustID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);
         }
         else if (CanInvokeUpgrade(client, raceID, bloodlustID))
         {
-            new Float:speed=g_SpeedLevels[level] + (float(level)*0.05);
+            float speed=g_SpeedLevels[level] + (float(level)*0.05);
 
             /* If the Player also has the Boots of Speed,
              * Increase the speed further
@@ -734,7 +734,7 @@ Bloodlust(client, level)
 
             SetSpeed(client,speed);
 
-            new Float:start[3];
+            float start[3];
             GetClientAbsOrigin(client, start);
 
             static const color[4] = { 255, 100, 100, 255 };
@@ -753,7 +753,7 @@ Bloodlust(client, level)
     }
 }
 
-public Action:EndBloodlust(Handle:timer,any:userid)
+public Action EndBloodlust(Handle:timer,any:userid)
 {
     new client = GetClientOfUserId(userid);
     if (IsValidClient(client))

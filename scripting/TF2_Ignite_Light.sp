@@ -9,15 +9,15 @@
 #define PLUGIN_VERSION "1.2"
 #define MAX_STRENGTH    13
 
-new Handle:g_hEnabled;
-new Handle:g_hBrightness;
+Handle g_hEnabled;
+Handle g_hBrightness;
 
-new g_iFlamethrower[MAXPLAYERS+1] = -1;
-new g_iFlamethrowerTrash[MAXPLAYERS+1] = -1;
+int g_iFlamethrower[MAXPLAYERS+1] = -1;
+int g_iFlamethrowerTrash[MAXPLAYERS+1] = -1;
 
-new g_bHooked[MAXPLAYERS+1] = false;
+int g_bHooked[MAXPLAYERS+1] = false;
 
-public Plugin:myinfo = {
+public Plugin myinfo = {
     name = "[TF2] Ignite Light",
     author = "Mecha the Slag",
     description = "Adds dynamic lighting to the Pyro's flamethrower",
@@ -27,7 +27,7 @@ public Plugin:myinfo = {
 
 public OnPluginStart() {
     // Check if the plugin is being run on the proper mod.
-    decl String:strModName[32]; GetGameFolderName(strModName, sizeof(strModName));
+    char strModName[32]; GetGameFolderName(strModName, sizeof(strModName));
     if (!StrEqual(strModName, "tf")) SetFailState("This plugin is only for Team Fortress 2.");
 
     CreateConVar("ignitelight_version", PLUGIN_VERSION, "[TF2] Ignite Light version", FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY);
@@ -59,9 +59,9 @@ public OnPreThink(iClient) {
     if (!GetConVarBool(g_hEnabled)) return;
     
     new iEntity;
-    decl String:strWeapon[52];
+    char strWeapon[52];
     GetClientWeapon(iClient, strWeapon, sizeof(strWeapon));
-    new Float:fStrength = GetFlamethrowerStrength(iClient);
+    float fStrength = GetFlamethrowerStrength(iClient);
     if (fStrength > 0.0) {
         // If no light is present, let's spawn it
         if (g_iFlamethrower[iClient] == -1) {
@@ -128,11 +128,11 @@ CreateLightEntity(iClient) {
         DispatchKeyValue(iEntity, "style", "5");
         DispatchSpawn(iEntity);
         
-        decl Float:fPos[3];
-        decl Float:fAngle[3];
-        decl Float:fAngle2[3];
-        decl Float:fForward[3];
-        decl Float:fOrigin[3];
+        float fPos[3];
+        float fAngle[3];
+        float fAngle2[3];
+        float fForward[3];
+        float fOrigin[3];
         GetClientEyePosition(iClient, fPos);
         GetClientEyeAngles(iClient, fAngle);
         GetClientEyeAngles(iClient, fAngle2);
@@ -148,7 +148,7 @@ CreateLightEntity(iClient) {
         fOrigin[2] -= 100.0;
         TeleportEntity(iEntity, fOrigin, fAngle, NULL_VECTOR);
         
-        decl String:strName[32];
+        char strName[32];
         Format(strName, sizeof(strName), "target%i", iClient);
         DispatchKeyValue(iClient, "targetname", strName);
                 
@@ -187,7 +187,7 @@ HookClient(iClient, bHook = true) {
 stock bool:IsLightEntity(iEntity) {
     if (iEntity > 0) {
         if (IsValidEdict(iEntity)) {
-            decl String:strClassname[32];
+            char strClassname[32];
             GetEdictClassname(iEntity, strClassname, sizeof(strClassname));
             if (StrEqual(strClassname, "light_dynamic", false)) return true;
         }
@@ -198,7 +198,7 @@ stock bool:IsLightEntity(iEntity) {
 stock bool:IsFlamethrower(iEntity) {
     if (iEntity > 0) {
         if (IsValidEdict(iEntity)) {
-            decl String:strClassname[32];
+            char strClassname[32];
             GetEdictClassname(iEntity, strClassname, sizeof(strClassname));
             if (StrEqual(strClassname, "tf_weapon_flamethrower", false)) return true;
         }
@@ -215,7 +215,7 @@ KillFlamethrowerTrash(iClient) {
 }
 
 AdjustLight(iClient, iEntity) {
-    new Float:fValue;
+    float fValue;
     new iValue;
     fValue = GetFlamethrowerStrength(iClient) * float(GetConVarInt(g_hBrightness));
     iValue = RoundFloat(fValue);
@@ -229,7 +229,7 @@ Float:GetFlamethrowerStrength(iClient) {
     new iEntity = GetEntPropEnt(iClient, Prop_Send, "m_hActiveWeapon");
     if (IsFlamethrower(iEntity)) {
         new iStrength = GetEntProp(iEntity, Prop_Send, "m_iActiveFlames");
-        new Float:fStrength = (float(iStrength) / float(MAX_STRENGTH));
+        float fStrength = (float(iStrength) / float(MAX_STRENGTH));
         if (fStrength > 1.0) fStrength = 1.0;
         return fStrength;
     }

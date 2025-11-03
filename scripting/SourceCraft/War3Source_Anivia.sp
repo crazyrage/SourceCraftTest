@@ -17,7 +17,7 @@
 #define TE_SendToAllButTeam TE_SendEffectToOtherTeam
 #endif
 
-public Plugin:myinfo = {
+public Plugin myinfo = {
     name = "War3Source Race - Anivia",
     author = "Revan",
     description = "Anivia(from LoL) for the Source Engine's war3source",
@@ -26,44 +26,44 @@ public Plugin:myinfo = {
 };
 
 // Cryophoenix Anivia
-new thisRaceID;
-new SKILL_1, SKILL_2, SKILL_3, ULT;
+int thisRaceID;
+int SKILL_1, SKILL_2, SKILL_3, ULT;
 
 #if defined SOURCECRAFT
-new Float:shardSpeed=380.0;
+float shardSpeed=380.0;
 #else
-new Handle:ultCooldownCvar=INVALID_HANDLE;
-new Handle:shardSpeedCvar=INVALID_HANDLE;
+Handle ultCooldownCvar=INVALID_HANDLE;
+Handle shardSpeedCvar=INVALID_HANDLE;
 #endif
 
-new PlasmaBeam,Glow,LaserSprite,BeamSprite,HaloSprite;
-new Handle:hUltimateEndTimer[MAXPLAYERS]=INVALID_HANDLE;
+int PlasmaBeam,Glow,LaserSprite,BeamSprite,HaloSprite;
+Handle hUltimateEndTimer[MAXPLAYERS]=INVALID_HANDLE;
 
 #if !defined SOURCECRAFT
-new iManaValue[MAXPLAYERS]=0;
+int iManaValue[MAXPLAYERS]=0;
 #endif
 
-new iGlacialEntity[MAXPLAYERS]=-1;
-new iFlashFrostEnt[MAXPLAYERS]=-1;
-new bool:bUltActive[MAXPLAYERS]=false;
-new bool:bChilled[MAXPLAYERS]=false;
-new bool:bFrosted[MAXPLAYERS]=false;//same as chilled but this is used for the ultimate(to avoid overwrite)
-new bool:bOverlayed[MAXPLAYERS]=false;
+int iGlacialEntity[MAXPLAYERS]=-1;
+int iFlashFrostEnt[MAXPLAYERS]=-1;
+bool bUltActive[MAXPLAYERS]=false;
+bool bChilled[MAXPLAYERS]=false;
+bool bFrosted[MAXPLAYERS]=false;//same as chilled but this is used for the ultimate(to avoid overwrite)
+bool bOverlayed[MAXPLAYERS]=false;
 
 #if !defined SOURCECRAFT
-new bool:bExtension=false;
+bool bExtension=false;
 #endif
 
-new FlashFrostDmg[5] = {0,3,5,7,9};
-new Float:FlashFrostLifetime[5] = {0.0,5.0,8.0,10.0,12.0};
-new Float:CondenseDuration[5] = {0.0,4.0,6.0,8.0,8.0};//{0.0,2.0,4.0,6.0,8.0};
-new Float:BiteChanceArr[5]={0.0,0.20,0.35,0.40,0.45};
-new BiteDamageArray[5]={0,2,3,4,5};
-new Float:GlacialMaxDistance[5] = {0.0,650.0,800.0,850.0,900.0};
-new Float:GlacialMaxRadius[5] = {0.0,250.0,300.0,350.0,360.0};//{0.0,320.0,360.0,420.0,460.0};
-new Float:GlacialMaxTime[5] = {0.0,10.0,12.0,14.0,16.0};
-new Float:GlacialSlowdown[5] = {1.0,0.90,0.85,0.80,0.78};
-new GlacialDamagePerTick[5] = {0,2,4,6,6};
+int FlashFrostDmg[5] = {0,3,5,7,9};
+float FlashFrostLifetime[5] = {0.0,5.0,8.0,10.0,12.0};
+float CondenseDuration[5] = {0.0,4.0,6.0,8.0,8.0};//{0.0,2.0,4.0,6.0,8.0};
+float BiteChanceArr[5]={0.0,0.20,0.35,0.40,0.45};
+int BiteDamageArray[5]={0,2,3,4,5};
+float GlacialMaxDistance[5] = {0.0,650.0,800.0,850.0,900.0};
+float GlacialMaxRadius[5] = {0.0,250.0,300.0,350.0,360.0};//{0.0,320.0,360.0,420.0,460.0};
+float GlacialMaxTime[5] = {0.0,10.0,12.0,14.0,16.0};
+float GlacialSlowdown[5] = {1.0,0.90,0.85,0.80,0.78};
+int GlacialDamagePerTick[5] = {0,2,4,6,6};
 //Defines from SourceEngine
 enum{
     
@@ -84,12 +84,12 @@ enum{
     EF_MAX_BITS = 10
     
 };
-//new String:explode[] = "ambient/explosions/explode_2.wav";
-new String:flash1[] = "physics/glass/glass_largesheet_break1.wav";
-new String:flash2[] = "physics/glass/glass_largesheet_break2.wav";
-new String:flash3[] = "physics/glass/glass_largesheet_break3.wav";
-new String:crystallize[] = "physics/concrete/boulder_impact_hard1.wav";//"ui/freeze_cam.wav";
-new String:glacial[] = "ambient/levels/canals/windmill_wind_loop1.wav";
+//char explode[] = "ambient/explosions/explode_2.wav";
+char flash1[] = "physics/glass/glass_largesheet_break1.wav";
+char flash2[] = "physics/glass/glass_largesheet_break2.wav";
+char flash3[] = "physics/glass/glass_largesheet_break3.wav";
+char crystallize[] = "physics/concrete/boulder_impact_hard1.wav";//"ui/freeze_cam.wav";
+char glacial[] = "ambient/levels/canals/windmill_wind_loop1.wav";
 
 #if !defined SOURCECRAFT
 public APLRes:AskPluginLoad2Custom(Handle:myself,bool:late,String:error[],err_max)
@@ -128,7 +128,7 @@ public OnPluginStart()
 }
 
 #if !defined SOURCECRAFT
-public Action:Command_GetMode(args){
+public Action Command_GetMode(args){
     if(bExtension==false) {
         PrintToServer("[Anivia] W3Mana ext. not found using standalone mana system instead...");
     }
@@ -247,7 +247,7 @@ public OnWar3PluginReady(){
 }
 
 #if !defined SOURCECRAFT
-public Action:UpdateMana(Handle:h,any:data){
+public Action UpdateMana(Handle:h,any:data){
     if(bExtension==false) {
         for(new i=1;i<=MaxClients;i++){
             if(ValidPlayer(i,true)){
@@ -327,7 +327,7 @@ public OnW3TakeDmgBulletPre(victim,attacker,Float:damage)
     {
         if(IsPlayerAlive(attacker)&&IsPlayerAlive(victim)&&GetClientTeam(victim)!=GetClientTeam(attacker))
         {
-            new Float:chance_mod=W3ChanceModifier(attacker);
+            float chance_mod=W3ChanceModifier(attacker);
             if(War3_GetRace(attacker)==thisRaceID && !W3HasImmunity(victim,Immunity_Skills))
             {
                 new skill_level = War3_GetSkillLevel(attacker,thisRaceID,SKILL_3);
@@ -338,9 +338,9 @@ public OnW3TakeDmgBulletPre(victim,attacker,Float:damage)
                     {
 #endif
                     new dmg = BiteDamageArray[skill_level];                 
-                    new Float:fClientPos[3];
+                    float fClientPos[3];
                     GetClientAbsOrigin(victim,fClientPos);
-                    decl Float:fClientEyePos[3];
+                    float fClientEyePos[3];
                     GetClientEyePosition(attacker, fClientEyePos);
                     fClientPos[2]+=20.0;
                     ThrowAwayParticle("water_splash_01_refract", fClientPos, 1.5); //"slime_splash_01"
@@ -383,11 +383,11 @@ public OnW3TakeDmgBulletPre(victim,attacker,Float:damage)
 //#define GLACIAL_MDL1 "models/effects/portalrift.mdl"
 #define LASER_SPRITE "materials/sprites/laserbeam.vmt"
 
-//new Float:PROJECTILE_SPEED=280.0;
-new Float:PROJECTILE_IGNORETME=1.80;
-new Float:PROJECTILE_RADIUS=180.0;
-new Float:DETONATION_RADIUS=70.0;
-new CONDENSE_STRENGTH=600;
+//float PROJECTILE_SPEED=280.0;
+float PROJECTILE_IGNORETME=1.80;
+float PROJECTILE_RADIUS=180.0;
+float DETONATION_RADIUS=70.0;
+int CONDENSE_STRENGTH=600;
 
 public OnMapStart(){
     War3_PrecacheSound(flash1);
@@ -416,7 +416,7 @@ public ShardTouchHook(entity, other)
 {
     new client = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
 #if defined SOURCECRAFT
-    new Float:cooldown= GetUpgradeCooldown(thisRaceID,SKILL_1);
+    float cooldown= GetUpgradeCooldown(thisRaceID,SKILL_1);
     War3_CooldownMGR(client,cooldown,thisRaceID,SKILL_1,true,true);
 #else
     War3_CooldownMGR(client,8.0,thisRaceID,SKILL_1,true,true);
@@ -424,7 +424,7 @@ public ShardTouchHook(entity, other)
     RemoveShard(entity);//remove the shard on hit   
 }
 
-public Action:ShardThink( Handle:timer, any:entity )
+public Action ShardThink( Handle:timer, any:entity )
 {
     if (IsValidEntity(entity)) {
         new client = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
@@ -435,15 +435,15 @@ public Action:ShardThink( Handle:timer, any:entity )
                 {
                     new skill=War3_GetSkillLevel(client,thisRaceID,ULT);
                     if(skill>0) {
-                        decl Float:fEntityPos[3];
+                        float fEntityPos[3];
                         GetEntPropVector(entity, Prop_Send, "m_vecOrigin", fEntityPos);
-                        new Float:fTargetPos[3];
+                        float fTargetPos[3];
                         GetClientAbsOrigin(i, fTargetPos);
-                        new Float:distance=GetVectorDistance(fEntityPos,fTargetPos);
+                        float distance=GetVectorDistance(fEntityPos,fTargetPos);
                         if(distance <= PROJECTILE_RADIUS)
                         {
                             War3_DealDamage(i,FlashFrostDmg[skill],client,DMG_DISSOLVE,PROJECTILE_NAME,W3DMGORIGIN_SKILL,W3DMGTYPE_MAGIC);
-                            decl Float:fClientEyePos[3];
+                            float fClientEyePos[3];
                             GetClientEyePosition(i, fClientEyePos);
                             fClientEyePos[2]-=50;
                             TE_SetupBeamRingPoint(fEntityPos,45.0,295.0,BeamSprite,HaloSprite,0,10,1.2,12.0,0.0,{100,100,255,255},0,0);
@@ -464,7 +464,7 @@ public Action:ShardThink( Handle:timer, any:entity )
                         if (distance <= DETONATION_RADIUS)
                         {
 #if defined SOURCECRAFT
-                            new Float:cooldown= GetUpgradeCooldown(thisRaceID,SKILL_1);
+                            float cooldown= GetUpgradeCooldown(thisRaceID,SKILL_1);
                             War3_CooldownMGR(client,cooldown,thisRaceID,SKILL_1,true,true);
 #else
                             War3_CooldownMGR(client,8.0,thisRaceID,SKILL_1,true,true);
@@ -480,7 +480,7 @@ public Action:ShardThink( Handle:timer, any:entity )
     }
 }
 
-public Action:Timer_RemoveChill(Handle:timer,any:client)
+public Action Timer_RemoveChill(Handle:timer,any:client)
 {
     if(ValidPlayer(client,true))
     {
@@ -491,11 +491,11 @@ public Action:Timer_RemoveChill(Handle:timer,any:client)
     }
 }
 
-public Action:ShardDamageHook(entity, &attacker, &inflictor, &Float:damage, &damagetype){
+public Action ShardDamageHook(entity, &attacker, &inflictor, &Float:damage, &damagetype){
     //PrintToChatAll("shard got damaged (damage: %f ?)",damage);
-    decl Float:fEntityPos[3];
+    float fEntityPos[3];
     GetEntPropVector(entity, Prop_Send, "m_vecOrigin", fEntityPos);
-    new Float:fAngles[3]={0.0,0.0,0.0};
+    float fAngles[3]={0.0,0.0,0.0};
     TE_SetupSparks(fEntityPos, fAngles, 28, 20);
 #if defined SOURCECRAFT
     TE_SendEffectToAll();
@@ -505,11 +505,11 @@ public Action:ShardDamageHook(entity, &attacker, &inflictor, &Float:damage, &dam
     return Plugin_Handled;
 }
 
-public Action:Timer_ShardOvertime( Handle:timer, any:ref )
+public Action Timer_ShardOvertime( Handle:timer, any:ref )
 {
     new ent = EntRefToEntIndex(ref);
     if (ent > 0 && IsValidEntity(ent)) {
-        //decl String:classname[64];
+        //char classname[64];
         //GetEdictClassname(ent, classname, sizeof(classname));
         //if(StrEqual(classname, PROJECTILE_NAME, false))
         //{
@@ -526,7 +526,7 @@ stock DealAreaDamage(owner,Float:fPos[3],Float:fRadius)
         {
             if(ValidPlayer(i,true) && GetClientTeam(owner) != GetClientTeam(i) && !W3HasImmunity(i,Immunity_Skills)) //target is alive, not immune and an enemy..
             {
-                new Float:enemyVec[3];
+                float enemyVec[3];
                 GetClientAbsOrigin(i, enemyVec);
                 if(GetVectorDistance(enemyVec,fPos) <= fRadius)
                 {
@@ -546,10 +546,10 @@ stock DealAreaDamage(owner,Float:fPos[3],Float:fRadius)
 }
 
 stock RemoveShard(ent) {
-    decl Float:fEntityPos[3];
+    float fEntityPos[3];
     GetEntPropVector(ent, Prop_Send, "m_vecOrigin", fEntityPos);
     new client = GetEntPropEnt(ent, Prop_Send, "m_hOwnerEntity");
-    decl String:buffer[64];
+    char buffer[64];
     new dice = GetRandomInt(0,2);
     if(dice==0) {
         buffer = flash1;
@@ -575,7 +575,7 @@ stock RemoveShard(ent) {
     DealAreaDamage(client,fEntityPos,180.0);
 }
 
-public Action:Timer_RemoveEntity(Handle:timer,any:ref)
+public Action Timer_RemoveEntity(Handle:timer,any:ref)
 {
     new ent = EntRefToEntIndex(ref);
     if (ent > 0 && IsValidEdict(ent))
@@ -587,13 +587,13 @@ stock W3_SpearLaunch(client,skill){
     if (ref>0) {
         new shard = EntRefToEntIndex(ref);
         if (shard > 0 && IsValidEntity(shard)) {
-            //decl String:classname[64];
+            //char classname[64];
             //GetEdictClassname(shard, classname, sizeof(classname));
             //if(StrEqual(classname, PROJECTILE_NAME, false))
             //{
                 RemoveShard(shard);
 #if defined SOURCECRAFT
-                new Float:cooldown= GetUpgradeCooldown(thisRaceID,SKILL_1);
+                float cooldown= GetUpgradeCooldown(thisRaceID,SKILL_1);
                 War3_CooldownMGR(client,cooldown,thisRaceID,SKILL_1,true,true);
 #else
                 War3_CooldownMGR(client,8.0,thisRaceID,SKILL_1,true,true);
@@ -617,7 +617,7 @@ stock W3_SpearLaunch(client,skill){
         if(old_mana>=10) {
             SetManaWrapper(client,old_mana-10);
 #endif
-            decl Float:fClientEyeAngle[3], Float:fClientEyePos[3], Float:fAngleVec[3], Float:fResultPos[3];
+            float fClientEyeAngle[3], Float:fClientEyePos[3], Float:fAngleVec[3], Float:fResultPos[3];
             decl entity, Float:fClientSpeed[3];
             GetClientEyeAngles(client, fClientEyeAngle);
             GetClientEyePosition(client, fClientEyePos);
@@ -649,7 +649,7 @@ stock W3_SpearLaunch(client,skill){
                 static const Float:vecmax[3] = {8.0, 8.0, 8.0};
                 static const Float:vecmin[3] = {-8.0, -8.0, -8.0};
                 static const Float:recoil[3] = {0.0,0.0,-35.0};
-                new Float:duration = FlashFrostLifetime[skill];
+                float duration = FlashFrostLifetime[skill];
 
                 SetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity", client);
                 SetEntPropFloat(entity, Prop_Send, "m_flElasticity", 0.0);
@@ -702,9 +702,9 @@ stock W3_SpearLaunch(client,skill){
 }
 
 stock W3_Condense(client,skill,team){
-    new Float:fClientAimPos1[3];
-    new Float:fClientAimPos2[3];
-    decl Float:fAngles[3];
+    float fClientAimPos1[3];
+    float fClientAimPos2[3];
+    float fAngles[3];
     GetClientEyeAngles(client, fAngles);
     new ax = 1;
     fAngles[0]=0.0,fAngles[2]=0.0;//we only need the 'theoretical' yaw value...
@@ -718,7 +718,7 @@ stock W3_Condense(client,skill,team){
     }
     War3_GetAimEndPoint(client, fClientAimPos1);
     fClientAimPos2[0]=fClientAimPos1[0],fClientAimPos2[1]=fClientAimPos1[1],fClientAimPos2[2]=fClientAimPos1[2];
-    new Float:duration = CondenseDuration[skill]; //max duration!
+    float duration = CondenseDuration[skill]; //max duration!
     new ent = SpawnFrozenProp(fClientAimPos1,fAngles,CONDENSE_MDL1,CONDENSE_STRENGTH,team,duration,true);
     EmitSoundToAll(crystallize, ent, SNDCHAN_AUTO, SNDLEVEL_NORMAL, SND_NOFLAGS, SNDVOL_NORMAL, SNDPITCH_NORMAL, -1, fClientAimPos1, NULL_VECTOR, true, 0.0);
     //0=pitch/1=yaw/2=roll
@@ -740,7 +740,7 @@ stock W3_Condense(client,skill,team){
     new beam_ent = CreateEntityByName("env_beam");
     if (beam_ent > 0 && IsValidEdict(beam_ent))
     {
-        decl String:beamname[16];
+        char beamname[16];
         Format(beamname, sizeof(beamname), "w3s_beam_%d", client);
         DispatchKeyValueVector(beam_ent, "origin", fClientAimPos1);
         SetEntPropVector(beam_ent, Prop_Send, "m_vecEndPos", fClientAimPos2);
@@ -770,7 +770,7 @@ stock W3_Condense(client,skill,team){
 }
 
 stock W3SimulateRecoil(client, const Float:angle[3]){
-    decl Float:oldangle[3];
+    float oldangle[3];
     GetEntPropVector(client, Prop_Send, "m_vecPunchAngle", oldangle);
     oldangle[0] = oldangle[0] + angle[0];
     oldangle[1] = oldangle[1] + angle[1];
@@ -803,7 +803,7 @@ stock SpawnFrozenProp(const Float:Origin[3],const Float:fAngles[3],String:modelN
     return PhysicsProp;
 }
 
-/*public Action:Timer_RenderNone(Handle:timer, Handle:pack)
+/*public Action Timer_RenderNone(Handle:timer, Handle:pack)
 {
     ResetPack(pack);
     new entity = ReadPackCell(pack);
@@ -835,12 +835,12 @@ public OnAbilityCommand(client,ability,bool:pressed) {
                                 new team = GetClientTeam(client);                               
                                 W3FlashScreen(client,(team==2)?RGBA_COLOR_RED:RGBA_COLOR_BLUE,1.5,0.6);
                                 W3_Condense(client,skill,team);
-                                new Float:fClientAimPos1[3];
+                                float fClientAimPos1[3];
                                 War3_GetAimEndPoint(client, fClientAimPos1);
-                                new Float:fClientPos[3];
+                                float fClientPos[3];
                                 GetClientAbsOrigin(client,fClientPos);                      
 #if defined SOURCECRAFT
-                                new Float:cooldown= GetUpgradeCooldown(thisRaceID,SKILL_2);
+                                float cooldown= GetUpgradeCooldown(thisRaceID,SKILL_2);
                                 War3_CooldownMGR(client,cooldown,thisRaceID,SKILL_2,true,true);
 #else
                                 War3_CooldownMGR(client,8.0,thisRaceID,SKILL_2,true,true);                              
@@ -866,15 +866,15 @@ public OnUltimateCommand(client,race,bool:pressed)
         {
             if(War3_SkillNotInCooldown(client,thisRaceID,ULT,true))
             {
-                new Float:max_distance = GlacialMaxDistance[skill_level];
-                decl Float:aimVec[3], Float:clientVec[3];
+                float max_distance = GlacialMaxDistance[skill_level];
+                float aimVec[3], Float:clientVec[3];
                 War3_GetAimEndPoint(client, aimVec);
                 GetClientAbsOrigin( client, clientVec );
                 if(GetVectorDistance(clientVec,aimVec) <= max_distance)
                 {
                     if(!bUltActive[client]) {
-                        new Float:radius = GlacialMaxRadius[skill_level];                       
-                        new Float:fAngles[3] = {0.0,0.0,0.0};
+                        float radius = GlacialMaxRadius[skill_level];                       
+                        float fAngles[3] = {0.0,0.0,0.0};
                         new entity = CreateSmokestack(aimVec,fAngles,radius/2,35.0,0.1,40.0,"particle/fire.vmt","200 200 255","4","80","60","80");
                         bUltActive[client] = true;
                         /*
@@ -937,7 +937,7 @@ public OnUltimateCommand(client,race,bool:pressed)
                         WritePackCell(pack, client);
                         WritePackCell(pack, iGlacialEntity[client]);
 #if defined SOURCECRAFT
-                        new Float:cooldown= GetUpgradeCooldown(thisRaceID,ULT);
+                        float cooldown= GetUpgradeCooldown(thisRaceID,ULT);
                         War3_CooldownMGR(client,cooldown,thisRaceID,ULT,_,true);
 #else
                         War3_CooldownMGR(client,GetConVarFloat(ultCooldownCvar),thisRaceID,ULT,_,true);
@@ -947,7 +947,7 @@ public OnUltimateCommand(client,race,bool:pressed)
                 else {
                     PrintHintText(client,"Target position is too far away!");       
 #if defined SOURCECRAFT
-                    new Float:cooldown= GetUpgradeCooldown(thisRaceID,ULT) / 3.0;
+                    float cooldown= GetUpgradeCooldown(thisRaceID,ULT) / 3.0;
                     War3_CooldownMGR(client,cooldown,thisRaceID,ULT,_,true);
 #else
                     War3_CooldownMGR(client,2.0,thisRaceID,ULT,_,true);
@@ -958,7 +958,7 @@ public OnUltimateCommand(client,race,bool:pressed)
     }
 }
 
-public Action:Timer_GlacialStormFX(Handle:timer, Handle:pack) //some point of lazy-ness :S
+public Action Timer_GlacialStormFX(Handle:timer, Handle:pack) //some point of lazy-ness :S
 {
     //Resolve order must be: client,max_distance,AoE,slowdown amount,damage,targetpos[3]
     ResetPack(pack);
@@ -966,7 +966,7 @@ public Action:Timer_GlacialStormFX(Handle:timer, Handle:pack) //some point of la
     if(bUltActive[client]==true&&ValidPlayer(client,false)) {
         new owner_team=GetClientTeam(client);
 
-        decl Float:aimVec[3],Float:radius;
+        float aimVec[3],Float:radius;
         radius=ReadPackFloat(pack);
         aimVec[0]=ReadPackFloat(pack);
         aimVec[1]=ReadPackFloat(pack);
@@ -978,8 +978,8 @@ public Action:Timer_GlacialStormFX(Handle:timer, Handle:pack) //some point of la
         TE_SendToAll();
 #endif
         
-        new Float:fx_old_dist = 1.0;
-        new Float:fx_dist = radius;
+        float fx_old_dist = 1.0;
+        float fx_dist = radius;
         fx_dist /= 4;           
         for(new splitter = 1; splitter <= 4; splitter++) 
         {
@@ -1011,7 +1011,7 @@ public Action:Timer_GlacialStormFX(Handle:timer, Handle:pack) //some point of la
     }
 }
 
-public Action:Timer_GlacialStorm(Handle:timer, Handle:pack)
+public Action Timer_GlacialStorm(Handle:timer, Handle:pack)
 {
     //Resolve order must be: client,damage,targetpos[0->2],max_distance,AoE,slowdown amount
     ResetPack(pack);
@@ -1022,8 +1022,8 @@ public Action:Timer_GlacialStorm(Handle:timer, Handle:pack)
         new manacost = 3;
         if(old_mana>=manacost) {
             SetManaWrapper(client,old_mana-manacost);
-            new Float:max_distance = ReadPackFloat(pack);
-            decl Float:aimVec[3],Float:clientVec[3],Float:distance,Float:slowdown;
+            float max_distance = ReadPackFloat(pack);
+            float aimVec[3],Float:clientVec[3],Float:distance,Float:slowdown;
             distance = ReadPackFloat(pack);
             slowdown = ReadPackFloat(pack);         
             aimVec[0]=ReadPackFloat(pack);
@@ -1033,7 +1033,7 @@ public Action:Timer_GlacialStorm(Handle:timer, Handle:pack)
             if(GetVectorDistance(clientVec,aimVec) <= max_distance)
             {
                 new team = GetClientTeam(client);               
-                decl Float:enemyVec[3];
+                float enemyVec[3];
                 for(new i=1; i<= MaxClients; i++)
                 {
                     if(ValidPlayer(i,true) && team != GetClientTeam(i) && !W3HasImmunity(i,Immunity_Ultimates))
@@ -1079,7 +1079,7 @@ stock GlacialStorm(attacker,target,damage,Float:slowdown,Float:pos[3],Float:pos2
     if(War3_DealDamage(target,damage,attacker,DMG_DISSOLVE,"glacialstorm",W3DMGORIGIN_ULTIMATE,W3DMGTYPE_MAGIC,true,false)) {
         pos2[2]+=40;
         pos[2]+=40;
-        new Float:direction[3]={0.0,0.0,0.0};
+        float direction[3]={0.0,0.0,0.0};
         bFrosted[target]=true;
         War3_SetBuff(target,fSlow,thisRaceID,slowdown);
         War3_SetBuff(target,fAttackSpeed,thisRaceID,slowdown);
@@ -1117,7 +1117,7 @@ stock GlacialStorm(attacker,target,damage,Float:slowdown,Float:pos[3],Float:pos2
     }
 }
 
-public Action:Timer_UnfrostAttempt(Handle:timer, Handle:pack)
+public Action Timer_UnfrostAttempt(Handle:timer, Handle:pack)
 {
     //Resolve order must be: owner,target
     ResetPack(pack);
@@ -1134,7 +1134,7 @@ public Action:Timer_UnfrostAttempt(Handle:timer, Handle:pack)
     }
 }
 
-public Action:Timer_UltimateOvertimed(Handle:timer, Handle:pack)
+public Action Timer_UltimateOvertimed(Handle:timer, Handle:pack)
 {
     ResetPack(pack);
     new client = ReadPackCell(pack);
@@ -1164,12 +1164,12 @@ stock W3GlacialOverlay(target,Float:delay,String:material[])
     WritePackString(pack, material);
 }
 
-public Action:Timer_DoGlacialOverlay(Handle:timer, Handle:pack)
+public Action Timer_DoGlacialOverlay(Handle:timer, Handle:pack)
 {
     ResetPack(pack);
     new target = ReadPackCell(pack);
     if(ValidPlayer(target,false)) {
-        new String:buffer[64];
+        char buffer[64];
         ReadPackString(pack, buffer, sizeof(buffer));
         if (StrEqual(buffer, "0", false)) {
             bOverlayed[target]=true;
@@ -1188,7 +1188,7 @@ stock CreateSmokestack(Float:fPos[3],Float:fAng[3],Float:BaseSpread,Float:StartS
     new particle = CreateEntityByName("env_smokestack");
     if(IsValidEdict(particle))
     {
-        decl String:Name[32];
+        char Name[32];
         Format(Name, sizeof(Name), "w3s_particles");
         // Set Key Values
         DispatchKeyValueVector(particle, "Origin", fPos);
@@ -1294,20 +1294,20 @@ SetManaWrapper(client,value) {
 
 //dirty dealdamage workaround.. tell me if you got another idea :o
 stock DealDamageWorkaround(victim,attacker,damage,String:classname[32],Float:delay=0.1) {
-    new Handle:pack;
+    Handle pack;
     CreateDataTimer(delay, Timer_DealDamage, pack);
     WritePackCell(pack, victim);
     WritePackCell(pack, attacker);
     WritePackCell(pack, damage);
     WritePackString(pack, classname);
 }
-public Action:Timer_DealDamage(Handle:timer, Handle:pack)
+public Action Timer_DealDamage(Handle:timer, Handle:pack)
 {
     ResetPack(pack); //resolve the package...
     new victim = ReadPackCell(pack);
     new attacker = ReadPackCell(pack);
     new damage = ReadPackCell(pack);
-    decl String:classname[32];
+    char classname[32];
     ReadPackString(pack,classname,sizeof(classname));
     War3_DealDamage(victim,damage,attacker,DMG_BULLET,classname);
 }

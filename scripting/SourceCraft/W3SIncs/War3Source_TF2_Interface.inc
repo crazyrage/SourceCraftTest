@@ -102,12 +102,12 @@ stock Handle:War3_NearBuilding(client,Float:distance=150.0)
 {
     if(War3_GetGame()==Game_TF)
     {
-        new Handle:hEnts=CreateDataPack();
+        Handle hEnts=CreateDataPack();
         WritePackString(hEnts,"obj_dispenser");
         WritePackString(hEnts,"obj_sentrygun");
         WritePackString(hEnts,"obj_teleporter_entrance");
         WritePackString(hEnts,"obj_teleporter_exit");
-        new Handle:result=War3_NearEntsByName(client,hEnts,4,distance);
+        Handle result=War3_NearEntsByName(client,hEnts,4,distance);
         CloseHandle(hEnts);
         return result;
     }
@@ -166,7 +166,7 @@ stock War3_TF_ParticleToClient( client=0, const String:Name[],
     }
     
     // find particle index
-    new String:tmp[256];
+    char tmp[256];
     new count = GetStringTableNumStrings(tblidx);
     new stridx = INVALID_STRING_INDEX;
     new i;

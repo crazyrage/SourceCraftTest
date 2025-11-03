@@ -28,10 +28,10 @@
 #include "effect/SendEffects"
 #include "effect/Shake"
 
-new const String:spawnWav[]      = "sc/zbgrdy00.wav";
-new const String:deathWav[]      = "sc/zbghit00.wav";
+char spawnWav[]      = "sc/zbgrdy00.wav";
+char deathWav[]      = "sc/zbghit00.wav";
 
-new const String:infestedWav[][] = { "sc/zbgwht00.wav" ,
+char infestedWav[][] = { "sc/zbgwht00.wav" ,
                                      "sc/zbgwht01.wav" ,
                                      "sc/zbgwht02.wav" ,
                                      "sc/zbgwht03.wav" ,
@@ -41,17 +41,17 @@ new const String:infestedWav[][] = { "sc/zbgwht00.wav" ,
                                      "sc/zbgpss03.wav" ,
                                      "sc/zbgyes03.wav" };
 
-new Float:g_SpeedLevels[]        = {   -1.0,  1.05,  1.07,  1.09, 1.11 };
-new Float:g_ExplodeRadius[]      = { 1000.0, 800.0, 600.0, 450.0, 300.0 };
-new g_ExplodePlayerDamage[]      = {    800,   900,  1000,  1100, 1200  };
-new g_ExplodeBuildingDamage[]    = {   1000,  1250,  1500,  1750, 2000  };
+float g_SpeedLevels[]        = {   -1.0,  1.05,  1.07,  1.09, 1.11 };
+float g_ExplodeRadius[]      = { 1000.0, 800.0, 600.0, 450.0, 300.0 };
+int g_ExplodePlayerDamage[]      = {    800,   900,  1000,  1100, 1200  };
+int g_ExplodeBuildingDamage[]    = {   1000,  1250,  1500,  1750, 2000  };
 
-new raceID, burrowID, boostID, explodeID;
+int raceID, burrowID, boostID, explodeID;
 
-new m_LastRace[MAXPLAYERS+1];
-new m_Countdown[MAXPLAYERS+1];
+int m_LastRace[MAXPLAYERS+1];
+int m_Countdown[MAXPLAYERS+1];
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Infested",
     author = "-=|JFH|=-Naris",
@@ -120,7 +120,7 @@ public OnClientDisconnect(client)
     KillClientTimer(client);
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -137,7 +137,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
         return Plugin_Continue;
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
@@ -292,7 +292,7 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
     }
 }
 
-public Action:Exclaimation(Handle:timer, any:userid)
+public Action Exclaimation(Handle:timer, any:userid)
 {
     new client = GetClientOfUserId(userid);
     if (IsValidClientAlive(client))
@@ -308,7 +308,7 @@ public Action:Exclaimation(Handle:timer, any:userid)
                                           TF_STUNFLAG_THIRDPERSON);
             }
 
-            new Float:clientLoc[3];
+            float clientLoc[3];
             GetClientAbsOrigin(client, clientLoc);
 
             new num = GetRandomInt(0,sizeof(infestedWav)-1);

@@ -14,7 +14,7 @@
  ***********************************************************************************/
 
 // The Base64 encoding table
-static const String:base64_sTable[] =
+static const char base64_sTable[] =
   // 0000000000111111111122222222223333333333444444444455555555556666
   // 0123456789012345678901234567890123456789012345678901234567890123
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -57,8 +57,8 @@ static const base64_decodeTable[] = {
 static const base64_cFillChar			= '=';
 
 // The conversion characters between the standard and URL-compliance Base64 protocols
-static const String:base64_mime_chars[]	= "+/=";
-static const String:base64_url_chars[]	= "-_.";
+static const char base64_mime_chars[]	= "+/=";
+static const char base64_url_chars[]	= "-_.";
 
 /*
  * Encodes a string or binary data into Base64
@@ -70,7 +70,7 @@ static const String:base64_url_chars[]	= "-_.";
  *						This is not needed for a text string, but is important for binary data since there is no end-of-line character.
  * @return				The length of the written Base64 string, in bytes.
  */
-stock Crypt_Base64Encode(const String:sString[], String:sResult[], len, sourcelen=0)
+stock Crypt_Base64Encode(const char sString[], String:sResult[], len, sourcelen=0)
 {
 	new nLength;	// The string length to be read from the input
 	new resPos;		// The string position in the result buffer
@@ -132,7 +132,7 @@ stock Crypt_Base64Encode(const String:sString[], String:sResult[], len, sourcele
  * @param len			The maximum length of the storage buffer, in characters/bytes.
  * @return				The length of the decoded data, in bytes.
  */
-stock Crypt_Base64Decode(const String:sString[], String:sResult[], len)
+stock Crypt_Base64Decode(const char sString[], String:sResult[], len)
 {
 	new nLength = strlen(sString);	// The string length to be read from the input
 	new resPos;						// The string position in the result buffer
@@ -190,7 +190,7 @@ stock Crypt_Base64Decode(const String:sString[], String:sResult[], len)
  * @param len			The maximum length of the storage buffer in characters/bytes.
  * @return				Number of cells written.
  */
-stock Crypt_Base64MimeToUrl(const String:sString[], String:sResult[], len)
+stock Crypt_Base64MimeToUrl(const char sString[], String:sResult[], len)
 {
 	new chars_len = sizeof(base64_mime_chars);	// Length of the two standards vs. URL character lists
 	new nLength;								// The string length to be read from the input
@@ -198,7 +198,7 @@ stock Crypt_Base64MimeToUrl(const String:sString[], String:sResult[], len)
 
 	nLength = strlen(sString);
 
-	new String:sTemp[nLength+1]; // Buffer string
+	char sTemp[nLength+1]; // Buffer string
 
 	// Loop through string
 	for (new i = 0; i < nLength; i++) {
@@ -221,7 +221,7 @@ stock Crypt_Base64MimeToUrl(const String:sString[], String:sResult[], len)
 }
 
 /*
- * Base64UrlToMime(String:sResult[], len, const String:sString[], sourcelen)
+ * Base64UrlToMime(String:sResult[], len, const char sString[], sourcelen)
  * Converts a URL-compliant Base64 string to the standards-compliant version.
  * Note: The result will be the same length as the input string as long as the output buffer is large enough.
  *
@@ -230,7 +230,7 @@ stock Crypt_Base64MimeToUrl(const String:sString[], String:sResult[], len)
  * @param len			The maximum length of the storage buffer in characters/bytes.
  * @return				Number of cells written.
  */
-stock Crypt_Base64UrlToMime(const String:sString[], String:sResult[], len)
+stock Crypt_Base64UrlToMime(const char sString[], String:sResult[], len)
 {
 	new chars_len = sizeof(base64_mime_chars);	// Length of the two standards vs. URL character lists
 	new nLength;								// The string length to be read from the input
@@ -238,7 +238,7 @@ stock Crypt_Base64UrlToMime(const String:sString[], String:sResult[], len)
 
 	nLength = strlen(sString);
 
-	new String:sTemp[nLength+1]; // Buffer string
+	char sTemp[nLength+1]; // Buffer string
 
 	// Loop through string
 	for (new i = 0; i < nLength; i++) {
@@ -275,7 +275,7 @@ stock Crypt_Base64UrlToMime(const String:sString[], String:sResult[], len)
  * @param maxlen		Size of the Output String Buffer
  * @noreturn
  */
-stock Crypt_MD5(const String:str[], String:output[], maxlen)
+stock Crypt_MD5(const char str[], String:output[], maxlen)
 {
 	decl x[2];
 	decl buf[4];
@@ -523,7 +523,7 @@ static stock MD5Transform(buf[], input[]){
  *
  * @noreturn
  */
-stock Crypt_RC4Encode(const String:input[], const String:pwd[], String:output[], maxlen)
+stock Crypt_RC4Encode(const char input[], const char pwd[], String:output[], maxlen)
 {
 	decl pwd_len,str_len,i,j,a,k;
 	decl key[256];
@@ -573,7 +573,7 @@ stock Crypt_RC4Encode(const String:input[], const String:pwd[], String:output[],
  * @param maxlen		The maximum length of the output buffer.
  * @noreturn
  */
-stock Crypt_RC4EncodeBinary(const String:input[], str_len, const String:pwd[], String:output[], maxlen)
+stock Crypt_RC4EncodeBinary(const char input[], str_len, const char pwd[], String:output[], maxlen)
 {
 	decl pwd_len,i,j,a,k;
 	decl key[256];

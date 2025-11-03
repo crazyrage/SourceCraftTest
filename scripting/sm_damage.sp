@@ -63,25 +63,25 @@
 #define PLUGIN_VERSION 	"1.9"
 #endif
 
-new Handle:g_version = INVALID_HANDLE;
-new Handle:g_enabled = INVALID_HANDLE;
-new Handle:g_info = INVALID_HANDLE;
-new Handle:g_init = INVALID_HANDLE;
+Handle g_version = INVALID_HANDLE;
+Handle g_enabled = INVALID_HANDLE;
+Handle g_info = INVALID_HANDLE;
+Handle g_init = INVALID_HANDLE;
 
-new Float:Damage[MAXPLAYERS+1];
+float Damage[MAXPLAYERS+1];
 
 #if !defined _sdkhooks_included
-new Health[MAXPLAYERS+1];
+int Health[MAXPLAYERS+1];
 
-new g_iArmor = -1;
-new String:game[30];
+int g_iArmor = -1;
+char game[30];
 #endif
 
-new Handle:trieWeapons;
-new Handle:trieAmount;
+Handle trieWeapons;
+Handle trieAmount;
 
 #if defined _sdkhooks_included
-public Plugin:myinfo =
+public Plugin myinfo =
 {
 	name = "SM Damage",
 	author = "SWAT_88, sdkhooks port by AtomicStryker",
@@ -90,7 +90,7 @@ public Plugin:myinfo =
 	url = "http://www.sourcemod.net/"
 };
 #else
-public Plugin:myinfo =
+public Plugin myinfo =
 {
 	name = "SM Damage",
 	author = "SWAT_88",
@@ -142,25 +142,25 @@ public OnClientPutInServer(client){
 }
 
 #if defined _sdkhooks_included
-public OnEntityCreated(entity, const String:classname[])
+public OnEntityCreated(entity, const char classname[])
 {
 	SDKHook(entity, SDKHook_OnTakeDamage, OnTakeDamage);
 }
 
-public Action:OnTakeDamage(victim, &attacker, &inflictor, &Float:damage, &damagetype)
+public Action OnTakeDamage(victim, &attacker, &inflictor, &Float:damage, &damagetype)
 {
 	if(!GetConVarBool(g_enabled)) return Plugin_Handled; // is this thing even on?
 
-	decl String:sWeapon[32], Float:mWeapon, Float:amountWeapon;
+	char sWeapon[32], Float:mWeapon, Float:amountWeapon;
 
 	if (IsValidEdict(inflictor))
 		GetEdictClassname(inflictor, sWeapon, sizeof(sWeapon));
 	else
 		sWeapon[0] = '\0';
 	
-	new bool:changed;
-	new Float:changemulti = 1.0;
-	new Float:globalmulti = GetConVarFloat(g_init);
+	bool changed;
+	float changemulti = 1.0;
+	float globalmulti = GetConVarFloat(g_init);
 	
 	if(globalmulti != 1.0) //check for a global damage multiplier setting
 	{
@@ -206,16 +206,16 @@ public OnGameFrame(){
 	}
 }
 
-public Action:PlayerHurt(Handle:event, const String:name[], bool:dontBroadcast){
+public Action PlayerHurt(Handle:event, const char name[], bool:dontBroadcast){
 	new client;
 	new attacker;
-	new Float:multiplier;
+	float multiplier;
 	new health;
 	new armor;
 	new dmg_health;
-	new Float:mWeapon;
-	new Float:amountWeapon;
-	new String:aWeapon[32];
+	float mWeapon;
+	float amountWeapon;
+	char aWeapon[32];
 	
 	attacker = GetClientOfUserId(GetEventInt(event, "attacker"));
 	client = GetClientOfUserId(GetEventInt(event, "userid"));
@@ -276,9 +276,9 @@ public Action:PlayerHurt(Handle:event, const String:name[], bool:dontBroadcast){
 }
 #endif
 
-public Action:CmdDamage(client, args){
-	new String:player[256];
-	new String:multiplier[20];
+public Action CmdDamage(client, args){
+	char player[256];
+	char multiplier[20];
 	
 	if(GetConVarInt(g_enabled) == 0) return Plugin_Handled;
 	
@@ -286,11 +286,11 @@ public Action:CmdDamage(client, args){
 		GetCmdArg(1,player,255);
 		GetCmdArg(2,multiplier,19);
 		
-		decl String:target_name[MAX_TARGET_LENGTH];
+		char target_name[MAX_TARGET_LENGTH];
 		decl target_list[MAXPLAYERS];
 		decl target_count;
-		decl bool:tn_is_ml;
-		decl String:name[256];
+		bool tn_is_ml;
+		char name[256];
 
 		if ((target_count = ProcessTargetString(player,client,target_list,MAXPLAYERS,0,target_name,sizeof(target_name),tn_is_ml)) <= 0) {
 			ReplyToTargetError(client, target_count);
@@ -312,9 +312,9 @@ public Action:CmdDamage(client, args){
 	return Plugin_Handled;
 }
 
-public Action:Weapon(client, args){
-	new String:weapon[32];
-	new String:multiplier[20];
+public Action Weapon(client, args){
+	char weapon[32];
+	char multiplier[20];
 	
 	if( !GetConVarBool(g_enabled) ) return Plugin_Handled;
 	
@@ -332,9 +332,9 @@ public Action:Weapon(client, args){
 	return Plugin_Handled;
 }
 
-public Action:Amount(client, args){
-	new String:weapon[32];
-	new String:amount[20];
+public Action Amount(client, args){
+	char weapon[32];
+	char amount[20];
 	
 	if( !GetConVarBool(g_enabled) ) return Plugin_Handled;
 	
@@ -352,7 +352,7 @@ public Action:Amount(client, args){
 	return Plugin_Handled;
 }
 
-public Action:ClearWeapons(client, args){
+public Action ClearWeapons(client, args){
 	if( !GetConVarBool(g_enabled) ) return Plugin_Handled;
 	
 	ClearTrie(trieWeapons);

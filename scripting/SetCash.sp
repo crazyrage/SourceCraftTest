@@ -3,7 +3,7 @@
 #define PLUGIN_VERSION "1.0.3"
 
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
 	
 	name = "Set Cash",
@@ -18,7 +18,7 @@ public Plugin:myinfo =
 
 public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
 {
-	new String:Game[32];
+	char Game[32];
 	GetGameFolderName(Game, sizeof(Game));
 	if(!StrEqual(Game, "tf"))
 	{
@@ -37,7 +37,7 @@ public OnPluginStart()
 	RegAdminCmd("sm_removecash", Command_RemoveCash, ADMFLAG_GENERIC, "Add to target(s) cash for Mann vs Machine mode, Usage: sm_setcash \"target\" \"amount(0-32767)\"");
 }
 
-public Action:Command_SetCash(client, args)
+public Action Command_SetCash(client, args)
 {
 	if(args != 2)
 	{
@@ -45,7 +45,7 @@ public Action:Command_SetCash(client, args)
 		return Plugin_Handled;
 	}
 
-	new String:strTarget[MAX_TARGET_LENGTH], String:strCash[32], iCash, String:target_name[MAX_TARGET_LENGTH],target_list[MAXPLAYERS], target_count, bool:tn_is_ml;
+	char strTarget[MAX_TARGET_LENGTH], String:strCash[32], iCash, String:target_name[MAX_TARGET_LENGTH],target_list[MAXPLAYERS], target_count, bool:tn_is_ml;
 	GetCmdArg(1, strTarget, sizeof(strTarget));
 	if((target_count = ProcessTargetString(strTarget, client, target_list, MAXPLAYERS, COMMAND_FILTER_CONNECTED|COMMAND_FILTER_NO_BOTS, target_name, sizeof(target_name), tn_is_ml)) <= 0)
 	{
@@ -65,7 +65,7 @@ public Action:Command_SetCash(client, args)
 	return Plugin_Handled;
 }
 
-public Action:Command_AddCash(client, args)
+public Action Command_AddCash(client, args)
 {
 	if(args != 2)
 	{
@@ -73,7 +73,7 @@ public Action:Command_AddCash(client, args)
 		return Plugin_Handled;
 	}
 
-	new String:strTarget[MAX_TARGET_LENGTH], String:strCash[32], iCash, String:target_name[MAX_TARGET_LENGTH],target_list[MAXPLAYERS], target_count, bool:tn_is_ml;
+	char strTarget[MAX_TARGET_LENGTH], String:strCash[32], iCash, String:target_name[MAX_TARGET_LENGTH],target_list[MAXPLAYERS], target_count, bool:tn_is_ml;
 	GetCmdArg(1, strTarget, sizeof(strTarget));
 	if((target_count = ProcessTargetString(strTarget, client, target_list, MAXPLAYERS, COMMAND_FILTER_CONNECTED|COMMAND_FILTER_NO_BOTS, target_name, sizeof(target_name), tn_is_ml)) <= 0)
 	{
@@ -97,7 +97,7 @@ public Action:Command_AddCash(client, args)
 	return Plugin_Handled;
 }
 
-public Action:Command_RemoveCash(client, args)
+public Action Command_RemoveCash(client, args)
 {
 	if(args != 2)
 	{
@@ -105,7 +105,7 @@ public Action:Command_RemoveCash(client, args)
 		return Plugin_Handled;
 	}
 
-	new String:strTarget[MAX_TARGET_LENGTH], String:strCash[32], iCash, String:target_name[MAX_TARGET_LENGTH],target_list[MAXPLAYERS], target_count, bool:tn_is_ml;
+	char strTarget[MAX_TARGET_LENGTH], String:strCash[32], iCash, String:target_name[MAX_TARGET_LENGTH],target_list[MAXPLAYERS], target_count, bool:tn_is_ml;
 	GetCmdArg(1, strTarget, sizeof(strTarget));
 	if((target_count = ProcessTargetString(strTarget, client, target_list, MAXPLAYERS, COMMAND_FILTER_CONNECTED|COMMAND_FILTER_NO_BOTS, target_name, sizeof(target_name), tn_is_ml)) <= 0)
 	{

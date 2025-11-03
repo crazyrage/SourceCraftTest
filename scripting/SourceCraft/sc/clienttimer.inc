@@ -27,7 +27,7 @@ stock KillClientTimer(client)
 {
     if (IsClient(client))
     {
-        new Handle:timer=g_ClientTimers[client];
+        Handle timer=g_ClientTimers[client];
         if (timer != INVALID_HANDLE)
         {
             ResetClientTimer(client);	

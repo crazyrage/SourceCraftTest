@@ -15,8 +15,8 @@
 #define COLOR_GRAY 0xCCCCCC
 #define COLOR_GREEN 0x3EFF3E
 
-new bool:CSkipList[MAXPLAYERS + 1] = {false, ...};
-new Handle:CTrie = INVALID_HANDLE;
+bool CSkipList[MAXPLAYERS + 1] = {false, ...};
+Handle CTrie = INVALID_HANDLE;
 
 /**
  * Prints a message to a specific client in the chat area.
@@ -28,7 +28,7 @@ new Handle:CTrie = INVALID_HANDLE;
  * 
  * On error/Errors:		If the client is not connected an error will be thrown.
  */
-stock CPrintToChat(client, const String:message[], any:...) {
+stock CPrintToChat(client, const char message[], any:...) {
 	CCheckTrie();
 	if(client <= 0 || client > MaxClients) {
 		ThrowError("Invalid client index %i", client);
@@ -36,7 +36,7 @@ stock CPrintToChat(client, const String:message[], any:...) {
 	if(!IsClientInGame(client)) {
 		ThrowError("Client %i is not in game", client);
 	}
-	decl String:buffer[MAX_MESSAGE_LENGTH], String:buffer2[MAX_MESSAGE_LENGTH];
+	char buffer[MAX_MESSAGE_LENGTH], String:buffer2[MAX_MESSAGE_LENGTH];
 	SetGlobalTransTarget(client);
 	Format(buffer, sizeof(buffer), "\x01%s", message);
 	VFormat(buffer2, sizeof(buffer2), buffer, 3);
@@ -52,9 +52,9 @@ stock CPrintToChat(client, const String:message[], any:...) {
  * @param message		Message (formatting rules).
  * @noreturn
  */
-stock CPrintToChatAll(const String:message[], any:...) {
+stock CPrintToChatAll(const char message[], any:...) {
 	CCheckTrie();
-	decl String:buffer[MAX_MESSAGE_LENGTH], String:buffer2[MAX_MESSAGE_LENGTH];
+	char buffer[MAX_MESSAGE_LENGTH], String:buffer2[MAX_MESSAGE_LENGTH];
 	for(new i = 1; i <= MaxClients; i++) {
 		if(!IsClientInGame(i) || IsFakeClient(i) || CSkipList[i]) {
 			CSkipList[i] = false;
@@ -79,7 +79,7 @@ stock CPrintToChatAll(const String:message[], any:...) {
  * 
  * On error/Errors:		If the client or author are not connected an error will be thrown
  */
-stock CPrintToChatEx(client, author, const String:message[], any:...) {
+stock CPrintToChatEx(client, author, const char message[], any:...) {
 	CCheckTrie();
 	if(client <= 0 || client > MaxClients) {
 		ThrowError("Invalid client index %i", client);
@@ -93,7 +93,7 @@ stock CPrintToChatEx(client, author, const String:message[], any:...) {
 	if(!IsClientInGame(author)) {
 		ThrowError("Client %i is not in game", author);
 	}
-	decl String:buffer[MAX_MESSAGE_LENGTH], String:buffer2[MAX_MESSAGE_LENGTH];
+	char buffer[MAX_MESSAGE_LENGTH], String:buffer2[MAX_MESSAGE_LENGTH];
 	SetGlobalTransTarget(client);
 	Format(buffer, sizeof(buffer), "\x01%s", message);
 	VFormat(buffer2, sizeof(buffer2), buffer, 4);
@@ -111,7 +111,7 @@ stock CPrintToChatEx(client, author, const String:message[], any:...) {
  * 
  * On error/Errors:   If the author is not connected an error will be thrown.
  */
-stock CPrintToChatAllEx(author, const String:message[], any:...) {
+stock CPrintToChatAllEx(author, const char message[], any:...) {
 	CCheckTrie();
 	if(author <= 0 || author > MaxClients) {
 		ThrowError("Invalid client index %i", author);
@@ -119,7 +119,7 @@ stock CPrintToChatAllEx(author, const String:message[], any:...) {
 	if(!IsClientInGame(author)) {
 		ThrowError("Client %i is not in game", author);
 	}
-	decl String:buffer[MAX_MESSAGE_LENGTH], String:buffer2[MAX_MESSAGE_LENGTH];
+	char buffer[MAX_MESSAGE_LENGTH], String:buffer2[MAX_MESSAGE_LENGTH];
 	for(new i = 1; i <= MaxClients; i++) {
 		if(!IsClientInGame(i) || IsFakeClient(i) || CSkipList[i]) {
 			CSkipList[i] = false;
@@ -187,11 +187,11 @@ stock CReplaceColorCodes(String:buffer[], author=0, bool:removeTags=false, maxle
 		if(!IsClientInGame(author)) {
 			ThrowError("Client %i is not in game", author);
 		}
-		decl String:team[16];
+		char team[16];
 		Format(team, sizeof(team), "\x07%06X", CGetTeamColor(author));
 		ReplaceString(buffer, maxlen, "{teamcolor}", team, false);
 	}
-	decl String:part[maxlen], String:find[32], String:replace[16];
+	char part[maxlen], String:find[32], String:replace[16];
 	new value, first, last;
 	new index = 0;
 	for(new i = 0; i < 100; i++) { // conditions are failsafe, we'll return in the loop
@@ -243,13 +243,13 @@ stock StrToLower(String:buffer[]) {
  * @param color			Hexadecimal representation of the color (0xRRGGBB)
  * @return				True if color was added successfully, false if a color already exists with that name
  */
-stock bool:CAddColor(const String:name[], color) {
+stock bool:CAddColor(const char name[], color) {
 	CCheckTrie();
 	new value;
 	if(GetTrieValue(CTrie, name, value)) {
 		return false;
 	}
-	decl String:newName[64];
+	char newName[64];
 	strcopy(newName, sizeof(newName), name);
 	StrToLower(newName);
 	SetTrieValue(CTrie, newName, color);
@@ -300,7 +300,7 @@ stock CGetTeamColor(client) {
 }
 
 stock Handle:InitColorTrie() {
-	new Handle:hTrie = CreateTrie();
+	Handle hTrie = CreateTrie();
 	SetTrieValue(hTrie, "aliceblue", 0xF0F8FF);
 	SetTrieValue(hTrie, "antiquewhite", 0xFAEBD7);
 	SetTrieValue(hTrie, "aqua", 0x00FFFF);

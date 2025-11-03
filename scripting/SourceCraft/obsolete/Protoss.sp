@@ -25,25 +25,25 @@
 #include "sc/range"
 #include "sc/trace"
 
-new String:rechargeWav[] = "sourcecraft/transmission.wav";
-new String:explodeWav[] = "sourcecraft/PSaHit00.wav";
-new String:unCloakWav[] = "sourcecraft/PabCag00.wav";
-new String:cloakWav[] = "sourcecraft/pabRdy00.wav";
+char rechargeWav[] = "sourcecraft/transmission.wav";
+char explodeWav[] = "sourcecraft/PSaHit00.wav";
+char unCloakWav[] = "sourcecraft/PabCag00.wav";
+char cloakWav[] = "sourcecraft/pabRdy00.wav";
 
 new raceID, scarabID, cloakID, sensorID, controlID;
 
-new bool:m_MindControlAvailable = false;
+bool m_MindControlAvailable = false;
 
-new Handle:cvarMindControlCooldown = INVALID_HANDLE;
+Handle cvarMindControlCooldown = INVALID_HANDLE;
 
 new m_Cloaked[MAXPLAYERS+1][MAXPLAYERS+1];
 new m_Detected[MAXPLAYERS+1][MAXPLAYERS+1];
-new bool:m_AllowMindControl[MAXPLAYERS+1];
-new Float:gReaverScarabTime[MAXPLAYERS+1];
+bool m_AllowMindControl[MAXPLAYERS+1];
+float gReaverScarabTime[MAXPLAYERS+1];
 
 new explosionModel;
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Protoss",
     author = "-=|JFH|=-Naris",
@@ -164,7 +164,7 @@ public OnUltimateCommand(client,Handle:player,race,bool:pressed)
         new ult_level=GetUpgradeLevel(player,raceID,controlID);
         if(ult_level)
         {
-            new Float:range, percent;
+            float range, percent;
             switch(ult_level)
             {
                 case 1:
@@ -193,7 +193,7 @@ public OnUltimateCommand(client,Handle:player,race,bool:pressed)
             new objects:type;
             if (MindControl(client, range, percent, builder, type))
             {
-                new Float:cooldown = GetConVarFloat(cvarMindControlCooldown);
+                float cooldown = GetConVarFloat(cvarMindControlCooldown);
                 LogToGame("[SourceCraft] %N has stolen %d's %s!\n",
                           client,builder,TF2_ObjectNames[type]);
                 PrintToChat(builder,"%c[SourceCraft] %c %N has stolen your %s!",
@@ -216,7 +216,7 @@ public PlayerSpawnEvent(Handle:event,const String:name[],bool:dontBroadcast)
     new index=GetClientOfUserId(userid);
     if (index>0)
     {
-        new Handle:player=GetPlayerHandle(index);
+        Handle player=GetPlayerHandle(index);
         if (player != INVALID_HANDLE)
         {
             new race = GetRace(player);
@@ -229,12 +229,12 @@ public PlayerSpawnEvent(Handle:event,const String:name[],bool:dontBroadcast)
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event,victim_index,Handle:victim_player,victim_race,
+public Action OnPlayerHurtEvent(Handle:event,victim_index,Handle:victim_player,victim_race,
                                 attacker_index,Handle:attacker_player,attacker_race,
                                 assister_index,Handle:assister_player,assister_race,
                                 damage)
 {
-    new bool:changed=false;
+    bool changed=false;
 
     if (attacker_race == raceID && victim_index != attacker_index)
     {
@@ -257,7 +257,7 @@ public Action:OnPlayerHurtEvent(Handle:event,victim_index,Handle:victim_player,v
     return changed ? Plugin_Changed : Plugin_Continue;
 }
 
-public Action:OnPlayerDeathEvent(Handle:event,victim_index,Handle:victim_player,victim_race,
+public Action OnPlayerDeathEvent(Handle:event,victim_index,Handle:victim_player,victim_race,
                                  attacker_index,Handle:attacker_player,attacker_race,
                                  assister_index,Handle:assister_player,assister_race,
                                  damage,const String:weapon[], bool:is_equipment,
@@ -290,11 +290,11 @@ bool:ReaverScarab(damage, victim_index, Handle:victim_player, index, Handle:play
         if (!GetImmunity(victim_player,Immunity_Explosion) &&
             !TF2_IsPlayerInvuln(victim_index))
         {
-            new Float:lastTime = gReaverScarabTime[index];
-            new Float:interval = GetGameTime() - lastTime;
+            float lastTime = gReaverScarabTime[index];
+            float interval = GetGameTime() - lastTime;
             if (lastTime == 0.0 || interval > 0.5)
             {
-                new Float:percent, chance;
+                float percent, chance;
                 switch(rs_level)
                 {
                     case 1:
@@ -337,7 +337,7 @@ bool:ReaverScarab(damage, victim_index, Handle:victim_player, index, Handle:play
 
                         if (interval == 0.0 || interval >= 2.0)
                         {
-                            new Float:Origin[3];
+                            float Origin[3];
                             GetClientAbsOrigin(victim_index, Origin);
                             Origin[2] += 5;
 
@@ -356,7 +356,7 @@ bool:ReaverScarab(damage, victim_index, Handle:victim_player, index, Handle:play
     return false;
 }
 
-public Action:AllowMindControl(Handle:timer,any:index)
+public Action AllowMindControl(Handle:timer,any:index)
 {
     m_AllowMindControl[index]=true;
     if (IsClientInGame(index) && IsPlayerAlive(index))
@@ -371,7 +371,7 @@ public Action:AllowMindControl(Handle:timer,any:index)
     return Plugin_Stop;
 }
 
-public Action:CloakingAndDetector(Handle:timer)
+public Action CloakingAndDetector(Handle:timer)
 {
     new maxplayers=GetMaxClients();
     for(new client=1;client<=maxplayers;client++)
@@ -380,10 +380,10 @@ public Action:CloakingAndDetector(Handle:timer)
         {
             if(IsPlayerAlive(client))
             {
-                new Handle:player=GetPlayerHandle(client);
+                Handle player=GetPlayerHandle(client);
                 if(player != INVALID_HANDLE && GetRace(player) == raceID)
                 {
-                    new Float:cloaking_range;
+                    float cloaking_range;
                     new cloaking_level=GetUpgradeLevel(player,raceID,cloakID);
                     if (cloaking_level)
                     {
@@ -400,7 +400,7 @@ public Action:CloakingAndDetector(Handle:timer)
                         }
                     }
 
-                    new Float:detecting_range;
+                    float detecting_range;
                     new detecting_level=GetUpgradeLevel(player,raceID,sensorID);
                     if (detecting_level)
                     {
@@ -417,7 +417,7 @@ public Action:CloakingAndDetector(Handle:timer)
                         }
                     }
 
-                    new Float:clientLoc[3];
+                    float clientLoc[3];
                     GetClientAbsOrigin(client, clientLoc);
                     for (new index=1;index<=maxplayers;index++)
                     {
@@ -425,7 +425,7 @@ public Action:CloakingAndDetector(Handle:timer)
                         {
                             if (IsPlayerAlive(index))
                             {
-                                new Handle:player_check=GetPlayerHandle(index);
+                                Handle player_check=GetPlayerHandle(index);
                                 if (player_check != INVALID_HANDLE)
                                 {
                                     if (GetClientTeam(index) == GetClientTeam(client))
@@ -436,10 +436,10 @@ public Action:CloakingAndDetector(Handle:timer)
                                             continue; // Don't cloak other arbiters!
                                         }
 
-                                        new bool:cloak = IsInRange(client,index,cloaking_range);
+                                        bool cloak = IsInRange(client,index,cloaking_range);
                                         if (cloak)
                                         {
-                                            new Float:indexLoc[3];
+                                            float indexLoc[3];
                                             GetClientAbsOrigin(index, indexLoc);
                                             cloak = TraceTarget(client, index, clientLoc, indexLoc);
                                         }
@@ -470,10 +470,10 @@ public Action:CloakingAndDetector(Handle:timer)
                                     }
                                     else
                                     {
-                                        new bool:detect = IsInRange(client,index,detecting_range);
+                                        bool detect = IsInRange(client,index,detecting_range);
                                         if (detect)
                                         {
-                                            new Float:indexLoc[3];
+                                            float indexLoc[3];
                                             GetClientAbsOrigin(index, indexLoc);
                                             detect = TraceTarget(client, index, clientLoc, indexLoc);
                                         }
@@ -485,7 +485,7 @@ public Action:CloakingAndDetector(Handle:timer)
                                                 //TF2_RemovePlayerDisguise(index);
                                                 TF2_SetPlayerCloak(client, false);
 
-                                                new Float:cloakMeter = TF2_GetCloakMeter(index);
+                                                float cloakMeter = TF2_GetCloakMeter(index);
                                                 if (cloakMeter > 0.0 && cloakMeter <= 100.0)
                                                     TF2_SetCloakMeter(index, 0.0);
                                             }
@@ -513,7 +513,7 @@ stock ResetCloakingAndDetector(client)
     new maxplayers=GetMaxClients();
     for (new index=1;index<=maxplayers;index++)
     {
-        new Handle:player = GetPlayerHandle(index);
+        Handle player = GetPlayerHandle(index);
         if (player != INVALID_HANDLE)
         {
             if (m_Cloaked[client][index])

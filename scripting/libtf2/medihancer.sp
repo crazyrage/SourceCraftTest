@@ -13,7 +13,7 @@
 
 #define SOUND_BLIP		"buttons/blip1.wav"
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "TF2 Medihancer",
     author = "-=|JFH|=-Naris",
@@ -23,39 +23,39 @@ public Plugin:myinfo =
 }
 
 // Charged sounds
-new String:Charged[3][] = { "vo/medic_autochargeready01.wav",
+char Charged[3][] = { "vo/medic_autochargeready01.wav",
                             "vo/medic_autochargeready02.wav",
                             "vo/medic_autochargeready03.wav"};
 
 // Basic color arrays for temp entities
-new redColor[4] = {255, 75, 75, 255};
-new greenColor[4] = {75, 255, 75, 255};
-new blueColor[4] = {75, 75, 255, 255};
-new greyColor[4] = {128, 128, 128, 255};
+int redColor[4] = {255, 75, 75, 255};
+int greenColor[4] = {75, 255, 75, 255};
+int blueColor[4] = {75, 75, 255, 255};
+int greyColor[4] = {128, 128, 128, 255};
 
 // Following are model indexes for temp entities
-new g_BeamSprite;
-new g_HaloSprite;
+int g_BeamSprite;
+int g_HaloSprite;
 
-new Float:g_ChargeDelay = 5.0;
-new Float:g_BeaconDelay = 3.0;
-new Float:g_PingDelay = 12.0;
+float g_ChargeDelay = 5.0;
+float g_BeaconDelay = 3.0;
+float g_PingDelay = 12.0;
 
-new Handle:g_IsMedihancerOn = INVALID_HANDLE;
-new Handle:g_EnableBeacon = INVALID_HANDLE;
-new Handle:g_BeaconRadius = INVALID_HANDLE;
-new Handle:g_BeaconTimer = INVALID_HANDLE;
-new Handle:g_ChargeAmount = INVALID_HANDLE;
-new Handle:g_ChargeTimer = INVALID_HANDLE;
-new Handle:g_EnablePing = INVALID_HANDLE;
-new Handle:g_PingTimer = INVALID_HANDLE;
-new Handle:g_TimerHandle = INVALID_HANDLE;
-new bool:ConfigsExecuted = false;
-new bool:NativeControl = false;
-new bool:NativeMedicEnabled[MAXPLAYERS + 1] = { false, ...};
-new NativeAmount[MAXPLAYERS + 1];
+Handle g_IsMedihancerOn = INVALID_HANDLE;
+Handle g_EnableBeacon = INVALID_HANDLE;
+Handle g_BeaconRadius = INVALID_HANDLE;
+Handle g_BeaconTimer = INVALID_HANDLE;
+Handle g_ChargeAmount = INVALID_HANDLE;
+Handle g_ChargeTimer = INVALID_HANDLE;
+Handle g_EnablePing = INVALID_HANDLE;
+Handle g_PingTimer = INVALID_HANDLE;
+Handle g_TimerHandle = INVALID_HANDLE;
+bool ConfigsExecuted = false;
+bool NativeControl = false;
+bool NativeMedicEnabled[MAXPLAYERS + 1] = { false, ...};
+int NativeAmount[MAXPLAYERS + 1];
 
-public bool:AskPluginLoad(Handle:myself,bool:late,String:error[],err_max)
+public bool AskPluginLoad(Handle:myself,bool:late,String:error[],err_max)
 {
     // Register Natives
     CreateNative("ControlMedicEnhancer",Native_ControlMedicEnhancer);
@@ -112,7 +112,7 @@ public OnMapStart()
 }
 
 
-public ConVarChange_IsMedihancerOn(Handle:convar, const String:oldValue[], const String:newValue[])
+public ConVarChange_IsMedihancerOn(Handle:convar, const char oldValue[], const char newValue[])
 {
     if (StringToInt(newValue) > 0)
     {
@@ -141,16 +141,16 @@ public ConVarChange_IsMedihancerOn(Handle:convar, const String:oldValue[], const
     }
 }
 
-public Action:Medic_Timer(Handle:timer)
+public Action Medic_Timer(Handle:timer)
 {
     static Float:lastChargeTime;
     static Float:lastBeaconTime;
     static Float:lastPingTime;
 
-    new Float:gameTime = GetGameTime();
-    new bool:charge    = (gameTime - lastChargeTime >= g_ChargeDelay);
-    new bool:beacon    = (gameTime - lastBeaconTime >= g_BeaconDelay);
-    new bool:ping      = (gameTime - lastPingTime >= g_PingDelay);
+    float gameTime = GetGameTime();
+    bool charge    = (gameTime - lastChargeTime >= g_ChargeDelay);
+    bool beacon    = (gameTime - lastBeaconTime >= g_BeaconDelay);
+    bool ping      = (gameTime - lastPingTime >= g_PingDelay);
 
     if (charge)
         lastChargeTime = gameTime;
@@ -173,7 +173,7 @@ public Action:Medic_Timer(Handle:timer)
                 {
                     if (TF2_GetPlayerClass(client) == TFClass_Medic)
                     {
-                        new String:classname[64];
+                        char classname[64];
                         TF_GetCurrentWeaponClass(client, classname, sizeof(classname));
                         if(StrEqual(classname, "CWeaponMedigun"))
                         {
@@ -202,7 +202,7 @@ public Action:Medic_Timer(Handle:timer)
                                 {
                                     if (ping)
                                     {
-                                        new Float:vec[3];
+                                        float vec[3];
                                         GetClientEyePosition(client, vec);
                                         EmitAmbientSound(SOUND_BLIP, vec, client, SNDLEVEL_RAIDSIREN);	
                                     }
@@ -220,7 +220,7 @@ BeaconPing(client,bool:ping)
 {
     new team = GetClientTeam(client);
 
-    new Float:vec[3];
+    float vec[3];
     GetClientAbsOrigin(client, vec);
     vec[2] += 10;
 
@@ -249,7 +249,7 @@ BeaconPing(client,bool:ping)
     }
 }
 
-public Action:Event_RoundStart(Handle:event, const String:name[], bool:dontBroadcast)
+public Action Event_RoundStart(Handle:event, const char name[], bool:dontBroadcast)
 {
     new MedihancerOn = GetConVarInt(g_IsMedihancerOn);
     if (MedihancerOn && !NativeControl)
@@ -294,7 +294,7 @@ Float:CalcDelay()
     g_BeaconDelay = GetConVarFloat(g_BeaconTimer);
     g_PingDelay = GetConVarFloat(g_PingTimer);
 
-    new Float:delay = g_ChargeDelay;
+    float delay = g_ChargeDelay;
     if (delay > g_BeaconDelay)
         delay = g_BeaconDelay;
     if (delay > g_PingDelay)

@@ -141,7 +141,7 @@ stock Color_ChatClearSubject()
  * @param size				Output Buffer size
  * @return					Returns a value for the subject
  */
-stock Color_ParseChatText(const String:str[], String:buffer[], size)
+stock Color_ParseChatText(const char str[], String:buffer[], size)
 {
 	new
 		bool:inBracket = false,
@@ -245,7 +245,7 @@ stock Color_ParseChatText(const String:str[], String:buffer[], size)
  * @param result            The result as character sequence (string). This will be \0 if the tag is unkown.
  * @noreturn
  */
-stock Color_TagToCode(const String:tag[], &subject=-1, String:result[10])
+stock Color_TagToCode(const char tag[], &subject=-1, String:result[10])
 {
 	// Check if the tag starts with a '#'.
 	// We will handle it has RGB(A)-color code then.
@@ -311,7 +311,7 @@ stock Color_TagToCode(const String:tag[], &subject=-1, String:result[10])
  * @param size				Max Size of the Output string
  * @noreturn
  */
-stock Color_StripFromChatText(const String:input[], String:output[], size)
+stock Color_StripFromChatText(const char input[], String:output[], size)
 {
 	new x = 0;
 	for (new i=0; input[i] != '\0'; i++) {
@@ -349,7 +349,7 @@ static stock Color_ChatInitialize()
 
 	initialized = true;
 
-	decl String:gameFolderName[32];
+	char gameFolderName[32];
 	GetGameFolderName(gameFolderName, sizeof(gameFolderName));
 
 	chatColorInfo[ChatColor_Black][ChatColorInfo_Supported]		    = false;
@@ -398,15 +398,15 @@ static stock Color_ChatInitialize()
 		isSayText2_supported = false;
 	}
 
-	decl String:path_gamedata[PLATFORM_MAX_PATH];
+	char path_gamedata[PLATFORM_MAX_PATH];
 	BuildPath(Path_SM, path_gamedata, sizeof(path_gamedata), "gamedata/%s.txt", SMLIB_COLORS_GAMEDATAFILE);
 
 	if (FileExists(path_gamedata)) {
-		new Handle:gamedata = INVALID_HANDLE;
+		Handle gamedata = INVALID_HANDLE;
 
 		if ((gamedata = LoadGameConfigFile(SMLIB_COLORS_GAMEDATAFILE)) != INVALID_HANDLE) {
 
-			decl String:keyName[32], String:buffer[6];
+			char keyName[32], String:buffer[6];
 
 			for (new i=0; i < sizeof(chatColorNames); i++) {
 

@@ -27,7 +27,7 @@ public Extension:__ext_geoip =
  * @param relativeToSound    if true, it is relative to the sound directory, otherwise you have to build the path yourself
  * @return                    A Handle to the sound file, INVALID_HANDLE on open error.
  */
-native Handle:OpenSoundFile(const String:file[], bool:relativeToSound=true);
+native Handle:OpenSoundFile(const char file[], bool:relativeToSound=true);
 
 /**
  * Gets the length of the sound file in seconds

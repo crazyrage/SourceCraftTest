@@ -186,9 +186,9 @@ stock bool:Stunned(client) {
 //auto cast spells should be blocked
 stock bool:Silenced(client,printSilenced=true) {
 #if !defined SOURCECRAFT
-    new bool:silenced=(W3GetBuffHasTrue(client,bSilenced)||Stunned(client));
+    bool silenced=(W3GetBuffHasTrue(client,bSilenced)||Stunned(client));
 #else
-    new bool:silenced=GetRestriction(client,Restriction_Silenced|Restriction_Stunned);
+    bool silenced=GetRestriction(client,Restriction_Silenced|Restriction_Stunned);
 #endif
     if(silenced&&printSilenced) {
         if(IsPlayerAlive(client)) {
@@ -216,9 +216,9 @@ stock bool:Silenced(client,printSilenced=true) {
 //is player hexed? (OUR definition is: no skill proc, usually from chance based skills)
 stock bool:Hexed(client,printmsg=true) {
 #if !defined SOURCECRAFT
-    new bool:status=(W3GetBuffHasTrue(client,bHexed)||W3GetBuffHasTrue(client,bStunned));
+    bool status=(W3GetBuffHasTrue(client,bHexed)||W3GetBuffHasTrue(client,bStunned));
 #else
-    new bool:status=GetRestriction(client,Restriction_Hexed|Restriction_Stunned);
+    bool status=GetRestriction(client,Restriction_Hexed|Restriction_Stunned);
 #endif
     if(status&&printmsg) {
 
@@ -237,9 +237,9 @@ stock bool:Hexed(client,printmsg=true) {
 //is player perplexed, (no item activation, no item proc by chance)
 stock bool:Perplexed(client,printmsg=true) {
 #if !defined SOURCECRAFT
-    new bool:perplexed=(W3GetBuffHasTrue(client,bPerplexed)||W3GetBuffHasTrue(client,bStunned));
+    bool perplexed=(W3GetBuffHasTrue(client,bPerplexed)||W3GetBuffHasTrue(client,bStunned));
 #else
-    new bool:perplexed=GetRestriction(client,Restriction_Perplexed|Restriction_Stunned);
+    bool perplexed=GetRestriction(client,Restriction_Perplexed|Restriction_Stunned);
 #endif
     if(perplexed&&printmsg) {
 
@@ -266,7 +266,7 @@ stock W3ApplyBuffSimple(client,W3Buff:buffindex,raceid,any:initialbuffvalue,Floa
     #pragma unused allowReapplyToExtendDuration
     War3_SetBuff(client,buffindex,raceid,initialbuffvalue);
 
-    new Handle:pack;
+    Handle pack;
     CreateDataTimer(duration, ResetBuffTimer, pack, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
     if (pack != INVALID_HANDLE)
     {

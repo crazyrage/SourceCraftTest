@@ -5,7 +5,7 @@
 
 #define VERSION 		"0.0.1"
 
-public Plugin:myinfo =
+public Plugin myinfo =
 {
 	name = "tBuildingTakeCrits",
 	author = "Thrawn",
@@ -15,17 +15,17 @@ public Plugin:myinfo =
 
 #define SOUND_CRIT		"crit_hit5.wav"
 
-new Handle:g_hCvarShowParticle = INVALID_HANDLE;
-new Handle:g_hCvarPlayCritHitSound = INVALID_HANDLE;
-new Handle:g_hCvarModifierSentries = INVALID_HANDLE;
-new Handle:g_hCvarModifierTeleporters = INVALID_HANDLE;
-new Handle:g_hCvarModifierDispenser = INVALID_HANDLE;
+Handle g_hCvarShowParticle = INVALID_HANDLE;
+Handle g_hCvarPlayCritHitSound = INVALID_HANDLE;
+Handle g_hCvarModifierSentries = INVALID_HANDLE;
+Handle g_hCvarModifierTeleporters = INVALID_HANDLE;
+Handle g_hCvarModifierDispenser = INVALID_HANDLE;
 
-new bool:g_bShowParticle;
-new bool:g_bPlayCritHitSound;
-new Float:g_fSentryModifier;
-new Float:g_fTeleportersModifier;
-new Float:g_fDispenserModifier;
+bool g_bShowParticle;
+bool g_bPlayCritHitSound;
+float g_fSentryModifier;
+float g_fTeleportersModifier;
+float g_fDispenserModifier;
 
 public OnPluginStart() {
 	CreateConVar("sm_tbuildingtakecrits_version", VERSION, "[TF2] tBuildingsTakeCrits", FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY|FCVAR_DONTRECORD);
@@ -61,22 +61,22 @@ public OnConfigsExecuted() {
 	g_fDispenserModifier = GetConVarFloat(g_hCvarModifierDispenser);
 }
 
-public Cvar_Changed(Handle:convar, const String:oldValue[], const String:newValue[]) {
+public Cvar_Changed(Handle:convar, const char oldValue[], const char newValue[]) {
 	OnConfigsExecuted();
 }
 
-public Action:Event_PlayerBuiltObject(Handle:event, const String:name[], bool:dontBroadcast) {
+public Action Event_PlayerBuiltObject(Handle:event, const char name[], bool:dontBroadcast) {
 	new iObject = GetEventInt(event, "index");
 
 	SDKHook(iObject, SDKHook_OnTakeDamage, OnTakeDamage);
 }
 
-public Action:OnTakeDamage(victim, &attacker, &inflictor, &Float:damage, &damagetype) {
+public Action OnTakeDamage(victim, &attacker, &inflictor, &Float:damage, &damagetype) {
 	if(attacker > 0 && attacker <= MaxClients && (damagetype & DMG_ACID)) {
-		decl String:sNetclass[32];
+		char sNetclass[32];
 		GetEntityNetClass(victim, sNetclass, sizeof(sNetclass));
 
-		new Float:fDamageModifier = 1.0;
+		float fDamageModifier = 1.0;
 		if(StrEqual(sNetclass, "CObjectTeleporter"))fDamageModifier = g_fTeleportersModifier;
 		else if(StrEqual(sNetclass, "CObjectSentrygun"))fDamageModifier = g_fSentryModifier;
 		else if(StrEqual(sNetclass, "CObjectDispenser"))fDamageModifier = g_fDispenserModifier;
@@ -90,7 +90,7 @@ public Action:OnTakeDamage(victim, &attacker, &inflictor, &Float:damage, &damage
 				}
 
 				if(g_bShowParticle) {
-					decl Float:pos[3];
+					float pos[3];
 					GetEntPropVector(victim,Prop_Send,"m_vecOrigin",pos);
 					pos[2] += 64.0;
 					TE_ParticleToClient(attacker, "crit_text", pos);
@@ -124,7 +124,7 @@ TE_ParticleToClient(client,
     }
 
     // find particle index
-    new String:tmp[256];
+    char tmp[256];
     new count = GetStringTableNumStrings(tblidx);
     new stridx = INVALID_STRING_INDEX;
     new i;

@@ -14,7 +14,7 @@
  */
 stock Debug_FloatArray(const Float:array[], size=3)
 {
-	new String:output[64] = "";
+	char output[64] = "";
 
 	for (new i=0; i < size; ++i) {
 

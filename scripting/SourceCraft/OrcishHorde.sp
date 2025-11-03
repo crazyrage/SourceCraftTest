@@ -37,24 +37,24 @@
 #include "effect/FlashScreen"
 #include "effect/BloodSprite"
 
-new const String:thunderWav[]       = "sc/thunder1long.mp3";
+char thunderWav[]       = "sc/thunder1long.mp3";
 
-new g_ReincarnationChance[]         = { 0, 15, 37, 59, 80 };
+int g_ReincarnationChance[]         = { 0, 15, 37, 59, 80 };
 
-new Float:g_StrikePercent[]         = { 0.0, 0.40, 0.60, 0.90, 1.20 };
+float g_StrikePercent[]         = { 0.0, 0.40, 0.60, 0.90, 1.20 };
 
-new Float:g_ChainRange[]            = { 0.0, 300.0, 450.0, 650.0, 800.0 };
+float g_ChainRange[]            = { 0.0, 300.0, 450.0, 650.0, 800.0 };
 
-new g_MissileAttackChance[]         = { 0, 15, 15, 15, 15 };
-new Float:g_MissileAttackPercent[]  = { 0.0, 0.15, 0.30, 0.40, 0.50 };
+int g_MissileAttackChance[]         = { 0, 15, 15, 15, 15 };
+float g_MissileAttackPercent[]  = { 0.0, 0.15, 0.30, 0.40, 0.50 };
 
-new cfgMaxRespawns                  = 4;
+int cfgMaxRespawns                  = 4;
 
-new raceID, strikeID, missileID, reincarnationID, lightningID;
+int raceID, strikeID, missileID, reincarnationID, lightningID;
 
-new bool:m_HasRespawned[MAXPLAYERS+1];
+bool m_HasRespawned[MAXPLAYERS+1];
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Orcish Horde",
     author = "-=|JFH|=-Naris with credits to PimpinJuice",
@@ -184,7 +184,7 @@ public OnPlayerAuthed(client)
     #endif
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -205,7 +205,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
         return Plugin_Continue;
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
@@ -240,7 +240,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
             if (GetRestriction(client,Restriction_NoUltimates) ||
                 GetRestriction(client,Restriction_Stunned))
             {
-                decl String:upgradeName[64];
+                char upgradeName[64];
                 GetUpgradeName(raceID, lightningID, upgradeName, sizeof(upgradeName), client);
                 PrepareAndEmitSoundToClient(client,deniedWav);
                 DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
@@ -289,11 +289,11 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race,
                                 attacker_index, attacker_race, damage,
                                 absorbed, bool:from_sc)
 {
-    new bool:handled=false;
+    bool handled=false;
 
     if (!from_sc && attacker_index > 0 &&
         victim_index != attacker_index &&
@@ -312,8 +312,8 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race,
 
         if (!handled)
         {
-            decl String:weapon[64];
-            new bool:is_equipment=GetWeapon(event,attacker_index,weapon,sizeof(weapon));
+            char weapon[64];
+            bool is_equipment=GetWeapon(event,attacker_index,weapon,sizeof(weapon));
             if (!IsGrenadeOrRocket(weapon, is_equipment))
             {
                 handled = AcuteStrike(damage, victim_index, attacker_index);
@@ -324,7 +324,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race,
     return handled ? Plugin_Handled : Plugin_Continue;
 }
 
-public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
+public Action OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
                                   assister_index, assister_race, damage,
                                   absorbed)
 {
@@ -366,7 +366,7 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
         {
             PrepareAndEmitSoundToClient(victim_index,deniedWav);
 
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, reincarnationID, upgradeName, sizeof(upgradeName), victim_index);
             DisplayMessage(victim_index, Display_Message, "%t", "NotAsMole", upgradeName);
             m_ReincarnationCount[victim_index] = 0;
@@ -454,7 +454,7 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
                         m_HasRespawned[victim_index]=true;
                         Respawn(victim_index);
 
-                        decl String:suffix[3];
+                        char suffix[3];
                         count = m_ReincarnationCount[victim_index];
                         GetNumberSuffix(count, suffix, sizeof(suffix));
 
@@ -528,11 +528,11 @@ bool:AcuteStrike(damage, victim_index, index)
         if (GetRandomInt(1,100) <= 25 &&
             CanInvokeUpgrade(index, raceID, strikeID, .notify=false))
         {
-            new Float:indexLoc[3];
+            float indexLoc[3];
             GetClientAbsOrigin(index, indexLoc);
             indexLoc[2] += 50.0;
 
-            new Float:victimLoc[3];
+            float victimLoc[3];
             GetEntityAbsOrigin(victim_index, victimLoc);
             victimLoc[2] += 50.0;
 
@@ -558,11 +558,11 @@ ChainLightning(client,ultlevel)
 {
     new factor = ultlevel * 10;
     new dmg=GetRandomInt(10+factor,30+(factor*2));
-    new Float:range = g_ChainRange[ultlevel];
+    float range = g_ChainRange[ultlevel];
 
-    new Float:lastLoc[3];
-    new Float:indexLoc[3];
-    new Float:clientLoc[3];
+    float lastLoc[3];
+    float indexLoc[3];
+    float clientLoc[3];
     GetClientAbsOrigin(client, clientLoc);
     clientLoc[2] += 50.0; // Adjust trace position to the middle of the person instead of the feet.
     lastLoc = clientLoc;
@@ -598,7 +598,7 @@ ChainLightning(client,ultlevel)
     new count=0;
     new last=client;
     new team=GetClientTeam(client);
-    new bool:hitVector[MAXPLAYERS] = {false, ...};
+    bool hitVector[MAXPLAYERS] = {false, ...};
 
     do
     {
@@ -611,7 +611,7 @@ ChainLightning(client,ultlevel)
                                0, 15, 1.0, 40.0,40.0,0,40.0,lightningColor,40);
             TE_SendQEffectToAll(last,index);
 
-            decl Float:vecAngles[3];
+            float vecAngles[3];
             GetClientEyeAngles(index,vecAngles);
             TE_SetupBloodSprite(indexLoc, vecAngles, {200, 20, 20, 255}, 28, BloodSpray(), BloodDrop());
             TE_SendEffectToAll();
@@ -628,7 +628,7 @@ ChainLightning(client,ultlevel)
         }
     } while (dmg > 0);
 
-    decl String:upgradeName[64];
+    char upgradeName[64];
     GetUpgradeName(raceID, lightningID, upgradeName, sizeof(upgradeName), client);
 
     if (count)
@@ -662,7 +662,7 @@ FindClosestTarget(client, team, Float:range, Float:clientLoc[3],
                 GetClientAbsOrigin(index, indexLoc);
                 indexLoc[2] += 50.0;
 
-                new Float:distance = GetVectorDistance(clientLoc,indexLoc);
+                float distance = GetVectorDistance(clientLoc,indexLoc);
                 if (distance <= range &&
                     TraceTargetIndex(client, index, clientLoc, indexLoc))
                 {

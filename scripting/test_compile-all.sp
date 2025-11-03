@@ -29,7 +29,7 @@
 
 *****************************************************************/
 
-public Plugin:myinfo = {
+public Plugin myinfo = {
 	name = "smlib Testing Suite",
 	author = "Berni, Chanz",
 	description = "Plugin by Berni",
@@ -64,10 +64,10 @@ public Plugin:myinfo = {
 public OnPluginStart() {
 
 	new arr[1], String:arr_str[1][1], arr_4[4];
-	decl Float:vec[3];
-	decl String:buf[1], String:buf_10[10], String:twoDimStrArr[1][1];
+	float vec[3];
+	char buf[1], String:buf_10[10], String:twoDimStrArr[1][1];
 	new variable;
-	new Handle:handle;
+	Handle handle;
 
 	// File: arrays.inc
 	Array_FindValue(arr, sizeof(arr), 1);

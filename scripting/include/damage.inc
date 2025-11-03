@@ -15,14 +15,14 @@
 
 stock g_damagePointRef = INVALID_ENT_REFERENCE;
 
-stock DamagePlayer(victim,damage,attacker=0,dmg_type=DMG_GENERIC,const String:weapon[]="")
+stock DamagePlayer(victim,damage,attacker=0,dmg_type=DMG_GENERIC,const char weapon[]="")
 {
     if (damage > 0 && victim > 0 && IsClientInGame(victim) && IsPlayerAlive(victim))
     {
-        decl String:dmg_str[16];
+        char dmg_str[16];
         IntToString(damage,dmg_str,sizeof(dmg_str));
 
-        decl String:dmg_type_str[32];
+        char dmg_type_str[32];
         IntToString(dmg_type,dmg_type_str,sizeof(dmg_type_str));
 
         new pointHurt = EntRefToEntIndex(g_damagePointRef);
@@ -57,7 +57,7 @@ stock DamagePlayer(victim,damage,attacker=0,dmg_type=DMG_GENERIC,const String:we
                       damage, weapon);
             #endif
 
-            decl String:targetname[16];
+            char targetname[16];
             Format(targetname,sizeof(targetname), "target%d", victim);
 
             DispatchKeyValue(victim,"targetname",targetname);
@@ -81,14 +81,14 @@ stock DamagePlayer(victim,damage,attacker=0,dmg_type=DMG_GENERIC,const String:we
     }
 }
 
-stock DamageEntity(victim,damage,attacker=0,dmg_type=DMG_GENERIC,const String:weapon[]="")
+stock DamageEntity(victim,damage,attacker=0,dmg_type=DMG_GENERIC,const char weapon[]="")
 {
     if (damage>0 && victim>0 && IsValidEdict(victim))
     {
-        decl String:dmg_str[16];
+        char dmg_str[16];
         IntToString(damage,dmg_str,sizeof(dmg_str));
 
-        decl String:dmg_type_str[32];
+        char dmg_type_str[32];
         IntToString(dmg_type,dmg_type_str,sizeof(dmg_type_str));
 
         new pointHurt = EntRefToEntIndex(g_damagePointRef);
@@ -122,7 +122,7 @@ stock DamageEntity(victim,damage,attacker=0,dmg_type=DMG_GENERIC,const String:we
                       victim, attacker, ValidClientIndex(attacker), damage, weapon);
             #endif
 
-            decl String:targetname[16];
+            char targetname[16];
             Format(targetname, sizeof(targetname), "target%d", victim);
 
             DispatchKeyValue(victim,"targetname",targetname);

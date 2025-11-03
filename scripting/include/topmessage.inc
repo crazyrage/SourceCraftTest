@@ -12,10 +12,10 @@
 
 stock SendTopMessage(client, level, time, r, g, b, a, String:text[], any:...)
 {
-	new String:message[100];
+	char message[100];
 	VFormat(message,sizeof(message),text, 9);
 	
-	new Handle:kv = CreateKeyValues("message", "title", message);
+	Handle kv = CreateKeyValues("message", "title", message);
 	KvSetColor(kv, "color", r, g, b, a);
 	KvSetNum(kv, "level", level);
 	KvSetNum(kv, "time", time);

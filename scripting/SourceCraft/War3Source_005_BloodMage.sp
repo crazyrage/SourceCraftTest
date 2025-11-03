@@ -12,7 +12,7 @@
 #include "sc/ShopItems"
 #endif
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "War3Source - Race - Blood Mage",
     author = "War3Source Team",
@@ -22,67 +22,67 @@ public Plugin:myinfo =
 
 // TODO: Effects
 
-new thisRaceID;
+int thisRaceID;
 
-new SKILL_REVIVE, SKILL_BANISH, SKILL_MONEYSTEAL,ULT_FLAMESTRIKE;
+int SKILL_REVIVE, SKILL_BANISH, SKILL_MONEYSTEAL,ULT_FLAMESTRIKE;
 
 //skill 1
-new Float:MaxRevivalChance[MAXPLAYERSCUSTOM]; //chance for first attempt at revival
-new Float:CurrentRevivalChance[MAXPLAYERSCUSTOM]; //decays by half per revival attempt, will stay at minimum of 10% after decays
-new Float:RevivalChancesArr[]={0.00,0.2,0.3,0.4,0.5};
-new RevivedBy[MAXPLAYERSCUSTOM];
-new bool:bRevived[MAXPLAYERSCUSTOM];
-new Float:fLastRevive[MAXPLAYERSCUSTOM];
+float MaxRevivalChance[MAXPLAYERSCUSTOM]; //chance for first attempt at revival
+float CurrentRevivalChance[MAXPLAYERSCUSTOM]; //decays by half per revival attempt, will stay at minimum of 10% after decays
+float RevivalChancesArr[]={0.00,0.2,0.3,0.4,0.5};
+int RevivedBy[MAXPLAYERSCUSTOM];
+bool bRevived[MAXPLAYERSCUSTOM];
+float fLastRevive[MAXPLAYERSCUSTOM];
 
 // Team switch checker
-new bool:Can_Player_Revive[MAXPLAYERSCUSTOM+1];
+bool Can_Player_Revive[MAXPLAYERSCUSTOM+1];
  
 //skill 2
-new Float:BanishChance[MAXPLAYERSCUSTOM];
-new Float:BanishChancesArr[5]={0.00,0.05,0.10,0.15,0.20};
+float BanishChance[MAXPLAYERSCUSTOM];
+float BanishChancesArr[5]={0.00,0.05,0.10,0.15,0.20};
 
 //skill 3
-new Float:MoneyStealPercent[MAXPLAYERSCUSTOM];
-new Float:MoneyStealPercentArr[]={0.00,0.0025,0.0050,0.0075,0.01};  //how much is stolen
+float MoneyStealPercent[MAXPLAYERSCUSTOM];
+float MoneyStealPercentArr[]={0.00,0.0025,0.0050,0.0075,0.01};  //how much is stolen
 //for TF only:
-new Float:CreditStealChanceTF[]={0.00,0.02,0.04,0.06,0.08};   //what are the chances of stealing
-new Float:TFCreditStealPercent=0.1;  //how much to steal
+float CreditStealChanceTF[]={0.00,0.02,0.04,0.06,0.08};   //what are the chances of stealing
+float TFCreditStealPercent=0.1;  //how much to steal
 
 //ultimate
 #if defined SOURCECRAFT
-new max_ult = 0;
-new UltReviveLocation = 0;
-new Float:RevivalDelay = 2.0;
+int max_ult = 0;
+int UltReviveLocation = 0;
+float RevivalDelay = 2.0;
 #else
-new Handle:ultCooldownCvar;
-new Handle:UltimateMaxCvar;
-new Handle:hrevivalDelayCvar;
-new Handle:g_hUltReviveLocationCvar = INVALID_HANDLE;
+Handle ultCooldownCvar;
+Handle UltimateMaxCvar;
+Handle hrevivalDelayCvar;
+Handle g_hUltReviveLocationCvar = INVALID_HANDLE;
 #endif
 
-new Float:UltimateMaxDistance[]={0.0,500.0,500.0,500.0,500.0}; //max distance u can target your ultimate
-new UltimateDamageDuration[]={0,4,6,8,10}; ///how many times damage is taken (like pyro's fire)
+float UltimateMaxDistance[]={0.0,500.0,500.0,500.0,500.0}; //max distance u can target your ultimate
+int UltimateDamageDuration[]={0,4,6,8,10}; ///how many times damage is taken (like pyro's fire)
 
-new BurnsRemaining[MAXPLAYERSCUSTOM]; //burn count for victims
-new BeingBurnedBy[MAXPLAYERSCUSTOM];
-new UltimateUsed[MAXPLAYERSCUSTOM];
+int BurnsRemaining[MAXPLAYERSCUSTOM]; //burn count for victims
+int BeingBurnedBy[MAXPLAYERSCUSTOM];
+int UltimateUsed[MAXPLAYERSCUSTOM];
 
-new ULT_DAMAGE_CS = 5;
-new ULT_DAMAGE_TF = 10;
+int ULT_DAMAGE_CS = 5;
+int ULT_DAMAGE_TF = 10;
 
 
 
-new MyWeaponsOffset,AmmoOffset;
+int MyWeaponsOffset,AmmoOffset;
 //Clip1Offset,; //cs stuff?
 
-new String:reviveSound[256];
+char reviveSound[256];
 
-new BeamSprite,HaloSprite,FireSprite;
-new BloodSpray,BloodDrop;
+int BeamSprite,HaloSprite,FireSprite;
+int BloodSpray,BloodDrop;
 
 #if !defined SOURCECRAFT
 // CS specific money offset
-new MoneyOffsetCS;
+int MoneyOffsetCS;
 #endif
 
 public OnPluginStart()
@@ -245,7 +245,7 @@ public OnRaceChanged(client,oldrace,newrace)
         }
     }
 }
-new FireEntityEffect[MAXPLAYERSCUSTOM];
+int FireEntityEffect[MAXPLAYERSCUSTOM];
 public OnUltimateCommand(client,race,bool:pressed)
 {
     new userid=GetClientUserId(client);
@@ -278,7 +278,7 @@ public OnUltimateCommand(client,race,bool:pressed)
                     BurnsRemaining[target]=UltimateDamageDuration[ult_level];
                     CreateTimer(1.0,BurnLoop,GetClientUserId(target));
 #if defined SOURCECRAFT
-                    new Float:cooldown= GetUpgradeCooldown(thisRaceID,ULT_FLAMESTRIKE);
+                    float cooldown= GetUpgradeCooldown(thisRaceID,ULT_FLAMESTRIKE);
                     War3_CooldownMGR(client,cooldown,thisRaceID,ULT_FLAMESTRIKE,_,_);
 #else
                     War3_CooldownMGR(client,GetConVarFloat(ultCooldownCvar),thisRaceID,ULT_FLAMESTRIKE,_,_);
@@ -286,7 +286,7 @@ public OnUltimateCommand(client,race,bool:pressed)
                     PrintHintText(client,"%T","Flame Strike!",client);
                     PrintHintText(target,"%T","You have been struck with Flame Strike!",target);
                     W3SetPlayerColor(target,thisRaceID,255,128,0,_,GLOW_ULTIMATE);
-                    new Float:effect_vec[3];
+                    float effect_vec[3];
                     GetClientAbsOrigin(target,effect_vec);
                     effect_vec[2]+=150.0;
                     TE_SetupGlowSprite(effect_vec, FireSprite, 2.0, 4.0, 255);
@@ -321,11 +321,11 @@ public OnUltimateCommand(client,race,bool:pressed)
         }
     }
 }
-public bool:IsBurningFilter(client)
+public bool IsBurningFilter(client)
 {
     return (BurnsRemaining[client]<=0 && !W3HasImmunity(client,Immunity_Ultimates));
 }
-public Action:BurnLoop(Handle:timer,any:userid)
+public Action BurnLoop(Handle:timer,any:userid)
 {
     new victim=GetClientOfUserId(userid);
     new attacker=GetClientOfUserId(BeingBurnedBy[victim]);
@@ -391,7 +391,7 @@ public OnW3TakeDmgBullet(victim,attacker,Float:damage)
     {
         if(War3_GetRace(attacker)==thisRaceID)
         {
-            new Float:chance_mod=W3ChanceModifier(attacker);    
+            float chance_mod=W3ChanceModifier(attacker);    
             if(IsPlayerAlive(attacker)&&IsPlayerAlive(victim))
             {
                 if(!W3HasImmunity(victim,Immunity_Skills))
@@ -412,7 +412,7 @@ public OnW3TakeDmgBullet(victim,attacker,Float:damage)
 #endif
                             {
                                 // TODO: Sound effects?
-                                //new Float:oldangle[3];
+                                //float oldangle[3];
                                 //GetClientEyeAngles(victim,oldangle);
                                 //oldangle[0]+=GetRandomFloat(-20.0,20.0);
                                 //oldangle[1]+=GetRandomFloat(-20.0,20.0);
@@ -421,9 +421,9 @@ public OnW3TakeDmgBullet(victim,attacker,Float:damage)
                                 W3FlashScreen(victim,{0,0,0,255},0.4,_,FFADE_STAYOUT);
                                 CreateTimer(0.2,Unbanish,GetClientUserId(victim));
                                 
-                                new Float:effect_vec[3];
+                                float effect_vec[3];
                                 GetClientAbsOrigin(attacker,effect_vec);
-                                new Float:effect_vec2[3];
+                                float effect_vec2[3];
                                 GetClientAbsOrigin(victim,effect_vec2);
                                 effect_vec[2]+=40;
                                 effect_vec2[2]+=40;
@@ -505,9 +505,9 @@ public OnW3TakeDmgBullet(victim,attacker,Float:damage)
 }
 
 stock siphonsfx(victim) {
-    decl Float:vecAngles[3];
+    float vecAngles[3];
     GetClientEyeAngles(victim,vecAngles);
-    decl Float:target_pos[3];
+    float target_pos[3];
     GetClientAbsOrigin(victim,target_pos);
     target_pos[2]+=45;
     TE_SetupBloodSprite(target_pos, vecAngles, {250, 250, 28, 255}, 35, BloodSpray, BloodDrop);
@@ -515,7 +515,7 @@ stock siphonsfx(victim) {
 }
 
 stock respawnsfx(target) {
-    new Float:effect_vec[3];
+    float effect_vec[3];
     GetClientAbsOrigin(target,effect_vec);
     effect_vec[2]+=15.0;
     TE_SetupBeamRingPoint(effect_vec,60.0,1.0,BeamSprite,HaloSprite,0,15,1.5,8.0,1.0,{255,255,20,255},10,0);
@@ -570,7 +570,7 @@ public RoundStartEvent(Handle:event,const String:name[],bool:dontBroadcast)
     }
 }
 
-public Action:DoRevival(Handle:timer,any:userid)
+public Action DoRevival(Handle:timer,any:userid)
 {
     new client=GetClientOfUserId(userid);
     if(Can_Player_Revive[client]==false)
@@ -592,8 +592,8 @@ public Action:DoRevival(Handle:timer,any:userid)
                 
                 W3MsgRevivedBM(client,savior);
                     
-                new Float:VecPos[3];
-                new Float:Angles[3];
+                float VecPos[3];
+                float Angles[3];
                 War3_CachedAngle(client,Angles);
                 War3_CachedPosition(client,VecPos);
                 
@@ -617,7 +617,7 @@ public Action:DoRevival(Handle:timer,any:userid)
                         new ent=GetEntDataEnt2(client,MyWeaponsOffset+(s*4));
                         if(ent>0 && IsValidEdict(ent))
                         {
-                            new String:ename[64];
+                            char ename[64];
                             GetEdictClassname(ent,ename,64);
                             if(StrEqual(ename,"weapon_c4") || StrEqual(ename,"weapon_knife"))
                             {
@@ -635,7 +635,7 @@ public Action:DoRevival(Handle:timer,any:userid)
                     // give them their weapons
                     for(new s=0;s<10;s++)
                     {
-                        new String:wep_check[64];
+                        char wep_check[64];
                         War3_CachedDeadWeaponName(client,s,wep_check,64);
                         if(!StrEqual(wep_check,"") && !StrEqual(wep_check,"",false) && !StrEqual(wep_check,"weapon_c4") && !StrEqual(wep_check,"weapon_knife"))
                         {
@@ -693,19 +693,19 @@ public PlayerTeamEvent(Handle:event,const String:name[],bool:dontBroadcast)
     new userid=GetEventInt(event,"userid");
     new client=GetClientOfUserId(userid);
     // For testing purposes:
-    //new String:clientname[64];
+    //char clientname[64];
     //GetClientName(client, clientname, sizeof(clientname));
     //DP("Player %s Switched Teams (Can not be revived for 15 seconds)",clientname);
     Can_Player_Revive[client]=false;
     CreateTimer(30.0,PlayerCanRevive,userid);
 }
 
-public Action:PlayerCanRevive(Handle:timer,any:userid)
+public Action PlayerCanRevive(Handle:timer,any:userid)
 {
 // Team Switch checker
     new client=GetClientOfUserId(userid);
     // For testing purposes:
-    //new String:clientname[64];
+    //char clientname[64];
     //GetClientName(client, clientname, sizeof(clientname));
     //DP("Player %s can be revived by bloodmages",clientname);
     Can_Player_Revive[client]=true;
@@ -790,7 +790,7 @@ public PlayerDeathEvent(Handle:event,const String:name[],bool:dontBroadcast)
 
 
 
-public Action:Unbanish(Handle:timer,any:userid)
+public Action Unbanish(Handle:timer,any:userid)
 {
     // never EVER use client in a timer. userid is safe
     new client=GetClientOfUserId(userid);
@@ -800,19 +800,19 @@ public Action:Unbanish(Handle:timer,any:userid)
     }
 }
 
-new absincarray[]={0,4,-4,8,-8,12,-12,18,-18,22,-22,25,-25,27,-27,30,-30};//,33,-33,40,-40};
+int absincarray[]={0,4,-4,8,-8,12,-12,18,-18,22,-22,25,-25,27,-27,30,-30};//,33,-33,40,-40};
 
-public bool:testhull(client){
+public bool testhull(client){
     
     //PrintToChatAll("BEG");
-    new Float:mins[3];
-    new Float:maxs[3];
+    float mins[3];
+    float maxs[3];
     GetClientMins(client,mins);
     GetClientMaxs(client,maxs);
     
     //PrintToChatAll("min : %.1f %.1f %.1f MAX %.1f %.1f %.1f",mins[0],mins[1],mins[2],maxs[0],maxs[1],maxs[2]);
     new absincarraysize=sizeof(absincarray);
-    new Float:originalpos[3];
+    float originalpos[3];
     GetClientAbsOrigin(client,originalpos);
     
     new limit=5000;
@@ -821,7 +821,7 @@ public bool:testhull(client){
             for(new y=0;y<=x;y++){
                 if(limit>0){
                     for(new z=0;z<=y;z++){
-                        new Float:pos[3]={0.0,0.0,0.0};
+                        float pos[3]={0.0,0.0,0.0};
                         AddVectors(pos,originalpos,pos);
                         pos[0]+=float(absincarray[x]);
                         pos[1]+=float(absincarray[y]);
@@ -868,7 +868,7 @@ public bool:testhull(client){
     //PrintToChatAll("END");
 }
 
-public bool:CanHitThis(entityhit, mask, any:data)
+public bool CanHitThis(entityhit, mask, any:data)
 {
     if(entityhit == data )
     {// Check if the TraceRay hit the itself.

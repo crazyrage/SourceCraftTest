@@ -15,7 +15,7 @@
 stock bool:GetWeapon(Handle:event, index,
                      String:buffer[], buffersize)
 {
-    new bool:is_equipment;
+    bool is_equipment;
 
     if (event != INVALID_HANDLE)
     {

@@ -7,9 +7,9 @@
  *          incorporating Naris' enhancements to the sidewinder extension
  */
 
-new const String:PLUGIN_VERSION[60] = "2.0";
+char PLUGIN_VERSION[60] = "2.0";
 
-public Plugin:myinfo =
+public Plugin myinfo =
 {
     name = "Sidewinder",
     author = "naris & javalia",
@@ -28,26 +28,26 @@ public Plugin:myinfo =
 #include <tf2_stocks>
 #include <libtf2/sidewinder>
 
-new Handle:g_cvarWeaponList = INVALID_HANDLE;
-new Handle:g_cvarTrackCrits = INVALID_HANDLE;
-new Handle:g_cvarEnable = INVALID_HANDLE;
-new Handle:g_cvarToHead = INVALID_HANDLE;
-new Handle:g_cvarTrack = INVALID_HANDLE;
+Handle g_cvarWeaponList = INVALID_HANDLE;
+Handle g_cvarTrackCrits = INVALID_HANDLE;
+Handle g_cvarEnable = INVALID_HANDLE;
+Handle g_cvarToHead = INVALID_HANDLE;
+Handle g_cvarTrack = INVALID_HANDLE;
 
 // forwards
-new Handle:g_fwdOnSeek = INVALID_HANDLE;
+Handle g_fwdOnSeek = INVALID_HANDLE;
 
-new g_iTarget[2048];
-new bool:g_bToHead[2048];
-new bool:g_bValidated[2048];
+int g_iTarget[2048];
+bool g_bToHead[2048];
+bool g_bValidated[2048];
 
-new SidewinderClientFlags:g_SidewinderFlags[MAXPLAYERS+1];
-new g_iTrackChance[MAXPLAYERS+1];
-new g_iTrackCritChance[MAXPLAYERS+1];
-new g_iSentryCritChance[MAXPLAYERS+1];
+int SidewinderClientFlags:g_SidewinderFlags[MAXPLAYERS+1];
+int g_iTrackChance[MAXPLAYERS+1];
+int g_iTrackCritChance[MAXPLAYERS+1];
+int g_iSentryCritChance[MAXPLAYERS+1];
 
-new SidewinderEnableFlags:g_EnableFlags = SidewinderEnable;
-new bool:g_bNativeControl = false;
+int SidewinderEnableFlags:g_EnableFlags = SidewinderEnable;
+bool g_bNativeControl = false;
 
 public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
 {
@@ -73,7 +73,7 @@ public OnPluginStart()
 
     CreateConVar("sm_sidewinder_version", PLUGIN_VERSION, "sidewinder plugin version", FCVAR_DONTRECORD | FCVAR_REPLICATED | FCVAR_NOTIFY);
 
-    new String:enableString[64];
+    char enableString[64];
     IntToString(_:g_EnableFlags, enableString, sizeof(enableString));
 
     g_cvarEnable = CreateConVar("sm_sidewinder_enable", enableString, "Set to 0 to disable homing or set bits to enable individual projectiles globally (1=sentry,2=rocket,4=energy,8=pipe,16=flare,32=arrow,64=syringe,128=bolt,256=bolt,512=ball,1024=jar,2048=milk");
@@ -93,19 +93,19 @@ public OnConfigsExecuted()
     g_EnableFlags = SidewinderEnableFlags:GetConVarInt(g_cvarEnable);
 }
 
-public OnConfigsChanged(Handle:convar, const String:oldValue[], const String:newValue[])
+public OnConfigsChanged(Handle:convar, const char oldValue[], const char newValue[])
 {
     if (convar == g_cvarEnable)
         g_EnableFlags = SidewinderEnableFlags:StringToInt(newValue);
 }
 
-public PlayerSpawnEvent(Handle:event,const String:name[],bool:dontBroadcast)
+public PlayerSpawnEvent(Handle:event,const char name[],bool:dontBroadcast)
 {
     if (!g_bNativeControl)
     {
         new client=GetClientOfUserId(GetEventInt(event,"userid")); // Get clients index
 
-        decl String:cvarstring[2048];
+        char cvarstring[2048];
         GetConVarString(g_cvarWeaponList, cvarstring, sizeof(cvarstring));
 
         if (StrEqual(cvarstring, "all", false))
@@ -179,7 +179,7 @@ public PlayerSpawnEvent(Handle:event,const String:name[],bool:dontBroadcast)
     }
 }
 
-public OnEntityCreated(entity, const String:classname[])
+public OnEntityCreated(entity, const char classname[])
 {
     //lets save cpu. at this will avoid long string compare compute that can execute for EVERY entitys that are created on server.
     if (strncmp(classname, "tf_projectile_", 14) == 0)
@@ -197,14 +197,14 @@ public SidewinderThinkHook(entity)
         SidewinderTrackHook(entity);
     else
     {
-        decl String:classname[32];
+        char classname[32];
         if (GetEdictClassname(entity, classname , sizeof(classname)) &&
             strncmp(classname, "tf_projectile_", 14) == 0)
         {
             new owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
 
             // Compare classname starting at pos 14 since we already know it starts with tf_projectile_
-            new bool:isSentry = StrEqual(classname[14], "sentryrocket");
+            bool isSentry = StrEqual(classname[14], "sentryrocket");
 
             // For sentry rockets, the actual owner is the builder of the sentry
             if (isSentry && owner > 0 && owner < MaxClients)
@@ -216,7 +216,7 @@ public SidewinderThinkHook(entity)
 
                 if (isSentry) // StrEqual(classname[14], "sentryrocket"))
                 {
-                    new bool:crit = bool:GetEntProp(entity, Prop_Send, "m_bCritical");
+                    bool crit = bool:GetEntProp(entity, Prop_Send, "m_bCritical");
                     if (!crit && (flags & CritSentryRockets) != NoTracking &&
                         GetRandomInt(1,100) <= g_iSentryCritChance[owner])
                     {
@@ -239,7 +239,7 @@ public SidewinderThinkHook(entity)
                 {
                     if (StrEqual(classname[14], "rocket"))
                     {
-                        new bool:crit    = bool:GetEntProp(entity, Prop_Send, "m_bCritical");
+                        bool crit    = bool:GetEntProp(entity, Prop_Send, "m_bCritical");
                         if ((g_EnableFlags & SidewinderRockets) != SidewinderDisabled &&
                             (flags & (TrackingRockets|TrackingAll)) != NoTracking &&
                             GetRandomInt(1,100) <= (crit ? g_iTrackCritChance[owner] : g_iTrackChance[owner]))
@@ -253,7 +253,7 @@ public SidewinderThinkHook(entity)
                     }
                     else if (StrEqual(classname[14], "energy_ball"))
                     {
-                        new bool:crit = (GetRandomInt(1,100) <= g_iSentryCritChance[owner]);
+                        bool crit = (GetRandomInt(1,100) <= g_iSentryCritChance[owner]);
                         if ((g_EnableFlags & SidewinderEnergyBalls) != SidewinderDisabled &&
                             (flags & (TrackingEnergyBalls|TrackingAll)) != NoTracking &&
                             GetRandomInt(1,100) <= (crit ? g_iTrackCritChance[owner] : g_iTrackChance[owner]))
@@ -267,7 +267,7 @@ public SidewinderThinkHook(entity)
                     }
                     else if (StrEqual(classname[14], "energy_ring"))
                     {
-                        new bool:crit = isCrit(entity, owner, classname);
+                        bool crit = isCrit(entity, owner, classname);
                         if ((g_EnableFlags & SidewinderEnergyRings) != SidewinderDisabled &&
                             (flags & (TrackingEnergyRings|TrackingAll)) != NoTracking &&
                             GetRandomInt(1,100) <= (crit ? g_iTrackCritChance[owner] : g_iTrackChance[owner]))
@@ -281,7 +281,7 @@ public SidewinderThinkHook(entity)
                     }
                     else if (StrEqual(classname[14], "pipe"))
                     {
-                        new bool:crit = bool:GetEntProp(entity, Prop_Send, "m_bCritical");
+                        bool crit = bool:GetEntProp(entity, Prop_Send, "m_bCritical");
                         if ((g_EnableFlags & SidewinderPipes) != SidewinderDisabled &&
                             (flags & (TrackingPipes|TrackingAll)) != NoTracking &&
                             GetRandomInt(1,100) <= (crit ? g_iTrackCritChance[owner] : g_iTrackChance[owner]))
@@ -295,7 +295,7 @@ public SidewinderThinkHook(entity)
                     }
                     else if (StrEqual(classname[14], "flare"))
                     {
-                        new bool:crit = bool:GetEntProp(entity, Prop_Send, "m_bCritical");
+                        bool crit = bool:GetEntProp(entity, Prop_Send, "m_bCritical");
                         if ((g_EnableFlags & SidewinderFlares) != SidewinderDisabled &&
                             (flags & (TrackingFlares|TrackingAll)) != NoTracking &&
                             GetRandomInt(1,100) <= (crit ? g_iTrackCritChance[owner] : g_iTrackChance[owner]))
@@ -309,7 +309,7 @@ public SidewinderThinkHook(entity)
                     }
                     else if (StrEqual(classname[14], "arrow"))
                     {
-                        new bool:crit = bool:GetEntProp(entity, Prop_Send, "m_bCritical");
+                        bool crit = bool:GetEntProp(entity, Prop_Send, "m_bCritical");
                         if ((g_EnableFlags & SidewinderArrows) != SidewinderDisabled &&
                             (flags & (TrackingArrows|TrackingAll)) != NoTracking &&
                             GetRandomInt(1,100) <= (crit ? g_iTrackCritChance[owner] : g_iTrackChance[owner]))
@@ -323,7 +323,7 @@ public SidewinderThinkHook(entity)
                     }
                     else if (StrEqual(classname[14], "syringe"))
                     {
-                        new bool:crit = (GetRandomInt(1,100) <= g_iSentryCritChance[owner]);
+                        bool crit = (GetRandomInt(1,100) <= g_iSentryCritChance[owner]);
                         if ((g_EnableFlags & SidewinderSyringes) != SidewinderDisabled &&
                             (flags & (TrackingSyringes|TrackingAll)) != NoTracking &&
                             GetRandomInt(1,100) <= (crit ? g_iTrackCritChance[owner] : g_iTrackChance[owner]))
@@ -337,7 +337,7 @@ public SidewinderThinkHook(entity)
                     }
                     else if (StrEqual(classname[14], "healing_bolt"))
                     {
-                        new bool:crit = bool:GetEntProp(entity, Prop_Send, "m_bCritical");
+                        bool crit = bool:GetEntProp(entity, Prop_Send, "m_bCritical");
                         if ((g_EnableFlags & SidewinderBolts) != SidewinderDisabled &&
                             (flags & (TrackingBolts|TrackingAll)) != NoTracking &&
                             GetRandomInt(1,100) <= (crit ? g_iTrackCritChance[owner] : g_iTrackChance[owner]))
@@ -351,7 +351,7 @@ public SidewinderThinkHook(entity)
                     }
                     else if (StrEqual(classname[14], "ball"))
                     {
-                        new bool:crit = bool:GetEntProp(entity, Prop_Send, "m_bCritical");
+                        bool crit = bool:GetEntProp(entity, Prop_Send, "m_bCritical");
                         if ((g_EnableFlags & SidewinderBalls) != SidewinderDisabled &&
                             (flags & (TrackingBalls|TrackingAll)) != NoTracking &&
                             GetRandomInt(1,100) <= (crit ? g_iTrackCritChance[owner] : g_iTrackChance[owner]))
@@ -365,7 +365,7 @@ public SidewinderThinkHook(entity)
                     }
                     else if (StrEqual(classname[14], "ball_ornament"))
                     {
-                        new bool:crit = bool:GetEntProp(entity, Prop_Send, "m_bCritical");
+                        bool crit = bool:GetEntProp(entity, Prop_Send, "m_bCritical");
                         if ((g_EnableFlags & SidewinderWrapBalls) != SidewinderDisabled &&
                             (flags & (TrackingBalls|TrackingAll)) != NoTracking &&
                             GetRandomInt(1,100) <= (crit ? g_iTrackCritChance[owner] : g_iTrackChance[owner]))
@@ -379,7 +379,7 @@ public SidewinderThinkHook(entity)
                     }
                     else if (StrEqual(classname[14], "jar"))
                     {
-                        new bool:crit = bool:GetEntProp(entity, Prop_Send, "m_bCritical");
+                        bool crit = bool:GetEntProp(entity, Prop_Send, "m_bCritical");
                         if ((g_EnableFlags & SidewinderJars) != SidewinderDisabled &&
                             (flags & (TrackingJars|TrackingAll)) != NoTracking &&
                             GetRandomInt(1,100) <= (crit ? g_iTrackCritChance[owner] : g_iTrackChance[owner]))
@@ -393,7 +393,7 @@ public SidewinderThinkHook(entity)
                     }
                     else if (StrEqual(classname[14], "jar_milk"))
                     {
-                        new bool:crit = bool:GetEntProp(entity, Prop_Send, "m_bCritical");
+                        bool crit = bool:GetEntProp(entity, Prop_Send, "m_bCritical");
                         if ((g_EnableFlags & SidewinderMilk) != SidewinderDisabled &&
                             (flags & (TrackingMilk|TrackingAll)) != NoTracking &&
                             GetRandomInt(1,100) <= (crit ? g_iTrackCritChance[owner] : g_iTrackChance[owner]))
@@ -407,7 +407,7 @@ public SidewinderThinkHook(entity)
                     }
                     else if (StrEqual(classname[14], "cleaver"))
                     {
-                        new bool:crit = bool:GetEntProp(entity, Prop_Send, "m_bCritical");
+                        bool crit = bool:GetEntProp(entity, Prop_Send, "m_bCritical");
                         if ((g_EnableFlags & SidewinderCleaver) != SidewinderDisabled &&
                             (flags & (TrackingCleaver|TrackingAll)) != NoTracking &&
                             GetRandomInt(1,100) <= (crit ? g_iTrackCritChance[owner] : g_iTrackChance[owner]))
@@ -422,7 +422,7 @@ public SidewinderThinkHook(entity)
                     else
                     {
                         // In case new projectiles are added
-                        new bool:crit = isCrit(entity, owner, classname);
+                        bool crit = isCrit(entity, owner, classname);
                         if ((flags & TrackingAll) != NoTracking &&
                             GetRandomInt(1,100) <= (crit ? g_iTrackCritChance[owner] : g_iTrackChance[owner])) 
                         {
@@ -443,12 +443,12 @@ public SidewinderThinkHook(entity)
     }
 }
 
-stock bool:isCrit(entity, owner, const String:classname[])
+stock bool:isCrit(entity, owner, const char classname[])
 {
     new offset = GetEntSendPropOffs(entity, "m_bCritical");
     if (offset < 0)
     {
-        decl String:netclass[32];
+        char netclass[32];
         if (!GetEntityNetClass(entity, netclass , sizeof(netclass)))
             netclass[0] = '\0';
 
@@ -473,7 +473,7 @@ public SidewinderTrackHook(entity)
     new target = EntRefToEntIndex(g_iTarget[entity]);
     if (target != INVALID_ENT_REFERENCE && isValidTarget(entity, target) && isTargetTraceable(entity, target))
     {
-        decl Float:rocketposition[3], Float:targetpos[3], Float:vecangle[3], Float:angle[3];
+        float rocketposition[3], Float:targetpos[3], Float:vecangle[3], Float:angle[3];
         GetEntPropVector(entity, Prop_Send, "m_vecOrigin", rocketposition);
 
         //로켓포지션에서 추적 위치로 가는 벡터를 구한다
@@ -486,7 +486,7 @@ public SidewinderTrackHook(entity)
         MakeVectorFromPoints(rocketposition, targetpos, vecangle);
         NormalizeVector(vecangle, vecangle);
         GetVectorAngles(vecangle, angle);
-        decl Float:speed[3];
+        float speed[3];
         GetEntPropVector(entity, Prop_Data, "m_vecVelocity", speed);
         ScaleVector(vecangle, GetVectorLength(speed));
         TeleportEntity(entity, NULL_VECTOR, angle, vecangle);
@@ -523,14 +523,14 @@ findNewTarget(entity)
 
     if (targetRef != INVALID_ENT_REFERENCE)
     {
-        //new bool:crit = bool:GetEntProp(entity, Prop_Send, "m_bCritical");
+        //bool crit = bool:GetEntProp(entity, Prop_Send, "m_bCritical");
         new offset = GetEntSendPropOffs(entity, "m_bCritical");
-        new bool:crit = (offset >= 0) ? (bool:GetEntDataEnt2(entity, offset)) : false;
+        bool crit = (offset >= 0) ? (bool:GetEntDataEnt2(entity, offset)) : false;
 
         new owner = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
         new target = EntRefToEntIndex(targetRef);
 
-        decl String:classname[32];
+        char classname[32];
         if (GetEdictClassname(entity, classname , sizeof(classname)) &&
             StrEqual(classname, "tf_projectile_sentryrocket"))
         {
@@ -557,18 +557,18 @@ getClosestTarget(entity, targetList[], targetCount)
 {
     //make list of all valid client`s distance from rocket
     //and find closest distance
-    new Float:closest;
-    new Float:distance[MaxClients];
+    float closest;
+    float distance[MaxClients];
 
     for (new i = 0; i < targetCount; i++)
     {
-        new Float:entOrigin[3];
+        float entOrigin[3];
         GetEntPropVector(entity, Prop_Send, "m_vecOrigin", entOrigin);
 
-        new Float:targetOrigin[3];
+        float targetOrigin[3];
         GetClientEyePosition(targetList[i], targetOrigin);
 
-        new Float:dist = distance[i] = GetVectorDistance(entOrigin, targetOrigin);
+        float dist = distance[i] = GetVectorDistance(entOrigin, targetOrigin);
         if (i == 0 || closest > dist)
             closest = dist;
     }
@@ -603,8 +603,8 @@ bool:isValidTarget(entity, target)
 
 bool:isTargetTraceable(entity, target)
 {
-    new bool:traceable = false;
-    new bool:targetvalid = ((g_SidewinderFlags[target] & TrackingClientIsDetected) != NoTracking);
+    bool traceable = false;
+    bool targetvalid = ((g_SidewinderFlags[target] & TrackingClientIsDetected) != NoTracking);
 
     if (!targetvalid && !((g_SidewinderFlags[target] & TrackingClientIsCloaked) != NoTracking))
     {
@@ -632,10 +632,10 @@ bool:isTargetTraceable(entity, target)
     if (targetvalid)
     {
         //타겟까지 트레이스가 가능한가
-        decl Float:entityposition[3];
+        float entityposition[3];
         GetEntPropVector(entity, Prop_Send, "m_vecOrigin", entityposition);
 
-        decl Float:clientpos[3];
+        float clientpos[3];
         GetClientEyePosition(target, clientpos);
 
         if (!g_bToHead[entity])
@@ -643,7 +643,7 @@ bool:isTargetTraceable(entity, target)
             clientpos[2] = clientpos[2] - 25.0;
         }
 
-        new Handle:traceresult = TR_TraceRayFilterEx(entityposition, clientpos, MASK_SOLID,
+        Handle traceresult = TR_TraceRayFilterEx(entityposition, clientpos, MASK_SOLID,
                                                      RayType_EndPoint, tracerayfilterdefault,
                                                      entity);
 
@@ -658,7 +658,7 @@ bool:isTargetTraceable(entity, target)
 }
 
 //트레이스레이필터
-public bool:tracerayfilterdefault(entity, mask, any:data)
+public bool tracerayfilterdefault(entity, mask, any:data)
 {
     return (entity != data);
 }

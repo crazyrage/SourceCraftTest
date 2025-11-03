@@ -39,24 +39,24 @@
 #include "effect/SendEffects"
 #include "effect/FlashScreen"
 
-new const String:spawnWav[]     = "sc/tvurdy00.wav";  // Spawn sound
-new const String:deathWav[]     = "sc/tvudth00.wav";  // Death sound
+char spawnWav[]     = "sc/tvurdy00.wav";  // Spawn sound
+char deathWav[]     = "sc/tvudth00.wav";  // Death sound
 
-new raceID, supplyID, thrustersID, platingID, weaponsID, mineID, tripmineID, nadeID;
+int raceID, supplyID, thrustersID, platingID, weaponsID, mineID, tripmineID, nadeID;
 
-new const String:g_ArmorName[]  = "Plating";
-new Float:g_InitialArmor[]      = { 0.0, 0.10, 0.25, 0.50, 0.75 };
-new Float:g_ArmorPercent[][2]   = { {0.00, 0.00},
+char g_ArmorName[]  = "Plating";
+float g_InitialArmor[]      = { 0.0, 0.10, 0.25, 0.50, 0.75 };
+float g_ArmorPercent[][2]   = { {0.00, 0.00},
                                     {0.00, 0.10},
                                     {0.00, 0.30},
                                     {0.10, 0.40},
                                     {0.20, 0.50} };
 
-new Float:g_SpeedLevels[]       = { -1.0, 1.15, 1.20, 1.25, 1.30 };
+float g_SpeedLevels[]       = { -1.0, 1.15, 1.20, 1.25, 1.30 };
 
-new Float:g_WeaponsPercent[]    = { 0.0, 0.15, 0.30, 0.40, 0.50 };
+float g_WeaponsPercent[]    = { 0.0, 0.15, 0.30, 0.40, 0.50 };
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Terran Vulture",
     author = "-=|JFH|=-Naris",
@@ -126,7 +126,7 @@ public OnSourceCraftReady()
 
     for (new level=0; level < sizeof(g_ArmorPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "armor_percent_level_%d", level);
         GetConfigFloatArray(key, g_ArmorPercent[level], sizeof(g_ArmorPercent[]),
                             g_ArmorPercent[level], raceID, platingID);
@@ -183,7 +183,7 @@ public OnClientDisconnect(client)
     KillClientTimer(client);
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -206,7 +206,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
         return Plugin_Continue;
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
@@ -343,7 +343,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                     }
                     else if (pressed)
                     {
-                        decl String:upgradeName[64];
+                        char upgradeName[64];
                         GetUpgradeName(raceID, nadeID, upgradeName, sizeof(upgradeName), client);
                         PrintHintText(client,"%t", "IsNotAvailable", upgradeName);
                     }
@@ -368,7 +368,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                     }
                     else if (pressed)
                     {
-                        decl String:upgradeName[64];
+                        char upgradeName[64];
                         GetUpgradeName(raceID, nadeID, upgradeName, sizeof(upgradeName), client);
                         PrintHintText(client,"%t", "IsNotAvailable", upgradeName);
                     }
@@ -385,7 +385,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                         {
                             PrepareAndEmitSoundToClient(client,deniedWav);
 
-                            decl String:upgradeName[64];
+                            char upgradeName[64];
                             GetUpgradeName(raceID, tripmineID, upgradeName, sizeof(upgradeName), client);
                             DisplayMessage(client, Display_Ultimate, "%t", "NotAsMole", upgradeName);
                         }
@@ -402,7 +402,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                         }
                         else
                         {
-                            decl String:upgradeName[64];
+                            char upgradeName[64];
                             GetUpgradeName(raceID, tripmineID, upgradeName, sizeof(upgradeName), client);
                             PrintHintText(client,"%t", "IsNotAvailable", upgradeName);
                         }
@@ -427,7 +427,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                         }
                         else if (pressed)
                         {
-                            decl String:upgradeName[64];
+                            char upgradeName[64];
                             GetUpgradeName(raceID, nadeID, upgradeName, sizeof(upgradeName), client);
                             PrintHintText(client,"%t", "IsNotAvailable", upgradeName);
                         }
@@ -447,7 +447,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                             {
                                 PrepareAndEmitSoundToClient(client,deniedWav);
 
-                                decl String:upgradeName[64];
+                                char upgradeName[64];
                                 GetUpgradeName(raceID, mineID, upgradeName, sizeof(upgradeName), client);
                                 DisplayMessage(client, Display_Ultimate, "%t", "NotAsMole", upgradeName);
                             }
@@ -463,7 +463,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                         }
                         else
                         {
-                            decl String:upgradeName[64];
+                            char upgradeName[64];
                             GetUpgradeName(raceID, mineID, upgradeName, sizeof(upgradeName), client);
                             PrintHintText(client,"%t", "IsNotAvailable", upgradeName);
                         }
@@ -497,7 +497,7 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     if (!from_sc && attacker_index > 0 &&
@@ -510,7 +510,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
     return Plugin_Continue;
 }
 
-public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
+public Action OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
                                   assister_index, assister_race, damage,
                                   absorbed)
 {
@@ -557,7 +557,7 @@ bool:VehicleWeapons(damage, victim_index, index)
 
                 if (IsClient(victim_index))
                 {
-                    new Float:Origin[3];
+                    float Origin[3];
                     GetEntityAbsOrigin(victim_index, Origin);
                     Origin[2] += 5;
 
@@ -574,7 +574,7 @@ bool:VehicleWeapons(damage, victim_index, index)
     return false;
 }
 
-public Action:SupplyDepot(Handle:timer, any:userid)
+public Action SupplyDepot(Handle:timer, any:userid)
 {
     new client = GetClientOfUserId(userid);
     if (IsValidClientAlive(client))

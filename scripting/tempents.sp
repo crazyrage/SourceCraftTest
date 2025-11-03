@@ -8,11 +8,11 @@
 #define TE_VERSION "$Revision$"
 
 // SDK Handles
-new Handle:hGameConf;
-new Handle:hEyePosition;
-new Handle:hEyeAngles;
+Handle hGameConf;
+Handle hEyePosition;
+Handle hEyeAngles;
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "TempEnts Tools",
     author = "Naris",
@@ -41,7 +41,7 @@ public OnPluginStart()
 
 }
 
-public bool:AskPluginLoad(Handle:myself, bool:late, String:Error[])
+public bool AskPluginLoad(Handle:myself, bool:late, String:Error[])
 {
     //RegConsoleCmd("TE_Effect", Effect);
 
@@ -66,7 +66,7 @@ public bool:AskPluginLoad(Handle:myself, bool:late, String:Error[])
 
 stock GetPos(client, Float:pos[3])
 {
-    new Float:clientloc[3],Float:clientang[3];
+    float clientloc[3],Float:clientang[3];
     GetEyePosition(client,clientloc); // Get the position of the player's eyes
     GetAngles(client,clientang); // Get the angle the player is looking
     TR_TraceRayFilter(clientloc,clientang,MASK_SOLID,RayType_Infinite,TraceRayTryToHit); // Create a ray that tells where the player is looking
@@ -83,23 +83,23 @@ public GetEyePosition(client,Float:output[3])
   SDKCall(hEyePosition,client,output);
 }
 
-public bool:TraceRayTryToHit(entity,mask)
+public bool TraceRayTryToHit(entity,mask)
 {
   if(entity>0&&entity<=64) // Check if the beam hit a player and tell it to keep tracing if it did
     return false;
   return true;
 }
 
-public Action:Sparks(client,args)
+public Action Sparks(client,args)
 {
-    decl String:buf[256];
+    char buf[256];
 
     if (args == 5)
     {
-        new Float:pos[3];
+        float pos[3];
         GetPos(client, pos);
 
-        new Float:dir[3];
+        float dir[3];
         GetCmdArg(1, buf, 255);
         dir[0] = StringToFloat(buf);
         GetCmdArg(2, buf, 255);
@@ -132,19 +132,19 @@ public Action:Sparks(client,args)
     return Plugin_Handled;
 }
 
-public Action:Smoke(client,args)
+public Action Smoke(client,args)
 {
-    decl String:buf[256];
+    char buf[256];
 
     if (args == 3)
     {
-        new Float:pos[3];
+        float pos[3];
         GetPos(client, pos);
 
         GetCmdArg(1, buf, 255); 
         new model       = StringToInt(buf);
         GetCmdArg(2, buf, 255);
-        new Float:scale = StringToFloat(buf);
+        float scale = StringToFloat(buf);
         GetCmdArg(3, buf, 255);
         new framerate   = StringToInt(buf);
 
@@ -168,16 +168,16 @@ public Action:Smoke(client,args)
     return Plugin_Handled;
 }
 
-public Action:Dust(client,args)
+public Action Dust(client,args)
 {
-    decl String:buf[256];
+    char buf[256];
 
     if (args == 5)
     {
-        new Float:pos[3];
+        float pos[3];
         GetPos(client, pos);
 
-        new Float:dir[3];
+        float dir[3];
         GetCmdArg(1, buf, 255);
         dir[0] = StringToFloat(buf);
         GetCmdArg(2, buf, 255);
@@ -186,9 +186,9 @@ public Action:Dust(client,args)
         dir[2] = StringToFloat(buf);
 
         GetCmdArg(4, buf, 255); 
-        new Float:size  = StringToFloat(buf);
+        float size  = StringToFloat(buf);
         GetCmdArg(5, buf, 255);
-        new Float:speed = StringToFloat(buf);
+        float speed = StringToFloat(buf);
 
         TE_SetupDust(pos, dir, size, speed);
         TE_SendToAll();
@@ -212,16 +212,16 @@ public Action:Dust(client,args)
 }
 
 
-public Action:MuzzleFlash(client,args)
+public Action MuzzleFlash(client,args)
 {
-    decl String:buf[256];
+    char buf[256];
 
     if (args == 5)
     {
-        new Float:pos[3];
+        float pos[3];
         GetPos(client, pos);
 
-        new Float:angles[3];
+        float angles[3];
         GetCmdArg(1, buf, 255);
         angles[0] = StringToFloat(buf);
         GetCmdArg(2, buf, 255);
@@ -230,7 +230,7 @@ public Action:MuzzleFlash(client,args)
         angles[2] = StringToFloat(buf);
 
         GetCmdArg(4, buf, 255); 
-        new Float:scale = StringToFloat(buf);
+        float scale = StringToFloat(buf);
         GetCmdArg(5, buf, 255);
         new type = StringToInt(buf);
 
@@ -254,16 +254,16 @@ public Action:MuzzleFlash(client,args)
     return Plugin_Handled;
 }
 
-public Action:MetalSparks(client,args)
+public Action MetalSparks(client,args)
 {
-    decl String:buf[256];
+    char buf[256];
 
     if (args == 3)
     {
-        new Float:pos[3];
+        float pos[3];
         GetPos(client, pos);
 
-        new Float:dir[3];
+        float dir[3];
         GetCmdArg(1, buf, 255);
         dir[0] = StringToFloat(buf);
         GetCmdArg(2, buf, 255);
@@ -289,16 +289,16 @@ public Action:MetalSparks(client,args)
     return Plugin_Handled;
 }
 
-public Action:EnergySplash(client,args)
+public Action EnergySplash(client,args)
 {
-    decl String:buf[256];
+    char buf[256];
 
     if (args == 4)
     {
-        new Float:pos[3];
+        float pos[3];
         GetPos(client, pos);
 
-        new Float:dir[3];
+        float dir[3];
         GetCmdArg(1, buf, 255);
         dir[0] = StringToFloat(buf);
         GetCmdArg(2, buf, 255);
@@ -307,7 +307,7 @@ public Action:EnergySplash(client,args)
         dir[2] = StringToFloat(buf);
 
         GetCmdArg(4, buf, 255);
-        new bool:explosive = (StringToInt(buf) != 0);
+        bool explosive = (StringToInt(buf) != 0);
 
         TE_SetupEnergySplash(pos, dir, explosive);
         TE_SendToAll();
@@ -328,16 +328,16 @@ public Action:EnergySplash(client,args)
     return Plugin_Handled;
 }
 
-public Action:ArmorRicochet(client,args)
+public Action ArmorRicochet(client,args)
 {
-    decl String:buf[256];
+    char buf[256];
 
     if (args == 3)
     {
-        new Float:pos[3];
+        float pos[3];
         GetPos(client, pos);
 
-        new Float:dir[3];
+        float dir[3];
         GetCmdArg(1, buf, 255);
         dir[0] = StringToFloat(buf);
         GetCmdArg(2, buf, 255);
@@ -363,23 +363,23 @@ public Action:ArmorRicochet(client,args)
     return Plugin_Handled;
 }
 
-public Action:GlowSprite(client,args)
+public Action GlowSprite(client,args)
 {
-    decl String:buf[256];
+    char buf[256];
 
     if (args == 6)
     {
-        new Float:pos[3];
+        float pos[3];
         GetPos(client, pos);
 
         GetCmdArg(3, buf, 255);
         new model = StringToInt(buf);
 
         GetCmdArg(4, buf, 255); 
-        new Float:life  = StringToFloat(buf);
+        float life  = StringToFloat(buf);
 
         GetCmdArg(5, buf, 255); 
-        new Float:size  = StringToFloat(buf);
+        float size  = StringToFloat(buf);
 
         GetCmdArg(6, buf, 255);
         new brightness = StringToInt(buf);
@@ -405,20 +405,20 @@ public Action:GlowSprite(client,args)
     return Plugin_Handled;
 }
 
-public Action:Explosion(client,args)
+public Action Explosion(client,args)
 {
-    decl String:buf[256];
+    char buf[256];
 
     if (args == 8 || (args >= 11 && args <= 12))
     {
-        new Float:pos[3];
+        float pos[3];
         GetPos(client, pos);
 
         GetCmdArg(3, buf, 255);
         new model = StringToInt(buf);
 
         GetCmdArg(4, buf, 255); 
-        new Float:scale = StringToFloat(buf);
+        float scale = StringToFloat(buf);
 
         GetCmdArg(5, buf, 255);
         new framerate = StringToInt(buf);
@@ -434,7 +434,7 @@ public Action:Explosion(client,args)
 
         if (args > 8)
         {
-            new Float:normal[3];
+            float normal[3];
             GetCmdArg(9, buf, 255);
             normal[0] = StringToFloat(buf);
             GetCmdArg(10, buf, 255);
@@ -479,16 +479,16 @@ public Action:Explosion(client,args)
     return Plugin_Handled;
 }
 
-public Action:BloodSprite(client,args)
+public Action BloodSprite(client,args)
 {
-    decl String:buf[256];
+    char buf[256];
 
     if (args == 10)
     {
-        new Float:pos[3];
+        float pos[3];
         GetPos(client, pos);
 
-        new Float:dir[3];
+        float dir[3];
         GetCmdArg(1, buf, 255);
         dir[0] = StringToFloat(buf);
         GetCmdArg(2, buf, 255);
@@ -537,19 +537,19 @@ public Action:BloodSprite(client,args)
     return Plugin_Handled;
 }
 
-public Action:BeamRingPoint(client,args)
+public Action BeamRingPoint(client,args)
 {
-    decl String:buf[256];
+    char buf[256];
 
     if (args == 15)
     {
-        new Float:center[3];
+        float center[3];
         GetPos(client, center);
 
         GetCmdArg(1, buf, 255);
-        new Float:startRadius = StringToFloat(buf);
+        float startRadius = StringToFloat(buf);
         GetCmdArg(2, buf, 255);
-        new Float:endRadius = StringToFloat(buf);
+        float endRadius = StringToFloat(buf);
         GetCmdArg(3, buf, 255);
         new modelIndex  = StringToInt(buf);
         GetCmdArg(4, buf, 255); 
@@ -559,11 +559,11 @@ public Action:BeamRingPoint(client,args)
         GetCmdArg(6, buf, 255); 
         new frameRate = StringToInt(buf);
         GetCmdArg(7, buf, 255);
-        new Float:life = StringToFloat(buf);
+        float life = StringToFloat(buf);
         GetCmdArg(8, buf, 255);
-        new Float:width = StringToFloat(buf);
+        float width = StringToFloat(buf);
         GetCmdArg(9, buf, 255);
-        new Float:amplitude = StringToFloat(buf);
+        float amplitude = StringToFloat(buf);
 
         new color[4];
         GetCmdArg(10, buf, 255);
@@ -611,16 +611,16 @@ public Action:BeamRingPoint(client,args)
     return Plugin_Handled;
 }
 
-public Action:BeamPoints(client,args)
+public Action BeamPoints(client,args)
 {
-    decl String:buf[256];
+    char buf[256];
 
     if (args == 17)
     {
-        new Float:start[3];
+        float start[3];
         GetPos(client, start);
 
-        new Float:end[3];
+        float end[3];
         GetCmdArg(1, buf, 255);
         end[0] = StringToFloat(buf);
         GetCmdArg(2, buf, 255);
@@ -637,16 +637,16 @@ public Action:BeamPoints(client,args)
         GetCmdArg(7, buf, 255); 
         new frameRate = StringToInt(buf);
         GetCmdArg(8, buf, 255);
-        new Float:life = StringToFloat(buf);
+        float life = StringToFloat(buf);
 
         GetCmdArg(9, buf, 255);
-        new Float:width = StringToFloat(buf);
+        float width = StringToFloat(buf);
         GetCmdArg(10, buf, 255);
-        new Float:endWidth= StringToFloat(buf);
+        float endWidth= StringToFloat(buf);
         GetCmdArg(11, buf, 255); 
         new fadeLength = StringToInt(buf);
         GetCmdArg(12, buf, 255);
-        new Float:amplitude = StringToFloat(buf);
+        float amplitude = StringToFloat(buf);
 
         new color[4];
         GetCmdArg(13, buf, 255);
@@ -692,9 +692,9 @@ public Action:BeamPoints(client,args)
     return Plugin_Handled;
 }
 
-public Action:BeamLaser(client,args)
+public Action BeamLaser(client,args)
 {
-    decl String:buf[256];
+    char buf[256];
 
     if (args == 17)
     {
@@ -710,15 +710,15 @@ public Action:BeamLaser(client,args)
         GetCmdArg(5, buf, 255); 
         new frameRate = StringToInt(buf);
         GetCmdArg(6, buf, 255);
-        new Float:life = StringToFloat(buf);
+        float life = StringToFloat(buf);
         GetCmdArg(9, buf, 255);
-        new Float:width = StringToFloat(buf);
+        float width = StringToFloat(buf);
         GetCmdArg(10, buf, 255);
-        new Float:endWidth= StringToFloat(buf);
+        float endWidth= StringToFloat(buf);
         GetCmdArg(11, buf, 255); 
         new fadeLength = StringToInt(buf);
         GetCmdArg(12, buf, 255);
-        new Float:amplitude = StringToFloat(buf);
+        float amplitude = StringToFloat(buf);
 
         new color[4];
         GetCmdArg(13, buf, 255);
@@ -763,9 +763,9 @@ public Action:BeamLaser(client,args)
     return Plugin_Handled;
 }
 
-public Action:BeamRing(client,args)
+public Action BeamRing(client,args)
 {
-    decl String:buf[256];
+    char buf[256];
 
     if (args == 14)
     {
@@ -781,11 +781,11 @@ public Action:BeamRing(client,args)
         GetCmdArg(5, buf, 255); 
         new frameRate = StringToInt(buf);
         GetCmdArg(6, buf, 255);
-        new Float:life = StringToFloat(buf);
+        float life = StringToFloat(buf);
         GetCmdArg(7, buf, 255);
-        new Float:width = StringToFloat(buf);
+        float width = StringToFloat(buf);
         GetCmdArg(8, buf, 255);
-        new Float:amplitude = StringToFloat(buf);
+        float amplitude = StringToFloat(buf);
 
         new color[4];
         GetCmdArg(9, buf, 255);
@@ -832,9 +832,9 @@ public Action:BeamRing(client,args)
 }
 
 
-public Action:BeamFollow(client,args)
+public Action BeamFollow(client,args)
 {
-    decl String:buf[256];
+    char buf[256];
 
     if (args == 12)
     {
@@ -843,11 +843,11 @@ public Action:BeamFollow(client,args)
         GetCmdArg(3, buf, 255); 
         new haloIndex  = StringToInt(buf);
         GetCmdArg(4, buf, 255); 
-        new Float:life = StringToFloat(buf);
+        float life = StringToFloat(buf);
         GetCmdArg(5, buf, 255);
-        new Float:width = StringToFloat(buf);
+        float width = StringToFloat(buf);
         GetCmdArg(6, buf, 255);
-        new Float:endWidth = StringToFloat(buf);
+        float endWidth = StringToFloat(buf);
         GetCmdArg(7, buf, 255); 
         new fadeLength = StringToInt(buf);
 

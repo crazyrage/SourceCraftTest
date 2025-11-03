@@ -15,7 +15,7 @@
 #include "SourceCraft/sc/maxhealth"
 #include "SourceCraft/sc/engine/damage"
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "test_damage",
     author = "Naris",
@@ -38,7 +38,7 @@ public OnGameFrame()
     SaveAllHealth();
 }
 
-public PlayerSpawnEvent(Handle:event,const String:name[],bool:dontBroadcast)
+public PlayerSpawnEvent(Handle:event,const char name[],bool:dontBroadcast)
 {
     new userid = GetEventInt(event,"userid");
     new index = GetClientOfUserId(userid);
@@ -68,7 +68,7 @@ public PlayerSpawnEvent(Handle:event,const String:name[],bool:dontBroadcast)
     }
 }
 
-public PlayerHurtEvent(Handle:event,const String:name[],bool:dontBroadcast)
+public PlayerHurtEvent(Handle:event,const char name[],bool:dontBroadcast)
 {
     new victimUserid = GetEventInt(event,"userid");
     new victimIndex = GetClientOfUserId(victimUserid);
@@ -81,9 +81,9 @@ public PlayerHurtEvent(Handle:event,const String:name[],bool:dontBroadcast)
 
     new damage = GetDamage(event, victimIndex);
 
-    decl String:victimName[64] = "";
-    decl String:attackerName[64] = "";
-    decl String:weapon[64] = "";
+    char victimName[64] = "";
+    char attackerName[64] = "";
+    char weapon[64] = "";
 
     if (victimIndex)
         GetClientName(victimIndex,victimName,sizeof(victimName));

@@ -30,7 +30,7 @@ TF2 Server: tf2.necrophix.com
 
 
 // Functions
-public Plugin:myinfo =
+public Plugin myinfo =
 {
 	name = "ShowText",
 	author = "Mammal",
@@ -46,7 +46,7 @@ public OnPluginStart()
 	
 }
 
-public Action:Command_ShowText(client, args)
+public Action Command_ShowText(client, args)
 {
 
 	if (args < 1)
@@ -56,7 +56,7 @@ public Action:Command_ShowText(client, args)
 	}
 
 
-	new String:cmdArg[256];
+	char cmdArg[256];
 	GetCmdArgString(cmdArg, sizeof(cmdArg));
 
 	
@@ -78,11 +78,11 @@ public Action:Command_ShowText(client, args)
 	return Plugin_Handled;
 }
 
-public Action:Kill_ent(Handle:timer, any:ent)
+public Action Kill_ent(Handle:timer, any:ent)
 {
 	if (IsValidEntity(ent))
 	{
-		decl String:classname[50];
+		char classname[50];
 		if (GetEdictClassname(ent, classname, sizeof(classname)) &&
 		    StrEqual(classname, "game_text_tf", false))
 		{

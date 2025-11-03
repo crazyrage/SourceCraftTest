@@ -42,21 +42,21 @@
 #include "effect/FlashScreen"
 #include "effect/Shake"
 
-new Float:g_SpeedLevels[]           = { -1.0, 1.05,  1.10,   1.16, 1.23  };
-new Float:g_LevitationLevels[]      = { 1.0,  0.92, 0.733, 0.5466, 0.36  };
-new Float:g_VampiricAuraPercent[]   = { 0.0,  0.12,  0.18,   0.24, 0.30  };
-new Float:g_BombRadius[]            = { 0.0, 200.0, 250.0,  300.0, 350.0 };
-new g_SucideBombDamage[]            = {   0,   300,   350,    400, 500   };
+float g_SpeedLevels[]           = { -1.0, 1.05,  1.10,   1.16, 1.23  };
+float g_LevitationLevels[]      = { 1.0,  0.92, 0.733, 0.5466, 0.36  };
+float g_VampiricAuraPercent[]   = { 0.0,  0.12,  0.18,   0.24, 0.30  };
+float g_BombRadius[]            = { 0.0, 200.0, 250.0,  300.0, 350.0 };
+int g_SucideBombDamage[]            = {   0,   300,   350,    400, 500   };
 
-new raceID, vampiricID, unholyID, levitationID, suicideID, necroID;
+int raceID, vampiricID, unholyID, levitationID, suicideID, necroID;
 
-new g_necroRace = -1;
+int g_necroRace = -1;
 
 // Suicide bomber check
-new bool:m_Suicided[MAXPLAYERS+1];
-new Float:m_VampiricAuraTime[MAXPLAYERS+1];
+bool m_Suicided[MAXPLAYERS+1];
+float m_VampiricAuraTime[MAXPLAYERS+1];
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Undead Scourge",
     author = "-=|JFH|=-Naris with credits to PimpinJuice",
@@ -165,7 +165,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                 if (GetRestriction(client,Restriction_NoUltimates) ||
                     GetRestriction(client,Restriction_Stunned))
                 {
-                    decl String:upgradeName[NAME_STRING_LENGTH];
+                    char upgradeName[NAME_STRING_LENGTH];
                     GetUpgradeName(raceID, suicideID, upgradeName, sizeof(upgradeName), client);
                     DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
                     PrepareAndEmitSoundToClient(client,deniedWav);
@@ -227,7 +227,7 @@ public OnItemPurchase(client,item)
     }
 }
 
-public Action:OnDropPlayer(client, target)
+public Action OnDropPlayer(client, target)
 {
     if (IsValidClient(target) && GetRace(target) == raceID)
     {
@@ -236,7 +236,7 @@ public Action:OnDropPlayer(client, target)
     }
     return Plugin_Continue;
 }
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -249,7 +249,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
         return Plugin_Continue;
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
@@ -308,7 +308,7 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     if (!from_sc && attacker_index > 0 &&
@@ -322,7 +322,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
     return Plugin_Continue;
 }
 
-public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
+public Action OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
                                   assister_index, assister_race, damage,
                                   absorbed)
 {
@@ -342,24 +342,24 @@ bool:VampiricAura(damage, index, victim_index)
         !GetRestriction(index, Restriction_NoUpgrades) &&
         !GetRestriction(index, Restriction_Stunned))
     {
-        new bool:victimIsNPC    = (victim_index > MaxClients);
-        new bool:victimIsPlayer = !victimIsNPC && IsValidClientAlive(victim_index) &&
+        bool victimIsNPC    = (victim_index > MaxClients);
+        bool victimIsPlayer = !victimIsNPC && IsValidClientAlive(victim_index) &&
                                   !GetImmunity(victim_index,Immunity_HealthTaking) &&
                                   !GetImmunity(victim_index,Immunity_Upgrades) &&
                                   !IsInvulnerable(victim_index);
 
         if (victimIsPlayer || victimIsNPC)
         {
-            new Float:lastTime = m_VampiricAuraTime[index];
-            new Float:interval = GetGameTime() - lastTime;
+            float lastTime = m_VampiricAuraTime[index];
+            float interval = GetGameTime() - lastTime;
             if ((lastTime == 0.0 || interval > 0.25) &&
                 CanInvokeUpgrade(index, raceID, vampiricID, .notify=false))
             {
-                new Float:start[3];
+                float start[3];
                 GetClientAbsOrigin(index, start);
                 start[2] += 1620;
 
-                new Float:end[3];
+                float end[3];
                 GetClientAbsOrigin(index, end);
                 end[2] += 20;
 
@@ -382,7 +382,7 @@ bool:VampiricAura(damage, index, victim_index)
                     ShowHealthParticle(index);
                     SetEntityHealth(index,health);
 
-                    decl String:upgradeName[NAME_STRING_LENGTH];
+                    char upgradeName[NAME_STRING_LENGTH];
                     GetUpgradeName(raceID, vampiricID, upgradeName, sizeof(upgradeName), index);
 
                     if (victimIsPlayer)
@@ -413,7 +413,7 @@ bool:VampiricAura(damage, index, victim_index)
                                 CreateParticle("blood_impact_red_01_chunk", 0.1, victim_index, Attach, "head");
                         }
 
-                        decl String:upgradeName[NAME_STRING_LENGTH];
+                        char upgradeName[NAME_STRING_LENGTH];
                         GetUpgradeName(raceID, vampiricID, upgradeName, sizeof(upgradeName), victim_index);
                         DisplayMessage(victim_index, Display_Injury, "%t", "HasLeeched",
                                        index, leechhealth, upgradeName);
@@ -451,7 +451,7 @@ SummonNecromancer(client)
 
     if (g_necroRace < 0)
     {
-        decl String:upgradeName[NAME_STRING_LENGTH];
+        char upgradeName[NAME_STRING_LENGTH];
         GetUpgradeName(raceID, necroID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "IsNotAvailable", upgradeName);
         LogError("***The Necromancer race is not Available!");
@@ -465,7 +465,7 @@ SummonNecromancer(client)
     }
     else if (HasCooldownExpired(client, raceID, necroID))
     {
-        new Float:clientLoc[3];
+        float clientLoc[3];
         GetClientAbsOrigin(client, clientLoc);
         clientLoc[2] += 40.0; // Adjust position to the middle
 

@@ -1,7 +1,7 @@
 #include <sdkhooks>
 #include "W3SIncs/War3Source_Interface"
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "War3Source - Warcraft Extended - Crit",
     author = "War3Source Team",
@@ -23,14 +23,14 @@ public OnWar3EventPostHurt(victim, attacker, Float:damage, const String:weapon[3
         return;
     }
 
-    new Float:CritChance = W3GetBuffSumFloat(attacker, fCritChance);
-    new Float:CritMultiplier = W3GetBuffSumFloat(attacker,fCritModifier);
+    float CritChance = W3GetBuffSumFloat(attacker, fCritChance);
+    float CritMultiplier = W3GetBuffSumFloat(attacker,fCritModifier);
     new CritMode = W3GetBuffLastValue(attacker, iCritMode);
     new DamageMode = W3GetBuffLastValue(attacker, iDamageMode);
-    new Float:DamageMultiplier = W3GetBuffSumFloat(attacker, fDamageModifier);
+    float DamageMultiplier = W3GetBuffSumFloat(attacker, fDamageModifier);
     new BonusDamage = W3GetBuffSumInt(attacker,iDamageBonus);
     
-    new Float:PercentIncrease = 0.0;
+    float PercentIncrease = 0.0;
     new DamageIncrease = 0;
     
     if((DamageMultiplier > 0.0) ||(BonusDamage > 0) || (DamageMode > 0))

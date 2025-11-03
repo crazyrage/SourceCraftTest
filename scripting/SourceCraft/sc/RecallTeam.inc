@@ -22,21 +22,21 @@ stock RecallTeam(client, raceId, upgradeId)
 {
     if (!IsValidClientAlive(client))
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceId, upgradeId, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "YouHaveDied", upgradeName);
         PrepareAndEmitSoundToClient(client,recallErrWav);
     }
     else if (IsMole(client))
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceId, upgradeId, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "NotAsMole", upgradeName);
         PrepareAndEmitSoundToClient(client,recallErrWav);
     }
     else if (GetGameType() == tf2 && TF2_HasTheFlag(client))
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceId, upgradeId, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "NotWithFlag", upgradeName);
         PrepareAndEmitSoundToClient(client,deniedWav);
@@ -44,7 +44,7 @@ stock RecallTeam(client, raceId, upgradeId)
     else if (GetRestriction(client,Restriction_NoUltimates) ||
              GetRestriction(client,Restriction_Stunned))
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceId, upgradeId, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
         PrepareAndEmitSoundToClient(client,deniedWav);
@@ -85,16 +85,16 @@ stock RecallTeam(client, raceId, upgradeId)
                 {
                     if (index != client && GetClientTeam(index) == team && index != flagcarrier)
                     {
-                        decl String:buf[12];
+                        char buf[12];
                         IntToString(client, buf, sizeof(buf));
 
-                        new Handle:menu=CreateMenu(Recall_Selected);
+                        Handle menu=CreateMenu(Recall_Selected);
                         SetMenuTitle(menu, "[SC] %T", "RecallTeamTitle", index, client);
                         AddMenuItem(menu,buf,"Yes");
                         AddMenuItem(menu,"0","No");
                         DisplayMenu(menu,index,MENU_TIME_FOREVER);
 
-                        new Float:pos[3];
+                        float pos[3];
                         GetClientAbsOrigin(index, pos);
 
                         PrepareAndEmitSoundToClient(index,recallQryWav);
@@ -113,7 +113,7 @@ public Recall_Selected(Handle:menu,MenuAction:action,index,selection)
     {
         PrepareAndEmitSoundToClient(index,buttonWav);
         
-        decl String:SelectionInfo[12];
+        char SelectionInfo[12];
         GetMenuItem(menu,selection,SelectionInfo,sizeof(SelectionInfo));
 
         new id = StringToInt(SelectionInfo);
@@ -122,7 +122,7 @@ public Recall_Selected(Handle:menu,MenuAction:action,index,selection)
         {
             if (TF2_HasTheFlag(index))
             {
-                decl String:beRecalled[64];
+                char beRecalled[64];
                 Format(beRecalled, sizeof(beRecalled), "%T", "BeRecalled",index);
                 DisplayMessage(index, Display_Ultimate, "%t", "NotWithFlag", beRecalled);
                 PrepareAndEmitSoundToClient(index, deniedWav);
@@ -132,15 +132,15 @@ public Recall_Selected(Handle:menu,MenuAction:action,index,selection)
                 if (IsBurrowed(index))
                     ResetBurrow(index);
 
-                new Float:src[3];
+                float src[3];
                 GetClientAbsOrigin(index, src);
 
                 PrepareAndEmitAmbientSound(recallSrcWav,src);
 
-                new Float:pos[3];
+                float pos[3];
                 GetClientAbsOrigin(id, pos);
 
-                new Float:angles[3];
+                float angles[3];
                 GetClientAbsAngles(id, angles);
 
                 TeleportPlayer(index, pos, angles, NULL_VECTOR); // Teleport to id's position

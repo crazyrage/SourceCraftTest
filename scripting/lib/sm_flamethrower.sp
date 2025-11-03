@@ -35,26 +35,26 @@
 
 #define EMPTY_SOUND "weapons/ar2/ar2_empty.wav"
 
-new flameGiven[MAXPLAYERS+1];
-new flameAmount[MAXPLAYERS+1];
-new Float:flameRange[MAXPLAYERS+1];
-new bool:flameEnabled[MAXPLAYERS+1];
+int flameGiven[MAXPLAYERS+1];
+int flameAmount[MAXPLAYERS+1];
+float flameRange[MAXPLAYERS+1];
+bool flameEnabled[MAXPLAYERS+1];
 
-new String:g_flameSound[PLATFORM_MAX_PATH];
+char g_flameSound[PLATFORM_MAX_PATH];
 
-new bool:g_NativeControl = false;
+bool g_NativeControl = false;
 
-new Handle:g_Cvar_FlameAmount = INVALID_HANDLE;
-new Handle:g_Cvar_FlameRange = INVALID_HANDLE;
-new Handle:g_Cvar_Admins = INVALID_HANDLE;
-new Handle:g_Cvar_Enable = INVALID_HANDLE;
-new Handle:g_Cvar_Delay  = INVALID_HANDLE;
-new Handle:g_Cvar_SpawnDelay = INVALID_HANDLE;
-new Handle:g_Cvar_FlameSound = INVALID_HANDLE;
+Handle g_Cvar_FlameAmount = INVALID_HANDLE;
+Handle g_Cvar_FlameRange = INVALID_HANDLE;
+Handle g_Cvar_Admins = INVALID_HANDLE;
+Handle g_Cvar_Enable = INVALID_HANDLE;
+Handle g_Cvar_Delay  = INVALID_HANDLE;
+Handle g_Cvar_SpawnDelay = INVALID_HANDLE;
+Handle g_Cvar_FlameSound = INVALID_HANDLE;
 
-new Handle:fwdOnPlayerFlamed = INVALID_HANDLE;
+Handle fwdOnPlayerFlamed = INVALID_HANDLE;
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "Flamethrower",
     author = "<eVa>Dog",
@@ -109,7 +109,7 @@ public OnConfigsExecuted()
     SetupSound(g_flameSound, true);
 }
 
-public PlayerSpawnEvent(Handle:event, const String:name[], bool:dontBroadcast)
+public PlayerSpawnEvent(Handle:event, const char name[], bool:dontBroadcast)
 {
     new client = GetClientOfUserId(GetEventInt(event, "userid"));
     if (g_NativeControl)
@@ -117,7 +117,7 @@ public PlayerSpawnEvent(Handle:event, const String:name[], bool:dontBroadcast)
         new amount = flameGiven[client];
         flameAmount[client] = (amount >= 0) ? amount : GetConVarInt(g_Cvar_FlameAmount);
 
-        new Float:range = flameRange[client];
+        float range = flameRange[client];
         flameRange[client] = (range >= 0.0) ? range : GetConVarFloat(g_Cvar_FlameRange);
     }
     else if (GetConVarBool(g_Cvar_Enable))
@@ -160,7 +160,7 @@ public PlayerSpawnEvent(Handle:event, const String:name[], bool:dontBroadcast)
     }
 }
 
-public PlayerDeathEvent(Handle:event, const String:name[], bool:dontBroadcast)
+public PlayerDeathEvent(Handle:event, const char name[], bool:dontBroadcast)
 {
     if (g_NativeControl || GetConVarBool(g_Cvar_Enable))
     {
@@ -175,12 +175,12 @@ public PlayerDeathEvent(Handle:event, const String:name[], bool:dontBroadcast)
     }
 }
 
-public Action:SetFlame(Handle:timer, any:client)
+public Action SetFlame(Handle:timer, any:client)
 {
     flameEnabled[client] = true;
 }
 
-public Action:Flame(client, args)
+public Action Flame(client, args)
 {
     if (g_NativeControl || GetConVarBool(g_Cvar_Enable))
     {
@@ -211,12 +211,12 @@ public Action:Flame(client, args)
                 {
                     if (flameEnabled[client])
                     {
-                        new Float:vAngles[3];
-                        new Float:vOrigin[3];
-                        new Float:aOrigin[3];
-                        new Float:EndPoint[3];
-                        new Float:AnglesVec[3];
-                        new Float:targetOrigin[3];
+                        float vAngles[3];
+                        float vOrigin[3];
+                        float aOrigin[3];
+                        float EndPoint[3];
+                        float AnglesVec[3];
+                        float targetOrigin[3];
 
                         if (IsEntLimitReached(.client=client,.message="unable to spawn flames"))
                             return Plugin_Handled;
@@ -224,9 +224,9 @@ public Action:Flame(client, args)
                         flameAmount[client]--;
                         PrintToChat(client, "[SM] Number of cells left: %i", flameAmount[client]);
 
-                        new String:tName[128];
+                        char tName[128];
 
-                        new Float:distance = flameRange[client];
+                        float distance = flameRange[client];
 
                         GetClientEyePosition(client, vOrigin);
                         GetClientAbsOrigin(client, aOrigin);
@@ -240,7 +240,7 @@ public Action:Flame(client, args)
                         EndPoint[1] = vOrigin[1] + (AnglesVec[1]*distance);
                         EndPoint[2] = vOrigin[2] + (AnglesVec[2]*distance);
 
-                        new Handle:trace = TR_TraceRayFilterEx(vOrigin, EndPoint, MASK_SHOT, RayType_EndPoint, TraceEntityFilterPlayer, client);
+                        Handle trace = TR_TraceRayFilterEx(vOrigin, EndPoint, MASK_SHOT, RayType_EndPoint, TraceEntityFilterPlayer, client);
                         if(TR_DidHit(trace))
                         {
                             TR_GetEndPosition(EndPoint, trace);
@@ -255,10 +255,10 @@ public Action:Flame(client, args)
                         DispatchKeyValue(client, "targetname", tName);
 
                         // Create the Flame
-                        new String:flame_name[128];
+                        char flame_name[128];
                         Format(flame_name, sizeof(flame_name), "Flame%i", client);
 
-                        new String:strFlameLength[64];
+                        char strFlameLength[64];
                         FloatToString(distance - 200.0, strFlameLength, sizeof(strFlameLength));
 
                         new flame = CreateEntityByName("env_steam");
@@ -295,10 +295,10 @@ public Action:Flame(client, args)
                             AcceptEntityInput(flame, "TurnOn");
 
                             // Create the Heat Plasma
-                            new String:flame_name2[128];
+                            char flame_name2[128];
                             Format(flame_name2, sizeof(flame_name2), "Flame2%i", client);
 
-                            new String:strPlasmaLength[64];
+                            char strPlasmaLength[64];
                             FloatToString(distance - 100.0, strPlasmaLength, sizeof(strPlasmaLength));
 
                             new flame2 = CreateEntityByName("env_steam");
@@ -332,13 +332,13 @@ public Action:Flame(client, args)
                                 AcceptEntityInput(flame2, "SetParentAttachment", flame2, flame2, 0);
                                 AcceptEntityInput(flame2, "TurnOn");
 
-                                new Handle:flamedata = CreateDataPack();
+                                Handle flamedata = CreateDataPack();
                                 CreateTimer(1.0, KillFlame, flamedata);
                                 WritePackCell(flamedata, EntIndexToEntRef(flame));
                                 WritePackCell(flamedata, EntIndexToEntRef(flame2));
 
                                 new dist = RoundToNearest(distance);
-                                new bool:ff_on = GetConVarBool(FindConVar("mp_friendlyfire"));
+                                bool ff_on = GetConVarBool(FindConVar("mp_friendlyfire"));
 
                                 for (new i = 1; i <= GetMaxClients(); i++)
                                 {
@@ -409,19 +409,19 @@ stock bool:TraceTargetIndex(client, target, Float:clientLoc[3], Float:targetLoc[
     return (TR_GetEntityIndex() == target);
 }
 
-public bool:TraceEntityFilterPlayer(entity, contentsMask, any:data)
+public bool TraceEntityFilterPlayer(entity, contentsMask, any:data)
 {
     return data != entity;
 } 
 
-public Action:KillFlame(Handle:timer, Handle:flamedata)
+public Action KillFlame(Handle:timer, Handle:flamedata)
 {
     ResetPack(flamedata);
     new ent1 = EntRefToEntIndex(ReadPackCell(flamedata));
     new ent2 = EntRefToEntIndex(ReadPackCell(flamedata));
     CloseHandle(flamedata);
 
-    new String:classname[256];
+    char classname[256];
 
     if (ent1 > 0 && IsValidEntity(ent1))
     {

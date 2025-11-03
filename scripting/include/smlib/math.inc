@@ -45,7 +45,7 @@ stock Math_Abs(value)
  */
 stock bool:Math_VectorsEqual(Float:vec1[3], Float:vec2[3], Float:tolerance=0.0)
 {
-	new Float:distance = GetVectorDistance(vec1, vec2, true);
+	float distance = GetVectorDistance(vec1, vec2, true);
 
 	return distance <= (tolerance * tolerance);
 }
@@ -247,7 +247,7 @@ stock Math_MakeVector(const Float:x, const Float:y, const Float:z, Float:result[
 stock Math_RotateVector(const Float:vec[3], const Float:angles[3], Float:result[3])
 {
 	// First the angle/radiant calculations
-	decl Float:rad[3];
+	float rad[3];
 	// I don't really know why, but the alpha, beta, gamma order of the angles are messed up...
 	// 2 = xAxis
 	// 0 = yAxis
@@ -257,16 +257,16 @@ stock Math_RotateVector(const Float:vec[3], const Float:angles[3], Float:result[
 	rad[2] = DegToRad(angles[1]);
 
 	// Pre-calc function calls
-	new Float:cosAlpha = Cosine(rad[0]);
-	new Float:sinAlpha = Sine(rad[0]);
-	new Float:cosBeta = Cosine(rad[1]);
-	new Float:sinBeta = Sine(rad[1]);
-	new Float:cosGamma = Cosine(rad[2]);
-	new Float:sinGamma = Sine(rad[2]);
+	float cosAlpha = Cosine(rad[0]);
+	float sinAlpha = Sine(rad[0]);
+	float cosBeta = Cosine(rad[1]);
+	float sinBeta = Sine(rad[1]);
+	float cosGamma = Cosine(rad[2]);
+	float sinGamma = Sine(rad[2]);
 
 	// 3D rotation matrix for more information: http://en.wikipedia.org/wiki/Rotation_matrix#In_three_dimensions
-	new Float:x = vec[0], Float:y = vec[1], Float:z = vec[2];
-	new Float:newX, Float:newY, Float:newZ;
+	float x = vec[0], Float:y = vec[1], Float:z = vec[2];
+	float newX, Float:newY, Float:newZ;
 	newY = cosAlpha*y - sinAlpha*z;
 	newZ = cosAlpha*z + sinAlpha*y;
 	y = newY;

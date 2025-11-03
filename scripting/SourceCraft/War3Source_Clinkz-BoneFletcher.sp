@@ -15,33 +15,33 @@
 #include "effect/SendEffects"
 #endif
 
-new thisRaceID;
-new SKILL_1,SKILL_2,SKILL_3,ULT;
-new BeamSprite,BeamSprite2,HaloSprite,Skydome;
-new bool:bWinded[MAXPLAYERS];
-new Float:WindWalkTime[5]={0.0,2.0,3.0,4.5,6.0};
-new Float:WindWalkInvis[5]={1.00,0.50,0.40,0.30,0.22};
-new StrafeArrows[5]={0,2,3,4,5};
-new regain0[5]={0,10,15,20,25};
-new regain1[5]={0,15,20,25,35};
-new ToDealArrow[MAXPLAYERS];
-new ArrowTarget[MAXPLAYERS];
-new String:Sound1[] = "weapons/fx/nearmiss/bulletltor03.wav";
-new String:ww_on[]= "npc/scanner/scanner_nearmiss1.wav";
-new String:ww_off[]= "npc/scanner/scanner_nearmiss2.wav";
-new String:Sound2[] = "ambient/fire/mtov_flame2.wav";
-new String:Sound3[] = "weapons/fx/nearmiss/bulletltor05.wav";
+int thisRaceID;
+int SKILL_1,SKILL_2,SKILL_3,ULT;
+int BeamSprite,BeamSprite2,HaloSprite,Skydome;
+bool bWinded[MAXPLAYERS];
+float WindWalkTime[5]={0.0,2.0,3.0,4.5,6.0};
+float WindWalkInvis[5]={1.00,0.50,0.40,0.30,0.22};
+int StrafeArrows[5]={0,2,3,4,5};
+int regain0[5]={0,10,15,20,25};
+int regain1[5]={0,15,20,25,35};
+int ToDealArrow[MAXPLAYERS];
+int ArrowTarget[MAXPLAYERS];
+char Sound1[] = "weapons/fx/nearmiss/bulletltor03.wav";
+char ww_on[]= "npc/scanner/scanner_nearmiss1.wav";
+char ww_off[]= "npc/scanner/scanner_nearmiss2.wav";
+char Sound2[] = "ambient/fire/mtov_flame2.wav";
+char Sound3[] = "weapons/fx/nearmiss/bulletltor05.wav";
 
 #if defined SOURCECRAFT
-new Float:SearingArrowChance=0.21;
-new bool:ultCircleEnable=true;
+float SearingArrowChance=0.21;
+bool ultCircleEnable=true;
 #else
-new Handle:abCooldownCvar=INVALID_HANDLE;
-new Handle:SearingArrowCh=INVALID_HANDLE;
-new Handle:ultCircleEnable=INVALID_HANDLE;
+Handle abCooldownCvar=INVALID_HANDLE;
+Handle SearingArrowCh=INVALID_HANDLE;
+Handle ultCircleEnable=INVALID_HANDLE;
 #endif
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "War3Source Race - Clinkz-Bone Fletcher",
     author = "DonRevan",
@@ -155,7 +155,7 @@ public OnAbilityCommand(client,ability,bool:pressed)
                 if(!Silenced(client))
                 {
                     War3_SetBuff(client,fMaxSpeed,thisRaceID,1.3);
-                    new Float:this_pos[3];
+                    float this_pos[3];
                     GetClientAbsOrigin(client,this_pos);
                     TE_SetupBeamRingPoint(this_pos, 40.0, 90.0, HaloSprite, HaloSprite, 0, 5, 0.8, 50.0, 0.0, {155,115,100,200}, 1, 0) ;
 #if defined SOURCECRAFT
@@ -182,7 +182,7 @@ public OnAbilityCommand(client,ability,bool:pressed)
                     CreateTimer(WindWalkTime[skill_level],RemoveWindWalkBuff,client);
 
 #if defined SOURCECRAFT
-                    new Float:cooldown= GetUpgradeCooldown(thisRaceID,SKILL_3);
+                    float cooldown= GetUpgradeCooldown(thisRaceID,SKILL_3);
                     War3_CooldownMGR(client,cooldown,thisRaceID,SKILL_3,_,_);
 #else
                     War3_CooldownMGR(client,GetConVarFloat(abCooldownCvar),thisRaceID,SKILL_3,_,_);
@@ -190,7 +190,7 @@ public OnAbilityCommand(client,ability,bool:pressed)
 
                     PrintHintText(client,"Wind Walk");
                     bWinded[client]=true;
-                    new Float:fAngles[3]={0.0,0.0,0.0};
+                    float fAngles[3]={0.0,0.0,0.0};
                     CreateParticles(client,true,WindWalkTime[skill_level]+0.8,fAngles,45.0,15.0,25.0,0.0,"effects/strider_bulge_dudv.vmt","255 255 255","25","120","200","120");
                     //CreateParticles(const client,bool:parentent,Float:fLifetime,Float:fAng[3],Float:BaseSpread,Float:StartSize,Float:EndSize,Float:Twist,String:material[],String:renderclr[],String:SpreadSpeed[],String:JetLength[],String:Speed[],String:Rate[]){
                     EmitSoundToAll(ww_on,client);
@@ -205,7 +205,7 @@ public OnAbilityCommand(client,ability,bool:pressed)
     }
 }
 
-public Action:RemoveWindWalkBuff(Handle:t,any:client)
+public Action RemoveWindWalkBuff(Handle:t,any:client)
 {
     if(ValidPlayer(client,true) && bWinded[client]==true)
     {
@@ -215,7 +215,7 @@ public Action:RemoveWindWalkBuff(Handle:t,any:client)
         PrintHintText(client,"WindWalk disappears");
         EmitSoundToAll(ww_off,client);
         War3_SetBuff(client,fMaxSpeed,thisRaceID,1.0);
-        new Float:this_pos[3];
+        float this_pos[3];
         GetClientAbsOrigin(client,this_pos);
         TE_SetupBeamRingPoint(this_pos, 90.0, 40.0, HaloSprite, HaloSprite, 0, 5, 0.8, 50.0, 0.0, {155,115,100,200}, 1, 0) ;
 #if defined SOURCECRAFT
@@ -233,13 +233,13 @@ public Action:RemoveWindWalkBuff(Handle:t,any:client)
     }
 }
 
-public bool:FireArrow(const attacker,const victim,Float:delay,damage,bool:searingfire){
+public bool FireArrow(const attacker,const victim,Float:delay,damage,bool:searingfire){
     if(ValidPlayer( attacker, true )&&ValidPlayer( victim, true ))
     {
         ToDealArrow[attacker]=damage;
         ArrowTarget[attacker]=victim;
-        new Float:start_pos[3];
-        new Float:target_pos[3];
+        float start_pos[3];
+        float target_pos[3];
         GetClientAbsOrigin(attacker,start_pos);
         GetClientAbsOrigin(victim,target_pos);
         target_pos[2]+=40.0;
@@ -249,7 +249,7 @@ public bool:FireArrow(const attacker,const victim,Float:delay,damage,bool:searin
         start_pos[1] += GetRandomFloat( -38.0, 38.0 );
         if(searingfire==false)
         {
-            new Float:FatTony = GetRandomFloat(1.0,2.8);
+            float FatTony = GetRandomFloat(1.0,2.8);
             TE_SetupBeamPoints(start_pos, target_pos, BeamSprite, HaloSprite, 0, 10, GetRandomFloat(0.8,1.4), FatTony, FatTony, 0, 4.5, {255,205,25,255}, 100);
 #if defined SOURCECRAFT
             TE_SendEffectToAll(delay);
@@ -279,7 +279,7 @@ public bool:FireArrow(const attacker,const victim,Float:delay,damage,bool:searin
     return false;
 }
 
-public Action:Timer_DealDamage(Handle:t,any:attacker)
+public Action Timer_DealDamage(Handle:t,any:attacker)
 {
     if(ValidPlayer(attacker,true))
     {
@@ -327,7 +327,7 @@ public OnW3TakeDmgBullet(victim,attacker,Float:damage)//OnWar3EventPostHurt( vic
                 if( GetRandomFloat( 0.0, 1.0 ) <= GetConVarFloat(SearingArrowCh) )
 #endif
                 {
-                    new String:wpnstr[32];
+                    char wpnstr[32];
                     GetClientWeapon( attacker, wpnstr, 32 );
                     if(!StrEqual( wpnstr, "wep_knife" ) )
                     {
@@ -360,9 +360,9 @@ public OnWar3EventDeath(victim, attacker, deathrace)
         if (CanInvokeUpgrade(attacker,thisRaceID,ULT, .notify=false))
         {
             // Use 1 energy for each hp added over the base amount
-            new Float:used = GetUpgradeEnergy(thisRaceID,ULT); // amount used by CanInvokeUpgrade()
-            new Float:cost = float(hpadd) - used;
-            new Float:energy = GetEnergy(attacker);
+            float used = GetUpgradeEnergy(thisRaceID,ULT); // amount used by CanInvokeUpgrade()
+            float cost = float(hpadd) - used;
+            float energy = GetEnergy(attacker);
             if (energy >= cost)
                 SetEnergy(attacker, energy-cost);
             else
@@ -373,7 +373,7 @@ public OnWar3EventDeath(victim, attacker, deathrace)
 #endif
         SetEntityHealth(attacker,GetClientHealth(attacker)+ hpadd);
         W3FlashScreen(attacker,RGBA_COLOR_RED,1.2,_,FFADE_IN);
-        new Float:fVec[3] = {0.0,0.0,900.0};
+        float fVec[3] = {0.0,0.0,900.0};
         TE_SetupGlowSprite(fVec,Skydome,5.0,1.0,255);
 #if defined SOURCECRAFT
         TE_SendEffectToAll();
@@ -382,7 +382,7 @@ public OnWar3EventDeath(victim, attacker, deathrace)
 #endif
 
         CreateTesla(victim,1.0,3.0,10.0,60.0,3.0,4.0,600.0,"160","200","255 25 25","ambient/atmosphere/city_skypass1.wav","sprites/tp_beam001.vmt",true);
-        new Float:fAngles[3]={90.0,90.0,90.0};
+        float fAngles[3]={90.0,90.0,90.0};
 
 #if defined SOURCECRAFT
         if(ultCircleEnable)
@@ -404,7 +404,7 @@ public OnWar3EventSpawn(client)
 {
     if(War3_GetRace(client)==thisRaceID)
     {
-        new Float:fVec[3] = {0.0,0.0,900.0};
+        float fVec[3] = {0.0,0.0,900.0};
         TE_SetupGlowSprite(fVec,Skydome,5.0,1.0,255);
 #if defined SOURCECRAFT
         TE_SendEffectToAll();

@@ -12,34 +12,34 @@
 #include <tf2_stocks>
 #include <regex>
 
-new m_OffsetCloakMeter;
-new m_OffsetDisguiseTeam;
-new m_OffsetDisguiseClass;
-new m_OffsetDisguiseHealth;
-new m_OffsetDisguiseTargetIndex;
-new m_OffsetDesiredDisguiseTeam;
-new m_OffsetDesiredDisguiseClass;
-new m_OffsetInvisChangeCompleteTime;
-new m_OffsetCritMult;
-new m_OffsetStealthNoAttackExpire;
-new m_OffsetStealthNextChangeTime;
-new m_OffsetPlayerState;
-new m_OffsetNumHealers;
-new m_OffsetPlayerCond;
-new m_OffsetClass;
-new m_OffsetPoisoned;
-new m_OffsetWearingSuit;
-new m_OffsetBonusProgress;
-new m_OffsetBonusChallenge;
-new m_OffsetAirDash;
-new m_OffsetMaxspeed;
-new m_OffsetMyWepons;
+int m_OffsetCloakMeter;
+int m_OffsetDisguiseTeam;
+int m_OffsetDisguiseClass;
+int m_OffsetDisguiseHealth;
+int m_OffsetDisguiseTargetIndex;
+int m_OffsetDesiredDisguiseTeam;
+int m_OffsetDesiredDisguiseClass;
+int m_OffsetInvisChangeCompleteTime;
+int m_OffsetCritMult;
+int m_OffsetStealthNoAttackExpire;
+int m_OffsetStealthNextChangeTime;
+int m_OffsetPlayerState;
+int m_OffsetNumHealers;
+int m_OffsetPlayerCond;
+int m_OffsetClass;
+int m_OffsetPoisoned;
+int m_OffsetWearingSuit;
+int m_OffsetBonusProgress;
+int m_OffsetBonusChallenge;
+int m_OffsetAirDash;
+int m_OffsetMaxspeed;
+int m_OffsetMyWepons;
 
-new Handle:cvarTrack = INVALID_HANDLE;
+Handle cvarTrack = INVALID_HANDLE;
 
 enum objects { dispenser, teleporter_entry, teleporter_exit, sentrygun, sapper, unknown };
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "Test Module",
     author = "-=|JFH|=-Naris",
@@ -88,7 +88,7 @@ public OnMapStart()
     m_OffsetMyWepons=FindSendPropOffs("CTFPlayer", "m_hMyWeapons");
 }
 
-public Action:TrackVariables(Handle:timer)
+public Action TrackVariables(Handle:timer)
 {
     new maxplayers=GetMaxClients();
     for (new client=1;client<=maxplayers;client++)
@@ -99,17 +99,17 @@ public Action:TrackVariables(Handle:timer)
             {
                 new TFClassType:tfClass = TF2_GetPlayerClass(client);
                 new class = m_OffsetClass>0 ? GetEntData(client,m_OffsetClass) : -99;
-                new Float:cloakMeter = m_OffsetCloakMeter>0 ? GetEntDataFloat(client,m_OffsetCloakMeter) : -99.9;
+                float cloakMeter = m_OffsetCloakMeter>0 ? GetEntDataFloat(client,m_OffsetCloakMeter) : -99.9;
                 new disguiseTeam = m_OffsetDisguiseTeam>0 ? GetEntData(client,m_OffsetDisguiseTeam) : -99;
                 new disguiseClass = m_OffsetDisguiseClass>0 ? GetEntData(client,m_OffsetDisguiseClass) : -99;
                 new disguiseTarget = m_OffsetDisguiseTargetIndex>0 ? GetEntData(client,m_OffsetDisguiseTargetIndex) : -99;
                 new disguiseHealth = m_OffsetDisguiseHealth>0 ? GetEntData(client,m_OffsetDisguiseHealth) : -99;
                 new desiredDisguiseTeam = m_OffsetDesiredDisguiseTeam>0 ? GetEntData(client,m_OffsetDesiredDisguiseTeam) : -99;
                 new desiredDisguiseClass = m_OffsetDesiredDisguiseClass>0 ? GetEntData(client,m_OffsetDesiredDisguiseClass) : -99;
-                new Float:invisChangeCompleteTime = m_OffsetInvisChangeCompleteTime>0 ? GetEntDataFloat(client,m_OffsetInvisChangeCompleteTime) : -99.9;
+                float invisChangeCompleteTime = m_OffsetInvisChangeCompleteTime>0 ? GetEntDataFloat(client,m_OffsetInvisChangeCompleteTime) : -99.9;
                 new critMult = m_OffsetCritMult>0 ? GetEntData(client,m_OffsetCritMult) : -99;
-                new Float:stealthNoAttackExpire = m_OffsetStealthNoAttackExpire>0 ? GetEntDataFloat(client,m_OffsetStealthNoAttackExpire) : -99.9;
-                new Float:stealthNextChangeTime = m_OffsetStealthNextChangeTime>0 ? GetEntDataFloat(client,m_OffsetStealthNextChangeTime) : -99.9;
+                float stealthNoAttackExpire = m_OffsetStealthNoAttackExpire>0 ? GetEntDataFloat(client,m_OffsetStealthNoAttackExpire) : -99.9;
+                float stealthNextChangeTime = m_OffsetStealthNextChangeTime>0 ? GetEntDataFloat(client,m_OffsetStealthNextChangeTime) : -99.9;
                 new playerState = m_OffsetPlayerState>0 ? GetEntData(client,m_OffsetPlayerState) : -99;
                 new numHealers = m_OffsetNumHealers>0 ? GetEntData(client,m_OffsetNumHealers) : -99;
                 new playerCond = m_OffsetPlayerCond>0 ? GetEntData(client,m_OffsetPlayerCond) : -99;
@@ -118,7 +118,7 @@ public Action:TrackVariables(Handle:timer)
                 new bonusProgress = m_OffsetBonusProgress>0 ? GetEntData(client,m_OffsetBonusProgress) : -99;
                 new bonusChallenge = m_OffsetBonusChallenge>0 ? GetEntData(client,m_OffsetBonusChallenge) : -99;
                 new airDash = m_OffsetAirDash>0 ? GetEntData(client,m_OffsetAirDash) : -99;
-                new Float:maxSpeed= m_OffsetMaxspeed>0 ? GetEntDataFloat(client,m_OffsetMaxspeed) : -99.9;
+                float maxSpeed= m_OffsetMaxspeed>0 ? GetEntDataFloat(client,m_OffsetMaxspeed) : -99.9;
 
                 LogMessage("client=%d(%N),playerCond=%08x,tfClass=%d,class=%d,cloakMeter=%f,disguiseTeam=%d,disguiseClass=%d,disguiseTarget=%d,disguiseHealth=%d,desiredDisguiseTeam=%d,desiredDisguiseClass=%d,invisChangeCompleteTime=%f,critMult=%d,stealthNoAttackExpire=%f,stealthNextChangeTime=%f,playerState=%d,numHealers=%d,poisoned=%d,wearingSuit=%d,bonusProgress=%d,bonusChallenge=%d,airDash=%d,maxSpeed=%f",client,client,playerCond,tfClass,class,cloakMeter,disguiseTeam,disguiseClass,disguiseTarget,disguiseHealth,desiredDisguiseTeam,desiredDisguiseClass,invisChangeCompleteTime,critMult,stealthNoAttackExpire,stealthNextChangeTime,playerState,numHealers,poisened,wearingSuit,bonusProgress,bonusChallenge,airDash,maxSpeed);
                 PrintToChat( client,"plrState=%d,plrCond=%08x,bP=%d,bC=%d,aD=%d",playerState,playerCond,bonusProgress,bonusChallenge,airDash);
@@ -132,7 +132,7 @@ public OnUltimateCommand(client,player,race,bool:pressed)
 {
     if (pressed && IsPlayerAlive(client))
     {
-        decl String:wepName[128];
+        char wepName[128];
         new iterOffset=m_OffsetMyWepons;
         for(new y=0;y<48;y++)
         {
@@ -147,9 +147,9 @@ public OnUltimateCommand(client,player,race,bool:pressed)
     }
 }
 
-public Action:EntityRemoved(client,args)
+public Action EntityRemoved(client,args)
 {
-    decl String:arg[64];
+    char arg[64];
     if (GetCmdArg(1,arg,sizeof(arg)) > 0)
     {
         if (IsPlayerAlive(client))
@@ -160,18 +160,18 @@ public Action:EntityRemoved(client,args)
 
 //19:26:28 L 04/18/2008 - 19:26:32: "-=|JFH|=-Naris<3><STEAM_0:1:5037159><Red>" triggered "killedobject" (object "OBJ_SENTRYGUN") (weapon "pda_engineer") (objectowner "-=|JFH|=-Naris<3><STEAM_0:1:5037159><Red>") (attacker_position "2100 2848 -847")
 
-public Action:InterceptLog(const String:message[])
+public Action InterceptLog(const char message[])
 {
     if (StrContains(message, "killedobject", true) >= 0)
     {
         new attacker = 0;
         new builder = 0;
-        //decl String:buffer[5];
-        decl String:obj[64];
-        decl String:a[64];
-        decl String:b[64];
-        //new Handle:re = CompileRegex("\".+<([0-9]+)><.+><.+>.*\" triggered \"killedobject\" \\(object \"([A-Z_])\"\\) .*\\(objectowner \".+<([0-9]+)><.+>\"\\)");
-        new Handle:re = CompileRegex("\".+<([0-9]+)><.+><.+>.*\".* triggered \"killedobject\" .object \"([[:word:]]+)\". .*objectowner \".+<([0-9]+)><.+>\"");
+        //char buffer[5];
+        char obj[64];
+        char a[64];
+        char b[64];
+        //Handle re = CompileRegex("\".+<([0-9]+)><.+><.+>.*\" triggered \"killedobject\" \\(object \"([A-Z_])\"\\) .*\\(objectowner \".+<([0-9]+)><.+>\"\\)");
+        Handle re = CompileRegex("\".+<([0-9]+)><.+><.+>.*\".* triggered \"killedobject\" .object \"([[:word:]]+)\". .*objectowner \".+<([0-9]+)><.+>\"");
         if (re != INVALID_HANDLE)
         {
             if (MatchRegex(re, message))
@@ -201,7 +201,7 @@ public Action:InterceptLog(const String:message[])
     }
 }
 
-public PlayerBuiltObject(Handle:event,const String:name[],bool:dontBroadcast)
+public PlayerBuiltObject(Handle:event,const char name[],bool:dontBroadcast)
 {
     new userid = GetEventInt(event,"userid");
     if (userid > 0)
@@ -216,7 +216,7 @@ public PlayerBuiltObject(Handle:event,const String:name[],bool:dontBroadcast)
     }
 }
 
-public OnObjectKilled(attacker, builder,const String:obj[])
+public OnObjectKilled(attacker, builder,const char obj[])
 {
     new objects:type = unknown;
     if (StrEqual(obj, "OBJ_SENTRYGUN", false))
@@ -232,7 +232,7 @@ public OnObjectKilled(attacker, builder,const String:obj[])
                builder, type, obj);
 }
 
-public Action:TF2_CalcIsAttackCritical(client, weapon, String:weaponname[], &bool:result)
+public Action TF2_CalcIsAttackCritical(client, weapon, String:weaponname[], &bool:result)
 {
     PrintToChat(client, "weaponname=%s", weaponname);
     LogMessage("TF2_CalcIsAttackCritical: client=%d, weapon=%d, weaponname=%s",

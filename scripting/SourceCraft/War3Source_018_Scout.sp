@@ -4,39 +4,39 @@
 #include "W3SIncs/War3Source_Interface"
 #include <sdktools>
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "War3Source - Race - Scout",
     author = "War3Source Team",
     description = "The Scout race for War3Source"
 };
 
-new thisRaceID;
+int thisRaceID;
 
 
-new SKILL_INVIS, SKILL_TRUESIGHT, SKILL_DISARM, ULT_MARKSMAN;
+int SKILL_INVIS, SKILL_TRUESIGHT, SKILL_DISARM, ULT_MARKSMAN;
 
 // Chance/Data Arrays
-new Float:InvisDrain=0.05; //as a percent of your health
-new Float:InvisDuration[5]={0.0,5.0,6.0,7.0,8.0};
-new Handle:InvisEndTimer[MAXPLAYERSCUSTOM];
-new bool:InInvis[MAXPLAYERSCUSTOM];
+float InvisDrain=0.05; //as a percent of your health
+float InvisDuration[5]={0.0,5.0,6.0,7.0,8.0};
+Handle InvisEndTimer[MAXPLAYERSCUSTOM];
+bool InInvis[MAXPLAYERSCUSTOM];
 
-new Float:EyeRadius[5]={0.0,400.0,500.0,700.0,800.0};
+float EyeRadius[5]={0.0,400.0,500.0,700.0,800.0};
 
-new Float:DisarmChance[5]={0.0,0.06,0.10,0.13,0.15};
-new Float:MarksmanCrit[5]={0.0,0.15,0.3,0.45,0.6};
-new STANDSTILLREQ=10;
+float DisarmChance[5]={0.0,0.06,0.10,0.13,0.15};
+float MarksmanCrit[5]={0.0,0.15,0.3,0.45,0.6};
+int STANDSTILLREQ=10;
 
 
-new bool:bDisarmed[MAXPLAYERSCUSTOM];
-new Float:lastvec[MAXPLAYERSCUSTOM][3];
-new standStillCount[MAXPLAYERSCUSTOM];
+bool bDisarmed[MAXPLAYERSCUSTOM];
+float lastvec[MAXPLAYERSCUSTOM][3];
+int standStillCount[MAXPLAYERSCUSTOM];
 
 // Effects
 //new BeamSprite,HaloSprite;
 
-new auras[5];
+int auras[5];
 
 public OnPluginStart()
 {
@@ -189,7 +189,7 @@ public OnAbilityCommand(client,ability,bool:pressed)
                 InInvis[client]=true;
 
 #if defined SOURCECRAFT
-                new Float:cooldown= GetUpgradeCooldown(thisRaceID,SKILL_INVIS);
+                float cooldown= GetUpgradeCooldown(thisRaceID,SKILL_INVIS);
                 War3_CooldownMGR(client,cooldown,thisRaceID,SKILL_INVIS);
 #else
                 War3_CooldownMGR(client,15.0,thisRaceID,SKILL_INVIS);
@@ -199,7 +199,7 @@ public OnAbilityCommand(client,ability,bool:pressed)
         }
     }
 }
-public Action:EndInvis(Handle:timer,any:client)
+public Action EndInvis(Handle:timer,any:client)
 {
     InInvis[client]=false;
     War3_SetBuff(client,fInvisibilitySkill,thisRaceID,1.0);
@@ -208,7 +208,7 @@ public Action:EndInvis(Handle:timer,any:client)
     PrintHintText(client,"%T","No Longer Invis! Cannot shoot for 1 sec!",client);
     
 }
-public Action:EndInvis2(Handle:timer,any:client){
+public Action EndInvis2(Handle:timer,any:client){
     War3_SetBuff(client,bDisarm,thisRaceID,false);
     bDisarmed[client]=false;
 }
@@ -228,16 +228,16 @@ public OnW3TakeDmgBulletPre(victim,attacker,Float:damage)
                     if (CanInvokeUpgrade(attacker,thisRaceID,ULT_MARKSMAN, .notify=false))
                     {
 #endif
-                    new Float:vicpos[3];
-                    new Float:attpos[3];
+                    float vicpos[3];
+                    float attpos[3];
                     GetClientAbsOrigin(victim,vicpos);
                     GetClientAbsOrigin(attacker,attpos);
-                    new Float:distance=GetVectorDistance(vicpos,attpos);
+                    float distance=GetVectorDistance(vicpos,attpos);
                     
                     if(distance>1000.0){ //0-512 normal damage 512-1024 linear increase, 1024-> maximum
                         distance=1000.0;
                     }
-                    new Float:multi=distance*MarksmanCrit[lvl]/1000.0;
+                    float multi=distance*MarksmanCrit[lvl]/1000.0;
                     War3_DamageModPercent(multi+1.0);
                     PrintToConsole(attacker,"[W3S] %.2fX dmg by marksman shot",multi);
 #if defined SOURCECRAFT
@@ -277,12 +277,12 @@ public OnWar3EventPostHurt(victim, attacker, Float:damage, const String:weapon[3
         }
     }           
 }
-public Action:Undisarm(Handle:t,any:client){
+public Action Undisarm(Handle:t,any:client){
     War3_SetBuff(client,bDisarm,thisRaceID,false);
 }
 
 
-public Action:DeciSecondTimer(Handle:t){
+public Action DeciSecondTimer(Handle:t){
     for(new client=1;client<=MaxClients;client++){\
         if(ValidPlayer(client,true)&&War3_GetRace(client)==thisRaceID){
             static Float:vec[3];

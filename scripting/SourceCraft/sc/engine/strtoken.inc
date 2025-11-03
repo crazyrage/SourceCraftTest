@@ -9,7 +9,7 @@
 // Stocks
 stock StrToken(const String:inputstr[],tokennum,String:outputstr[],maxlen)
 {
-    new String:buf[maxlen+1];
+    char buf[maxlen+1];
     new cur_idx;
     new idx;
     new curind;
@@ -35,7 +35,7 @@ stock StrToken(const String:inputstr[],tokennum,String:outputstr[],maxlen)
 
 stock StrTokenCount(const String:input[])
 {
-    decl String:buf[32];
+    char buf[32];
     new cur_idx;
     new idx;
     new curind;

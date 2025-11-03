@@ -218,7 +218,7 @@ funcenum SocketConnectCB
  */
 funcenum SocketIncomingCB
 {
-    public(Handle:socket, Handle:newSocket, const String:remoteIP[], remotePort, any:arg)
+    public(Handle:socket, Handle:newSocket, const char remoteIP[], remotePort, any:arg)
 };
 
 /**
@@ -237,7 +237,7 @@ funcenum SocketIncomingCB
  */
 funcenum SocketReceiveCB
 {
-    public(Handle:socket, const String:receiveData[], const dataSize, any:arg)
+    public(Handle:socket, const char receiveData[], const dataSize, any:arg)
 };
 
 /**
@@ -315,7 +315,7 @@ native Handle:SocketCreate(SocketType:protocol=SOCKET_TCP, SocketErrorCB:efunc);
  * @param cell_t	port		The port to bind the socket to.
  * @return bool 				true on success
  */
-native bool:SocketBind(Handle:socket, const String:hostname[], port);
+native bool:SocketBind(Handle:socket, const char hostname[], port);
 
 /**
  * Connects a socket
@@ -331,7 +331,7 @@ native bool:SocketBind(Handle:socket, const String:hostname[], port);
  * @param cell_t				port		The port to connect to.
  * @noreturn
  */
-native SocketConnect(Handle:socket, SocketConnectCB:cfunc, SocketReceiveCB:rfunc, SocketDisconnectCB:dfunc, const String:hostname[], port);
+native SocketConnect(Handle:socket, SocketConnectCB:cfunc, SocketReceiveCB:rfunc, SocketDisconnectCB:dfunc, const char hostname[], port);
 
 /**
  * Disconnects a socket
@@ -365,7 +365,7 @@ native bool:SocketListen(Handle:socket, SocketIncomingCB:ifunc);
  * @param Handle	socket	The handle of the socket to be used.
  * @param String	data	The data to send.
  * @noreturn */
-native SocketSend(Handle:socket, const String:data[], size=-1);
+native SocketSend(Handle:socket, const char data[], size=-1);
 
 /** * Sends UDP data through the socket to a specific destination.
  *
@@ -381,7 +381,7 @@ native SocketSend(Handle:socket, const String:data[], size=-1);
  * @param String	hostname	The hostname (or IP) to send to.
  * @param cell_t	port		The port to send to.
  * @noreturn */
-native SocketSendTo(Handle:socket, const String:data[], size=-1, const String:hostname[], port);
+native SocketSendTo(Handle:socket, const char data[], size=-1, const char hostname[], port);
 
 /**
  * Set a socket option.

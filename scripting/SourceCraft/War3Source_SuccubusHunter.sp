@@ -21,30 +21,30 @@
 
 #include "W3SIncs/War3Source_Interface"
 
-new raceID, hunterID, totemID, assaultID, transID;
-new m_iAccount = -1;
+int raceID, hunterID, totemID, assaultID, transID;
+int m_iAccount = -1;
 
-new ValveGameEnum:g_GameType;
-new bool:m_IsChangingClass[MAXPLAYERS+1];
-new bool:m_IsTransformed[MAXPLAYERS+1];
-new skulls[MAXPLAYERS+1];
-new assaultskip[MAXPLAYERS+1];
+int ValveGameEnum:g_GameType;
+bool m_IsChangingClass[MAXPLAYERS+1];
+bool m_IsTransformed[MAXPLAYERS+1];
+int skulls[MAXPLAYERS+1];
+int assaultskip[MAXPLAYERS+1];
 
 #if defined SOURCECRAFT
-new SkullChance = 1;
-new AssaultSkip = 2;
+int SkullChance = 1;
+int AssaultSkip = 2;
 #else
-new Handle:cvarSkullChance;
-new Handle:cvarAssaultSkip;
-new Handle:cvarAssaultCooldown;
-new Handle:cvarTransformCooldown;
+Handle cvarSkullChance;
+Handle cvarAssaultSkip;
+Handle cvarAssaultCooldown;
+Handle cvarTransformCooldown;
 #endif
 
 //Effects
-new BeamSprite;
-new Laser;
+int BeamSprite;
+int Laser;
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "Succubus Hunter",
     author = "DisturbeD",
@@ -252,7 +252,7 @@ public OnWar3EventPostHurt(victim, attacker, Float:damage, const String:weapon[3
                 new xdamage = 0;
                 if (W3IsDamageFromMelee(weapon))
                 {
-                    new Float:percent;
+                    float percent;
                     switch(hunter_level)
                     {
                         case 1: percent=0.20;
@@ -262,7 +262,7 @@ public OnWar3EventPostHurt(victim, attacker, Float:damage, const String:weapon[3
                     }
                     xdamage= RoundFloat(damage * percent);
 
-                    new Float:vec[3];
+                    float vec[3];
                     GetClientAbsOrigin(attacker,vec);
                     vec[2]+=50.0;
                     TE_SetupGlowSprite(vec, BeamSprite, 2.0, 10.0, 5);
@@ -313,8 +313,8 @@ public OnWar3EventDeath(victim, attacker, deathrace)
             new hunter_level=War3_GetSkillLevel(attacker,raceID,hunterID);
             if (hunter_level && !Hexed(attacker))
             {
-                new bool:headshot;
-                new Handle:event = W3GetVar(SmEvent);
+                bool headshot;
+                Handle event = W3GetVar(SmEvent);
                 switch (g_GameType)
                 {
                     case Game_CS:
@@ -337,10 +337,10 @@ public OnWar3EventDeath(victim, attacker, deathrace)
                     }
                 }
 
-                new bool:decap = false;
+                bool decap = false;
                 if (g_GameType == Game_TF)
                 {
-                    decl String:weapon[128];
+                    char weapon[128];
                     GetEventString(event, "weapon", weapon, sizeof(weapon));
 
                     for (new i = 0; i < sizeof(tf2_decap_weapons); i++)
@@ -360,7 +360,7 @@ public OnWar3EventDeath(victim, attacker, deathrace)
 #endif
                 if (headshot || decap || GetRandomInt(1,SkullChance)<=hunter_level)
                 {
-                    decl Float:Origin[3], Float:Direction[3];
+                    float Origin[3], Float:Direction[3];
                     GetClientAbsOrigin(victim, Origin);
                     Direction[0] = GetRandomFloat(-1.0, 1.0);
                     Direction[1] = GetRandomFloat(-1.0, 1.0);
@@ -394,13 +394,13 @@ public PlayerJumpEvent(Handle:event,const String:name[],bool:dontBroadcast)
             assaultskip[client]--;
             if(assaultskip[client]<1||War3_SkillNotInCooldown(client,raceID,assaultID)&&!Hexed(client))
             {
-                new Float:velocity[3];
+                float velocity[3];
                 GetEntPropVector(client, Prop_Data, "m_vecVelocity", velocity);
                 velocity[0]*=float(assault_level)*0.20;
                 velocity[1]*=float(assault_level)*0.20;
                 SetEntPropVector(client, Prop_Data, "m_vecVelocity", velocity);
 
-                new bool:weaponFound=false;
+                bool weaponFound=false;
                 new color[4]={0,25,255,200};
                 if(GetClientTeam(client)==TEAM_RED) // TEAM_T
                 {
@@ -411,7 +411,7 @@ public PlayerJumpEvent(Handle:event,const String:name[],bool:dontBroadcast)
                 if (m_IsTransformed[client])
                     color[1] = 100;
 
-                decl String:wpnstr[32];
+                char wpnstr[32];
                 GetClientWeapon(client, wpnstr, sizeof(wpnstr));
                 for(new slot=0;slot<10;slot++)
                 {
@@ -419,7 +419,7 @@ public PlayerJumpEvent(Handle:event,const String:name[],bool:dontBroadcast)
                     if (wpn>0)
                     {
                         //PrintToChatAll("wpn %d",wpn);
-                        new String:comparestr[32];
+                        char comparestr[32];
                         GetEdictClassname(wpn, comparestr, 32);
                         //PrintToChatAll("%s %s",wpn, comparestr);
                         if(StrEqual(wpnstr,comparestr,false))
@@ -447,11 +447,11 @@ public PlayerJumpEvent(Handle:event,const String:name[],bool:dontBroadcast)
 #if defined SOURCECRAFT
                 assaultskip[client]+=AssaultSkip;
 
-                new Float:cooldown= GetUpgradeCooldown(raceID,assaultID);
+                float cooldown= GetUpgradeCooldown(raceID,assaultID);
 #else
                 assaultskip[client]+=GetConVarInt(cvarAssaultSkip);
 
-                new Float:cooldown = GetConVarFloat(cvarAssaultCooldown);
+                float cooldown = GetConVarFloat(cvarAssaultCooldown);
 #endif
                 if (cooldown > 0.0)
                     War3_CooldownMGR(client,cooldown,raceID,assaultID,_,false);
@@ -460,7 +460,7 @@ public PlayerJumpEvent(Handle:event,const String:name[],bool:dontBroadcast)
     }
 }
 
-public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:angles[3], &weapon)
+public Action OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:angles[3], &weapon)
 {
     if (g_GameType != Game_CS && (buttons & IN_JUMP)) //assault for non CS games
     {
@@ -469,12 +469,12 @@ public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:ang
             new assault_level=War3_GetSkillLevel(client,raceID,assaultID);
             if (assault_level>0 && !Hexed(client) && War3_SkillNotInCooldown(client,raceID,assaultID))
             {
-                decl Float:velocity[3];
+                float velocity[3];
                 GetEntPropVector(client, Prop_Data, "m_vecVelocity", velocity);
 
                 if (!(GetEntityFlags(client) & FL_ONGROUND))
                 {
-                    new Float:absvel = velocity[0];
+                    float absvel = velocity[0];
                     if (absvel < 0.0)
                         absvel *= -1.0;
 
@@ -483,7 +483,7 @@ public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:ang
                     else
                         absvel += velocity[1];
 
-                    new Float:maxvel = m_IsTransformed[client] ? 1000.0 : 500.0;
+                    float maxvel = m_IsTransformed[client] ? 1000.0 : 500.0;
                     if (absvel > maxvel)
                         return Plugin_Continue;
                 }
@@ -491,22 +491,22 @@ public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:ang
                 if (TF2_HasTheFlag(client))
                     return Plugin_Continue;
 
-                new Float:amt = 1.0 + (float(assault_level)*0.20);
+                float amt = 1.0 + (float(assault_level)*0.20);
                 velocity[0]*=amt;
                 velocity[1]*=amt;
                 TeleportPlayer(client, NULL_VECTOR, NULL_VECTOR, velocity);
 
 #if defined SOURCECRAFT
-                new Float:cooldown= GetUpgradeCooldown(raceID,assaultID);
+                float cooldown= GetUpgradeCooldown(raceID,assaultID);
 #else
-                new Float:cooldown = GetConVarFloat(cvarAssaultCooldown);
+                float cooldown = GetConVarFloat(cvarAssaultCooldown);
 #endif
                 if (cooldown > 0.0)
                     War3_CooldownMGR(client,cooldown,raceID,assaultID,_,false);
 
                 if (!War3_IsCloaked(client))
                 {
-                    new bool:weaponFound=false;
+                    bool weaponFound=false;
                     new color[4]={0,25,255,200};
                     if(GetClientTeam(client)==TEAM_RED) // TEAM_T
                     {
@@ -517,7 +517,7 @@ public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:ang
                     if (m_IsTransformed[client])
                         color[1] = 100;
 
-                    new String:wpnstr[32];
+                    char wpnstr[32];
                     GetClientWeapon(client, wpnstr, sizeof(wpnstr));
                     for(new slot=0;slot<10;slot++)
                     {
@@ -525,7 +525,7 @@ public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:ang
                         if (wpn>0)
                         {
                             //PrintToChatAll("wpn %d",wpn);
-                            new String:comparestr[32];
+                            char comparestr[32];
                             GetEdictClassname(wpn, comparestr, 32);
                             //PrintToChatAll("%s %s",wpn, comparestr);
                             if(StrEqual(wpnstr,comparestr,false))
@@ -612,9 +612,9 @@ public OnUltimateCommand(client,race,bool:pressed)
                     CreateTimer(10.0,FinishTrans,GetClientUserId(client));
 
 #if defined SOURCECRAFT
-                    new Float:cooldown= GetUpgradeCooldown(raceID,transID);
+                    float cooldown= GetUpgradeCooldown(raceID,transID);
 #else
-                    new Float:cooldown = GetConVarFloat(cvarTransformCooldown);
+                    float cooldown = GetConVarFloat(cvarTransformCooldown);
 #endif
                     if (cooldown > 0.0)
                         War3_CooldownMGR(client,cooldown,raceID,transID);
@@ -624,7 +624,7 @@ public OnUltimateCommand(client,race,bool:pressed)
     }
 }
 
-public Action:FinishTrans(Handle:timer,any:userid)
+public Action FinishTrans(Handle:timer,any:userid)
 {
     new client=GetClientOfUserId(userid);
     if (m_IsTransformed[client] && ValidPlayer(client))
@@ -659,7 +659,7 @@ stock Gib(Float:Origin[3], Float:Direction[3], String:Model[])
     }
 }
 
-public Action:RemoveGib(Handle:Timer, any:Ref)
+public Action RemoveGib(Handle:Timer, any:Ref)
 {
     new Ent = EntRefToEntIndex(Ref);
     if (Ent > 0 && IsValidEdict(Ent))
@@ -681,7 +681,7 @@ public RoundStartEvent(Handle:event,const String:name[],bool:dontBroadcast)
     }
 }
 
-public Action:PlayerChangeClassEvent(Handle:event,const String:name[],bool:dontBroadcast)
+public Action PlayerChangeClassEvent(Handle:event,const String:name[],bool:dontBroadcast)
 {
     new client = GetClientOfUserId(GetEventInt(event,"userid"));
     if (client > 0 && War3_GetRace(client) == raceID)
@@ -695,17 +695,17 @@ public Action:PlayerChangeClassEvent(Handle:event,const String:name[],bool:dontB
     return Plugin_Continue;
 }
 
-public Action:SayCommand(client, const String:command[], argc)
+public Action SayCommand(client, const String:command[], argc)
 {
     if (client > 0 && IsClientInGame(client))
     {
-        decl String:text[128];
+        char text[128];
         GetCmdArg(1,text,sizeof(text));
 
-        decl String:arg[2][64];
+        char arg[2][64];
         ExplodeString(text, " ", arg, 2, 64);
 
-        new String:firstChar[] = " ";
+        char firstChar[] = " ";
         firstChar[0] = arg[0][0];
         if (StrContains("!/\\",firstChar) >= 0)
             strcopy(arg[0], sizeof(arg[]), arg[0][1]);

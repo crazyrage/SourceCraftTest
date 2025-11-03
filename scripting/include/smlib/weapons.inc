@@ -65,7 +65,7 @@ stock Weapon_IsValid(weapon)
  * @param absAngles		Absolute Angles Vector.
  * @return				Weapon Index of the created weapon or INVALID_ENT_REFERENCE on error.
  */
-stock Weapon_Create(const String:className[], Float:absOrigin[3], Float:absAngles[3])
+stock Weapon_Create(const char className[], Float:absOrigin[3], Float:absAngles[3])
 {
 	new weapon = Entity_Create(className);
 
@@ -89,9 +89,9 @@ stock Weapon_Create(const String:className[], Float:absOrigin[3], Float:absAngle
  * @param absAngles		Absolute Angles Vector.
  * @return				Weapon Index of the created weapon or INVALID_ENT_REFERENCE on error.
  */
-stock Weapon_CreateForOwner(client, const String:className[])
+stock Weapon_CreateForOwner(client, const char className[])
 {
-	decl Float:absOrigin[3], Float:absAngles[3];
+	float absOrigin[3], Float:absAngles[3];
 	Entity_GetAbsOrigin(client, absOrigin);
 	Entity_GetAbsAngles(client, absAngles);
 

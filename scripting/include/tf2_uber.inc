@@ -45,7 +45,7 @@ stock TF2_ExIsUberCharge(client)
         new index = GetPlayerWeaponSlot(client, 1);
         if (index > 0)
         {
-            decl String:classname[50];
+            char classname[50];
             if (GetEdictClassname(index, classname, sizeof(classname)) &&
                 StrEqual(classname, "tf_weapon_medigun"))
             {
@@ -63,7 +63,7 @@ stock Float:TF2_ExGetUberLevel(client)
         new index = GetPlayerWeaponSlot(client, 1);
         if (index > 0)
         {
-            decl String:classname[50];
+            char classname[50];
             if (GetEdictClassname(index, classname, sizeof(classname)) &&
                 StrEqual(classname, "tf_weapon_medigun"))
             {
@@ -81,7 +81,7 @@ stock bool:TF2_ExSetUberLevel(client, Float:uberlevel)
         new index = GetPlayerWeaponSlot(client, 1);
         if (index > 0)
         {
-            decl String:classname[50];
+            char classname[50];
             if (GetEdictClassname(index, classname, sizeof(classname)) &&
                 StrEqual(classname, "tf_weapon_medigun"))
             {
@@ -112,7 +112,7 @@ stock TF2_GetHealingTarget(client, &bool:ubered = false)
         new weapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
         if (weapon > 0 && IsValidEntity(weapon) && IsValidEdict(weapon))
         {
-            decl String:classname[64];
+            char classname[64];
             GetEntityNetClass(weapon, classname, sizeof(classname));
             if (!StrEqual(classname, "CWeaponMedigun"))
                 return -1;

@@ -11,15 +11,15 @@ stock bool:m_Detected[MAXPLAYERS+1][MAXPLAYERS+1];
 
 stock ClearDetectedHud(client)
 {
-    decl String:message[64];
+    char message[64];
     GetHudMessage(client, message, sizeof(message));
 
-    decl String:detected[64];
+    char detected[64];
     Format(message, sizeof(message), "%T", "DetectedHud", client);
     ReplaceString(message, sizeof(message), "*", "");
     ReplaceString(message, sizeof(message), " ", "");
 
-    decl String:uncloaked[64];
+    char uncloaked[64];
     Format(message, sizeof(message), "%T", "UncloakedHud", client);
     ReplaceString(message, sizeof(message), "*", "");
     ReplaceString(message, sizeof(message), " ", "");

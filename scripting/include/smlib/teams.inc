@@ -128,7 +128,7 @@ stock bool:Team_GetName(index, String:str[], size)
  * @param name			New Name String
  * @return				True on success, false otherwise
  */
-stock bool:Team_SetName(index, const String:name[])
+stock bool:Team_SetName(index, const char name[])
 {
 	new edict = Team_GetEdict(index);
 
@@ -240,7 +240,7 @@ stock Team_GetEdict(index)
 		return edict;
 	}
 
-	new bool:foundTeamManager = false;
+	bool foundTeamManager = false;
 
 	new maxEntities = GetMaxEntities();
 	for (new entity=MaxClients+1; entity < maxEntities; entity++) {

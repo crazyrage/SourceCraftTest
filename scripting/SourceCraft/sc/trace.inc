@@ -10,7 +10,7 @@
 #endif
 #define _trace_included
 
-new g_TraceFilterIndex;
+int g_TraceFilterIndex;
 
 stock bool:TraceTarget(client, target, Float:clientLoc[3], Float:targetLoc[3])
 {
@@ -23,7 +23,7 @@ stock bool:TraceTarget(client, target, Float:clientLoc[3], Float:targetLoc[3])
 
 stock TraceAimTarget(client)
 {
-    new Float:clientloc[3],Float:clientang[3];
+    float clientloc[3],Float:clientang[3];
     GetClientEyePosition(client,clientloc);
     GetClientEyeAngles(client,clientang);
     g_TraceFilterIndex = client;
@@ -33,7 +33,7 @@ stock TraceAimTarget(client)
 
 stock bool:TraceAimPosition(client, Float:destLoc[3], bool:hitPlayers)
 {
-    new Float:clientloc[3],Float:clientang[3];
+    float clientloc[3],Float:clientang[3];
     GetClientEyePosition(client,clientloc);
     GetClientEyeAngles(client,clientang);
     g_TraceFilterIndex = client;

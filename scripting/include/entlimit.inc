@@ -11,12 +11,12 @@
 #endif
 #define _entlimit_included
 
-stock bool:IsEntLimitReached(warn=20,critical=16,client=0,const String:message[]="")
+stock bool:IsEntLimitReached(warn=20,critical=16,client=0,const char message[]="")
 {
     return (EntitiesAvailable(warn,critical,client,message) < warn);
 }
 
-stock EntitiesAvailable(warn=20,critical=16,client=0,const String:message[]="")
+stock EntitiesAvailable(warn=20,critical=16,client=0,const char message[]="")
 {
     new max = GetMaxEntities();
     new count = GetEntityCount();

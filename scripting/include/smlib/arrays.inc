@@ -41,7 +41,7 @@ stock Array_FindValue(any:array[], size, any:value, start=0)
  * @param start			Optional: Offset where to start(0 - (size-1)).
  * @return				Array index, or -1 if the value couldn't be found.
  */
-stock Array_FindString(const String:array[][], size, const String:str[], bool:caseSensitive=true, start=0)
+stock Array_FindString(const char array[][], size, const char str[], bool:caseSensitive=true, start=0)
 {
 	if (start < 0) {
 		start = 0;

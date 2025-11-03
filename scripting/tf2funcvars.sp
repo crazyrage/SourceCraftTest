@@ -1,4 +1,4 @@
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
 	name = "Fun Cvars",
 	author = "Wild1234",
@@ -12,11 +12,11 @@ public Plugin:myinfo =
 #undef REQUIRE_PLUGIN
 #include <adminmenu>
 
-new Handle:g_Cvar_Gravity = INVALID_HANDLE;
-new Handle:g_Cvar_AllTalk = INVALID_HANDLE;
-new Handle:g_Cvar_FF = INVALID_HANDLE;
-new Handle:g_Cvar_RSTime = INVALID_HANDLE;
-new Handle:hTopMenu = INVALID_HANDLE;
+Handle g_Cvar_Gravity = INVALID_HANDLE;
+Handle g_Cvar_AllTalk = INVALID_HANDLE;
+Handle g_Cvar_FF = INVALID_HANDLE;
+Handle g_Cvar_RSTime = INVALID_HANDLE;
+Handle hTopMenu = INVALID_HANDLE;
 
 public OnPluginStart()
 {
@@ -33,14 +33,14 @@ public OnPluginStart()
 	RegAdminCmd("sm_mprst", Command_SetRSTime, ADMFLAG_CUSTOM1, "sm_mprst <time> Respawn delay time. Default: 10");
 
 	/* Account for late loading */
-	new Handle:topmenu;
+	Handle topmenu;
 	if (LibraryExists("adminmenu") && ((topmenu = GetAdminTopMenu()) != INVALID_HANDLE))
 	{
 		OnAdminMenuReady(topmenu);
 	}
 }
 
-public Action:Command_SetGrav(client, args)
+public Action Command_SetGrav(client, args)
 {
 	if (args < 1)
 	{
@@ -48,7 +48,7 @@ public Action:Command_SetGrav(client, args)
 		return Plugin_Handled;
 	}
 
-	decl String:arg[64];
+	char arg[64];
 	GetCmdArg(1, arg, sizeof(arg));
 
 	SetConVarInt(g_Cvar_Gravity, StringToInt(arg));
@@ -58,7 +58,7 @@ public Action:Command_SetGrav(client, args)
 	return Plugin_Handled;
 }
 
-public Action:Command_SetFF(client, args)
+public Action Command_SetFF(client, args)
 {
 	if (args < 1)
 	{
@@ -66,7 +66,7 @@ public Action:Command_SetFF(client, args)
 		return Plugin_Handled;
 	}
 
-	decl String:arg[64];
+	char arg[64];
 	GetCmdArg(1, arg, sizeof(arg));
 	new argi = StringToInt(arg);
 
@@ -83,7 +83,7 @@ public Action:Command_SetFF(client, args)
 	return Plugin_Handled;
 }
 
-public Action:Command_SetAllTalk(client, args)
+public Action Command_SetAllTalk(client, args)
 {
 	if (args < 1)
 	{
@@ -91,7 +91,7 @@ public Action:Command_SetAllTalk(client, args)
 		return Plugin_Handled;
 	}
 
-	decl String:arg[64];
+	char arg[64];
 	GetCmdArg(1, arg, sizeof(arg));
 	new argi = StringToInt(arg);
 
@@ -108,7 +108,7 @@ public Action:Command_SetAllTalk(client, args)
 	return Plugin_Handled;
 }
 
-public Action:Command_SetRSTime(client, args)
+public Action Command_SetRSTime(client, args)
 {
 	if (args < 1)
 	{
@@ -116,7 +116,7 @@ public Action:Command_SetRSTime(client, args)
 		return Plugin_Handled;
 	}
 
-	decl String:arg[64];
+	char arg[64];
 	GetCmdArg(1, arg, sizeof(arg));
 
 	SetConVarInt(g_Cvar_RSTime, StringToInt(arg));
@@ -266,9 +266,9 @@ public AdminMenu_RSTime(Handle:topmenu,
 
 DisplayGravityMenu(client)
 {
-	new Handle:menu = CreateMenu(MenuHandler_Grav);
+	Handle menu = CreateMenu(MenuHandler_Grav);
 	
-	decl String:title[100];
+	char title[100];
 	Format(title, sizeof(title), "Select Gravity", client);
 	SetMenuTitle(menu, title);
 	SetMenuExitBackButton(menu, true);
@@ -298,7 +298,7 @@ public MenuHandler_Grav(Handle:menu, MenuAction:action, param1, param2)
 	}
 	else if (action == MenuAction_Select)
 	{
-		decl String:GravLev[32];
+		char GravLev[32];
 		
 		GetMenuItem(menu, param2, GravLev, sizeof(GravLev));
 
@@ -311,9 +311,9 @@ public MenuHandler_Grav(Handle:menu, MenuAction:action, param1, param2)
 
 DisplayRSTMenu(client)
 {
-	new Handle:menu = CreateMenu(MenuHandler_RST);
+	Handle menu = CreateMenu(MenuHandler_RST);
 	
-	decl String:title[100];
+	char title[100];
 	Format(title, sizeof(title), "Set Respawn Time", client);
 	SetMenuTitle(menu, title);
 	SetMenuExitBackButton(menu, true);
@@ -343,7 +343,7 @@ public MenuHandler_RST(Handle:menu, MenuAction:action, param1, param2)
 	}
 	else if (action == MenuAction_Select)
 	{
-		decl String:RSTimer[32];
+		char RSTimer[32];
 		
 		GetMenuItem(menu, param2, RSTimer, sizeof(RSTimer));
 

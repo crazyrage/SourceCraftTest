@@ -4,7 +4,7 @@
 #include <lib/trace>
 #include "W3SIncs/War3Source_Interface"
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
   name = "War3Source - Engine - Buff System",
   author = "War3Source Team",
@@ -12,11 +12,11 @@ public Plugin:myinfo =
 };
 
 //for debuff index, see constants, its in an enum
-new any:buffdebuff[MAXPLAYERSCUSTOM][W3Buff][MAXITEMS+MAXRACES+MAXITEMS2+CUSTOMMODIFIERS]; ///a race may only modify a property once
+int any:buffdebuff[MAXPLAYERSCUSTOM][W3Buff][MAXITEMS+MAXRACES+MAXITEMS2+CUSTOMMODIFIERS]; ///a race may only modify a property once
 
-new BuffProperties[W3Buff][W3BuffProperties];
+int BuffProperties[W3Buff][W3BuffProperties];
 
-new any:BuffCached[MAXPLAYERSCUSTOM][W3Buff];// instead of looping, we cache everything in the last dimension, see enum W3BuffCache
+int any:BuffCached[MAXPLAYERSCUSTOM][W3Buff];// instead of looping, we cache everything in the last dimension, see enum W3BuffCache
 
 public OnPluginStart()
 {
@@ -27,7 +27,7 @@ public OnPluginStart()
   RegConsoleCmd("bufflist",cmdbufflist);
 }
 
-public bool:InitNativesForwards()
+public bool InitNativesForwards()
 {
   CreateNative("War3_SetBuff",Native_War3_SetBuff);//for races
   CreateNative("War3_SetBuffItem",Native_War3_SetBuffItem);//foritems
@@ -80,7 +80,7 @@ public Native_War3_SetBuff(Handle:plugin,numParams)
 
     SetBuff(client,buffindex,raceid+W3GetItemsLoaded(),value); //ofsetted
     /*if(raceid==0){
-    new String:buf[64];
+    char buf[64];
     GetPluginFilename(plugin, buf, sizeof(buf));
     ThrowError("warning, war3_setbuff passed zero raceid %s",buf);
     }*/
@@ -103,7 +103,7 @@ public Native_War3_SetBuffItem(Handle:plugin,numParams) //buff is from an item
     SetBuff(client,buffindex,itemid,value); //not offseted
     
     /*if(itemid==0){
-    new String:buf[64];
+    char buf[64];
     GetPluginFilename(plugin, buf, sizeof(buf));
     ThrowError("warning, war3_setbuffitem passed zero itemid %s",buf);
     }*/
@@ -126,7 +126,7 @@ public Native_War3_SetBuffItem2(Handle:plugin,numParams) //buff is from an item
     SetBuff(client,buffindex,W3GetItemsLoaded()+War3_GetRacesLoaded()+itemid,value); //not offseted
 
     /*if(itemid==0){
-    new String:buf[64];
+    char buf[64];
     GetPluginFilename(plugin, buf, sizeof(buf));
     LogError("warning, war3_setbuffitem2 passed zero itemid %s",buf);
     }*/
@@ -138,7 +138,7 @@ public NW3GetBuff(Handle:plugin,numParams)
   new client=GetNativeCell(1);
   new W3Buff:buffindex=GetNativeCell(2);
   new raceiditemid=GetNativeCell(3);
-  new bool:isItem=GetNativeCell(4);
+  bool isItem=GetNativeCell(4);
   if(!isItem){
     raceiditemid+=W3GetItemsLoaded();
   }
@@ -281,17 +281,17 @@ public NW3GetBuffLoopLimit(Handle:plugin,numParams) {
 
 
 
-public Action:cmdbufflist(client, args){
+public Action cmdbufflist(client, args){
   
   if(args==1){
-    new String:arg[32];
+    char arg[32];
     GetCmdArg(1,arg,sizeof(arg));
     new num=StringToInt(arg);
 #pragma unused num // prevent warning when compiled for SOURCECRAFT w/o _TRACE
     new ItemsLoaded = W3GetItemsLoaded();
     new RacesPlusItems = ItemsLoaded+War3_GetRacesLoaded();
     for(new i=1;i<=RacesPlusItems;i++){
-      new String:name[32];
+      char name[32];
       if(i<=ItemsLoaded){
         W3GetItemShortname(i,name,sizeof(name));
       }
@@ -478,7 +478,7 @@ stock Float:CalcBuffStackedFloat(client,W3Buff:buffindex)
 {
   if(ValidBuff(buffindex))
   {
-    new Float:value=buffdebuff[client][buffindex][0];
+    float value=buffdebuff[client][buffindex][0];
     new loop = ItemsPlusRacesLoaded();
     for(new i=1;i<=loop;i++)
     {
@@ -613,12 +613,12 @@ stock Float:GetBuffSumFloat(client,W3Buff:buffindex)
         case fArmorMagic:    return GetMagicalArmorSum(client);
         case fHPRegen:
 	{
-	    new Float:rate = GetHealthRegenSum(client);
+	    float rate = GetHealthRegenSum(client);
 	    return (rate > 0.0) ? rate : 0.0;
 	}
         case fHPDecay:
 	{
-	    new Float:rate = GetHealthRegenSum(client);
+	    float rate = GetHealthRegenSum(client);
 	    return (rate < 0.0) ? rate * -1.0 : 0.0;
 	}
     }
@@ -692,7 +692,7 @@ GetBuffMinInt(client,W3Buff:buffindex)
 
 
 Float:PhysicalArmorMulti(client){
-  new Float:armor=Float:GetBuffSumFloat(client,fArmorPhysical);
+  float armor=Float:GetBuffSumFloat(client,fArmorPhysical);
   
   if(armor<0.0){
     armor=armor*-1.0;
@@ -703,7 +703,7 @@ Float:PhysicalArmorMulti(client){
 }
 Float:MagicArmorMulti(client){
   
-  new Float:armor=Float:GetBuffSumFloat(client,fArmorMagic);
+  float armor=Float:GetBuffSumFloat(client,fArmorMagic);
   //PrintToServer("armor=%f",armor);
   if(armor<0.0){
     armor=armor*-1.0;
@@ -746,7 +746,7 @@ stock SetPlayerRGB(index,r,g,b)
 stock SetEntityAlpha(index,alpha)
 { 
   //if(FindSendPropOffs(index,"m_nRenderFX")>-1&&FindSendPropOffs(index,"m_nRenderMode")>-1){
-  new String:class[32];
+  char class[32];
   GetEntityNetClass(index, class, sizeof(class) );
   //PrintToServer("%s",class);
   if(FindSendPropOffs(class,"m_nRenderFX")>-1){

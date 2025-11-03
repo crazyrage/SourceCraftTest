@@ -61,7 +61,7 @@
  * @param ...: Format arguments (if any)
  * @noreturn
  */
-native TraceInto(const String:class[], const String:method[], const String:fmt[]="", any:...);
+native TraceInto(const char class[], const char method[], const char fmt[]="", any:...);
 
 /**
  * Trace Return (out of) a Function
@@ -69,7 +69,7 @@ native TraceInto(const String:class[], const String:method[], const String:fmt[]
  * @param ...: Format arguments (if any)
  * @noreturn
  */
-native TraceReturn(const String:fmt[]="", any:...);
+native TraceReturn(const char fmt[]="", any:...);
 
 /**
  * TraceMessage - Log a Trace Message (inside) a Function
@@ -78,7 +78,7 @@ native TraceReturn(const String:fmt[]="", any:...);
  * @param ...: Format arguments (if any)
  * @noreturn
  */
-native TraceMessage(verbosity, const String:fmt[]="", any:...);
+native TraceMessage(verbosity, const char fmt[]="", any:...);
 
 /**
  * Dump the Trace Stack
@@ -86,14 +86,14 @@ native TraceMessage(verbosity, const String:fmt[]="", any:...);
  * @param ...: Format arguments (if any)
  * @noreturn
  */
-native TraceDump(const String:fmt[]="", any:...);
+native TraceDump(const char fmt[]="", any:...);
 
 /**
  * Sets the current category
  * @param category: String to place into the category.
  * @noreturn
  */
-native SetTraceCategory(const String:category[]="");
+native SetTraceCategory(const char category[]="");
 
 /**
  * Resets the current category to nothing

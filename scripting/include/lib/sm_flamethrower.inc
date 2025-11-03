@@ -59,7 +59,7 @@ native GetFlamethrowerFuel(client);
  * @param sound 	Sound to use for the flamethrower.
  * @return			none
  */
-native SetFlamethrowerSound(const String:sound[]);
+native SetFlamethrowerSound(const char sound[]);
 
 /**
  * Use the Flamethrower

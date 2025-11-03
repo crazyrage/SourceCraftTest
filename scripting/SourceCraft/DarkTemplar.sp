@@ -43,35 +43,35 @@
 #include "effect/HaloSprite"
 #include "effect/SendEffects"
 
-new const String:spawnWav[]         = "sc/pdtrdy00.wav";
-new const String:deathWav[]         = "sc/pdtdth00.wav";
-new const String:teleportWav[]      = "sc/ptemov00.wav";
-new const String:g_PsiBladesSound[] = "sc/uzefir00.wav";
+char spawnWav[]         = "sc/pdtrdy00.wav";
+char deathWav[]         = "sc/pdtdth00.wav";
+char teleportWav[]      = "sc/ptemov00.wav";
+char g_PsiBladesSound[] = "sc/uzefir00.wav";
 
-new raceID, immunityID, legID, shieldsID, cloakID, regenID;
-new meleeID, teleportID, darkArchonID, deathID;
+int raceID, immunityID, legID, shieldsID, cloakID, regenID;
+int meleeID, teleportID, darkArchonID, deathID;
 
-new Float:g_InitialShields[]        = { 0.0, 0.10, 0.20, 0.30, 0.40 };
-new Float:g_ShieldsPercent[][2]     = { {0.00, 0.00},
+float g_InitialShields[]        = { 0.0, 0.10, 0.20, 0.30, 0.40 };
+float g_ShieldsPercent[][2]     = { {0.00, 0.00},
                                         {0.00, 0.05},
                                         {0.02, 0.10},
                                         {0.05, 0.15},
                                         {0.08, 0.20} };
 
-new Float:g_SpeedLevels[]           = { -1.0, 1.05, 1.10, 1.15, 1.20 };
-new Float:g_PsiBladesPercent[]      = { 0.0, 0.15, 0.30, 0.40, 0.50 };
+float g_SpeedLevels[]           = { -1.0, 1.05, 1.10, 1.15, 1.20 };
+float g_PsiBladesPercent[]      = { 0.0, 0.15, 0.30, 0.40, 0.50 };
 
-new Float:g_TeleportDistance[]      = { 0.0, 300.0, 500.0, 800.0, 1500.0 };
+float g_TeleportDistance[]      = { 0.0, 300.0, 500.0, 800.0, 1500.0 };
 
-new Float:g_RegenAmount[]           = { 0.0, 1.0, 2.0, 3.0, 4.0 };
+float g_RegenAmount[]           = { 0.0, 1.0, 2.0, 3.0, 4.0 };
 
-new bool:cfgAllowTeleport           = true;
+bool cfgAllowTeleport           = true;
 
-new g_darkArchonRace = -1;
+int g_darkArchonRace = -1;
 
-new Float:m_CloakRegenTime[MAXPLAYERS+1];
+float m_CloakRegenTime[MAXPLAYERS+1];
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Protoss Dark Templar",
     author = "-=|JFH|=-Naris",
@@ -173,7 +173,7 @@ public OnSourceCraftReady()
 
     for (new level=0; level < sizeof(g_ShieldsPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "shields_percent_level_%d", level);
         GetConfigFloatArray(key, g_ShieldsPercent[level], sizeof(g_ShieldsPercent[]),
                             g_ShieldsPercent[level], raceID, shieldsID);
@@ -243,7 +243,7 @@ public OnClientDisconnect(client)
     KillClientTimer(client);
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -282,7 +282,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
     }
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
@@ -422,7 +422,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                         if (GetRestriction(client,Restriction_NoUltimates) ||
                             GetRestriction(client,Restriction_Stunned))
                         {
-                            decl String:upgradeName[64];
+                            char upgradeName[64];
                             GetUpgradeName(raceID, deathID, upgradeName, sizeof(upgradeName), client);
                             DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
                             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -447,7 +447,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                         SidewinderCloakClient(client, false);
 
                     CreateTimer(5.0,RecloakPlayer,GetClientUserId(client),TIMER_FLAG_NO_MAPCHANGE);
-                    new Float:blink_energy=GetUpgradeEnergy(raceID,teleportID) * (5.0-float(blink_level));
+                    float blink_energy=GetUpgradeEnergy(raceID,teleportID) * (5.0-float(blink_level));
                     TeleportCommand(client, race, teleportID, blink_level, blink_energy,
                                     pressed, g_TeleportDistance, teleportWav);
                 }
@@ -465,7 +465,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
     }
 }
 
-public Action:RecloakPlayer(Handle:timer,any:userid)
+public Action RecloakPlayer(Handle:timer,any:userid)
 {
     new client = GetClientOfUserId(userid);
     if (client)
@@ -512,7 +512,7 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     if (!from_sc && attacker_index > 0 &&
@@ -611,7 +611,7 @@ DoImmunity(client, level, bool:value)
 
     if (value && IsValidClientAlive(client))
     {
-        new Float:start[3];
+        float start[3];
         GetClientAbsOrigin(client, start);
 
         static const color[4] = { 0, 255, 50, 128 };
@@ -628,7 +628,7 @@ SummonDarkArchon(client)
 
     if (g_darkArchonRace < 0)
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, darkArchonID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "IsNotAvailable", upgradeName);
         LogError("***The Dark Archon race is not Available!");
@@ -643,7 +643,7 @@ SummonDarkArchon(client)
     }
     else if (CanInvokeUpgrade(client, raceID, darkArchonID))
     {
-        new Float:clientLoc[3];
+        float clientLoc[3];
         GetClientAbsOrigin(client, clientLoc);
         clientLoc[2] += 40.0; // Adjust position to the middle
 
@@ -659,7 +659,7 @@ SummonDarkArchon(client)
     }
 }
 
-public Action:Regeneration(Handle:timer, any:userid)
+public Action Regeneration(Handle:timer, any:userid)
 {
     new client = GetClientOfUserId(userid);
     if (IsValidClientAlive(client) && GetRace(client) == raceID &&
@@ -681,18 +681,18 @@ public Action:Regeneration(Handle:timer, any:userid)
                 }
             }
 
-            new Float:cloak = TF2_GetCloakMeter(client);
+            float cloak = TF2_GetCloakMeter(client);
             if (cloak < 100.0)
             {
-                new Float:energy = GetEnergy(client);
-                new Float:amt = g_RegenAmount[regen_level]; // float(regen_level) * 2.0;
+                float energy = GetEnergy(client);
+                float amt = g_RegenAmount[regen_level]; // float(regen_level) * 2.0;
                 if (amt > energy)
                     amt = energy;
 
                 if (amt > 0.0)
                 {
-                    new Float:lastTime = m_CloakRegenTime[client];
-                    new Float:interval = GetGameTime() - lastTime;
+                    float lastTime = m_CloakRegenTime[client];
+                    float interval = GetGameTime() - lastTime;
                     if ((lastTime == 0.0 || interval >= 2.00) && cloak + amt <= 100.0)
                     {
                         DecrementEnergy(client, amt);

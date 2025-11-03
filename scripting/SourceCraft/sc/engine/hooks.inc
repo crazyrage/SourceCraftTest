@@ -69,13 +69,13 @@ public Action:SayCommand(client, const String:command[], argc)
 
     if (IsValidClient(client))
     {
-        decl String:text[128];
+        char text[128];
         GetCmdArg(1,text,sizeof(text));
 
-        decl String:arg[2][64];
+        char arg[2][64];
         new argCount = ExplodeString(text, " ", arg, 2, 64);
 
-        new String:firstChar[] = " ";
+        char firstChar[] = " ";
         firstChar[0] = arg[0][0];
         if (StrContains("!/\\",firstChar) >= 0)
             strcopy(arg[0], sizeof(arg[]), arg[0][1]);
@@ -112,7 +112,7 @@ public Action:SayCommand(client, const String:command[], argc)
                 new race = FindRace(arg[1]);
                 if (race >= 0)
                 {
-                    new Handle:raceHandle=GetRaceHandle(race);
+                    Handle raceHandle=GetRaceHandle(race);
                     if (raceHandle != INVALID_HANDLE)
                         ChangeRace(client, race, raceHandle, false, true, false);
                     else
@@ -327,9 +327,9 @@ public Action:UltimateCommand(client,args)
         new result;
         new race=GetRace(client);
 
-        decl String:command[CLASS_STRING_LENGTH];
+        char command[CLASS_STRING_LENGTH];
         GetCmdArg(0,command,sizeof(command));
-        new bool:pressed=(command[0] == '+');
+        bool pressed=(command[0] == '+');
 
         new arg;
         if (IsCharNumeric(command[9]))
@@ -341,7 +341,7 @@ public Action:UltimateCommand(client,args)
         }
         else if (args > 1) // (GetCmdArgs() > 1)
         {
-            decl String:argString[16];
+            char argString[16];
             GetCmdArg(1,argString,sizeof(argString));
             arg = StringToInt(argString);
 
@@ -380,7 +380,7 @@ public Action:BuyCommand(client,args)
 {
     if (IsValidClient(client))
     {
-        decl String:arg[64];
+        char arg[64];
         if (GetCmdArg(1,arg,sizeof(arg)) > 0)
         {
             new item = FindShopItem(arg);
@@ -399,13 +399,13 @@ public Action:ChangeRaceCommand(client,args)
 {
     if (IsValidClient(client))
     {
-        decl String:arg[64];
+        char arg[64];
         if (GetCmdArg(1,arg,sizeof(arg)) > 0)
         {
             new race = FindRace(arg);
             if (race >= 0)
             {
-                new Handle:raceHandle=GetRaceHandle(race);
+                Handle raceHandle=GetRaceHandle(race);
                 if (raceHandle != INVALID_HANDLE)
                     ChangeRace(client, race, raceHandle, false, true, false);
                 else
@@ -446,8 +446,8 @@ public Action:InfoCommand(client,args)
 
 ShowInfo(client)
 {
-    decl String:url[128];
-    decl String:steamid[CLASS_STRING_LENGTH];
+    char url[128];
+    char steamid[CLASS_STRING_LENGTH];
     if (GetClientAuthId(client, AuthId_Steam2, steamid, sizeof(steamid)))
         Format(url, sizeof(url), g_InfoURL, steamid);
     else

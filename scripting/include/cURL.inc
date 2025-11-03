@@ -179,8 +179,8 @@ funcenum CURL_OnSend
  */
 funcenum CURL_OnReceive
 {
-	SendRecv_Act:public(Handle:hndl, CURLcode: code, const String:receiveData[], const dataSize),
-	SendRecv_Act:public(Handle:hndl, CURLcode: code, const String:receiveData[], const dataSize, any:data),
+	SendRecv_Act:public(Handle:hndl, CURLcode: code, const char receiveData[], const dataSize),
+	SendRecv_Act:public(Handle:hndl, CURLcode: code, const char receiveData[], const dataSize, any:data),
 }
 
 /**
@@ -192,16 +192,16 @@ funcenum CURL_OnReceive
  */
 funcenum Openssl_Hash_Complete
 {
-	public(const bool:success, const String:buffer[]),
-	public(const bool:success, const String:buffer[], any:data),
+	public(const bool:success, const char buffer[]),
+	public(const bool:success, const char buffer[], any:data),
 }
 
 
 funcenum CURL_Function_CB
 {
 	// CURLOPT_WRITEFUNCTION
-	public(Handle:hndl, const String:buffer[], const bytes, const nmemb),
-	public(Handle:hndl, const String:buffer[], const bytes, const nmemb, any:data),
+	public(Handle:hndl, const char buffer[], const bytes, const nmemb),
+	public(Handle:hndl, const char buffer[], const bytes, const nmemb, any:data),
 	
 	// CURLOPT_READFUNCTION
 	public(Handle:hndl, const bytes, const nmemb),
@@ -262,7 +262,7 @@ native bool:curl_easy_setopt_int_array(Handle:hndl, array[][2], array_size);
  * @ param String		buffer	The value to set the option to.
  * @ return bool				1 on success. 0 = The option not accept string or unsupport.
  */
-native bool:curl_easy_setopt_int64(Handle:hndl, CURLoption:opt, const String:buffer[]);
+native bool:curl_easy_setopt_int64(Handle:hndl, CURLoption:opt, const char buffer[]);
 
 /**
  * Set a curl option for CURLOPTTYPE_OBJECTPOINT type
@@ -351,7 +351,7 @@ native bool:curl_send_recv_IsWaiting(Handle:hndl);
  * @ param cell_t			size			if specified the \0 terminator will not be included
  * @ noreturn
  */
-native curl_set_send_buffer(Handle:hndl, const String:data[], size=-1);
+native curl_set_send_buffer(Handle:hndl, const char data[], size=-1);
 
 /**
  * Send the receive data size for send & receive curl handle
@@ -413,7 +413,7 @@ native CURLcode:curl_easy_getinfo_int(Handle:hndl, CURLINFO:info, &any:value);
  * @ param cell_t		maxlen		Destination buffer length (includes null terminator).
  * @ return 						1 on success.
  */
-native bool:curl_easy_escape(Handle:hndl, const String:url[], String:buffer[], maxlen);
+native bool:curl_easy_escape(Handle:hndl, const char url[], String:buffer[], maxlen);
 
 /**
  * URL decodes the given string 
@@ -423,7 +423,7 @@ native bool:curl_easy_escape(Handle:hndl, const String:url[], String:buffer[], m
  * @ param cell_t		maxlen		Destination buffer length (includes null terminator).
  * @ return 						The output length.
  */
-native curl_easy_unescape(Handle:hndl, const String:url[], String:buffer[], maxlen);
+native curl_easy_unescape(Handle:hndl, const char url[], String:buffer[], maxlen);
 
 /**
  * Return string describing error code
@@ -472,7 +472,7 @@ native curl_features();
  * @ param mode			Open mode.
  * @ return				A Handle to the file, INVALID_HANDLE on open error.
  */
-native Handle:curl_OpenFile(const String:file[], const String:mode[]);
+native Handle:curl_OpenFile(const char file[], const char mode[]);
 
 
 /**
@@ -522,7 +522,7 @@ native Handle:curl_slist();
  * @ param String		buffer		The string to add
  * @ noreturn
  */
-native curl_slist_append(Handle:hndl, const String:buffer[]);
+native curl_slist_append(Handle:hndl, const char buffer[]);
 
 /**
  * Hash a file
@@ -532,7 +532,7 @@ native curl_slist_append(Handle:hndl, const String:buffer[]);
  * @ param cell_t					value				Value to set.
  * @ noreturn
  */
-native curl_hash_file(const String:file[], Openssl_Hash:algorithm, Openssl_Hash_Complete:complete_callback, any:value=0);
+native curl_hash_file(const char file[], Openssl_Hash:algorithm, Openssl_Hash_Complete:complete_callback, any:value=0);
 
 /**
  * Hash a string
@@ -543,7 +543,7 @@ native curl_hash_file(const String:file[], Openssl_Hash:algorithm, Openssl_Hash_
  * @ param cell_t			maxlen			Destination buffer length (includes null terminator).
  * @ return									1 on success
  */
-native bool:curl_hash_string(const String:input[], dataSize, Openssl_Hash:algorithm, String:buffer[], maxlength);
+native bool:curl_hash_string(const char input[], dataSize, Openssl_Hash:algorithm, String:buffer[], maxlength);
 
 
 /**

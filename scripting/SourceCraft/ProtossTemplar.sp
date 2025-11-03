@@ -41,41 +41,41 @@
 #include "effect/SendEffects"
 #include "effect/FlashScreen"
 
-new const String:deathWav[]         = "sc/ptedth00.wav";
-new const String:spawnWav[]         = "sc/pterdy00.wav";
-new const String:psistormWav[]      = "sc/ptesto00.wav";
+char deathWav[]         = "sc/ptedth00.wav";
+char spawnWav[]         = "sc/pterdy00.wav";
+char psistormWav[]      = "sc/ptesto00.wav";
 
-new const String:g_FeedbackSound[]  = "sc/mind.mp3";
+char g_FeedbackSound[]  = "sc/mind.mp3";
 
-new raceID, immunityID, levitationID, psionicStormID;
-new feedbackID, hallucinationID, shieldsID, amuletID;
-new archonID;
+int raceID, immunityID, levitationID, psionicStormID;
+int feedbackID, hallucinationID, shieldsID, amuletID;
+int archonID;
 
-new g_FeedbackChance[]              = { 0, 15, 25, 35, 50 };
-new Float:g_FeedbackPercent[][2]    = { {0.00, 0.00},
+int g_FeedbackChance[]              = { 0, 15, 25, 35, 50 };
+float g_FeedbackPercent[][2]    = { {0.00, 0.00},
                                         {0.05, 0.20},
                                         {0.10, 0.30},
                                         {0.15, 0.40},
                                         {0.20, 0.50} };
 
-new g_HallucinateChance[]           = { 0, 15, 25, 35, 50 };
+int g_HallucinateChance[]           = { 0, 15, 25, 35, 50 };
 
-new Float:g_PsionicStormRange[]     = { 0.0, 250.0, 400.0, 550.0, 650.0 };
+float g_PsionicStormRange[]     = { 0.0, 250.0, 400.0, 550.0, 650.0 };
 
-new Float:g_LevitationLevels[]      = { 1.0, 0.92, 0.733, 0.5466, 0.36 };
+float g_LevitationLevels[]      = { 1.0, 0.92, 0.733, 0.5466, 0.36 };
 
-new Float:g_InitialShields[]        = { 0.0, 0.10, 0.20, 0.30, 0.40 };
-new Float:g_ShieldsPercent[][2]     = { {0.00, 0.00},
+float g_InitialShields[]        = { 0.0, 0.10, 0.20, 0.30, 0.40 };
+float g_ShieldsPercent[][2]     = { {0.00, 0.00},
                                         {0.00, 0.05},
                                         {0.02, 0.10},
                                         {0.05, 0.15},
                                         {0.08, 0.20} };
 
-new g_archonRace = -1;
+int g_archonRace = -1;
 
-new gPsionicStormDuration[MAXPLAYERS+1];
+int gPsionicStormDuration[MAXPLAYERS+1];
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Protoss Templar",
     author = "-=|JFH|=-Naris",
@@ -125,7 +125,7 @@ public OnSourceCraftReady()
 
     for (new level=0; level < sizeof(g_ShieldsPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "shields_percent_level_%d", level);
         GetConfigFloatArray(key, g_ShieldsPercent[level], sizeof(g_ShieldsPercent[]),
                             g_ShieldsPercent[level], raceID, shieldsID);
@@ -136,7 +136,7 @@ public OnSourceCraftReady()
 
     for (new level=0; level < sizeof(g_ShieldsPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "damage_percent_level_%d", level);
         GetConfigFloatArray(key, g_FeedbackPercent[level], sizeof(g_FeedbackPercent[]),
                             g_FeedbackPercent[level], raceID, feedbackID);
@@ -184,7 +184,7 @@ public OnMapStart()
     SetupSound(g_FeedbackSound);
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -214,7 +214,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
     }
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
@@ -276,7 +276,7 @@ public OnItemPurchase(client,item)
     }
 }
 
-public Action:OnDropPlayer(client, target)
+public Action OnDropPlayer(client, target)
 {
     if (IsValidClientAlive(target) && GetRace(target) == raceID)
     {
@@ -332,7 +332,7 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
         new amulet_level = GetUpgradeLevel(client,raceID,amuletID);
         if (amulet_level > 0)
         {
-            new Float:initial = float(amulet_level+1) * 30.0;
+            float initial = float(amulet_level+1) * 30.0;
             SetInitialEnergy(client, initial);
             if (GetEnergy(client, true) < initial)
                 SetEnergy(client, initial, true);
@@ -343,7 +343,7 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     new Action:returnCode = Plugin_Continue;
@@ -363,7 +363,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
 
         if (attacker_race == raceID)
         {
-            new Float:amount = GetUpgradeEnergy(raceID,hallucinationID);
+            float amount = GetUpgradeEnergy(raceID,hallucinationID);
             new level = GetUpgradeLevel(attacker_index,raceID,hallucinationID);
             if (Hallucinate(victim_index, attacker_index, level, amount, g_HallucinateChance))
                 returnCode = Plugin_Handled;
@@ -373,13 +373,13 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
     return returnCode;
 }
 
-public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
+public Action OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
                                   assister_index, assister_race, damage,
                                   absorbed)
 {
     if (assister_race == raceID)
     {
-        new Float:amount = GetUpgradeEnergy(raceID,hallucinationID);
+        float amount = GetUpgradeEnergy(raceID,hallucinationID);
         new level = GetUpgradeLevel(assister_index,raceID,hallucinationID);
         if (Hallucinate(victim_index, assister_index, level, amount, g_HallucinateChance))
             return Plugin_Handled;
@@ -441,7 +441,7 @@ DoImmunity(client, level, bool:value)
 
     if (value && IsValidClientAlive(client))
     {
-        new Float:start[3];
+        float start[3];
         GetClientAbsOrigin(client, start);
 
         static const color[4] = { 0, 255, 50, 128 };
@@ -453,7 +453,7 @@ DoImmunity(client, level, bool:value)
 
 public PsionicStorm(client,ultlevel)
 {
-    decl String:upgradeName[64];
+    char upgradeName[64];
     GetUpgradeName(raceID, psionicStormID, upgradeName, sizeof(upgradeName), client);
 
     if (GetRestriction(client,Restriction_NoUltimates) ||
@@ -473,7 +473,7 @@ public PsionicStorm(client,ultlevel)
 
         gPsionicStormDuration[client] = ultlevel*3;
 
-        new Handle:PsionicStormTimer = CreateTimer(0.4, PersistPsionicStorm, GetClientUserId(client),
+        Handle PsionicStormTimer = CreateTimer(0.4, PersistPsionicStorm, GetClientUserId(client),
                                                    TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
         TriggerTimer(PsionicStormTimer, true);
 
@@ -482,7 +482,7 @@ public PsionicStorm(client,ultlevel)
     }
 }
 
-public Action:PersistPsionicStorm(Handle:timer,any:userid)
+public Action PersistPsionicStorm(Handle:timer,any:userid)
 {
     new client = GetClientOfUserId(userid);
     if (IsValidClientAlive(client) &&
@@ -490,11 +490,11 @@ public Action:PersistPsionicStorm(Handle:timer,any:userid)
         !GetRestriction(client,Restriction_Stunned))
     {
         new level = GetUpgradeLevel(client,raceID,psionicStormID);
-        new Float:range = g_PsionicStormRange[level];
+        float range = g_PsionicStormRange[level];
 
-        new Float:lastLoc[3];
-        new Float:indexLoc[3];
-        new Float:clientLoc[3];
+        float lastLoc[3];
+        float indexLoc[3];
+        float clientLoc[3];
         GetClientAbsOrigin(client, clientLoc);
 
         new b_count=0;
@@ -573,7 +573,7 @@ SummonArchon(client)
 
     if (g_archonRace < 0)
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, archonID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "IsNotAvailable", upgradeName);
         LogError("***The Protoss Archon race is not Available!");
@@ -587,7 +587,7 @@ SummonArchon(client)
     }
     else if (CanInvokeUpgrade(client, raceID, archonID))
     {
-        new Float:clientLoc[3];
+        float clientLoc[3];
         GetClientAbsOrigin(client, clientLoc);
         clientLoc[2] += 40.0; // Adjust position to the middle
 

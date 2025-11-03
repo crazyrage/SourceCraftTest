@@ -16,7 +16,7 @@
 
 stock Shake(const clients[],numClients,on_off=0,Float:amplitude=30.0,Float:duration=1.0,Float:frequency=30.0)
 {
-    new Handle:hBf=StartMessage("Shake", clients, numClients);
+    Handle hBf=StartMessage("Shake", clients, numClients);
     if(hBf!=INVALID_HANDLE)
     {
         BfWriteByte(hBf, on_off);
@@ -29,7 +29,7 @@ stock Shake(const clients[],numClients,on_off=0,Float:amplitude=30.0,Float:durat
 
 stock ShakeOne(client,on_off=0,Float:amplitude=30.0,Float:duration=1.0,Float:frequency=30.0)
 {
-    new Handle:hBf=StartMessageOne("Shake", client);
+    Handle hBf=StartMessageOne("Shake", client);
     if(hBf!=INVALID_HANDLE)
     {
         BfWriteByte(hBf, on_off);
@@ -42,7 +42,7 @@ stock ShakeOne(client,on_off=0,Float:amplitude=30.0,Float:duration=1.0,Float:fre
 
 stock ShakeAll(on_off,Float:amplitude=30.0,Float:duration=1.0,Float:frequency=30.0)
 {
-    new Handle:hBf=(on_off) ? StartMessageAll("Shake")
+    Handle hBf=(on_off) ? StartMessageAll("Shake")
                             : StartMessageAllLiving("Shake");
     if(hBf!=INVALID_HANDLE)
     {
@@ -60,7 +60,7 @@ stock ShakeOneAllowed(client,on_off=0,Float:amplitude=30.0,Float:duration=1.0,Fl
         !GetSetting(client,Remove_Queasiness) &&
         !GetImmunity(client,Immunity_Drugs))
     {
-        new Handle:hBf=StartMessageOne("Shake", client);
+        Handle hBf=StartMessageOne("Shake", client);
         if(hBf!=INVALID_HANDLE)
         {
             BfWriteByte(hBf, on_off);
@@ -74,7 +74,7 @@ stock ShakeOneAllowed(client,on_off=0,Float:amplitude=30.0,Float:duration=1.0,Fl
 
 stock ShakeAllAllowed(on_off,Float:amplitude=30.0,Float:duration=1.0,Float:frequency=30.0)
 {
-    new Handle:hBf=(on_off) ? StartMessageAll("Shake")
+    Handle hBf=(on_off) ? StartMessageAll("Shake")
                             : StartMessageAllAllowed("Shake");
     if(hBf!=INVALID_HANDLE)
     {

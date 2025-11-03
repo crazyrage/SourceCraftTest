@@ -40,7 +40,7 @@ stock Stimpacks(client, level, raceId, upgradeId)
     {
         if (!m_ROFAvailable)
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, upgradeId, upgradeName, sizeof(upgradeName), client);
             PrintHintText(client,"%t", "AreNotAvailable", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -48,7 +48,7 @@ stock Stimpacks(client, level, raceId, upgradeId)
         else if (GetRestriction(client,Restriction_NoUltimates) ||
                  GetRestriction(client,Restriction_Stunned))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, upgradeId, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -94,7 +94,7 @@ public Action:EndStimpack(Handle:timer,any:userid)
 
         if (IsClientInGame(client) && IsPlayerAlive(client))
         {
-            decl String:message[64];
+            char message[64];
             Format(message, sizeof(message), "%T", "StimpackHud", client);
             ReplaceString(message, sizeof(message), "*", "");
             ReplaceString(message, sizeof(message), " ", "");

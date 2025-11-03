@@ -29,7 +29,7 @@ stock RecallStructure(client, raceId, upgradeId, bool:disable, bool:engineersOnl
 {
     if (!IsValidClientAlive(client))
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceId, upgradeId, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "YouHaveDied", upgradeName);
         PrepareAndEmitSoundToClient(client,recallErrWav);
@@ -37,21 +37,21 @@ stock RecallStructure(client, raceId, upgradeId, bool:disable, bool:engineersOnl
     else if (GetRestriction(client,Restriction_NoUltimates) ||
              GetRestriction(client,Restriction_Stunned))
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceId, upgradeId, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
         PrepareAndEmitSoundToClient(client,deniedWav);
     }
     else if (IsMole(client))
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceId, upgradeId, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "NotAsMole", upgradeName);
         PrepareAndEmitSoundToClient(client,recallErrWav);
     }
     else if (GetGameType() == tf2 && TF2_HasTheFlag(client))
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceId, upgradeId, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "NotWithFlag", upgradeName);
         PrepareAndEmitSoundToClient(client,deniedWav);
@@ -62,7 +62,7 @@ stock RecallStructure(client, raceId, upgradeId, bool:disable, bool:engineersOnl
         {
             if (TF2_GetPlayerClass(client) != TFClass_Engineer)
             {
-                decl String:upgradeName[64];
+                char upgradeName[64];
                 GetUpgradeName(raceId, upgradeId, upgradeName, sizeof(upgradeName), client);
                 DisplayMessage(client, Display_Ultimate, "%t", "EngineersOnly", upgradeName);
                 PrepareAndEmitSoundToClient(client,deniedWav);
@@ -98,7 +98,7 @@ stock RecallStructure(client, raceId, upgradeId, bool:disable, bool:engineersOnl
             RecallIt(client, raceId, upgradeId, target, disable);
         else
         {
-            new Handle:menu=CreateMenu(RecallStructure_Selected);
+            Handle menu=CreateMenu(RecallStructure_Selected);
             SetMenuTitle(menu, "[SC] %T", "RecallStructureTitle", client);
 
             new counts[TFOBJECT_COUNT];
@@ -131,7 +131,7 @@ public RecallStructure_Selected(Handle:menu,MenuAction:action,client,selection)
         
         if (GetRace(client) == m_raceId)
         {
-            decl String:SelectionInfo[12];
+            char SelectionInfo[12];
             GetMenuItem(menu,selection,SelectionInfo,sizeof(SelectionInfo));
 
             new ref = StringToInt(SelectionInfo);
@@ -151,21 +151,21 @@ stock RecallIt(client, raceId, upgradeId, target, bool:disable)
 {
     if (!IsValidClientAlive(client))
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceId, upgradeId, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "YouHaveDied", upgradeName);
         PrepareAndEmitSoundToClient(client,recallErrWav);
     }
     else if (IsMole(client))
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceId, upgradeId, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "NotAsMole", upgradeName);
         PrepareAndEmitSoundToClient(client,recallErrWav);
     }
     else if (GetGameType() == tf2 && TF2_HasTheFlag(client))
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceId, upgradeId, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "NotWithFlag", upgradeName);
         PrepareAndEmitSoundToClient(client,deniedWav);
@@ -173,7 +173,7 @@ stock RecallIt(client, raceId, upgradeId, target, bool:disable)
     else if (GetRestriction(client,Restriction_NoUltimates) ||
              GetRestriction(client,Restriction_Stunned))
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceId, upgradeId, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
         PrepareAndEmitSoundToClient(client,deniedWav);
@@ -211,18 +211,18 @@ stock RecallIt(client, raceId, upgradeId, target, bool:disable)
                     !GetEntProp(target, Prop_Send, "m_bHasSapper") &&
                     !GetEntProp(target, Prop_Send, "m_bDisabled"))
                 {
-                    new Float:src[3];
+                    float src[3];
                     GetEntPropVector(target, Prop_Send, "m_vecOrigin", src);
 
                     PrepareAndEmitAmbientSound(recallSrcWav,src);
 
-                    new Float:size[3];
+                    float size[3];
                     GetEntPropVector(target, Prop_Send, "m_vecBuildMaxs", size);
 
-                    new Float:pos[3];
+                    float pos[3];
                     GetClientAbsOrigin(client, pos);
 
-                    new Float:angles[3];
+                    float angles[3];
                     GetClientAbsAngles(client, angles);
 
                     if (type == TFExtObject_Teleporter ||
@@ -230,7 +230,7 @@ stock RecallIt(client, raceId, upgradeId, target, bool:disable)
                         type == TFExtObject_TeleporterExit)
                     {
                         // Move player up
-                        new Float:newPos[3];
+                        float newPos[3];
                         newPos = pos;
                         newPos[2] += size[2] * 1.1;
 
@@ -253,7 +253,7 @@ stock RecallIt(client, raceId, upgradeId, target, bool:disable)
                     if (disable)
                     {
                         new recall_structure_level = GetUpgradeLevel(client,raceId,upgradeId);
-                        new Float:delay = float(5-recall_structure_level) * 0.5;
+                        float delay = float(5-recall_structure_level) * 0.5;
                         if (type == TFExtObject_Sentry &&
                             GetEntProp(target, Prop_Send, "m_bMiniBuilding") == 0)
                         {
@@ -314,16 +314,16 @@ public Action:ResetCollisionGroup(Handle:timer,any:obj)
                 new builder = GetEntPropEnt(obj, Prop_Send, "m_hBuilder");
                 if (IsValidClientAlive(builder))
                 {
-                    decl Float:playerPos[3];
+                    float playerPos[3];
                     GetClientAbsOrigin(builder, playerPos);
 
-                    decl Float:objectPos[3];
+                    float objectPos[3];
                     GetEntPropVector(obj, Prop_Send, "m_vecOrigin", objectPos);
 
-                    decl Float:size[3];
+                    float size[3];
                     GetEntPropVector(obj, Prop_Send, "m_vecBuildMaxs", size);
 
-                    new Float:distance = GetVectorDistance(objectPos, playerPos);
+                    float distance = GetVectorDistance(objectPos, playerPos);
                     if (distance < size[0] * -1.1 || distance > size[0] * 1.1)
                         SetEntProp(obj, Prop_Send, "m_CollisionGroup", 0);
                     else

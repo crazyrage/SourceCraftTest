@@ -8,7 +8,7 @@
 
 #define HELPCOMMAND_COUNT GetArraySize(vecHelpCommands)
 
-new Handle:vecHelpCommands = INVALID_HANDLE;
+Handle vecHelpCommands = INVALID_HANDLE;
 
 bool:InitHelpVector()
 {
@@ -44,7 +44,7 @@ Handle:HelpItem(command)
 
 NewHelpCommand(String:name[],String:info[])
 {
-    new Handle:vec=CreateArray(ByteCountToCells(256));
+    Handle vec=CreateArray(ByteCountToCells(256));
     PushArrayString(vec,name);
     PushArrayString(vec,info);
     return PushArrayCell(vecHelpCommands,vec);
@@ -84,12 +84,12 @@ InitHelpCommands()
 
 Help(client)
 {
-    new Handle:helpMenu=CreateMenu(HelpMenu_Selected);
+    Handle helpMenu=CreateMenu(HelpMenu_Selected);
     SetMenuExitButton(helpMenu,true);
     SetMenuTitle(helpMenu,"[SC] %T", "HelpTitle", client);
-    decl String:commandname[64];
-    decl String:helpbuf[4];
-    new Handle:commandHandle;
+    char commandname[64];
+    char helpbuf[4];
+    Handle commandHandle;
     for(new x=0;x<HELPCOMMAND_COUNT;x++)
     {
         Format(helpbuf,3,"%d",x);
@@ -106,7 +106,7 @@ public HelpMenu_Selected(Handle:menu,MenuAction:action,client,selection)
     {
         PrepareAndEmitSoundToClient(client,buttonWav);
 
-        decl String:SelectionInfo[SMALL_STRING_LENGTH];
+        char SelectionInfo[SMALL_STRING_LENGTH];
         GetMenuItem(menu,selection,SelectionInfo,sizeof(SelectionInfo));
 
         new command=StringToInt(SelectionInfo);
@@ -119,18 +119,18 @@ public HelpMenu_Selected(Handle:menu,MenuAction:action,client,selection)
 
 public HelpMenu_Command(client,command)
 {
-    new Handle:helpCommandHandle=HelpItem(command);
+    Handle helpCommandHandle=HelpItem(command);
 
-    decl String:name[NAME_STRING_LENGTH];
+    char name[NAME_STRING_LENGTH];
     GetArrayString(helpCommandHandle,0,name,sizeof(name));
 
-    decl String:phrase[300];
+    char phrase[300];
     GetArrayString(helpCommandHandle,1,phrase,sizeof(phrase));
 
-    decl String:desc[300];
+    char desc[300];
     Format(desc, sizeof(desc), "%T", phrase, client);
 
-    new Handle:helpMenu_Command=CreateMenu(HM_Command_Select);
+    Handle helpMenu_Command=CreateMenu(HM_Command_Select);
     SetMenuExitButton(helpMenu_Command,true);
     SetMenuExitBackButton(helpMenu_Command,true);
     SetMenuTitle(helpMenu_Command, "%T", "HelpItemTitle", client, name, desc);

@@ -1,7 +1,7 @@
 #include <sourcemod>
 #include "W3SIncs/War3Source_Interface"
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "War3Source - Warcraft Extended - Generic ward skills",
     author = "War3Source Team",
@@ -15,7 +15,7 @@ enum {
     BEHAVIOR_LAST, // not a real ward behavior, just for indexing
 }
 
-new BehaviorIndex[BEHAVIOR_LAST];
+int BehaviorIndex[BEHAVIOR_LAST];
 
 public OnWar3LoadRaceOrItemOrdered2(num)
 {
@@ -64,7 +64,7 @@ public OnWardPulse(wardindex, behavior)
 public OnWardTrigger(wardindex, victim, owner, behavior) 
 {
     decl data[MAXWARDDATA];
-    decl Float:VictimPos[3];
+    float VictimPos[3];
     
     War3_GetWardData(wardindex, data);
     GetClientAbsOrigin(victim, VictimPos);

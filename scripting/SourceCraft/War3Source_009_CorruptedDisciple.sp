@@ -7,70 +7,70 @@
 #include <sdktools_tempents>
 #include <sdktools_tempents_stocks>
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "War3Source - Race - Corrupted Disciple",
     author = "War3Source Team",
     description = "The Corrupted Disciple race for War3Source."
 };
 
-new thisRaceID;
+int thisRaceID;
 
 #if defined SOURCECRAFT
-new Float:ult_cooldown = 30.0;
+float ult_cooldown = 30.0;
 #else
-new Handle:ultCooldownCvar;
+Handle ultCooldownCvar;
 #endif
 
-new SKILL_TIDE, SKILL_CONDUIT, SKILL_STATIC, ULT_OVERLOAD;
+int SKILL_TIDE, SKILL_CONDUIT, SKILL_STATIC, ULT_OVERLOAD;
 
 
 // Chance/Data Arrays
-new ElectricTideMaxDamage[5]={0,40,60,100,140};
-new Float:ElectricTideRadius=375.0;
-new Float:AbilityCooldownTime=15.0;
+int ElectricTideMaxDamage[5]={0,40,60,100,140};
+float ElectricTideRadius=375.0;
+float AbilityCooldownTime=15.0;
 
-new ConduitPerHit[5]={0,1,1,2,2};
-new ConduitDuration=10;
-new ConduitCooldown=15;
-new ConduitMaxHeal[5]={0,4,6,8,10};
+int ConduitPerHit[5]={0,1,1,2,2};
+int ConduitDuration=10;
+int ConduitCooldown=15;
+int ConduitMaxHeal[5]={0,4,6,8,10};
 
-new Float:StaticHealPercent[5]={0.0,0.15,0.30,0.45,0.60};
-new StaticHealRadius=800;
+float StaticHealPercent[5]={0.0,0.15,0.30,0.45,0.60};
+int StaticHealRadius=800;
 
-new OverloadDuration=60; //HIT TIMES, DURATION DEPENDS ON TIMER
-new OverloadRadius=350;
-new OverloadDamagePerHit[5]={0,3,6,8,10};
-new Float:OverloadDamageIncrease[5]={1.0,1.01,1.015,1.020,1.025};
+int OverloadDuration=60; //HIT TIMES, DURATION DEPENDS ON TIMER
+int OverloadRadius=350;
+int OverloadDamagePerHit[5]={0,3,6,8,10};
+float OverloadDamageIncrease[5]={1.0,1.01,1.015,1.020,1.025};
 ////
 
 
-new Float:ElectricTideOrigin[MAXPLAYERSCUSTOM][3];
-new ElectricTideLoopCountdown[MAXPLAYERSCUSTOM];
+float ElectricTideOrigin[MAXPLAYERSCUSTOM][3];
+int ElectricTideLoopCountdown[MAXPLAYERSCUSTOM];
 
-new bool:HitOnForwardTide[MAXPLAYERSCUSTOM][MAXPLAYERSCUSTOM]; //[VICTIM][ATTACKER]
-new bool:HitOnBackwardTide[MAXPLAYERSCUSTOM][MAXPLAYERSCUSTOM];
-
-
-
-new Float:ConduitUntilTime[MAXPLAYERSCUSTOM]; // less than 1.0 is considered not activated, eles if curren ttime is more than  GetGameTime()
-new ConduitSubtractDamage[MAXPLAYERSCUSTOM];
-new ConduitBy[MAXPLAYERSCUSTOM]; //[VICTIM]
-new Float:ConduitLastTime[MAXPLAYERSCUSTOM];
+bool HitOnForwardTide[MAXPLAYERSCUSTOM][MAXPLAYERSCUSTOM]; //[VICTIM][ATTACKER]
+bool HitOnBackwardTide[MAXPLAYERSCUSTOM][MAXPLAYERSCUSTOM];
 
 
-new UltimateZapsRemaining[MAXPLAYERSCUSTOM];
-new Float:PlayerDamageIncrease[MAXPLAYERSCUSTOM];
 
-new String:taunt1[256]; //="war3source/cd/feeltheburn2.mp3";
-new String:taunt2[256]; //="war3source/cd/feeltheburn3.mp3";
+float ConduitUntilTime[MAXPLAYERSCUSTOM]; // less than 1.0 is considered not activated, eles if curren ttime is more than  GetGameTime()
+int ConduitSubtractDamage[MAXPLAYERSCUSTOM];
+int ConduitBy[MAXPLAYERSCUSTOM]; //[VICTIM]
+float ConduitLastTime[MAXPLAYERSCUSTOM];
 
-new String:overload1[256]; //="war3source/cd/overload2.mp3";
-new String:overloadzap[256]; //="war3source/cd/overloadzap.mp3";
-new String:overloadstate[256]; //="war3source/cd/ultstate.mp3";
+
+int UltimateZapsRemaining[MAXPLAYERSCUSTOM];
+float PlayerDamageIncrease[MAXPLAYERSCUSTOM];
+
+char taunt1[256]; //="war3source/cd/feeltheburn2.mp3";
+char taunt2[256]; //="war3source/cd/feeltheburn3.mp3";
+
+char overload1[256]; //="war3source/cd/overload2.mp3";
+char overloadzap[256]; //="war3source/cd/overloadzap.mp3";
+char overloadstate[256]; //="war3source/cd/ultstate.mp3";
 
 // Effects
-new BeamSprite,HaloSprite; 
+int BeamSprite,HaloSprite; 
 
 public OnPluginStart()
 {
@@ -112,7 +112,7 @@ public OnWar3LoadRaceOrItemOrdered(num)
         SetUpgradeCategory(thisRaceID, SKILL_TIDE, 2);
         SetUpgradeCost(thisRaceID, SKILL_TIDE, 30);
 
-        new Float:cooldown = GetUpgradeCooldown(thisRaceID,SKILL_CONDUIT);
+        float cooldown = GetUpgradeCooldown(thisRaceID,SKILL_CONDUIT);
         SetUpgradeEnergy(thisRaceID, SKILL_CONDUIT, cooldown);
         SetUpgradeCooldown(thisRaceID, SKILL_CONDUIT, cooldown);
         ConduitCooldown = RoundToNearest(cooldown);
@@ -213,13 +213,13 @@ public OnAbilityCommand(client,ability,bool:pressed)
     }
 }
 
-public Action:SecondRing(Handle:timer,any:userid)
+public Action SecondRing(Handle:timer,any:userid)
 {
     new client=GetClientOfUserId(userid);
     TE_SetupBeamRingPoint(ElectricTideOrigin[client], ElectricTideRadius+50,20.0, BeamSprite, HaloSprite, 0, 5, 0.5, 10.0, 1.0, {255,0,255,133}, 60, 0);
     TE_SendToAll();
 }
-public Action:BurnLoop(Handle:timer,any:userid)
+public Action BurnLoop(Handle:timer,any:userid)
 {
     new attacker=GetClientOfUserId(userid);
     if(ValidPlayer(attacker) && ElectricTideLoopCountdown[attacker]>0)
@@ -228,13 +228,13 @@ public Action:BurnLoop(Handle:timer,any:userid)
         //War3_DealDamage(victim,damage,attacker,DMG_BURN);
         CreateTimer(0.1,BurnLoop,userid);
         
-        new Float:damagingRadius=(1.0-FloatAbs(float(ElectricTideLoopCountdown[attacker])-10.0)/10.0)*ElectricTideRadius;
+        float damagingRadius=(1.0-FloatAbs(float(ElectricTideLoopCountdown[attacker])-10.0)/10.0)*ElectricTideRadius;
         
         //PrintToChatAll("distance to damage %f",damagingRadius);
         
         ElectricTideLoopCountdown[attacker]--;
         
-        new Float:otherVec[3];
+        float otherVec[3];
         for(new i=1;i<=MaxClients;i++)
         {
             if(ValidPlayer(i,true)&&GetClientTeam(i)!=team&&!W3HasImmunity(i,Immunity_Skills))
@@ -252,7 +252,7 @@ public Action:BurnLoop(Handle:timer,any:userid)
                     
                 GetClientAbsOrigin(i,otherVec);
                 otherVec[2]+=30.0;
-                new Float:victimdistance=GetVectorDistance(ElectricTideOrigin[attacker],otherVec);
+                float victimdistance=GetVectorDistance(ElectricTideOrigin[attacker],otherVec);
                 if(victimdistance<ElectricTideRadius&&FloatAbs(otherVec[2]-ElectricTideOrigin[attacker][2])<25)
                 {
                     if(FloatAbs(victimdistance-damagingRadius)<(ElectricTideRadius/10.0))
@@ -314,14 +314,14 @@ public OnUltimateCommand(client,race,bool:pressed)
         }
     }
 }
-public Action:UltimateLoop(Handle:timer,any:userid)
+public Action UltimateLoop(Handle:timer,any:userid)
 {
     new attacker=GetClientOfUserId(userid);
     if(ValidPlayer(attacker) && UltimateZapsRemaining[attacker]>0&&IsPlayerAlive(attacker))
     {
         UltimateZapsRemaining[attacker]--;
-        new Float:pos[3];
-        new Float:otherpos[3];
+        float pos[3];
+        float otherpos[3];
         GetClientEyePosition(attacker,pos);
         new team = GetClientTeam(attacker);
         new lowesthp=99999;
@@ -341,9 +341,9 @@ public Action:UltimateLoop(Handle:timer,any:userid)
                         //TE_SetupBeamPoints(pos,otherpos,BeamSprite,HaloSprite,0,35,0.15,6.0,5.0,0,1.0,{255,255,255,100},20);
                         //TE_SendToAll();
                         
-                        new Float:distanceVec[3];
+                        float distanceVec[3];
                         SubtractVectors(otherpos,pos,distanceVec);
-                        new Float:angles[3];
+                        float angles[3];
                         GetVectorAngles(distanceVec,angles);
                         
                         TR_TraceRayFilter(pos, angles, MASK_PLAYERSOLID, RayType_Infinite, CanHitThis,attacker);
@@ -385,14 +385,14 @@ public Action:UltimateLoop(Handle:timer,any:userid)
         UltimateZapsRemaining[attacker]=0;
     }
 }
-public Action:UltStateSound(Handle:t,any:attacker){
+public Action UltStateSound(Handle:t,any:attacker){
     if(ValidPlayer(attacker,true)&&UltimateZapsRemaining[attacker]>0){
         W3EmitSoundToAll(overloadstate,attacker);
         CreateTimer(3.7,UltStateSound,attacker);
     }
 }
 
-public bool:CanHitThis(entity, mask, any:data)
+public bool CanHitThis(entity, mask, any:data)
 {
     if(entity == data)
     {// Check if the TraceRay hit the itself.
@@ -488,7 +488,7 @@ public PlayerHurtEvent(Handle:event,const String:name[],bool:dontBroadcast)
                         ConduitLastTime[victim]=GetGameTime();
                         if(heal>=0){
                             if(War3_GetGame()==Game_TF){
-                                decl Float:pos[3];
+                                float pos[3];
                                 GetClientEyePosition(victim, pos);
                                 pos[2] += 4.0;
                                 War3_TF_ParticleToClient(attacker, "miss_text", pos); //to the attacker at the enemy pos
@@ -510,9 +510,9 @@ public PlayerHurtEvent(Handle:event,const String:name[],bool:dontBroadcast)
                     new heal=RoundFloat(StaticHealPercent[skill]*dmg);
                     new team=GetClientTeam(victim);
                     
-                    new Float:pos[3];
+                    float pos[3];
                     GetClientAbsOrigin(victim,pos);
-                    new Float:otherVec[3];
+                    float otherVec[3];
                     for(new i=1;i<=MaxClients;i++)
                     {
                         if(i==victim)
@@ -538,9 +538,9 @@ public PlayerHurtEvent(Handle:event,const String:name[],bool:dontBroadcast)
 
 
 
-public Action:CalcConduit(Handle:timer,any:userid)
+public Action CalcConduit(Handle:timer,any:userid)
 {
-    new Float:time = GetGameTime();
+    float time = GetGameTime();
     for(new i=1;i<=MaxClients;i++){
         if(time>ConduitUntilTime[i]){
             ConduitUntilTime[i]=0.0;

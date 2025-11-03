@@ -66,7 +66,7 @@ forward Action:HGR_OnClientRope(client);
  * @param action     0 - Hook, 1 - Grab, 2 - Rope (integer)
  * @return           The number of players whose access was set.
  */
-native HGR_Access(const String:target[], access, action);
+native HGR_Access(const char target[], access, action);
 
 /**
  * Gives or removes client access to hook, grab, or rope.

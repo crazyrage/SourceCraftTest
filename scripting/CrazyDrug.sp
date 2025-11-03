@@ -6,9 +6,9 @@
 #pragma semicolon 1
 #define VERSION "0.1"
 
-new IsDrugged[MAXPLAYERS+1];
+int IsDrugged[MAXPLAYERS+1];
 
-public Plugin:myinfo =
+public Plugin myinfo =
 {
 	name = "Crazy Drug",
 	author = "Fredd",
@@ -16,7 +16,7 @@ public Plugin:myinfo =
 	version = VERSION,
 	url = "http://www.sourcemod.net/"
 }
-new Handle:hTopMenu = INVALID_HANDLE;
+Handle hTopMenu = INVALID_HANDLE;
 
 public AdminMenu_CrazyDrug(Handle:topmenu, TopMenuAction:action, TopMenuObject:object_id, param, String:buffer[], maxlength)
 {
@@ -32,9 +32,9 @@ public AdminMenu_CrazyDrug(Handle:topmenu, TopMenuAction:action, TopMenuObject:o
 
 DisplayCrazyDrugMenu(client)
 {
-	new Handle:menu = CreateMenu(MenuHandler_CrazyDrug);
+	Handle menu = CreateMenu(MenuHandler_CrazyDrug);
 	
-	decl String:title[100];
+	char title[100];
 	Format(title, sizeof(title), "Crazy Drug player");
 	SetMenuTitle(menu, title);
 	SetMenuExitBackButton(menu, true);
@@ -59,7 +59,7 @@ public MenuHandler_CrazyDrug(Handle:menu, MenuAction:action, param1, param2)
 	}
 	else if (action == MenuAction_Select)
 	{
-		decl String:info[32];
+		char info[32];
 		new userid, target;
 		
 		GetMenuItem(menu, param2, info, sizeof(info));
@@ -75,7 +75,7 @@ public MenuHandler_CrazyDrug(Handle:menu, MenuAction:action, param1, param2)
 		}
 		else
 		{
-			new String:name[32];
+			char name[32];
 			GetClientName(target, name, sizeof(name));
 			
 			if(IsDrugged[target])
@@ -97,7 +97,7 @@ public MenuHandler_CrazyDrug(Handle:menu, MenuAction:action, param1, param2)
 		}
 	}
 }
-public Action:Command_CrazyDrug(client, args)
+public Action Command_CrazyDrug(client, args)
 {
 	if (args < 1)
 	{
@@ -105,13 +105,13 @@ public Action:Command_CrazyDrug(client, args)
 		return Plugin_Handled;
 	}
 	
-	decl String:arg[65];
+	char arg[65];
 	GetCmdArg(1, arg, sizeof(arg));
 	
 	new toggle = -1;
 	if (args > 1)
 	{
-		decl String:arg2[5];
+		char arg2[5];
 		GetCmdArg(2, arg2, sizeof(arg2));
 		if (arg2[0])
 		{
@@ -125,7 +125,7 @@ public Action:Command_CrazyDrug(client, args)
 		}
 	}
 	
-	decl String:target_name[MAX_TARGET_LENGTH];
+	char target_name[MAX_TARGET_LENGTH];
 	decl target_list[MAXPLAYERS], target_count, bool:tn_is_ml;
 	
 	if ((target_count = ProcessTargetString(
@@ -233,7 +233,7 @@ public OnPluginStart()
 	CreateConVar("crazydrug_version", VERSION, "Crazy Drug Version");
 	RegAdminCmd("sm_crazy-drug", Command_CrazyDrug, ADMFLAG_SLAY, "sm_crazy-drug <#userid|name> [0/1]");
 	
-	new Handle:topmenu;
+	Handle topmenu;
 	if (LibraryExists("adminmenu") && ((topmenu = GetAdminTopMenu()) != INVALID_HANDLE))
 	{
 		OnAdminMenuReady(topmenu);
@@ -260,7 +260,7 @@ public OnAdminMenuReady(Handle:topmenu)
 		ADMFLAG_SLAY);	
 	}
 }
-public bool:OnClientConnect(client, String:rejectmsg[], maxlen)
+public bool OnClientConnect(client, String:rejectmsg[], maxlen)
 {
 	IsDrugged[client] = false;
 	return true;

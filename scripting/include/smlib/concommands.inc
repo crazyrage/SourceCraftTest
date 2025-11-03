@@ -13,7 +13,7 @@
  * @param    flags        Flags to check.
  * @return                True if flags are set, false otherwise.
  */
-stock bool:ConCommand_HasFlags(const String:command[], const flags)
+stock bool:ConCommand_HasFlags(const char command[], const flags)
 {
     return bool:(GetCommandFlags(command) & flags);
 }
@@ -25,7 +25,7 @@ stock bool:ConCommand_HasFlags(const String:command[], const flags)
  * @param    flags        Flags to add.
  * @noreturn
  */
-stock ConCommand_AddFlags(const String:command[], const flags)
+stock ConCommand_AddFlags(const char command[], const flags)
 {
     new newFlags = GetCommandFlags(command);
     newFlags |= flags;
@@ -39,7 +39,7 @@ stock ConCommand_AddFlags(const String:command[], const flags)
  * @param    flags        Flags to remove
  * @noreturn
  */
-stock ConCommand_RemoveFlags(const String:command[], const flags)
+stock ConCommand_RemoveFlags(const char command[], const flags)
 {
     new newFlags = GetCommandFlags(command);
     newFlags &= ~flags;

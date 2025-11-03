@@ -4,7 +4,7 @@
 
 #define chars_per_cell (cellbits / 8)
 
-compute_hash(const String:input[])
+compute_hash(const char input[])
 {
 	new res = 0xFFFFFFFF;
 
@@ -69,7 +69,7 @@ dump_player_stats(client)
 {
 	if (IsClientInGame(client) && IsClientConnected(client))
 	{
-		decl String: player_authid[64];
+		char  player_authid[64];
 		if (!GetClientAuthString(client, player_authid, sizeof(player_authid)))
 		{
 			strcopy(player_authid, sizeof(player_authid), "UNKNOWN");
@@ -133,7 +133,7 @@ reset_player_stats(client)
 	}
 }
 
-stock get_weapon_index(const String: weapon_name[], tf2aux = 0)
+stock get_weapon_index(const char  weapon_name[], tf2aux = 0)
 {
 	new hash = compute_hash(weapon_name);
 	new loop_break = 0;

@@ -87,7 +87,7 @@ typedef EffectCallback = function void (int entity, any data);
  */
 stock Effect_Fade(entity, fadeOut=true, kill=false, fast=true, EffectCallback:callback=INVALID_FUNCTION, any:data=0)
 {
-	new Float:timerTime = 0.0;
+	float timerTime = 0.0;
 
 	if (fast) {
 		timerTime = 0.6;
@@ -113,7 +113,7 @@ stock Effect_Fade(entity, fadeOut=true, kill=false, fast=true, EffectCallback:ca
 	ChangeEdictState(entity, GetEntSendPropOffs(entity, "m_nRenderFX", true));
 
 	if (kill || callback != INVALID_FUNCTION) {
-		new Handle:dataPack = INVALID_HANDLE;
+		Handle dataPack = INVALID_HANDLE;
 		CreateDataTimer(timerTime, _smlib_Timer_Effect_Fade, dataPack, TIMER_FLAG_NO_MAPCHANGE | TIMER_DATA_HNDL_CLOSE);
 
 		WritePackCell(dataPack, EntIndexToEntRef(entity));
@@ -160,7 +160,7 @@ stock Effect_FadeOut(entity, kill=false, fast=true, EffectCallback:callback=INVA
 	Effect_Fade(entity, true, kill, fast, callback, data);
 }
 
-public Action:_smlib_Timer_Effect_Fade(Handle:Timer, Handle:dataPack)
+public Action _smlib_Timer_Effect_Fade(Handle:Timer, Handle:dataPack)
 {
 	new entity = ReadPackCell(dataPack);
 	new kill = ReadPackCell(dataPack);
@@ -309,7 +309,7 @@ stock Effect_DrawBeamBox(
 	speed=0
 ) {
 	// Create the additional corners of the box
-	decl Float:corners[8][3];
+	float corners[8][3];
 
 	for (new i=0; i < 4; i++) {
 		Array_Copy(bottomCorner,	corners[i],		3);
@@ -488,7 +488,7 @@ stock Effect_DrawBeamBoxRotatable(
 	speed=0
 ) {
 	// Create the additional corners of the box
-	decl Float:corners[8][3];
+	float corners[8][3];
 	Array_Copy(mins, corners[0], 3);
 	Math_MakeVector(maxs[0], mins[1], mins[2], corners[1]);
 	Math_MakeVector(maxs[0], maxs[1], mins[2], corners[2]);
@@ -652,7 +652,7 @@ stock Effect_DrawAxisOfRotation(
 	speed=0
 ) {
 	// Create the additional corners of the box
-	new Float:xAxis[3], Float:yAxis[3], Float:zAxis[3];
+	float xAxis[3], Float:yAxis[3], Float:zAxis[3];
 	xAxis[0] = length[0];
 	yAxis[1] = length[1];
 	zAxis[2] = length[2];
@@ -701,7 +701,7 @@ stock Effect_EnvSprite(
 	modelIndex,
 	const color[4]={255, 255, 255, 255},
 	Float:scale=0.25,
-	const String:targetName[MAX_NAME_LENGTH]="",
+	const char targetName[MAX_NAME_LENGTH]="",
 	parent=-1,
 	RenderMode:renderMode=RENDER_WORLDGLOW,
 	RenderFx:renderFx=RENDERFX_NONE,

@@ -49,98 +49,98 @@
 #define W3GetDamageIsBullet()       NW3GetDamageIsBullet(INVALID_HANDLE,0)
 #define W3ForceDamageIsBullet()     NW3ForceDamageIsBullet(INVALID_HANDLE,0)
 
-new const String:abilityReadySound[]="war3source/ability_refresh.mp3";
-new const String:ultimateReadySound[]="war3source/ult_ready.wav";
+char abilityReadySound[]="war3source/ability_refresh.mp3";
+char ultimateReadySound[]="war3source/ult_ready.wav";
 
 // Forwards
-new Handle:g_OnWar3RaceChangedHandle;
-new Handle:g_OnWar3RaceSelectedHandle;
-new Handle:g_OnWar3UltimateCommandHandle;
-new Handle:g_OnAbilityCommandHandle;
-new Handle:g_OnWar3PluginReadyHandle; //loadin default races in order
-new Handle:g_OnWar3PluginReadyHandle2; //other races
-new Handle:g_OnWar3PluginReadyHandle3; //other races backwards compatable
-new Handle:g_War3InterfaceExecFH;
-new Handle:g_OnWar3EventSpawnFH;
-new Handle:g_OnWar3EventDeathFH;
-new Handle:g_War3GlobalEventFH; 
-new Handle:g_hfwddenyable; 
-//new Handle:g_OnWar3EventRoundStartFH;
-//new Handle:g_OnWar3EventRoundEndFH;
+Handle g_OnWar3RaceChangedHandle;
+Handle g_OnWar3RaceSelectedHandle;
+Handle g_OnWar3UltimateCommandHandle;
+Handle g_OnAbilityCommandHandle;
+Handle g_OnWar3PluginReadyHandle; //loadin default races in order
+Handle g_OnWar3PluginReadyHandle2; //other races
+Handle g_OnWar3PluginReadyHandle3; //other races backwards compatable
+Handle g_War3InterfaceExecFH;
+Handle g_OnWar3EventSpawnFH;
+Handle g_OnWar3EventDeathFH;
+Handle g_War3GlobalEventFH; 
+Handle g_hfwddenyable; 
+//Handle g_OnWar3EventRoundStartFH;
+//Handle g_OnWar3EventRoundEndFH;
 
 // Forwards from War3Source_Engine_DamageSystem
-new Handle:FHOnW3TakeDmgAllPre;
-new Handle:FHOnW3TakeDmgBulletPre;
-new Handle:FHOnW3TakeDmgAll;
-new Handle:FHOnW3TakeDmgBullet;
+Handle FHOnW3TakeDmgAllPre;
+Handle FHOnW3TakeDmgBulletPre;
+Handle FHOnW3TakeDmgAll;
+Handle FHOnW3TakeDmgBullet;
 
-new Handle:g_OnWar3EventPostHurtFH;
+Handle g_OnWar3EventPostHurtFH;
 
 // Convars
-new Handle:hUseMetric;
+Handle hUseMetric;
 
 // Offsets
-new MyWeaponsOffset;
-new Clip1Offset;
-new AmmoOffset;
+int MyWeaponsOffset;
+int Clip1Offset;
+int AmmoOffset;
 
 // SDK Handles
-new Handle:hSDKWeaponDrop;
+Handle hSDKWeaponDrop;
 
 // GameFrame tracking definitions
-new Float:fAngle[65][3];
-new Float:fPos[65][3];
-new bool:bDucking[65];
-new iWeapon[65][10][2]; // [client][iterator][0-ent/1-clip1]
-new iAmmo[65][32];
-new iDeadAmmo[65][32];
-new iDeadClip1[65][10];
-new String:sWepName[65][10][64];
-new bool:bIgnoreTrackGF[65];
+float fAngle[65][3];
+float fPos[65][3];
+bool bDucking[65];
+int iWeapon[65][10][2]; // [client][iterator][0-ent/1-clip1]
+int iAmmo[65][32];
+int iDeadAmmo[65][32];
+int iDeadClip1[65][10];
+char sWepName[65][10][64];
+bool bIgnoreTrackGF[65];
 
 // MaxHP
-new g_iMaxXP[MAXPLAYERS+1]; // kinda hacky
-new any:W3VarArr[W3Var];
+int g_iMaxXP[MAXPLAYERS+1]; // kinda hacky
+int any:W3VarArr[W3Var];
 
 // Damage
-new g_CurDamageType=0;
-new g_CurInflictor=0; //variables from sdkhooks, natives retrieve them if needed
-new g_CurDamageIsWarcraft=0; //for this damage only
-new g_CurDamageIsTrueDamage=0; //not used yet?
+int g_CurDamageType=0;
+int g_CurInflictor=0; //variables from sdkhooks, natives retrieve them if needed
+int g_CurDamageIsWarcraft=0; //for this damage only
+int g_CurDamageIsTrueDamage=0; //not used yet?
 
-new Float:g_CurDMGModifierPercent=1.0;
+float g_CurDMGModifierPercent=1.0;
 
-new g_CurLastActualDamageDealt=0;
+int g_CurLastActualDamageDealt=0;
 
-new bool:g_CanSetDamageMod=false; //default false, you may not change damage percent when there is none to change
-new bool:g_CanDealDamage=true; //default true, you can initiate damage out of nowhere
+bool g_CanSetDamageMod=false; //default false, you may not change damage percent when there is none to change
+bool g_CanDealDamage=true; //default true, you can initiate damage out of nowhere
 
-new Float:LastDamageDealtTime[MAXPLAYERSCUSTOM];
-new Float:ChanceModifier[MAXPLAYERSCUSTOM];
+float LastDamageDealtTime[MAXPLAYERSCUSTOM];
+float ChanceModifier[MAXPLAYERSCUSTOM];
 
 //for deal damage only
-new g_NextDamageIsWarcraftDamage=0;
-new g_NextDamageIsTrueDamage=0;
+int g_NextDamageIsWarcraftDamage=0;
+int g_NextDamageIsTrueDamage=0;
 
-new damagestack=0;
+int damagestack=0;
 
 // Weapons Restrictions
-new String:weaponsAllowed[MAXPLAYERSCUSTOM][MAXRACES][300];
-new restrictionPriority[MAXPLAYERSCUSTOM][MAXRACES];
-new highestPriority[MAXPLAYERSCUSTOM];
-new bool:restrictionEnabled[MAXPLAYERSCUSTOM][MAXRACES]; ///if restriction has length, then this should be true (caching allows quick skipping)
+char weaponsAllowed[MAXPLAYERSCUSTOM][MAXRACES][300];
+int restrictionPriority[MAXPLAYERSCUSTOM][MAXRACES];
+int highestPriority[MAXPLAYERSCUSTOM];
+bool restrictionEnabled[MAXPLAYERSCUSTOM][MAXRACES]; ///if restriction has length, then this should be true (caching allows quick skipping)
 
-new bool:hasAnyRestriction[MAXPLAYERSCUSTOM]; //if any of the races said client has restriction, this is true (caching allows quick skipping)
+bool hasAnyRestriction[MAXPLAYERSCUSTOM]; //if any of the races said client has restriction, this is true (caching allows quick skipping)
 // Events
-new bool:notdenied=true;
-new timerskip;
+bool notdenied=true;
+int timerskip;
 
 // Expire Timer stuff
 #define MAXTHREADS 2000
-new Float:expireTime[MAXTHREADS];
-new threadsLoaded;
+float expireTime[MAXTHREADS];
+int threadsLoaded;
 
-public Plugin:myinfo= 
+public Plugin myinfo= 
 {
     name="War3Helper",
     author="Naris, PimpinJuice and Ownz",
@@ -180,7 +180,7 @@ public OnPluginStart()
 
     if(War3_GetGame()==CS)
     {
-        new Handle:hGameConf = LoadGameConfigFile("plugin.war3source");
+        Handle hGameConf = LoadGameConfigFile("plugin.war3source");
         if(hGameConf == INVALID_HANDLE)
         {
             SetFailState("gamedata/plugin.war3source.txt load failed");
@@ -293,14 +293,14 @@ public OnEntityCreated(entity, const String:classname[])
     }
 }
 
-new ignoreClient;
+int ignoreClient;
 public NWar3_GetAimEndPoint(Handle:plugin,numParams)
 {
     new client=GetNativeCell(1);
-    new Float:angle[3];
+    float angle[3];
     GetClientEyeAngles(client,angle);
-    new Float:endpos[3];
-    new Float:startpos[3];
+    float endpos[3];
+    float startpos[3];
     GetClientEyePosition(client,startpos);
     
     ignoreClient=client;
@@ -312,12 +312,12 @@ public NWar3_GetAimEndPoint(Handle:plugin,numParams)
 public NWar3_GetAimTraceMaxLen(Handle:plugin,numParams)
 {
     new client=GetNativeCell(1);
-    new Float:angle[3];
+    float angle[3];
     GetClientEyeAngles(client,angle);
-    new Float:endpos[3];
-    new Float:startpos[3];
+    float endpos[3];
+    float startpos[3];
     GetClientEyePosition(client,startpos);
-    new Float:dir[3];
+    float dir[3];
     GetAngleVectors(angle, dir, NULL_VECTOR, NULL_VECTOR);
     
     ScaleVector(dir, GetNativeCell(3));
@@ -330,11 +330,11 @@ public NWar3_GetAimTraceMaxLen(Handle:plugin,numParams)
     
     SetNativeArray(2,endpos,3);
 }
-public bool:AimTargetFilter(entity,mask)
+public bool AimTargetFilter(entity,mask)
 {
     return !(entity==ignoreClient);
 }
-public bool:CanHitThis(entityhit, mask, any:data)
+public bool CanHitThis(entityhit, mask, any:data)
 {
     if(entityhit == data )
     {// Check if the TraceRay hit the itself.
@@ -351,25 +351,25 @@ public Native_War3_GetTargetInViewCone(Handle:plugin,numParams)
     new client=GetNativeCell(1);
     if(ValidPlayer(client))
     {
-        new Float:max_distance=GetNativeCell(2);
-        new bool:include_friendlys=GetNativeCell(3);
-        new Float:cone_angle=GetNativeCell(4);
+        float max_distance=GetNativeCell(2);
+        bool include_friendlys=GetNativeCell(3);
+        float cone_angle=GetNativeCell(4);
         new Function:FilterFunction=GetNativeCell(5);
         if(max_distance<0.0)    max_distance=0.0;
         if(cone_angle<0.0)  cone_angle=0.0;
 
-        new Float:PlayerEyePos[3];
-        new Float:PlayerAimAngles[3];
-        new Float:PlayerToTargetVec[3];
-        new Float:OtherPlayerPos[3];
+        float PlayerEyePos[3];
+        float PlayerAimAngles[3];
+        float PlayerToTargetVec[3];
+        float OtherPlayerPos[3];
         GetClientEyePosition(client,PlayerEyePos);
         GetClientEyeAngles(client,PlayerAimAngles);
-        new Float:ThisAngle;
-        new Float:playerDistance;
-        new Float:PlayerAimVector[3];
+        float ThisAngle;
+        float playerDistance;
+        float PlayerAimVector[3];
         GetAngleVectors(PlayerAimAngles,PlayerAimVector,NULL_VECTOR,NULL_VECTOR);
         new bestTarget=0;
-        new Float:bestTargetDistance;
+        float bestTargetDistance;
         for(new i=1;i<=MaxClients;i++)
         {
             if(cone_angle<=0.0) break;
@@ -383,7 +383,7 @@ public Native_War3_GetTargetInViewCone(Handle:plugin,numParams)
                     if(Call_Finish(result)>SP_ERROR_NONE)
                     {
                         result=1; // bad callback, lets return 1 to be safe
-                        new String:plugin_name[256];
+                        char plugin_name[256];
                         GetPluginFilename(plugin,plugin_name,sizeof(plugin_name));
                         PrintToServer("[War3Source] ERROR in plugin \"%s\" traced to War3_GetTargetInViewCone(), bad filter function provided.",plugin_name);
                     }
@@ -435,7 +435,7 @@ public Native_War3_GetTargetInViewCone(Handle:plugin,numParams)
         }
         if(bestTarget==0)
         {
-            new Float:endpos[3];
+            float endpos[3];
             if(max_distance>0.0)
                 ScaleVector(PlayerAimVector,max_distance);
             else
@@ -456,7 +456,7 @@ public Native_War3_GetTargetInViewCone(Handle:plugin,numParams)
                             if(Call_Finish(result)>SP_ERROR_NONE)
                             {
                                 result=1; // bad callback, return 1 to be safe
-                                new String:plugin_name[256];
+                                char plugin_name[256];
                                 GetPluginFilename(plugin,plugin_name,sizeof(plugin_name));
                                 PrintToServer("[War3Source] ERROR in plugin \"%s\" traced to War3_GetTargetInViewCone(), bad filter function provided.",plugin_name);
                             }
@@ -480,8 +480,8 @@ public NW3LOS(Handle:plugin,numParams)
     new target=GetNativeCell(2);
     if(ValidPlayer(client,true)&&ValidPlayer(target,true))
     {
-        new Float:PlayerEyePos[3];
-        new Float:OtherPlayerPos[3];
+        float PlayerEyePos[3];
+        float OtherPlayerPos[3];
         GetClientEyePosition(client,PlayerEyePos);
         GetClientAbsOrigin(target,OtherPlayerPos);
         ignoreClient=client;
@@ -619,9 +619,9 @@ public Native_War3_TF_PTC(Handle:plugin,numParams)
             if (entities > 50)
             {
                 new client = GetNativeCell(1);
-                new String:str[32];
+                char str[32];
                 GetNativeString(2, str, 31);
-                new Float:pos[3];
+                float pos[3];
                 GetNativeArray(3,pos,3);
                 TE_ParticleToClient(client,str,pos);
             }
@@ -654,7 +654,7 @@ TE_ParticleToClient(client,
             }
 
             // find particle index
-            new String:tmp[256];
+            char tmp[256];
             new count = GetStringTableNumStrings(tblidx);
             new stridx = INVALID_STRING_INDEX;
             new i;
@@ -822,12 +822,12 @@ public NW3Deny(Handle:plugin,numParams)
     notdenied=false;
 }
 
-public Action:War3Source_AbilityCommand(client,args)
+public Action War3Source_AbilityCommand(client,args)
 {
-    decl String:command[32];
+    char command[32];
     GetCmdArg(0,command,32);
 
-    new bool:pressed=(command[0]=='+');
+    bool pressed=(command[0]=='+');
 
     new num = 0;
     if (IsCharNumeric(command[8]))
@@ -864,7 +864,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
     }
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     new result;
     W3VarArr[OldRace]=oldrace;
@@ -924,13 +924,13 @@ public OnTakeDamagePostHook(victim, attacker, inflictor, Float:damage, damagetyp
     
     damagestack++;
     
-    new bool:old_CanDealDamage=g_CanDealDamage;
+    bool old_CanDealDamage=g_CanDealDamage;
     g_CanSetDamageMod=true;
     
     g_CurInflictor = inflictor;
     
     // Figure out what really hit us. A weapon? A sentry gun?
-    new String:weaponName[64];
+    char weaponName[64];
     new realWeapon = weapon == -1 ? inflictor : weapon;
     GetEntityClassname(realWeapon, weaponName, sizeof(weaponName));
 
@@ -958,7 +958,7 @@ public OnTakeDamagePostHook(victim, attacker, inflictor, Float:damage, damagetyp
     TraceReturn();
 }
 
-public Action:OnXPGiven(client,&amount,bool:taken)
+public Action OnXPGiven(client,&amount,bool:taken)
 {
     //set event vars
     W3VarArr[EventArg1]=0; // W3XPAwardedBy:awardedfromevent
@@ -975,7 +975,7 @@ public Action:OnXPGiven(client,&amount,bool:taken)
         return Plugin_Continue;
 }
 
-public Action:OnCrystalsGiven(client,&amount,bool:taken)
+public Action OnCrystalsGiven(client,&amount,bool:taken)
 {
     //set event vars
     W3VarArr[EventArg1]=0; // W3XPAwardedBy:awardedfromevent
@@ -1009,7 +1009,7 @@ public Native_War3_DamageModPercent(Handle:plugin,numParams)
         //PrintPlugin(plugin);
     }
 
-    new Float:num=GetNativeCell(1); 
+    float num=GetNativeCell(1); 
     g_CurDMGModifierPercent*=num;
 }
 
@@ -1047,13 +1047,13 @@ public Native_War3_GetWar3DamageDealt(Handle:plugin,numParams)
 
 Float:PhysicalArmorMulti(client)
 {
-    new Float:armor=GetPhysicalArmorSum(client);
+    float armor=GetPhysicalArmorSum(client);
     return (1.0-(armor*0.06)/(1+armor*0.06));
 }
 
 Float:MagicArmorMulti(client)
 {
-    new Float:armor=GetMagicalArmorSum(client);
+    float armor=GetMagicalArmorSum(client);
     return (1.0-(armor*0.06)/(1+armor*0.06));
 }
 
@@ -1064,7 +1064,7 @@ public Native_NotifyPlayerTookDamageFromSkill(Handle:plugin, numParams)
     new damage = GetNativeCell(3);
     new skill = GetNativeCell(4);
 
-    decl String:short[32];
+    char short[32];
     decl  String:name[32];
 
     if (skill == 0)
@@ -1100,7 +1100,7 @@ stock War3_GetCSArmor(client)
 
 public Native_War3_DealDamage(Handle:plugin,numParams)
 {
-    new bool:whattoreturn=true;
+    bool whattoreturn=true;
     if(!g_CanDealDamage){
         LogError("War3_DealDamage called when DealDamage is not suppose to be called, please use the non PRE forward");
     }
@@ -1125,13 +1125,13 @@ public Native_War3_DealDamage(Handle:plugin,numParams)
 
         new dmg_type=GetNativeCell(4);  //original weapon damage type
 
-        decl String:weapon[64];
+        char weapon[64];
         GetNativeString(5,weapon,64);
 
         new War3DamageOrigin:W3DMGORIGIN=GetNativeCell(6);
         new War3DamageType:WAR3_DMGTYPE=GetNativeCell(7);
 
-        new bool:respectVictimImmunity=GetNativeCell(8);
+        bool respectVictimImmunity=GetNativeCell(8);
 
         if (respectVictimImmunity)
         {
@@ -1169,10 +1169,10 @@ public Native_War3_DealDamage(Handle:plugin,numParams)
             }
         }
 
-        new bool:countAsFirstTriggeredDamage=GetNativeCell(9);
+        bool countAsFirstTriggeredDamage=GetNativeCell(9);
         g_CurDamageIsWarcraft=g_NextDamageIsWarcraftDamage=!countAsFirstTriggeredDamage;
 
-        //new bool:settobullet=bool:W3GetDamageIsBullet(); //just in case someone dealt damage inside this forward and made it "not bullet"
+        //bool settobullet=bool:W3GetDamageIsBullet(); //just in case someone dealt damage inside this forward and made it "not bullet"
         decl oldcsarmor;
         if((WAR3_DMGTYPE==W3DMGTYPE_TRUEDMG||WAR3_DMGTYPE==W3DMGTYPE_MAGIC)&&War3_GetGame()==CS)
         {
@@ -1220,7 +1220,7 @@ public Native_War3_DealDamage(Handle:plugin,numParams)
     return whattoreturn;
 }
 
-public Action:OnPlayerTakeDamage(victim,&attacker,&inflictor,&Float:damage,&damagetype)
+public Action OnPlayerTakeDamage(victim,&attacker,&inflictor,&Float:damage,&damagetype)
 {
     new Action:result = Plugin_Continue;
     if (IsPlayerAlive(victim))
@@ -1230,7 +1230,7 @@ public Action:OnPlayerTakeDamage(victim,&attacker,&inflictor,&Float:damage,&dama
         new old_DamageType= g_CurDamageType;
         new old_Inflictor= g_CurInflictor;
         new old_IsWarcraftDamage= g_CurDamageIsWarcraft;
-        new Float:old_DamageModifierPercent = g_CurDMGModifierPercent;
+        float old_DamageModifierPercent = g_CurDMGModifierPercent;
         new old_IsTrueDamage = g_CurDamageIsTrueDamage;
 
         //set these to global
@@ -1250,7 +1250,7 @@ public Action:OnPlayerTakeDamage(victim,&attacker,&inflictor,&Float:damage,&dama
 
         damagestack++;
 
-        new Float:modifier = 1.0;
+        float modifier = 1.0;
         if(g_CurDamageIsWarcraft)
         {
             modifier = MagicArmorMulti(victim);
@@ -1275,9 +1275,9 @@ public Action:OnPlayerTakeDamage(victim,&attacker,&inflictor,&Float:damage,&dama
         }
 
         if(!g_CurDamageIsWarcraft && ValidPlayer(attacker)){
-            new Float:now=GetGameTime();
+            float now=GetGameTime();
             
-            new Float:value=now-LastDamageDealtTime[attacker];
+            float value=now-LastDamageDealtTime[attacker];
             if(value>1.0||value<0.0){
                 ChanceModifier[attacker]=1.0;
             }
@@ -1290,8 +1290,8 @@ public Action:OnPlayerTakeDamage(victim,&attacker,&inflictor,&Float:damage,&dama
         //else it is true damage
         //PrintToChatAll("takedmg %f BULLET %d   lastiswarcraft %d",damage,isBulletDamage,g_CurDamageIsWarcraft);
 
-        new bool:old_CanSetDamageMod=g_CanSetDamageMod;
-        new bool:old_CanDealDamage=g_CanDealDamage;
+        bool old_CanSetDamageMod=g_CanSetDamageMod;
+        bool old_CanDealDamage=g_CanDealDamage;
         g_CanSetDamageMod=true;
         g_CanDealDamage=false;
 
@@ -1367,7 +1367,7 @@ public Action:OnPlayerTakeDamage(victim,&attacker,&inflictor,&Float:damage,&dama
     return result;
 }
 
-public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:angles[3], &weapon)
+public Action OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:angles[3], &weapon)
 {
     if(ValidPlayer(client))
     {
@@ -1545,7 +1545,7 @@ bool:War3Source_InitForwards()
 
 bool:War3Source_InitOffset()
 {
-    new bool:ret=true;
+    bool ret=true;
 
     FindSendPropInfo("CBaseCombatCharacter", "m_hMyWeapons", .local_offset=MyWeaponsOffset);
     if(MyWeaponsOffset==-1)
@@ -1590,7 +1590,7 @@ public NWar3_RegisterDelayTracker(Handle:plugin,numParams)
 public NWar3_TrackDelay(Handle:plugin,numParams)
 {
     new index=GetNativeCell(1);
-    new Float:delay=GetNativeCell(2);
+    float delay=GetNativeCell(2);
     expireTime[index]=GetGameTime()+delay;
 }
 public NWar3_TrackDelayExpired(Handle:plugin,numParams)
@@ -1609,7 +1609,7 @@ public NW3GetRaceString(Handle:plugin,numParams)
 {
     new race=GetNativeCell(1);
 
-    decl String:longbuf[1000];
+    char longbuf[1000];
     switch (RaceString:GetNativeCell(2))
     {
         case RaceName:
@@ -1637,7 +1637,7 @@ public NW3GetRaceSkillString(Handle:plugin,numParams)
     new race=GetNativeCell(1);
     new skill=GetNativeCell(2);
 
-    decl String:longbuf[1000];
+    char longbuf[1000];
     switch (SkillString:GetNativeCell(3))
     {
         case (SkillString:W3SkillName):
@@ -1661,12 +1661,12 @@ public NW3GetRaceSkillString(Handle:plugin,numParams)
 public NWar3_AddRaceSkillT(Handle:plugin,numParams)
 {
     new raceid=GetNativeCell(1);
-    new String:skillname[64];
+    char skillname[64];
     GetNativeString(2,skillname,sizeof(skillname));
-    new bool:isult=bool:GetNativeCell(3);
+    bool isult=bool:GetNativeCell(3);
     new maxskilllevel=GetNativeCell(4);
 
-    decl String:parm[7][64];
+    char parm[7][64];
     for (new i=0; i<sizeof(parm); i++)
         parm[i][0] = '\0';
 
@@ -1680,7 +1680,7 @@ public NWar3_AddRaceSkillT(Handle:plugin,numParams)
                                  .p1=parm[0], .p2=parm[1], .p3=parm[2], .p4=parm[3],
                                  .p5=parm[4], .p6=parm[5], .p7=parm[6]);
 
-    decl String:description[2048];
+    char description[2048];
     new category = GetUpgradeDescription(raceid, newskillnum, description, sizeof(description));
 
     category = get_category(category, skillname, description, isult);
@@ -1708,11 +1708,11 @@ public NWar3_WeaponRestrictTo(Handle:plugin,numParams)
     
     new client=GetNativeCell(1);
     new raceid=GetNativeCell(2);
-    new String:restrictedto[300];
+    char restrictedto[300];
     GetNativeString(3,restrictedto,sizeof(restrictedto));
     
     restrictionPriority[client][raceid]=GetNativeCell(4);
-    //new String:pluginname[100];
+    //char pluginname[100];
     //GetPluginFilename(plugin, pluginname, 100);
     //PrintToServer("%s NEW RESTRICTION: %s",pluginname,restrictedto);
     //LogError("%s NEW RESTRICTION: %s",pluginname,restrictedto);
@@ -1745,7 +1745,7 @@ CalculateWeaponRestCache(client){
 }
 
 bool:CheckCanUseWeapon(client,weaponent){
-    decl String:WeaponName[32];
+    char WeaponName[32];
     GetEdictClassname(weaponent, WeaponName, sizeof(WeaponName));
     
     if(StrContains(WeaponName,"c4")>-1){ //allow c4
@@ -1764,7 +1764,7 @@ bool:CheckCanUseWeapon(client,weaponent){
 }
 
 
-public Action:OnWeaponCanUse(client, weaponent)
+public Action OnWeaponCanUse(client, weaponent)
 {
     if(hasAnyRestriction[client]){
         if(CheckCanUseWeapon(client,weaponent))
@@ -1777,7 +1777,7 @@ public Action:OnWeaponCanUse(client, weaponent)
     return Plugin_Continue;
 }
 
-public Action:WeaponRestrictionTimer(Handle:h,any:a){
+public Action WeaponRestrictionTimer(Handle:h,any:a){
     timerskip--;
     if(timerskip<1){
         timerskip=10;
@@ -1793,13 +1793,13 @@ public Action:WeaponRestrictionTimer(Handle:h,any:a){
             
             if(hasAnyRestriction[client]&&ValidPlayer(client,true)){
                 
-                new String:name[32];
+                char name[32];
                 GetClientName(client,name,sizeof(name));
                 //PrintToChatAll("ValidPlayer %d",client);
                 
                 new wpnent = GetCurrentWeaponEnt(client);
                 //PrintIfDebug(client,"   weapon ent %d %d",client,wpnent);
-                //new String:WeaponName[32];
+                //char WeaponName[32];
                 
                 //if(IsValidEdict(wpnent)){
                 
@@ -1845,13 +1845,13 @@ public NWar3_AddRaceSkill(Handle:plugin,numParams)
 {
     new raceid=GetNativeCell(1);
 
-    decl String:skillname[64];
+    char skillname[64];
     GetNativeString(2,skillname,sizeof(skillname));
 
-    decl String:skilldesc[2001];
+    char skilldesc[2001];
     GetNativeString(3,skilldesc,sizeof(skilldesc));
 
-    new bool:isult=GetNativeCell(4);
+    bool isult=GetNativeCell(4);
     new maxskilllevel=GetNativeCell(5);
 
     return AddRaceSkill(raceid,skillname,skillname,skilldesc,isult,maxskilllevel);
@@ -1859,10 +1859,10 @@ public NWar3_AddRaceSkill(Handle:plugin,numParams)
 
 stock AddRaceSkill(raceid,const String:shortname[],const String:name[],const String:description[],bool:isult=false,maxskilllevel=DEF_MAX_SKILL_LEVEL)
 {
-    decl String:short[16];
+    char short[16];
     fix_short(short, sizeof(short), shortname);
 
-    decl String:desc[2048];
+    char desc[2048];
     new category = fix_ability(desc, sizeof(desc), description, isult);
     return AddUpgrade(raceid, short, get_category(category, name, description, isult),
                       .max_level=maxskilllevel, .name=name, .desc=desc);
@@ -1965,7 +1965,7 @@ stock get_category(category, const String:name[], const String:desc[], bool:isul
 
 #define War3_GetSkillLevel(%1,%2,%3) GetUpgradeLevel(%1,%2,%3,true)
 
-new genericskillcount=0;
+int genericskillcount=0;
 
 //how many skills can use a generic skill, limited for memory
 #define MAXCUSTOMERRACES 32
@@ -1979,9 +1979,9 @@ enum GenericSkillClass
 }
 
 //55 generic skills
-new GenericSkill[55][GenericSkillClass];
+int GenericSkill[55][GenericSkillClass];
 public NWar3_CreateGenericSkill(Handle:plugin,numParams){
-    new String:tempgenskillname[32];
+    char tempgenskillname[32];
     GetNativeString(1,tempgenskillname,32);
     
     //find existing
@@ -1999,9 +1999,9 @@ public NWar3_CreateGenericSkill(Handle:plugin,numParams){
 }
 public NWar3_UseGenericSkill(Handle:plugin,numParams){
     new raceid=GetNativeCell(1);
-    new String:genskillname[32];
+    char genskillname[32];
     GetNativeString(2,genskillname,sizeof(genskillname));
-    new Handle:genericSkillData=Handle:GetNativeCell(3);
+    Handle genericSkillData=Handle:GetNativeCell(3);
     //start from 1
     for(new i=1;i<=genericskillcount;i++){
         //DP("1 %s %s ]",genskillname,GenericSkill[i][cskillname]);
@@ -2012,16 +2012,16 @@ public NWar3_UseGenericSkill(Handle:plugin,numParams){
                 
             
                 //DP("3");
-                new String:raceskillname[2001];
-                new String:raceskilldesc[2001];
+                char raceskillname[2001];
+                char raceskilldesc[2001];
                 GetNativeString(4,raceskillname,sizeof(raceskillname));
                 GetNativeString(5,raceskilldesc,sizeof(raceskilldesc));
                 
-                //new bool:istranaslated=GetNativeCell(6);
+                //bool istranaslated=GetNativeCell(6);
                 
                 //native War3_UseGenericSkill(raceid,String:gskillname[],Handle:genericSkillData,String:yourskillname[],String:untranslatedSkillDescription[],bool:translated=false,bool:isUltimate=false,maxskilllevel=DEF_MAX_SKILL_LEVEL,any:...);
 
-                new bool:isult=GetNativeCell(7);
+                bool isult=GetNativeCell(7);
                 new tmaxskilllevel=GetNativeCell(8);
                 
                 //W3Log("add skill %s %s",skillname,skilldesc);
@@ -2179,17 +2179,17 @@ public NW3Hint(Handle:plugin,numParams)
     if (ValidPlayer(client))
     {
         new W3HintPriority:priority=W3HintPriority:GetNativeCell(2);
-        new Float:Duration=GetNativeCell(3);
+        float Duration=GetNativeCell(3);
         if(Duration>20.0)
         {
             Duration=20.0;
         }   
 
-        new String:format[128];
+        char format[128];
         GetNativeString(4,format,sizeof(format));
 
         new written;
-        new String:output[256];
+        char output[256];
         FormatNativeString(0, 4, 5, sizeof(output), written, output);
 
         DisplayHint(client, HintSlot:priority,

@@ -52,7 +52,7 @@ stock Convar_RemoveFlags(Handle:convar, flags)
  * @param	name		String Name.
  * @return				True if the name specified is a valid ConVar or console command name, false otherwise.
  */
-stock bool:Convar_IsValidName(const String:name[])
+stock bool:Convar_IsValidName(const char name[])
 {
 	if (name[0] == '\0') {
 		return false;

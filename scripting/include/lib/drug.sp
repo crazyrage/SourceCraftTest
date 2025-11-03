@@ -38,11 +38,11 @@
 
 #include "gametype"
 
-new Handle:g_DrugTimers[MAXPLAYERS+1];
-new Float:g_DrugAngles[20] = {0.0, 5.0, 10.0, 15.0, 20.0, 25.0, 20.0, 15.0, 10.0, 5.0, 0.0, -5.0, -10.0, -15.0, -20.0, -25.0, -20.0, -15.0, -10.0, -5.0};
+Handle g_DrugTimers[MAXPLAYERS+1];
+float g_DrugAngles[20] = {0.0, 5.0, 10.0, 15.0, 20.0, 25.0, 20.0, 15.0, 10.0, 5.0, 0.0, -5.0, -10.0, -15.0, -20.0, -25.0, -20.0, -15.0, -10.0, -5.0};
 
 // UserMessageId for Fade.
-new UserMsg:g_FadeUserMsgId;
+int UserMsg:g_FadeUserMsgId;
 
 public Plugin:myinfo = 
 {
@@ -115,9 +115,9 @@ KillDrug(client)
 {
     KillDrugTimer(client);
 
-    new Float:pos[3];
+    float pos[3];
     GetClientAbsOrigin(client, pos);
-    new Float:angs[3];
+    float angs[3];
     GetClientEyeAngles(client, angs);
 
     angs[2] = 0.0;
@@ -127,7 +127,7 @@ KillDrug(client)
     new clients[2];
     clients[0] = client;	
 
-    new Handle:message = StartMessageEx(g_FadeUserMsgId, clients, 1);
+    Handle message = StartMessageEx(g_FadeUserMsgId, clients, 1);
     BfWriteShort(message, 1536);
     BfWriteShort(message, 1536);
     BfWriteShort(message, (0x0001 | 0x0010));
@@ -197,7 +197,7 @@ PerformBlind(target, amount)
 	new targets[2];
 	targets[0] = target;
 	
-	new Handle:message = StartMessageEx(g_FadeUserMsgId, targets, 1);
+	Handle message = StartMessageEx(g_FadeUserMsgId, targets, 1);
 	BfWriteShort(message, 1536);
 	BfWriteShort(message, 1536);
 	
@@ -228,10 +228,10 @@ public Action:Timer_Drug(Handle:timer, any:client)
         return Plugin_Handled;
     }
 
-    new Float:pos[3];
+    float pos[3];
     GetClientAbsOrigin(client, pos);
 
-    new Float:angs[3];
+    float angs[3];
     GetClientEyeAngles(client, angs);
 
     angs[2] = g_DrugAngles[GetRandomInt(0,100) % 20];
@@ -241,7 +241,7 @@ public Action:Timer_Drug(Handle:timer, any:client)
     new clients[2];
     clients[0] = client;	
 
-    new Handle:message = StartMessageEx(g_FadeUserMsgId, clients, 1);
+    Handle message = StartMessageEx(g_FadeUserMsgId, clients, 1);
     BfWriteShort(message, 255);
     BfWriteShort(message, 255);
     BfWriteShort(message, (0x0002));

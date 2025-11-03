@@ -3,7 +3,7 @@
 
 #define PLUGIN_VERSION "1.0.0"
 
-public Plugin:myinfo =
+public Plugin myinfo =
 {
     name 		=		"[TF2] Resize Players",
     author		=		"11530",
@@ -13,17 +13,17 @@ public Plugin:myinfo =
 };
 
 
-new Handle:g_hVersion = INVALID_HANDLE;
-new Handle:g_hEnabled = INVALID_HANDLE;
-new Handle:g_hResizeScale = INVALID_HANDLE;
-new Handle:g_hDefaultStatus = INVALID_HANDLE;
-new Handle:g_hMode = INVALID_HANDLE;
+Handle g_hVersion = INVALID_HANDLE;
+Handle g_hEnabled = INVALID_HANDLE;
+Handle g_hResizeScale = INVALID_HANDLE;
+Handle g_hDefaultStatus = INVALID_HANDLE;
+Handle g_hMode = INVALID_HANDLE;
 
-new bool:g_bEnabled;
-new bool:g_bDefaultStatus;
-new Float:g_fDefaultScale;
-new Float:g_fClientScale[MAXPLAYERS+1];
-new g_iMode;
+bool g_bEnabled;
+bool g_bDefaultStatus;
+float g_fDefaultScale;
+float g_fClientScale[MAXPLAYERS+1];
+int g_iMode;
 
 
 public OnPluginStart()
@@ -77,7 +77,7 @@ public OnMapStart()
 
 ResizePlayer(client, Float:fScale = 0.0)
 {
-	new Float:fCurrent = GetEntPropFloat(client, Prop_Send, "m_flModelScale");
+	float fCurrent = GetEntPropFloat(client, Prop_Send, "m_flModelScale");
 	if (fScale == 0.0)
 	{
 		SetEntPropFloat(client, Prop_Send, "m_flModelScale", ((fCurrent != g_fClientScale[client]) ? g_fClientScale[client] : 1.0));		
@@ -92,7 +92,7 @@ ResizePlayer(client, Float:fScale = 0.0)
 	}
 }
 
-public Action:OnResizeCmd(client, args)
+public Action OnResizeCmd(client, args)
 {
 	if (client == 0)
 	{
@@ -115,7 +115,7 @@ public Action:OnResizeCmd(client, args)
 			if (CheckCommandAccess(client, "sm_resize", ADMFLAG_CHEATS))
 			{
 				new target_count, bool:tn_is_ml;
-				decl String:sTargetName[MAX_TARGET_LENGTH], iTargetList[MAXPLAYERS], String:sTarget[MAX_NAME_LENGTH];
+				char sTargetName[MAX_TARGET_LENGTH], iTargetList[MAXPLAYERS], String:sTarget[MAX_NAME_LENGTH];
 				GetCmdArg(1, sTarget, sizeof(sTarget));
 				if ((target_count = ProcessTargetString(sTarget, client, iTargetList, MAXPLAYERS, 0, sTargetName, sizeof(sTargetName), tn_is_ml)) <= 0)
 				{
@@ -124,10 +124,10 @@ public Action:OnResizeCmd(client, args)
 				}
 				ShowActivity2(client, "\x05[SM]\x01 ", "%N \x05resized\x01 %s!", client, sTargetName);
 				
-				new Float:fScale = 0.0;
+				float fScale = 0.0;
 				if (args == 2)
 				{
-					decl String:sScale[128];
+					char sScale[128];
 					GetCmdArg(2, sScale, sizeof(sScale));
 					if ((fScale = StringToFloat(sScale)) <= 0.0)
 					{
@@ -157,7 +157,7 @@ public Action:OnResizeCmd(client, args)
 	return Plugin_Handled;
 }
 
-public ConVarChangeCallback(Handle:convar, const String:oldvalue[], const String:newvalue[])
+public ConVarChangeCallback(Handle:convar, const char oldvalue[], const char newvalue[])
 {
 	if (convar == g_hEnabled)
 	{
@@ -188,7 +188,7 @@ public ConVarChangeCallback(Handle:convar, const String:oldvalue[], const String
 	}
 }
 
-public OnClientAuthorized(client, const String:auth[])
+public OnClientAuthorized(client, const char auth[])
 {
 	if (g_bDefaultStatus)
 	{

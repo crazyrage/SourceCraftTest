@@ -42,7 +42,7 @@
 
 //Interface version, change this when the API requirement changes to force a recompile
 //There will be a system check to make sure all plugins are compiled to the same interface.
-new String:interfaceVersion[]="1.2.4.1";
+char interfaceVersion[]="1.2.4.1";
 #if defined SOURCECRAFT // Not for SourceCraft!
 #pragma unused interfaceVersion
 #endif
@@ -146,7 +146,7 @@ public War3InterfaceExec() {
 #if !defined SOURCECRAFT // Not Implemented!
 stock SetSafeMenuTitle(Handle:menu, const String:fmt[], any:...)
 {
-  decl String:menuTitle[4096];
+  char menuTitle[4096];
   VFormat(menuTitle, sizeof(menuTitle), fmt, 3);
 
   // There's a silly bug with the Left4Dead engine where menus won't
@@ -294,13 +294,13 @@ stock War3_SpawnPlayer(client,bool:ignore_dead_check=false)
  */
 stock Handle:War3_NearEntsByName(client,Handle:hEnts,pack_size,Float:distance=150.0)
 {
-  new Handle:hResults=CreateArray();
+  Handle hResults=CreateArray();
   ResetPack(hEnts);
   for(new x=0;x<pack_size;x++)
   {
-    new String:ent_name[128];
+    char ent_name[128];
     ReadPackString(hEnts,ent_name,sizeof(ent_name));
-    new Handle:result_found=War3_NearEntByName(client,ent_name,distance);
+    Handle result_found=War3_NearEntByName(client,ent_name,distance);
     if(result_found!=INVALID_HANDLE)
     {
       new size=GetArraySize(result_found);
@@ -326,16 +326,16 @@ stock Handle:War3_NearEntByName(client,String:ent_name[],Float:distance)
   return INVALID_HANDLE; // wtf? lol
   if(client>0 && client<=MaxClients && IsClientConnected(client) && IsClientInGame(client) && IsPlayerAlive(client))
   {
-    new Handle:hResults=CreateArray();
-    new Float:curPos[3];
+    Handle hResults=CreateArray();
+    float curPos[3];
     GetClientAbsOrigin(client,curPos);
     new ent=0;
     while((ent=FindEntityByClassname(ent,ent_name))>0)
     {
       if(!IsValidEdict(ent)) continue;
-      new Float:entPos[3];
+      float entPos[3];
       GetEntPropVector(ent,Prop_Send,"m_vecOrigin",entPos);
-      new Float:dist=GetVectorDistance(curPos,entPos);
+      float dist=GetVectorDistance(curPos,entPos);
       if(dist<=distance)
       {
         PushArrayCell(hResults,ent);
@@ -717,33 +717,33 @@ native W3GetCvarByString(String:cvarstr[],String:returnstr[],maxlen);
 native W3GetCvarActualString(cvarid,String:returnstr[],maxlen);
 
 stock W3CreateCvarInt(String:cvarstr[],intval,String:cvardesc[]) {
-  decl String:str[1024];
+  char str[1024];
   Format(str,sizeof(str),"%d",intval);
   return W3CreateCvar(cvarstr,str,cvardesc);
 }
 stock W3GetCvarInt(cvarid) {
-  decl String:ret[1024];
+  char ret[1024];
   W3GetCvar(cvarid, ret, sizeof(ret));
   //PrintToChatAll("%s %d",ret,StringToInt(ret));
   return StringToInt(ret);
 }
 stock W3SetCvarInt(cvarid, intval) {
-  decl String:str[1024];
+  char str[1024];
   Format(str, sizeof(str), "%d", intval);
   return W3SetCvar(cvarid, str);
 }
 stock W3CreateCvarFloat(String:cvarstr[],intval,String:cvardesc[]) {
-  decl String:str[1024];
+  char str[1024];
   Format(str,sizeof(str),"%f",intval);
   W3CreateCvar(cvarstr,str,cvardesc);
 }
 stock W3GetCvarFloat(cvarid) {
-  decl String:ret[1024];
+  char ret[1024];
   W3GetCvar(cvarid, ret, sizeof(ret));
   return StringToFloat(ret);
 }
 stock W3SetCvarFloat(cvarid, intval) {
-  decl String:str[1024];
+  char str[1024];
   Format(str, sizeof(str), "%f", intval);
   W3SetCvar(cvarid, str);
 }
@@ -1026,7 +1026,7 @@ native W3Deny();
 #if !defined SOURCECRAFT // Not Implemented, since it's not needed!
 stock bool:CanSelectRace(client,race) {
   W3SetVar(EventArg1,race);
-  new bool:value=W3Denyable(DN_CanSelectRace,client);
+  bool value=W3Denyable(DN_CanSelectRace,client);
   //DP("dp %d",value);
   if(value==false && W3IsDeveloper(client)) {
     //DP("dp2 %d",value);
@@ -1106,7 +1106,7 @@ stock War3_ChatMessage(client, const String:szMessage[], any:...)
 {
   if (client == 0)
   {
-    decl String:szBuffer[MAX_MESSAGE_LENGTH];
+    char szBuffer[MAX_MESSAGE_LENGTH];
     for (new i = 1; i <= MaxClients; i++)
     {
       if (IsClientInGame(i) && !IsFakeClient(i))
@@ -1120,7 +1120,7 @@ stock War3_ChatMessage(client, const String:szMessage[], any:...)
   }
   else
   {
-    decl String:szBuffer[MAX_MESSAGE_LENGTH];
+    char szBuffer[MAX_MESSAGE_LENGTH];
     SetGlobalTransTarget(client);
     VFormat(szBuffer, sizeof(szBuffer), szMessage, 3);
     Format(szBuffer, sizeof(szBuffer), "%T%s", "[War3Source]", client, szBuffer);
@@ -1147,7 +1147,7 @@ stock War3_ChatMessageEx(client, author, const String:szMessage[], any:...)
     if (!IsClientInGame(author))
     ThrowError("Client %d is not in game", author);
 
-    decl String:szBuffer[MAX_MESSAGE_LENGTH];
+    char szBuffer[MAX_MESSAGE_LENGTH];
     for (new i = 1; i <= MaxClients; i++)
     {
       if (IsClientInGame(i) && !IsFakeClient(i))
@@ -1161,7 +1161,7 @@ stock War3_ChatMessageEx(client, author, const String:szMessage[], any:...)
   }
   else
   {
-    decl String:szBuffer[MAX_MESSAGE_LENGTH];
+    char szBuffer[MAX_MESSAGE_LENGTH];
     SetGlobalTransTarget(client);
     VFormat(szBuffer, sizeof(szBuffer), szMessage, 4);
     Format(szBuffer, sizeof(szBuffer), "%T%s", "[War3Source]", client, szBuffer);
@@ -1375,7 +1375,7 @@ public SQLWar3GeneralCallback(Handle:owner, Handle:hndl, const String:error[], a
 
 //pass me a trie with key "query" = your query into originalqueryTrie
 stock SQLCheckForErrors(Handle:hndl,const String:originalerror[],const String:prependstr[]="",Handle:originalqueryTrie=Handle:0) {
-  new String:orignalquerystr[512];
+  char orignalquerystr[512];
   if(originalqueryTrie) {
     if(!GetTrieString(originalqueryTrie,"query",orignalquerystr,sizeof(orignalquerystr))) {
       LogError("SQLCheckForErrors: originalqueryTrie is not null but key 'query' not set from trie");
@@ -1388,7 +1388,7 @@ stock SQLCheckForErrors(Handle:hndl,const String:originalerror[],const String:pr
   LogError("SQL error: [%s] %s QUERY:%s", prependstr, originalerror,orignalquerystr);
   else if(hndl == INVALID_HANDLE)
   {
-    decl String:err[512];
+    char err[512];
     SQL_GetError(hndl, err, sizeof(err));
     LogError("SQLCheckForErrors: [%s] %s QUERY:%s", prependstr, err,orignalquerystr);
   }
@@ -1396,7 +1396,7 @@ stock SQLCheckForErrors(Handle:hndl,const String:originalerror[],const String:pr
 
 public bool:SQL_FastQueryLogOnError(Handle:DB,const String:query[]) {
   if(!SQL_FastQuery(DB,query)) {
-    new String:error[256];
+    char error[256];
     SQL_GetError(DB, error, sizeof(error));
     LogError("SQLFastQuery %s failed, Error: %s",query,error);
     return false;
@@ -1406,9 +1406,9 @@ public bool:SQL_FastQueryLogOnError(Handle:DB,const String:query[]) {
 
 //normal query like SQL_QUERY, database must be locked 
 stock bool:SQL_War3_NormalQuery(Handle:DB,String:querystr[]) {
-  new Handle:result= SQL_Query(DB, querystr);
+  Handle result= SQL_Query(DB, querystr);
   if(result==INVALID_HANDLE) {
-    new String:error[256];
+    char error[256];
     SQL_GetError(DB, error, sizeof(error));
     LogError("SQL_War3_NormalQuery %s failed, Error: %s",querystr,error);
     return false;
@@ -1423,7 +1423,7 @@ stock W3SQLPlayerInt(Handle:query,const String:columnname[]) //fech from query
 {
   new column;
   SQL_FieldNameToNum(query,columnname,column);
-  decl String:result[16];
+  char result[16];
   SQL_FetchString(query,column,result,sizeof(result));
   return StringToInt(result);
 }
@@ -1432,7 +1432,7 @@ stock W3SQLPlayerFloat(Handle:query,const String:columnname[]) //fech from query
 {
   new column;
   SQL_FieldNameToNum(query,columnname,column);
-  decl String:result[16];
+  char result[16];
   SQL_FetchString(query,column,result,sizeof(result));
   return StringToFloat(result);
 }
@@ -1452,7 +1452,7 @@ stock W3SQLPlayerString(Handle:query,const String:columnname[],String:out_buffer
 ///table should be locked!!!
 stock AddColumn(Handle:DB,const String:columnname[],const String:datatype[],const String:table_name[])
 {
-  decl String:query[256];
+  char query[256];
   Format(query,256,"ALTER TABLE %s ADD COLUMN %s %s DEFAULT '0'",table_name,columnname,datatype);
   PrintToServer("[War3Source] Tried to ADD column in TABLE %s: %s",table_name,columnname);
   SQL_FastQueryLogOnError(DB,query);
@@ -1465,7 +1465,7 @@ stock AddColumn(Handle:DB,const String:columnname[],const String:datatype[],cons
 // Stocks
 stock StrToken(const String:inputstr[],tokennum,String:outputstr[],maxlen)
 {
-  new String:buf[maxlen+1];
+  char buf[maxlen+1];
   new cur_idx;
   new idx;
   new curind;
@@ -1491,7 +1491,7 @@ stock StrToken(const String:inputstr[],tokennum,String:outputstr[],maxlen)
 
 stock StrTokenCount(const String:input[])
 {
-  decl String:buf[32];
+  char buf[32];
   new cur_idx;
   new idx;
   new curind;
@@ -1517,11 +1517,11 @@ stock Float:GetPlayerDistance(client1,client2) {
 
 //prints [W3S] You did %d damage to %name with SKILLNAME
 //prints [W3S] %name did %d damage to you with SKILLNAME
-new String:zzname[32];
+char zzname[32];
 stock W3PrintSkillDmgConsole(victim = 0, attacker, damage, skillnum) {
   GetClientName(victim, zzname, sizeof(zzname));
   new race = War3_GetRace(attacker);
-  new String:skillname[32];
+  char skillname[32];
   SetTrans( attacker);
   W3GetRaceSkillName(race, skillnum, skillname, sizeof(skillname));
   PrintToConsole(attacker, "%T",
@@ -1541,7 +1541,7 @@ stock W3PrintSkillDmgConsole(victim = 0, attacker, damage, skillnum) {
 stock W3PrintSkillDmgHint(victim = 0, attacker, damage, SKILLNUM) {
 
   new race = War3_GetRace(attacker);
-  new String:skillname[32];
+  char skillname[32];
   SetTrans( attacker);
   W3GetRaceSkillName(race, SKILLNUM, skillname, sizeof(skillname));
 
@@ -1578,7 +1578,7 @@ stock W3PrintSkillDmgHintConsole(victim = 0, attacker, damage, SKILLNUM) {
  */
 
 stock W3MsgUltNotLeveled(client) {
-  new String:buffer[100];
+  char buffer[100];
   Format(buffer, sizeof(buffer), "%T", "Your Ultimate is not leveled", client);
   PrintHintText(client, buffer);
 }
@@ -1589,7 +1589,7 @@ stock W3MsgEvaded(victim,attacker){
 }
 
 stock W3MsgNoTargetFound(client,Float:distancegameunits=0.0) {
-  decl String:print[500];
+  char print[500];
   Format(print,sizeof(print),"%T","No target found",client);
   if(distancegameunits>0.1) {
     if(GetConVarInt(W3GetVar(hUseMetricCvar))==0)
@@ -1604,7 +1604,7 @@ stock W3MsgNoTargetFound(client,Float:distancegameunits=0.0) {
   PrintHintText(client,"%s",print);
 }
 stock W3MsgCreatedWard(client, currentwardcount = 0, totalwardcount = 0) {
-  decl String:print[500];
+  char print[500];
   Format(print, sizeof(print), "%T", "You created a Ward", client);
   if (totalwardcount > 0) {
     Format(print, sizeof(print), "%T",
@@ -1654,9 +1654,9 @@ stock W3MsgStoleGold(victim, attacker, gold) {
   PrintHintText(attacker, "%T", "You Stole {gold} gold", attacker, gold);
 }
 stock W3MsgRevivedBM(playerrevived, savior) {
-  new String:clientName[64];
+  char clientName[64];
   GetClientName(playerrevived, clientName, sizeof(clientName));
-  new String:saviorName[64];
+  char saviorName[64];
   GetClientName(savior, saviorName, sizeof(saviorName));
 
   PrintHintText(savior, "%T", "You revived {player}", savior, clientName);
@@ -1732,7 +1732,7 @@ stock IsInvis(client) {
 stock DP(const String:szMessage[], any:...)
 {
 
-  decl String:szBuffer[1000];
+  char szBuffer[1000];
 
   VFormat(szBuffer, sizeof(szBuffer), szMessage, 2);
   PrintToServer("[DebugP %d] %s",RoundFloat(GetGameTime())%100, szBuffer);
@@ -1742,7 +1742,7 @@ stock DP(const String:szMessage[], any:...)
 //prring plugin
 stock DPP(Plugin:plugin)
 {
-  new String:szBuffer[1000];
+  char szBuffer[1000];
   GetPluginFilename(Handle:plugin, szBuffer,sizeof(szBuffer));
   DP("[Debug PrintP] %s", szBuffer);
 }
@@ -1750,10 +1750,10 @@ stock DPP(Plugin:plugin)
 //First match bases, insensitive
 stock Handle:FindPluginByFileCustom(const String:filename[])
 {
-    decl String:buffer[256];
+    char buffer[256];
     
-    new Handle:iter = GetPluginIterator();
-    new Handle:pl;
+    Handle iter = GetPluginIterator();
+    Handle pl;
     
     while (MorePlugins(iter))
     {
@@ -1774,12 +1774,12 @@ stock Handle:FindPluginByFileCustom(const String:filename[])
 }
 
 stock PrintPlugin(Handle:plugin) {
-  new String:str[100];
+  char str[100];
   GetPluginFilename(Handle:plugin, str, sizeof(str));
   War3_LogInfo("%s",str);
 }
 stock PrintPluginError(Handle:plugin) {
-  new String:str[100];
+  char str[100];
   GetPluginFilename(Handle:plugin, str, sizeof(str));
   LogError("%s",str);
   War3_LogError("%s",str);
@@ -1787,8 +1787,8 @@ stock PrintPluginError(Handle:plugin) {
 
 ///find a "string" in a war3cvar that is delimited by commas "rubbish,string" = true
 stock bool:W3FindStringInCvar(cvarid,String:findme[],max=9999) {
-  decl String:cvarstr[100];
-  decl String:exploded[32][32];
+  char cvarstr[100];
+  char exploded[32][32];
 
   W3GetCvar(cvarid,cvarstr,sizeof(cvarstr));
 
@@ -1873,7 +1873,7 @@ stock CreateTimer_DEBUG(any:f=0,any:ff=0,any:fff=0,any:ffff=0) {}
 //check race limit and force re-choose race
 stock CheckRaceTeamLimit(raceid, team){
 
-  new Float:youngest=-1.0;
+  float youngest=-1.0;
   new target=0;
   for(new i=1;i<=MaxClients;i++){
     if(ValidPlayer(i))
@@ -1892,17 +1892,17 @@ stock CheckRaceTeamLimit(raceid, team){
   }
   if(target>0){
     War3_SetRace(target,0);
-    new String:racename[64];
+    char racename[64];
     War3_GetRaceName(raceid,racename,sizeof(racename));
     War3_ChatMessage(target,"%T","{race} race team limit has reached (MAX {amount}), please select a different race",target,racename,W3GetRaceMaxLimitTeam(raceid,team));
     PrintToConsole(target,"Your race has been set via raceutils.inc");
     new cvar=W3GetRaceMaxLimitTeamCvar(raceid,team);
-    new String:cvarstr[64];
+    char cvarstr[64];
     if(cvar>-1){
       W3GetCvarActualString(cvar,cvarstr,sizeof(cvarstr));
     }
     cvar=W3FindCvar(cvarstr);
-    new String:cvarvalue[64];
+    char cvarvalue[64];
     if(cvar>-1){
       W3GetCvar(cvar,cvarvalue,sizeof(cvarvalue));
     }
@@ -2002,7 +2002,7 @@ stock War3_GetHintSound(String:sSoundFile[], maxlength)
 
 stock bool:War3_PrecacheSound(String:sound[])
 {
-  new String:longsound[512];
+  char longsound[512];
   Format(longsound,sizeof(longsound), "sound/%s", sound);
 
   if(PrecacheSound(sound, true)){

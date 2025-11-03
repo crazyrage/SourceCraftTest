@@ -8,11 +8,11 @@
 #include "sc/area"
 
 // Handles
-new Handle:g_OnAreaExpiredHandle = INVALID_HANDLE;
-new Handle:m_PlayerAreaTrie[MAXPLAYERS+1];
-new Handle:m_PlayerAreaArray[MAXPLAYERS+1];
+Handle g_OnAreaExpiredHandle = INVALID_HANDLE;
+Handle m_PlayerAreaTrie[MAXPLAYERS+1];
+Handle m_PlayerAreaArray[MAXPLAYERS+1];
 
-new Handle:m_AuraList = INVALID_HANDLE;
+Handle m_AuraList = INVALID_HANDLE;
 CreateAura(Float:distance, Float:interval=1.0,
            AreaType:type=Area_Team, priority=0, const String:name[]="",
            Float:beaconColor[4] = { 0, 0, 0, 0 },
@@ -26,7 +26,7 @@ CreateAura(Float:distance, Float:interval=1.0,
 
     if (distance > 0.0)
     {
-        new Handle:pack = CreateDataPack();
+        Handle pack = CreateDataPack();
         if (pack != INVALID_HANDLE)
         {
             WritePackFloat(pack, distance);
@@ -68,7 +68,7 @@ CreateArea(client, race, upgrade, Float:distance, Float:interval=1.0,
 
     if (distance > 0.0)
     {
-        new Handle:pack = CreateDataPack();
+        Handle pack = CreateDataPack();
         if (pack != INVALID_HANDLE)
         {
             WritePackCell(pack, client);
@@ -81,7 +81,7 @@ CreateArea(client, race, upgrade, Float:distance, Float:interval=1.0,
             WritePackCell(pack, priority);
             WritePackString(pack, name);
 
-            new Handle:array = m_PlayerAreaArray[client];
+            Handle array = m_PlayerAreaArray[client];
             if (array == INVALID_HANDLE)
             {
                 array = m_PlayerAreaArray[client] = CreateArray();
@@ -101,17 +101,17 @@ CreateArea(client, race, upgrade, Float:distance, Float:interval=1.0,
 AreaSpawn(client)
 {
     new race = GetRace(client);
-    new Handle:raceHandle = GetRaceHandle(race);
+    Handle raceHandle = GetRaceHandle(race);
     new upgradeCount=GetUpgradeCount(raceHandle);
     for (new upgrade=0;upgrade<upgradeCount;upgrade++)
     {
         new AreaType:type = GetUpgradeAreaType(raceHandle,upgrade);
         if ((type & Area_CreateOnSpawn) == Area_CreateOnSpawn)
         {
-            new Float:cooldown = GetUpgradeAreaDuration(raceHandle,upgrade);
+            float cooldown = GetUpgradeAreaDuration(raceHandle,upgrade);
             if (cooldown > 0.0)
             {
-                decl String:name[64];
+                char name[64];
                 GetUpgradeName(raceHandle, upgrade, name, sizeof(name), client);
                 CreateArea(client, race, upgrade, cooldown, name, type, "");
             }
@@ -124,24 +124,24 @@ AreaEvent(client, AreaType:resetBits)
     TraceInto("Area", "AreaEvent", "client=%d:%N, resetBits=0x%02x", \
               client, ValidClientIndex(client), resetBits);
 
-    new Handle:array = m_PlayerAreaArray[client];
+    Handle array = m_PlayerAreaArray[client];
     if (array != INVALID_HANDLE)
     {
         // Iterate backwards since we will be removing elements.
         for (new i = GetArraySize(array)-1; i >= 0 ; i--)
         {
-            new Handle:pack = Handle:GetArrayCell(array, i);
+            Handle pack = Handle:GetArrayCell(array, i);
             ResetPack(pack);
 
             ReadPackCell(pack); // index
             new userid = ReadPackCell(pack);
             new race = ReadPackCell(pack);
             new upgrade = ReadPackCell(pack);
-            new Float:expireTime = ReadPackFloat(pack);
+            float expireTime = ReadPackFloat(pack);
             new AreaType:type = AreaType:ReadPackCell(pack);
-            new Handle:timerHandle = Handle:ReadPackCell(pack);
+            Handle timerHandle = Handle:ReadPackCell(pack);
 
-            new bool:remove = (GetClientOfUserId(userid) != client);
+            bool remove = (GetClientOfUserId(userid) != client);
             if (remove || ((type & resetBits) != Area_TimerOnly &&
                            expireTime > GetGameTime()))
             {
@@ -155,10 +155,10 @@ AreaEvent(client, AreaType:resetBits)
 
                 if (remove || result == Plugin_Continue)
                 {
-                    new Handle:trie = m_PlayerAreaTrie[client];
+                    Handle trie = m_PlayerAreaTrie[client];
                     if (trie != INVALID_HANDLE)
                     {
-                        decl String:key[SHORT_STRING_LENGTH];
+                        char key[SHORT_STRING_LENGTH];
                         Format(key, sizeof(key), "%d-%d", race, upgrade);
                         RemoveFromTrie(trie, key);
                     }
@@ -192,7 +192,7 @@ AreaDisconnect(client)
     TraceInto("Area", "AreaDisconnect", "client=%d:%N", \
               client, ValidClientIndex(client));
 
-    new Handle:trie = m_PlayerAreaTrie[client];
+    Handle trie = m_PlayerAreaTrie[client];
     if (trie != INVALID_HANDLE)
     {
         ClearTrie(trie);
@@ -203,13 +203,13 @@ AreaDisconnect(client)
                  client,trie);
     }
 
-    new Handle:array = m_PlayerAreaArray[client];
+    Handle array = m_PlayerAreaArray[client];
     if (array != INVALID_HANDLE)
     {
         // Iterate backwards for consistency.
         for (new i = GetArraySize(array)-1; i >= 0 ; i--)
         {
-            new Handle:pack = Handle:GetArrayCell(array, i);
+            Handle pack = Handle:GetArrayCell(array, i);
             ResetPack(pack);
             ReadPackCell(pack); // index
             ReadPackCell(pack); // userid
@@ -217,7 +217,7 @@ AreaDisconnect(client)
             new upgrade = ReadPackCell(pack); // upgrade
             ReadPackFloat(pack); // expireTime
             ReadPackCell(pack); // AreaType:type
-            new Handle:timerHandle = Handle:ReadPackCell(pack);
+            Handle timerHandle = Handle:ReadPackCell(pack);
 
             #if !defined _TRACE
                 #pragma unused race, upgrade
@@ -261,13 +261,13 @@ ResetArea(client, race, upgrade, bool:notify)
     TraceInto("Area", "ResetArea", "client=%d:%N, race=$d, upgrade=%d, notify=%d", \
               client, ValidClientIndex(client), race, upgrade, notify);
 
-    new Handle:trie = m_PlayerAreaTrie[client];
+    Handle trie = m_PlayerAreaTrie[client];
     if (trie != INVALID_HANDLE)
     {
-        decl String:key[SHORT_STRING_LENGTH];
+        char key[SHORT_STRING_LENGTH];
         Format(key, sizeof(key), "%d-%d", race, upgrade);
 
-        new Handle:pack;
+        Handle pack;
         if (GetTrieValue(trie, key, pack))
         {
             ResetPack(pack);
@@ -277,7 +277,7 @@ ResetArea(client, race, upgrade, bool:notify)
             ReadPackCell(pack); // upgrade
             ReadPackFloat(pack); // expireTime
             new AreaType:type = AreaType:ReadPackCell(pack);
-            new Handle:timerHandle = Handle:ReadPackCell(pack);
+            Handle timerHandle = Handle:ReadPackCell(pack);
 
             new Action:result = Plugin_Continue;
             Call_StartForward(g_OnAreaExpiredHandle);
@@ -295,15 +295,15 @@ ResetArea(client, race, upgrade, bool:notify)
                     {
                         if (notify || (type & Area_AlwaysNotify) != Area_TimerOnly)
                         {
-                            decl String:name[NAME_STRING_LENGTH];
+                            char name[NAME_STRING_LENGTH];
                             ReadPackString(pack, name, sizeof(name));
 
-                            decl String:expireSound[LONG_STRING_LENGTH];
+                            char expireSound[LONG_STRING_LENGTH];
                             ReadPackString(pack, expireSound, sizeof(expireSound));
 
                             if (!name[0])
                             {
-                                new Handle:raceHandle=GetRaceHandle(race);
+                                Handle raceHandle=GetRaceHandle(race);
                                 new upgradeCategory = GetUpgradeCategory(raceHandle, upgrade);
                                 if (upgradeCategory > 1)
                                     Format(name,sizeof(name),"Ultimate%d",upgradeCategory);
@@ -330,7 +330,7 @@ ResetArea(client, race, upgrade, bool:notify)
 
                 RemoveFromTrie(trie, key);
 
-                new Handle:array = m_PlayerAreaArray[client];
+                Handle array = m_PlayerAreaArray[client];
                 if (array != INVALID_HANDLE)
                 {
                     new item = FindValueInArray(array, pack);
@@ -367,13 +367,13 @@ public Action:TransfusionTimer(Handle:timer, any:userid)
         if (GetRace(client) == raceID)
         {
             new healing_aura_level = GetUpgradeLevel(client,raceID,healingID);
-            new Float:healing_range = g_HealingRange[healing_aura_level];
+            float healing_range = g_HealingRange[healing_aura_level];
 
             new transfusion_level = GetUpgradeLevel(client,raceID,transfusionID);
-            new Float:transfusion_range = g_TransfusionRange[transfusion_level];
+            float transfusion_range = g_TransfusionRange[transfusion_level];
 
             new detecting_level = GetUpgradeLevel(client,raceID,detectorID);
-            new Float:detecting_range = g_DetectingRange[detecting_level];
+            float detecting_range = g_DetectingRange[detecting_level];
 
             if ((healing_aura_level <= 0 && transfusion_level <= 0 && detecting_level <= 0) ||
                 GetRestriction(client, Restriction_NoUpgrades) ||
@@ -384,12 +384,12 @@ public Action:TransfusionTimer(Handle:timer, any:userid)
             else
             {
                 static const healingColor[4] = {0, 255, 0, 255};
-                new Float:indexLoc[3];
-                new Float:clientLoc[3];
+                float indexLoc[3];
+                float clientLoc[3];
                 GetClientAbsOrigin(client, clientLoc);
                 clientLoc[2] += 50.0; // Adjust trace position to the middle of the person instead of the feet.
 
-                decl String:upgradeName[64];
+                char upgradeName[64];
                 GetUpgradeName(raceID, detectorID, upgradeName, sizeof(upgradeName), client);
 
                 new count=0;
@@ -402,7 +402,7 @@ public Action:TransfusionTimer(Handle:timer, any:userid)
                 {
                     if (index != client && IsClientInGame(index))
                     {
-                        new bool:alive = IsPlayerAlive(index);
+                        bool alive = IsPlayerAlive(index);
                         GetClientAbsOrigin(index, indexLoc);
 
                         if (GetClientTeam(index) == team)
@@ -459,7 +459,7 @@ public Action:TransfusionTimer(Handle:timer, any:userid)
                                 if (alive && IsPointInRange(clientLoc,indexLoc,detecting_range) &&
                                     TraceTargetIndex(client, index, clientLoc, indexLoc))
                                 {
-                                    new bool:uncloaked = false;
+                                    bool uncloaked = false;
                                     if (GetGameType() == tf2 &&
                                         !GetImmunity(index,Immunity_Uncloaking) &&
                                         TF2_GetPlayerClass(index) == TFClass_Spy)

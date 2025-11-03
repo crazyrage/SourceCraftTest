@@ -13,7 +13,7 @@
  * @param str				String to check.
  * @return					True if the String is numeric, false otherwise..
  */
-stock bool:String_IsNumeric(const String:str[])
+stock bool:String_IsNumeric(const char str[])
 {
 	new x=0;
 	new dotsFound=0;
@@ -60,7 +60,7 @@ stock bool:String_IsNumeric(const String:str[])
  * @param chars				Characters to remove.
  * @noreturn
  */
-stock String_Trim(const String:str[], String:output[], size, const String:chrs[]=" \t\r\n")
+stock String_Trim(const char str[], String:output[], size, const char chrs[]=" \t\r\n")
 {
 	new x=0;
 	while (str[x] != '\0' && FindCharInString(chrs, str[x]) != -1) {
@@ -103,7 +103,7 @@ stock String_RemoveList(String:buffer[], String:removeList[][], size, bool:caseS
  * @param size				Max Size of the Output string
  * @noreturn
  */
-stock String_ToLower(const String:input[], String:output[], size)
+stock String_ToLower(const char input[], String:output[], size)
 {
 	size--;
 
@@ -128,7 +128,7 @@ stock String_ToLower(const String:input[], String:output[], size)
  * @param size				Max Size of the Output string
  * @noreturn
  */
-stock String_ToUpper(const String:input[], String:output[], size)
+stock String_ToUpper(const char input[], String:output[], size)
 {
 	size--;
 
@@ -155,7 +155,7 @@ stock String_ToUpper(const String:input[], String:output[], size)
  * 							If you pass an empty String, it will use all readable ASCII characters (33 - 126)
  * @noreturn
  */
-stock String_GetRandom(String:buffer[], size, length=32, const String:chrs[]="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234556789")
+stock String_GetRandom(String:buffer[], size, length=32, const char chrs[]="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234556789")
 {
 	new random, len;
 	size--;
@@ -190,7 +190,7 @@ stock String_GetRandom(String:buffer[], size, length=32, const String:chrs[]="ab
  * @param subString			Sub-String to check in str
  * @return					True if str starts with subString, false otherwise.
  */
-stock bool:String_StartsWith(const String:str[], const String:subString[])
+stock bool:String_StartsWith(const char str[], const char subString[])
 {
 	new n = 0;
 	while (subString[n] != '\0') {
@@ -213,7 +213,7 @@ stock bool:String_StartsWith(const String:str[], const String:subString[])
  * @param subString			Sub-String to check in str
  * @return					True if str ends with subString, false otherwise.
  */
-stock bool:String_EndsWith(const String:str[], const String:subString[])
+stock bool:String_EndsWith(const char str[], const char subString[])
 {
 	new n_str = strlen(str) - 1;
 	new n_subString = strlen(subString) - 1;

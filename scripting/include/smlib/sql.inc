@@ -19,14 +19,14 @@
  * @param ...			Variable number of format parameters.
  * @noreturn
  */
-stock SQL_TQueryF(Handle:database, SQLTCallback:callback, any:data, DBPriority:priority=DBPrio_Normal, const String:format[], any:...) {
+stock SQL_TQueryF(Handle:database, SQLTCallback:callback, any:data, DBPriority:priority=DBPrio_Normal, const char format[], any:...) {
 
 	if (database == INVALID_HANDLE) {
 		ThrowError("[SMLIB] Error: Invalid database handle.");
 		return;
 	}
 
-	decl String:query[16384];
+	char query[16384];
 	VFormat(query, sizeof(query), format, 6);
 
 	SQL_TQuery(database, callback, query, data, priority);

@@ -36,7 +36,7 @@ stock LoadWeaponConf()
     hTF2WeaponEquip = EndPrepSDKCall();
 }
 
-stock bool:TF2_GiveNamedItem(client, const String:item[])
+stock bool:TF2_GiveNamedItem(client, const char item[])
 {
     if (!hTF2GiveNamedItem)
         LoadWeaponConf();
@@ -146,7 +146,7 @@ stock TF2_RemoveNonMelee(client, bool:pda=false)
  * @return				False if weapon could not be created, true on success
  * @error				Invalid client index or lack of mod support
  */
-stock bool:TF2_GivePlayerWeapon(client, const String:weapon[])
+stock bool:TF2_GivePlayerWeapon(client, const char weapon[])
 {
     //new weaponIndex = GivePlayerItem(client, weapon);
     new weaponIndex = TF2_GiveNamedItem(client, weapon);

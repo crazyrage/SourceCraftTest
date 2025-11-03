@@ -175,7 +175,7 @@ public int OnSourceCraftReady()
 
     for (new level=0; level < sizeof(g_ShieldsPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "shields_percent_level_%d", level);
         GetConfigFloatArray(key, g_ShieldsPercent[level], sizeof(g_ShieldsPercent[]),
                             g_ShieldsPercent[level], raceID, shieldsID);
@@ -392,7 +392,7 @@ public int OnUltimateCommand(int client, int race, bool pressed, int arg)
                         {
                             PrepareAndEmitSoundToClient(client,deniedWav);
 
-                            decl String:upgradeName[64];
+                            char upgradeName[64];
                             GetUpgradeName(raceID, mineID, upgradeName, sizeof(upgradeName), client);
                             DisplayMessage(client, Display_Ultimate, "%t", "NotAsMole", upgradeName);
                         }
@@ -413,7 +413,7 @@ public int OnUltimateCommand(int client, int race, bool pressed, int arg)
                     }
                     else
                     {
-                        decl String:upgradeName[64];
+                        char upgradeName[64];
                         GetUpgradeName(raceID, mineID, upgradeName, sizeof(upgradeName), client);
                         PrintHintText(client,"%t", "IsNotAvailable", upgradeName);
                     }
@@ -430,7 +430,7 @@ public int OnUltimateCommand(int client, int race, bool pressed, int arg)
                         {
                             PrepareAndEmitSoundToClient(client,deniedWav);
 
-                            decl String:upgradeName[64];
+                            char upgradeName[64];
                             GetUpgradeName(raceID, mineID, upgradeName, sizeof(upgradeName), client);
                             DisplayMessage(client, Display_Ultimate, "%t", "NotAsMole", upgradeName);
                         }
@@ -456,7 +456,7 @@ public int OnUltimateCommand(int client, int race, bool pressed, int arg)
                     }
                     else
                     {
-                        decl String:upgradeName[64];
+                        char upgradeName[64];
                         GetUpgradeName(raceID, mineID, upgradeName, sizeof(upgradeName), client);
                         PrintHintText(client,"%t", "IsNotAvailable", upgradeName);
                     }
@@ -467,7 +467,7 @@ public int OnUltimateCommand(int client, int race, bool pressed, int arg)
                 int ult_level=GetUpgradeLevel(client,raceID,controlID);
                 if (ult_level > 0)
                 {
-                    decl String:upgradeName[64];
+                    char upgradeName[64];
                     GetUpgradeName(raceID, controlID, upgradeName, sizeof(upgradeName), client);
 
                     if (!m_MindControlAvailable)

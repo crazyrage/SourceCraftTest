@@ -26,7 +26,7 @@
 
 #define SOUND_BLIP		"buttons/blip1.wav"
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "TF2 Uber Charger",
     author = "-=|JFH|=-Naris",
@@ -36,41 +36,41 @@ public Plugin:myinfo =
 }
 
 // Charged sounds
-new const String:Charged[][] = { "vo/medic_autochargeready01.wav",
+char Charged[][] = { "vo/medic_autochargeready01.wav",
                                  "vo/medic_autochargeready02.wav",
                                  "vo/medic_autochargeready03.wav"};
 
 // Basic color arrays for temp entities
-new const redColor[4] = {255, 75, 75, 255};
-new const greenColor[4] = {75, 255, 75, 255};
-new const blueColor[4] = {75, 75, 255, 255};
-new const greyColor[4] = {128, 128, 128, 255};
+int const redColor[4] = {255, 75, 75, 255};
+int const greenColor[4] = {75, 255, 75, 255};
+int const blueColor[4] = {75, 75, 255, 255};
+int const greyColor[4] = {128, 128, 128, 255};
 
 // Following are model indexes for temp entities
-new g_BeamSprite;
-new g_HaloSprite;
+int g_BeamSprite;
+int g_HaloSprite;
 
-new Float:g_ChargeDelay = 5.0;
-new Float:g_BeaconDelay = 3.0;
-new Float:g_PingDelay = 12.0;
+float g_ChargeDelay = 5.0;
+float g_BeaconDelay = 3.0;
+float g_PingDelay = 12.0;
 
-new Float:g_lastChargeTime = 0.0;
-new Float:g_lastBeaconTime = 0.0;
-new Float:g_lastPingTime = 0.0;
+float g_lastChargeTime = 0.0;
+float g_lastBeaconTime = 0.0;
+float g_lastPingTime = 0.0;
 
-new Handle:g_IsUberchargerOn = INVALID_HANDLE;
-new Handle:g_EnableBeacon = INVALID_HANDLE;
-new Handle:g_BeaconRadius = INVALID_HANDLE;
-new Handle:g_BeaconTimer = INVALID_HANDLE;
-new Handle:g_ChargeAmount = INVALID_HANDLE;
-new Handle:g_ChargeTimer = INVALID_HANDLE;
-new Handle:g_EnablePing = INVALID_HANDLE;
-new Handle:g_PingTimer = INVALID_HANDLE;
-new Handle:g_TimerHandle = INVALID_HANDLE;
-new bool:ConfigsExecuted = false;
-new bool:NativeControl = false;
-new bool:NativeMedicEnabled[MAXPLAYERS + 1] = { false, ...};
-new Float:NativeAmount[MAXPLAYERS + 1];
+Handle g_IsUberchargerOn = INVALID_HANDLE;
+Handle g_EnableBeacon = INVALID_HANDLE;
+Handle g_BeaconRadius = INVALID_HANDLE;
+Handle g_BeaconTimer = INVALID_HANDLE;
+Handle g_ChargeAmount = INVALID_HANDLE;
+Handle g_ChargeTimer = INVALID_HANDLE;
+Handle g_EnablePing = INVALID_HANDLE;
+Handle g_PingTimer = INVALID_HANDLE;
+Handle g_TimerHandle = INVALID_HANDLE;
+bool ConfigsExecuted = false;
+bool NativeControl = false;
+bool NativeMedicEnabled[MAXPLAYERS + 1] = { false, ...};
+float NativeAmount[MAXPLAYERS + 1];
 
 public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
 {
@@ -147,7 +147,7 @@ public OnClientPutInServer(client)
         CreateTimer(45.0, Timer_Advert, client);
 }
 
-public Action:Timer_Advert(Handle:timer, any:client)
+public Action Timer_Advert(Handle:timer, any:client)
 {
     if (!NativeControl &&
         GetConVarBool(g_IsUberchargerOn) &&
@@ -157,15 +157,15 @@ public Action:Timer_Advert(Handle:timer, any:client)
     }
 }
 
-public Action:Medic_Timer(Handle:timer, any:value)
+public Action Medic_Timer(Handle:timer, any:value)
 {
     if (!NativeControl && !GetConVarBool(g_IsUberchargerOn))
         return;
 
-    new Float:gameTime = GetGameTime();
-    new bool:charge    = (gameTime - g_lastChargeTime >= g_ChargeDelay);
-    new bool:beacon    = (gameTime - g_lastBeaconTime >= g_BeaconDelay);
-    new bool:ping      = (gameTime - g_lastPingTime >= g_PingDelay);
+    float gameTime = GetGameTime();
+    bool charge    = (gameTime - g_lastChargeTime >= g_ChargeDelay);
+    bool beacon    = (gameTime - g_lastBeaconTime >= g_BeaconDelay);
+    bool ping      = (gameTime - g_lastPingTime >= g_PingDelay);
 
     if (charge)
         g_lastChargeTime = gameTime;
@@ -187,16 +187,16 @@ public Action:Medic_Timer(Handle:timer, any:value)
                 {
                     if (TF2_GetPlayerClass(client) == TFClass_Medic)
                     {
-                        decl String:classname[64];
+                        char classname[64];
                         GetCurrentWeaponClass(client, classname, sizeof(classname));
                         if (StrEqual(classname, "CWeaponMedigun"))
                         {
-                            new Float:UberCharge = TF2_GetUberLevel(client);
+                            float UberCharge = TF2_GetUberLevel(client);
                             if (UberCharge < 1.0)
                             {
                                 if (charge)
                                 {
-                                    new Float:amt = NativeAmount[client];
+                                    float amt = NativeAmount[client];
                                     UberCharge += (amt > 0.0) ? amt : GetConVarFloat(g_ChargeAmount);
                                     if (UberCharge >= 1.0)
                                     {
@@ -212,7 +212,7 @@ public Action:Medic_Timer(Handle:timer, any:value)
                                 }
                                 else if (ping && GetConVarInt(g_EnablePing))
                                 {
-                                    new Float:vec[3];
+                                    float vec[3];
                                     GetClientEyePosition(client, vec);
                                     PrepareAndEmitAmbientSound(SOUND_BLIP, vec, client, SNDLEVEL_RAIDSIREN);	
                                 }
@@ -229,7 +229,7 @@ BeaconPing(client,bool:ping)
 {
     new team = GetClientTeam(client);
 
-    new Float:vec[3];
+    float vec[3];
     GetClientAbsOrigin(client, vec);
     vec[2] += 10;
 
@@ -267,7 +267,7 @@ Float:CalcDelay()
     g_BeaconDelay = GetConVarFloat(g_BeaconTimer);
     g_PingDelay = GetConVarFloat(g_PingTimer);
 
-    new Float:delay = g_ChargeDelay;
+    float delay = g_ChargeDelay;
     if (delay > g_BeaconDelay)
         delay = g_BeaconDelay;
     if (delay > g_PingDelay)

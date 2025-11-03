@@ -40,34 +40,34 @@
 #include "effect/BlueGlow"
 #include "effect/SendEffects"
 
-new const String:spawnWav[]     = "sc/zdrrdy00.wav";
-new const String:deathWav[]     = "sc/zdrdth00.wav";
-new const String:burrowUpWav[]  = "sc/burrowup.wav";
-new const String:burrowDownWav[] = "sc/burrowdn.wav";
+char spawnWav[]     = "sc/zdrrdy00.wav";
+char deathWav[]     = "sc/zdrdth00.wav";
+char burrowUpWav[]  = "sc/burrowup.wav";
+char burrowDownWav[] = "sc/burrowdn.wav";
 
-new raceID;
+int raceID;
 
 #include "sc/Mutate"
 
-new const String:g_ArmorName[]  = "Carapace";
-new Float:g_InitialArmor[]      = { 0.0, 0.10, 0.20, 0.30, 0.40 };
-new Float:g_ArmorPercent[][2]   = { {0.00, 0.00},
+char g_ArmorName[]  = "Carapace";
+float g_InitialArmor[]      = { 0.0, 0.10, 0.20, 0.30, 0.40 };
+float g_ArmorPercent[][2]   = { {0.00, 0.00},
                                     {0.00, 0.10},
                                     {0.00, 0.30},
                                     {0.10, 0.40},
                                     {0.20, 0.50} };
 
-new Float:g_NydusCanalRate[]    = { 0.0, 8.0, 6.0, 3.0, 1.0 };
+float g_NydusCanalRate[]    = { 0.0, 8.0, 6.0, 3.0, 1.0 };
 
-new carapaceID, regenerationID, creepID, nydusCanalID;
-new evolutionID, mutateID, burrowID, burrowStructID, hiveQueenID;
+int carapaceID, regenerationID, creepID, nydusCanalID;
+int evolutionID, mutateID, burrowID, burrowStructID, hiveQueenID;
 
-new g_hiveQueenRace = -1;
+int g_hiveQueenRace = -1;
 
-new cfgMaxObjects;
-new cfgAllowSentries;
+int cfgMaxObjects;
+int cfgAllowSentries;
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Zerg Drone",
     author = "-=|JFH|=-Naris",
@@ -174,7 +174,7 @@ public OnSourceCraftReady()
 
     for (new level=0; level < sizeof(g_ArmorPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "armor_percent_level_%d", level);
         GetConfigFloatArray(key, g_ArmorPercent[level], sizeof(g_ArmorPercent[]),
                             g_ArmorPercent[level], raceID, carapaceID);
@@ -191,7 +191,7 @@ public OnSourceCraftReady()
 
         for (new level=0; level < sizeof(m_MutateAmpRange); level++)
         {
-            decl String:key[32];
+            char key[32];
             Format(key, sizeof(key), "amp_range_level_%d", level);
             GetConfigFloatArray(key, m_MutateAmpRange[level], sizeof(m_MutateAmpRange[]),
                                 m_MutateAmpRange[level], raceID, mutateID);
@@ -199,7 +199,7 @@ public OnSourceCraftReady()
 
         for (new level=0; level < sizeof(m_MutateNodeRange); level++)
         {
-            decl String:key[32];
+            char key[32];
             Format(key, sizeof(key), "node_range_level_%d", level);
             GetConfigFloatArray(key, m_MutateNodeRange[level], sizeof(m_MutateNodeRange[]),
                                 m_MutateNodeRange[level], raceID, mutateID);
@@ -207,7 +207,7 @@ public OnSourceCraftReady()
 
         for (new level=0; level < sizeof(m_MutateNodeRegen); level++)
         {
-            decl String:key[32];
+            char key[32];
             Format(key, sizeof(key), "node_regen_level_%d", level);
             GetConfigArray(key, m_MutateNodeRegen[level], sizeof(m_MutateNodeRegen[]),
                            m_MutateNodeRegen[level], raceID, mutateID);
@@ -215,7 +215,7 @@ public OnSourceCraftReady()
 
         for (new level=0; level < sizeof(m_MutateNodeShells); level++)
         {
-            decl String:key[32];
+            char key[32];
             Format(key, sizeof(key), "node_shells_level_%d", level);
             GetConfigArray(key, m_MutateNodeShells[level], sizeof(m_MutateNodeShells[]),
                            m_MutateNodeShells[level], raceID, mutateID);
@@ -278,7 +278,7 @@ public OnClientDisconnect(client)
     KillClientTimer(client);
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -317,7 +317,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
     }
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
@@ -520,7 +520,7 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
     }
 }
 
-public Action:CreepTimer(Handle:timer, any:userid)
+public Action CreepTimer(Handle:timer, any:userid)
 {
     new client = GetClientOfUserId(userid);
     if (IsValidClientNotSpec(client))
@@ -641,7 +641,7 @@ EvolveHiveQueen(client)
 
     if (g_hiveQueenRace < 0)
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, hiveQueenID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "IsNotAvailable", upgradeName);
         LogError("***The Zerg Hive Queen race is not Available!");
@@ -655,7 +655,7 @@ EvolveHiveQueen(client)
     }
     else if (HasCooldownExpired(client, raceID, hiveQueenID))
     {
-        new Float:clientLoc[3];
+        float clientLoc[3];
         GetClientAbsOrigin(client, clientLoc);
         clientLoc[2] += 40.0; // Adjust position to the middle
 

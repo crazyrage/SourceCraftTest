@@ -35,17 +35,17 @@
 
 #define ResetExclaimTimer(%1) m_ExclaimTimers[%1] = INVALID_HANDLE
 
-new raceID, burrowID, degenerationID, meleeID, attackID;
+int raceID, burrowID, degenerationID, meleeID, attackID;
 
-new Float:g_BroodlingAttackRange[]      = { 1000.0, 800.0, 800.0, 800.0, 800.0 };
-new Float:g_AdrenalGlandsPercent[]      = { 0.0, 0.15, 0.35, 0.55, 0.65 };
+float g_BroodlingAttackRange[]      = { 1000.0, 800.0, 800.0, 800.0, 800.0 };
+float g_AdrenalGlandsPercent[]      = { 0.0, 0.15, 0.35, 0.55, 0.65 };
 
-new const String:g_AdrenalGlandsSound[] = "sc/zbratt00.wav";
+char g_AdrenalGlandsSound[] = "sc/zbratt00.wav";
 
-new const String:spawnWav[]             = "sc/zbrrdy00.wav";
-new const String:deathWav[]             = "sc/zbrdth00.wav";
+char spawnWav[]             = "sc/zbrrdy00.wav";
+char deathWav[]             = "sc/zbrdth00.wav";
 
-new const String:broodlingWav[][]       = { "sc/zbrwht00.wav" ,
+char broodlingWav[][]       = { "sc/zbrwht00.wav" ,
                                             "sc/zbrwht01.wav" ,
                                             "sc/zbrwht02.wav" ,
                                             "sc/zbrwht03.wav" ,
@@ -54,11 +54,11 @@ new const String:broodlingWav[][]       = { "sc/zbrwht00.wav" ,
                                             "sc/zbrpss02.wav" ,
                                             "sc/zbrpss03.wav" };
 
-new m_LastRace[MAXPLAYERS+1];
-new m_Countdown[MAXPLAYERS+1];
-new Handle:m_ExclaimTimers[MAXPLAYERS+1];
+int m_LastRace[MAXPLAYERS+1];
+int m_Countdown[MAXPLAYERS+1];
+Handle m_ExclaimTimers[MAXPLAYERS+1];
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Broodling",
     author = "-=|JFH|=-Naris",
@@ -129,7 +129,7 @@ public OnClientDisconnect(client)
     KillExclaimTimer(client);
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -157,7 +157,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
         return Plugin_Continue;
 }   
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
@@ -218,7 +218,7 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     if (!from_sc && attacker_index > 0 &&
@@ -279,12 +279,12 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
     }
 }
 
-public Action:Degeneration(Handle:timer, any:userid)
+public Action Degeneration(Handle:timer, any:userid)
 {
     new client = GetClientOfUserId(userid);
     if (IsValidClientAlive(client) && GetRace(client) == raceID)
     {
-        new Float:clientLoc[3];
+        float clientLoc[3];
         GetClientAbsOrigin(client, clientLoc);
         clientLoc[2] += 50.0; // Adjust trace position to the middle of the person instead of the feet.
 
@@ -298,8 +298,8 @@ public Action:Degeneration(Handle:timer, any:userid)
         new attack_level=GetUpgradeLevel(client,raceID,attackID);
         if (attack_level > 0)
         {
-            new Float:indexLoc[3];
-            new Float:range=g_BroodlingAttackRange[attack_level];
+            float indexLoc[3];
+            float range=g_BroodlingAttackRange[attack_level];
 
             new lightning  = Lightning();
             new haloSprite = HaloSprite();
@@ -380,13 +380,13 @@ public Action:Degeneration(Handle:timer, any:userid)
     return Plugin_Stop;
 }
 
-public Action:Exclaimation(Handle:timer, any:client)
+public Action Exclaimation(Handle:timer, any:client)
 {
     if (IsValidClientAlive(client))
     {
         if (GetRace(client) == raceID)
         {
-            new Float:clientLoc[3];
+            float clientLoc[3];
             GetClientAbsOrigin(client, clientLoc);
 
             new num = GetRandomInt(0,sizeof(broodlingWav)-1);
@@ -411,7 +411,7 @@ stock CreateExclaimTimer(client, Float:interval, Timer:func,
 
 stock KillExclaimTimer(client)
 {
-    new Handle:timer=m_ExclaimTimers[client];
+    Handle timer=m_ExclaimTimers[client];
     if (timer != INVALID_HANDLE)
     {
         m_ExclaimTimers[client] = INVALID_HANDLE;	

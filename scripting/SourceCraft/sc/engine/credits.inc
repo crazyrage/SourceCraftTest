@@ -70,17 +70,17 @@ ShowEnergy(client, Display:displayFlags=Display_Energy)
 {
     if (!IsFakeClient(client))
     {
-        new bool:display = (displayFlags != Display_Energy);
+        bool display = (displayFlags != Display_Energy);
         if (!display)
         {
             new EnergyFlags:energyFlags = NoEnergy;
-            new Float:limit = GetEnergyLimit(client);
-            new Float:rate = GetEnergyRate(client);
+            float limit = GetEnergyLimit(client);
+            float rate = GetEnergyRate(client);
 
             new race = GetRace(client);
             if (race > 0)
             {
-                new Handle:raceHandle = GetRaceHandle(race);
+                Handle raceHandle = GetRaceHandle(race);
                 energyFlags = GetRaceEnergyFlags(raceHandle);
 
                 if (rate < 0)
@@ -253,7 +253,7 @@ GiveCrystals(client, amount, const String:phrase[],
 
         if (result != Plugin_Stop)
         {
-            new String:reason[NAME_STRING_LENGTH];
+            char reason[NAME_STRING_LENGTH];
             if (place >= 0 || points >= 0)
             {
                 Format(reason, sizeof(reason), "%T",
@@ -336,7 +336,7 @@ GiveCrystals(client, amount, const String:phrase[],
                     new item = GetRandomInt(0, shopItemCount-1);
                     if (item >= 0)
                     {
-                        new Handle:itemHandle = GetShopItemHandle(item);
+                        Handle itemHandle = GetShopItemHandle(item);
                         if (itemHandle && GetCrystals(client) >= GetItemCrystals(itemHandle))
                             PurchaseShopItem(client, item);
                     }
@@ -348,7 +348,7 @@ GiveCrystals(client, amount, const String:phrase[],
 
 GivePCrystals(client, amount, const String:phrase[])
 {
-    new String:reason[NAME_STRING_LENGTH];
+    char reason[NAME_STRING_LENGTH];
     Format(reason, sizeof(reason), "%T", phrase, client);
     LogToGame("%N gained %d +crystals for %s", client, amount, reason);
     DisplayMessage(client, Display_Crystals, "%t", "GainedPCrystals",
@@ -369,7 +369,7 @@ GiveVespene(client, amount, const String:phrase[],
 
         if (result != Plugin_Stop)
         {
-            new String:reason[NAME_STRING_LENGTH];
+            char reason[NAME_STRING_LENGTH];
             if (place >= 0 || points >= 0)
             {
                 Format(reason, sizeof(reason), "%T",
@@ -419,7 +419,7 @@ GiveEnergy(client, Float:amount, const String:phrase[],
 {
     if (GetShopItemCount() >= 1 && GetClientCount() >= g_iMinPlayers)
     {
-        new String:reason[NAME_STRING_LENGTH];
+        char reason[NAME_STRING_LENGTH];
         if (place >= 0 || points >= 0)
         {
             Format(reason, sizeof(reason), "%T",
