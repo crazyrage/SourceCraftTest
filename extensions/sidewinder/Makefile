@@ -6,7 +6,9 @@ SRCDS_BASE = ~/srcds
 HL2SDK_ORIG = ../hl2sdk
 HL2SDK_OB = ../hl2sdk-ob-valve
 HL2SDK_L4D = ../hl2sdk-l4d
-MMSOURCE17 = ../mmsource-1.7
+# Updated from MMSOURCE17 to MMSOURCE111 for MetaMod: Source 1.11+
+# Note: You may need to update this path to match your MetaMod installation
+MMSOURCE111 = ../mmsource-1.11
 
 #####################################
 ### EDIT BELOW FOR OTHER PROJECTS ###
@@ -14,7 +16,7 @@ MMSOURCE17 = ../mmsource-1.7
 
 PROJECT = sidewinder
 
-#Uncomment for Metamod: Source enabled extension
+# Uncomment for Metamod: Source enabled extension
 USEMETA = true
 
 OBJECTS = sdk/smsdk_ext.cpp extension.cpp CTrackingProjectile.cpp CSentryRocket.cpp CProjectileRocket.cpp CProjectileArrow.cpp CProjectileFlare.cpp CProjectilePipe.cpp CProjectileSyringe.cpp CEntity/CEntity.cpp CEntity/CEntityManager.cpp CEntity/CPlayer.cpp
@@ -35,7 +37,7 @@ ifeq "$(ENGINE)" "original"
 	HL2PUB = $(HL2SDK)/public
 	HL2LIB = $(HL2SDK)/linux_sdk
 	CFLAGS += -DSOURCE_ENGINE=1
-	METAMOD = $(MMSOURCE17)/core-legacy
+	METAMOD = $(MMSOURCE111)/core-legacy
 	INCLUDE += -I$(HL2SDK)/public/dlls
 	SRCDS = $(SRCDS_BASE)
 	override ENGSET = true
@@ -45,7 +47,7 @@ ifeq "$(ENGINE)" "orangebox"
 	HL2PUB = $(HL2SDK)/public
 	HL2LIB = $(HL2SDK)/lib/linux
 	CFLAGS += -DSOURCE_ENGINE=3
-	METAMOD = $(MMSOURCE17)/core
+	METAMOD = $(MMSOURCE111)/core
 	INCLUDE += -I$(HL2SDK)/public/game/server -I$(HL2SDK)/game/server -I$(HL2SDK)/game/shared
 	SRCDS = $(SRCDS_BASE)/orangebox
 	override ENGSET = true
@@ -55,7 +57,7 @@ ifeq "$(ENGINE)" "left4dead"
 	HL2PUB = $(HL2SDK)/public
 	HL2LIB = $(HL2SDK)/lib/linux
 	CFLAGS += -DSOURCE_ENGINE=4
-	METAMOD = $(MMSOURCE17)/core
+	METAMOD = $(MMSOURCE111)/core
 	INCLUDE += -I$(HL2SDK)/public/game/server
 	SRCDS = $(SRCDS_BASE)/l4d
 	override ENGSET = true
