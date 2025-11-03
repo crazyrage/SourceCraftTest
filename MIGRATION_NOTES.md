@@ -72,8 +72,10 @@ This document tracks the migration of SourceCraft from deprecated SourcePawn 1.6
 
 ## Notes
 - Some files were already partially updated (mixed syntax)
-- Modern syntax is backward compatible with newer compilers
-- Old syntax may fail on SourceMod 1.11+ compilers
+- Modern syntax (SourcePawn 1.7+) is forward-compatible with ALL newer SourceMod versions including:
+  - SourceMod 1.7, 1.8, 1.9, 1.10, 1.11, **1.12**, and future versions
+- Old syntax (new String:, etc.) is deprecated and may fail/warn on SourceMod 1.11+ compilers
+- **The migrated code is future-proof** and will work with current and upcoming SourceMod releases
 
 ## Current Status (2025-11-03)
 

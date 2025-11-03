@@ -3,6 +3,16 @@
 ## Overview
 This guide provides patterns and sed commands to help migrate SourceCraft from deprecated SourcePawn 1.6 syntax to modern 1.7+ syntax.
 
+**Compatibility:** The new syntax works with:
+- ✅ SourceMod 1.7 through **1.12+** (and all future versions)
+- ✅ Latest SourcePawn compilers
+- ✅ Modern MetaMod: Source (1.11, 1.12+)
+
+**Why migrate?**
+- Old syntax (new String:, etc.) generates warnings/errors in SourceMod 1.11+
+- New syntax is the official standard since 2014
+- Future-proof for upcoming SourceMod releases
+
 ## Quick Reference Table
 
 | Old Syntax (1.6) | New Syntax (1.7+) | Example |
@@ -396,3 +406,15 @@ grep -r "new Float:" scripting/ | wc -l
 
 - [SourcePawn Transitional Syntax Documentation](https://wiki.alliedmods.net/SourcePawn_Transitional_Syntax)
 - [SourceMod 1.7+ API Changes](https://wiki.alliedmods.net/SourceMod_1.7_API_Changes)
+- [SourceMod Downloads](https://www.sourcemod.net/downloads.php) - Get SourceMod 1.12+ (latest)
+- [MetaMod: Source Downloads](https://www.sourcemm.net/downloads.php) - Get MetaMod 1.12+ (latest)
+
+## Version Compatibility
+
+| SourceMod Version | Old Syntax Support | New Syntax Support | Status |
+|-------------------|-------------------|-------------------|--------|
+| 1.6 and earlier | ✅ Yes | ❌ No | Legacy |
+| 1.7 - 1.10 | ⚠️ Deprecated | ✅ Yes | Transitional |
+| 1.11 - 1.12+ | ❌ Warnings/Errors | ✅ Yes | **Current** |
+
+**Bottom line:** Migrating to new syntax ensures compatibility with SourceMod 1.12 and all future releases.
