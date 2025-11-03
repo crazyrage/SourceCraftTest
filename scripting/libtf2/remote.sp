@@ -58,48 +58,48 @@ enum HasBuiltFlags (<<= 1)
 #define REMOTE_CAN_BUILD_UPGRADED   (REMOTE_CAN_BUILD_LEVEL_2|REMOTE_CAN_BUILD_LEVEL_3)
 #define CAN_BUILD_ACTIVATED         REMOTE_CAN_BUILD_INSTANTLY
 
-new g_RemoteObjectRef[MAXPLAYERS+1] = { INVALID_ENT_REFERENCE, ... };
-new g_WatcherEntRef[MAXPLAYERS+1]   = { INVALID_ENT_REFERENCE, ... };
-new bool:g_RemoteBuild[MAXPLAYERS+1];
-new TFExtObjectType:g_RemoteType[MAXPLAYERS+1];
-new clientPermissions[MAXPLAYERS+1] = { -1, ... };
-new Float:clientSpeed[MAXPLAYERS+1];
-new Float:clientFallSpeed[MAXPLAYERS+1];
-new Float:clientJumpSpeed[MAXPLAYERS+1];
-new Float:clientPosition[MAXPLAYERS+1][3];
+int g_RemoteObjectRef[MAXPLAYERS+1] = { INVALID_ENT_REFERENCE, ... };
+int g_WatcherEntRef[MAXPLAYERS+1]   = { INVALID_ENT_REFERENCE, ... };
+bool g_RemoteBuild[MAXPLAYERS+1];
+int TFExtObjectType:g_RemoteType[MAXPLAYERS+1];
+int clientPermissions[MAXPLAYERS+1] = { -1, ... };
+float clientSpeed[MAXPLAYERS+1];
+float clientFallSpeed[MAXPLAYERS+1];
+float clientJumpSpeed[MAXPLAYERS+1];
+float clientPosition[MAXPLAYERS+1][3];
 
-new Float:levelFactor[3] = { 0.50, 1.00, 1.50 };
-new Float:defaultSpeed = 400.0;
-new Float:defaultFallSpeed = -500.0;
-new Float:defaultJumpSpeed = 2000.0;
-new bool:defaultZombie = false;
+float levelFactor[3] = { 0.50, 1.00, 1.50 };
+float defaultSpeed = 400.0;
+float defaultFallSpeed = -500.0;
+float defaultJumpSpeed = 2000.0;
+bool defaultZombie = false;
 
 // forwards
-new Handle:g_fwdOnBuildCommand = INVALID_HANDLE;
-new Handle:fwdOnBuildObject = INVALID_HANDLE;
-new Handle:fwdOnControlObject = INVALID_HANDLE;
+Handle g_fwdOnBuildCommand = INVALID_HANDLE;
+Handle fwdOnBuildObject = INVALID_HANDLE;
+Handle fwdOnControlObject = INVALID_HANDLE;
 
 // convars
-new Handle:cvarObjectsTxt = INVALID_HANDLE;
-new Handle:cvarRemote = INVALID_HANDLE;
-new Handle:cvarSteal = INVALID_HANDLE;
-new Handle:cvarZombie = INVALID_HANDLE;
-new Handle:cvarBuild = INVALID_HANDLE;
-new Handle:cvarLevel = INVALID_HANDLE;
-new Handle:cvarMini = INVALID_HANDLE;
-new Handle:cvarInstant = INVALID_HANDLE;
-new Handle:cvarAlways = INVALID_HANDLE;
-new Handle:cvarFactor = INVALID_HANDLE;
-new Handle:cvarSpeed = INVALID_HANDLE;
-new Handle:cvarJump = INVALID_HANDLE;
-new Handle:cvarFall = INVALID_HANDLE;
+Handle cvarObjectsTxt = INVALID_HANDLE;
+Handle cvarRemote = INVALID_HANDLE;
+Handle cvarSteal = INVALID_HANDLE;
+Handle cvarZombie = INVALID_HANDLE;
+Handle cvarBuild = INVALID_HANDLE;
+Handle cvarLevel = INVALID_HANDLE;
+Handle cvarMini = INVALID_HANDLE;
+Handle cvarInstant = INVALID_HANDLE;
+Handle cvarAlways = INVALID_HANDLE;
+Handle cvarFactor = INVALID_HANDLE;
+Handle cvarSpeed = INVALID_HANDLE;
+Handle cvarJump = INVALID_HANDLE;
+Handle cvarFall = INVALID_HANDLE;
 
-new Handle:cvarBuildEnabled = INVALID_HANDLE;
-new Handle:cvarBuildImmunity = INVALID_HANDLE;
+Handle cvarBuildEnabled = INVALID_HANDLE;
+Handle cvarBuildImmunity = INVALID_HANDLE;
 
 #if defined _amp_node_included
-    new Handle:cvarAmp = INVALID_HANDLE;
-    new Handle:cvarRepair = INVALID_HANDLE;
+    Handle cvarAmp = INVALID_HANDLE;
+    Handle cvarRepair = INVALID_HANDLE;
 #endif
 
 #if defined _amp_node_included || defined _ztf2grab_included
@@ -107,7 +107,7 @@ new Handle:cvarBuildImmunity = INVALID_HANDLE;
     stock bool:m_GravgunAvailable = false;
 #endif
 
-public Plugin:myinfo = {
+public Plugin myinfo = {
     name = "Remote Control Sentries",
     author = "twistedeuphoria,CnB|Omega,Tsunami,-=|JFH|=-Naris",
     description = "Remotely control your sentries",
@@ -116,14 +116,14 @@ public Plugin:myinfo = {
 };
 
 // build limits
-new Handle:gTimer;       
-new g_iMaxEntities = MAXENTITIES;
-new bool:g_bNativeControl = false;
-new bool:g_WasBuilt[MAXENTITIES];
-new HasBuiltFlags:g_HasBuilt[MAXPLAYERS+1];
+Handle gTimer;       
+int g_iMaxEntities = MAXENTITIES;
+bool g_bNativeControl = false;
+bool g_WasBuilt[MAXENTITIES];
+int HasBuiltFlags:g_HasBuilt[MAXPLAYERS+1];
 
-new Handle:cvarLimits[4][TFExtObjectType];
-new g_isAllowed[MAXPLAYERS+1][TFExtObjectType]; // how many buildings each player is allowed
+Handle cvarLimits[4][TFExtObjectType];
+int g_isAllowed[MAXPLAYERS+1][TFExtObjectType]; // how many buildings each player is allowed
 
 public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
 {
@@ -247,7 +247,7 @@ public OnPluginStart()
 }
 
 #if defined _amp_node_included || defined _ztf2grab_included
-    public OnLibraryAdded(const String:name[])
+    public OnLibraryAdded(const char name[])
     {
         if (StrEqual(name, "amp_node"))
         {
@@ -261,7 +261,7 @@ public OnPluginStart()
         }
     }
 
-    public OnLibraryRemoved(const String:name[])
+    public OnLibraryRemoved(const char name[])
     {
         if (StrEqual(name, "amp_node"))
             m_AmpNodeAvailable = false;
@@ -294,7 +294,7 @@ public OnMapEnd()
     CloseHandle(gTimer);
 }
 
-public RemoteCvarChange(Handle:convar, const String:oldValue[], const String:newValue[])
+public RemoteCvarChange(Handle:convar, const char oldValue[], const char newValue[])
 {
     if (convar == cvarRemote)
     {
@@ -433,8 +433,8 @@ public RemoteCvarChange(Handle:convar, const String:oldValue[], const String:new
 
 ParseFactorVar()
 {
-    new String:factorValue[32];
-    new String:values[sizeof(levelFactor)][8];
+    char factorValue[32];
+    char values[sizeof(levelFactor)][8];
     GetConVarString(cvarFactor, factorValue , sizeof(factorValue));
     if (factorValue[0])
     {
@@ -451,7 +451,7 @@ ParseFactorVar()
     }
 }
 
-public Action:UpdateObjects(Handle:timer)
+public Action UpdateObjects(Handle:timer)
 {
     for (new i=1;i<MaxClients;i++)
     {
@@ -462,7 +462,7 @@ public Action:UpdateObjects(Handle:timer)
             if (obj > 0)
             {
                 new permissions = clientPermissions[i];
-                new bool:zombie = (permissions < 0) ? ((permissions & REMOTE_CAN_ZOMBIE) != 0) : defaultZombie;
+                bool zombie = (permissions < 0) ? ((permissions & REMOTE_CAN_ZOMBIE) != 0) : defaultZombie;
                 if (!zombie && !IsPlayerAlive(i))
                     RemoteOff(i, 0);
                 else
@@ -492,7 +492,7 @@ public Action:UpdateObjects(Handle:timer)
                         }
                     }
 
-                    new Float:speed = (clientSpeed[i] > 0.0) ? clientSpeed[i] : defaultSpeed;
+                    float speed = (clientSpeed[i] > 0.0) ? clientSpeed[i] : defaultSpeed;
                     new level = GetEntProp(obj, Prop_Send, "m_iUpgradeLevel");
                     if (level > sizeof(levelFactor))
                         speed *= levelFactor[0];
@@ -501,18 +501,18 @@ public Action:UpdateObjects(Handle:timer)
                     else
                         speed *= levelFactor[sizeof(levelFactor)-1];
 
-                    new Float:nspeed = speed * -1.0;
+                    float nspeed = speed * -1.0;
 
-                    new Float:angles[3];
+                    float angles[3];
                     GetClientEyeAngles(i, angles);
                     angles[0] = 0.0;
 
-                    new Float:fwdvec[3];
-                    new Float:rightvec[3];
-                    new Float:upvec[3];
+                    float fwdvec[3];
+                    float rightvec[3];
+                    float upvec[3];
                     GetAngleVectors(angles, fwdvec, rightvec, upvec);
 
-                    new Float:vel[3];
+                    float vel[3];
                     vel[2] = (clientFallSpeed[i] < 0.0) ? clientFallSpeed[i] : defaultFallSpeed;
 
                     new buttons = GetClientButtons(i);
@@ -547,7 +547,7 @@ public Action:UpdateObjects(Handle:timer)
                     TeleportEntity(obj, NULL_VECTOR, angles, vel);
 
                     /*
-                    new Float:objectpos[3];
+                    float objectpos[3];
                     GetEntPropVector(obj, Prop_Send, "m_vecOrigin", objectpos);
 
                     objectpos[0] += fwdvec[0] * -150.0;
@@ -567,14 +567,14 @@ public Action:UpdateObjects(Handle:timer)
     return Plugin_Continue;
 }
 
-public Action:Remote(client, args)
+public Action Remote(client, args)
 {
     new objectRef = g_RemoteObjectRef[client];
     if (objectRef != INVALID_ENT_REFERENCE && EntRefToEntIndex(objectRef) > 0)
         RemoteOff(client, args);
     else
     {
-        decl String:arg[64];
+        char arg[64];
         GetCmdArg(0, arg, sizeof(arg));
 
         new TFExtObjectType:type = TFExtObject_Unknown;
@@ -611,15 +611,15 @@ public Action:Remote(client, args)
     return Plugin_Handled;
 }
 
-public Action:RemoteOn(client, args)
+public Action RemoteOn(client, args)
 {
     RemoteControl(client, TFExtObject_Unknown);
     return Plugin_Handled;
 }
 
-public Action:Build(client, args)
+public Action Build(client, args)
 {
-    decl String:arg[64];
+    char arg[64];
     GetCmdArg(0, arg, sizeof(arg));
 
     new TFExtObjectType:type = TFExtObject_Unknown;
@@ -686,12 +686,12 @@ RemoteControl(client, TFExtObjectType:type)
 
     if (type == TFExtObject_Unknown)
     {
-        new Handle:menu=CreateMenu(ObjectSelected);
+        Handle menu=CreateMenu(ObjectSelected);
         SetMenuTitle(menu,"Remote Control which Building:");
 
         new sum = -1;
         new counts[TFExtObjectType];
-        new bool:okToBuild = false;
+        bool okToBuild = false;
         if ((permissions & REMOTE_CAN_BUILD) != 0)
         {
             if (!g_bNativeControl)
@@ -934,7 +934,7 @@ BuildMenu(client, permissions, bool:control)
 
     g_RemoteBuild[client] = control;
     g_RemoteObjectRef[client] = INVALID_ENT_REFERENCE;
-    new Handle:menu=CreateMenu(BuildSelected);
+    Handle menu=CreateMenu(BuildSelected);
     SetMenuTitle(menu,"Build & Remote Control:");
 
     new counts[TFExtObjectType];
@@ -1005,7 +1005,7 @@ public BuildSelected(Handle:menu,MenuAction:action,client,selection)
 {
     if (action == MenuAction_Select)
     {
-        decl String:SelectionInfo[12];
+        char SelectionInfo[12];
         GetMenuItem(menu,selection,SelectionInfo,sizeof(SelectionInfo));
 
         new permissions = GetPermissions(client);
@@ -1015,7 +1015,7 @@ public BuildSelected(Handle:menu,MenuAction:action,client,selection)
         else
         {
             new level;
-            new bool:mini = false;
+            bool mini = false;
             new TFExtObjectType:type;
             if (item == 4)
             {
@@ -1116,10 +1116,10 @@ BuildSelectedObject(client, TFExtObjectType:type, iLevel=1, bool:mini=false,
 
     if (res == Plugin_Continue)
     {
-        new Float:pos[3];
+        float pos[3];
         GetClientAbsOrigin(client, pos);
 
-        new Float:angles[3];
+        float angles[3];
         if (!GetClientEyeAngles(client, angles))
             GetClientAbsAngles(client, angles);
 
@@ -1171,7 +1171,7 @@ BuildSelectedObject(client, TFExtObjectType:type, iLevel=1, bool:mini=false,
                 clientPosition[client][2] = pos[2];
 
                 // Move player up ontop of new object
-                new Float:size[3];
+                float size[3];
                 GetEntPropVector(objectid, Prop_Send, "m_vecBuildMaxs", size);
 
                 pos[2] += (size[2] * 1.1);
@@ -1199,7 +1199,7 @@ BuildSelectedObject(client, TFExtObjectType:type, iLevel=1, bool:mini=false,
                     type == TFExtObject_TeleporterExit)
                 {
                     // Move player up ontop of new object
-                    new Float:size[3];
+                    float size[3];
                     GetEntPropVector(objectid, Prop_Send, "m_vecBuildMaxs", size);
 
                     pos[2] += (size[2] * 1.1);
@@ -1221,7 +1221,7 @@ BuildSelectedObject(client, TFExtObjectType:type, iLevel=1, bool:mini=false,
 
             if (disable || !remote)
             {
-                new Float:delay;
+                float delay;
                 switch (type)
                 {
                     case TFExtObject_Sentry:      delay = float(iLevel) * (mini ? 2.5 : 10.0);
@@ -1256,7 +1256,7 @@ CountBuildings(client, counts[TFExtObjectType])
     return sum;
 }
 
-CountObjects(client, const String:ClassName[], mode=-1)
+CountObjects(client, const char ClassName[], mode=-1)
 {
     new ent = -1;
     new count = 0;
@@ -1271,10 +1271,10 @@ CountObjects(client, const String:ClassName[], mode=-1)
     return count;
 }
 
-AddObjectsToMenu(Handle:menu, client, const String:ClassName[], mode=-1,
-                 const String:ObjectName[], bool:all=false, &target=0)
+AddObjectsToMenu(Handle:menu, client, const char ClassName[], mode=-1,
+                 const char ObjectName[], bool:all=false, &target=0)
 {
-    decl String:buf[12], String:item[64];
+    char buf[12], String:item[64];
     new ent = -1;
     new count = 0;
     while ((ent = FindEntityByClassname(ent, ClassName)) != -1)
@@ -1318,7 +1318,7 @@ AddBuildingsToMenu(Handle:menu, client, bool:all=false, counts[TFExtObjectType]=
     return sum;
 }
 
-DestroyObjects(const String:ClassName[], client=-1, bool:all=true)
+DestroyObjects(const char ClassName[], client=-1, bool:all=true)
 {
     new ent = -1;
     new count = 0;
@@ -1356,7 +1356,7 @@ DestroyObjects(const String:ClassName[], client=-1, bool:all=true)
 
 bool:DestroyBuildingMenu(client)
 {
-    new Handle:menu=CreateMenu(Destroy_Selected);
+    Handle menu=CreateMenu(Destroy_Selected);
     SetMenuTitle(menu,"Destroy which Structure:");
 
     new counts[TFExtObjectType];
@@ -1377,7 +1377,7 @@ public Destroy_Selected(Handle:menu,MenuAction:action,client,selection)
 {
     if (action == MenuAction_Select)
     {
-        decl String:SelectionInfo[12];
+        char SelectionInfo[12];
         GetMenuItem(menu,selection,SelectionInfo,sizeof(SelectionInfo));
 
         new ref = StringToInt(SelectionInfo);
@@ -1401,7 +1401,7 @@ DestroyBuilding(obj)
     }
 }
 
-public PlayerSpawnEvent(Handle:event,const String:name[],bool:dontBroadcast)
+public PlayerSpawnEvent(Handle:event,const char name[],bool:dontBroadcast)
 {
     new client=GetClientOfUserId(GetEventInt(event,"userid")); // Get clients index
 
@@ -1409,7 +1409,7 @@ public PlayerSpawnEvent(Handle:event,const String:name[],bool:dontBroadcast)
     GetClientAbsOrigin(client, clientPosition[client]);
 }
 
-public PlayerDeathEvent(Handle:event,const String:name[],bool:dontBroadcast)
+public PlayerDeathEvent(Handle:event,const char name[],bool:dontBroadcast)
 {
     new client=GetClientOfUserId(GetEventInt(event,"userid")); // Get clients index
 
@@ -1417,13 +1417,13 @@ public PlayerDeathEvent(Handle:event,const String:name[],bool:dontBroadcast)
     if (objectRef != INVALID_ENT_REFERENCE && EntRefToEntIndex(objectRef) > 0)
     {
         new permissions = clientPermissions[client];
-        new bool:zombie = (permissions < 0) ? ((permissions & REMOTE_CAN_ZOMBIE) != 0) : defaultZombie;
+        bool zombie = (permissions < 0) ? ((permissions & REMOTE_CAN_ZOMBIE) != 0) : defaultZombie;
         if (!zombie)
             RemoteOff(client, 0);
     }
 }
 
-public PlayerBuiltObject(Handle:event,const String:name[],bool:dontBroadcast)
+public PlayerBuiltObject(Handle:event,const char name[],bool:dontBroadcast)
 {
     new objectid = GetEventInt(event,"index");
     if (GetEventInt(event,"sourcemod") <= 0)
@@ -1460,7 +1460,7 @@ public PlayerBuiltObject(Handle:event,const String:name[],bool:dontBroadcast)
     }
 }
 
-public ObjectDestroyed(Handle:event,const String:name[],bool:dontBroadcast)
+public ObjectDestroyed(Handle:event,const char name[],bool:dontBroadcast)
 {
     new index = GetClientOfUserId(GetEventInt(event,"userid"));
     if (index > 0)
@@ -1471,7 +1471,7 @@ public ObjectDestroyed(Handle:event,const String:name[],bool:dontBroadcast)
     }
 }
 
-public Action:PlayerChangeTeamEvent(Handle:event,const String:name[],bool:dontBroadcast)
+public Action PlayerChangeTeamEvent(Handle:event,const char name[],bool:dontBroadcast)
 {
     new client = GetClientOfUserId(GetEventInt(event,"userid"));
     new HasBuiltFlags:flags = g_HasBuilt[client];
@@ -1494,7 +1494,7 @@ public Action:PlayerChangeTeamEvent(Handle:event,const String:name[],bool:dontBr
     return Plugin_Continue;
 }
 
-public EventRoundOver(Handle:event,const String:name[],bool:dontBroadcast)
+public EventRoundOver(Handle:event,const char name[],bool:dontBroadcast)
 {
     // Destroy all the objects that have been built.
     DestroyObjects(TF2_ObjectClassNames[TFExtObject_Dispenser], -1, false);
@@ -1508,7 +1508,7 @@ public EventRoundOver(Handle:event,const String:name[],bool:dontBroadcast)
         g_WasBuilt[entity] = false;
 }
 
-public Action:Activate(Handle:timer,any:ref)
+public Action Activate(Handle:timer,any:ref)
 {
     new obj = EntRefToEntIndex(ref);
     if (obj > 0 && IsValidEdict(obj) && IsValidEntity(obj))
@@ -1522,16 +1522,16 @@ public Action:Activate(Handle:timer,any:ref)
             new builder = GetEntPropEnt(obj, Prop_Send, "m_hBuilder");
             if (builder > 0 && IsClientInGame(builder) && IsPlayerAlive(builder))
             {
-                decl Float:playerPos[3];
+                float playerPos[3];
                 GetClientAbsOrigin(builder, playerPos);
 
-                decl Float:objectPos[3];
+                float objectPos[3];
                 GetEntPropVector(obj, Prop_Send, "m_vecOrigin", objectPos);
 
-                decl Float:size[3];
+                float size[3];
                 GetEntPropVector(obj, Prop_Send, "m_vecBuildMaxs", size);
 
-                new Float:distance = GetVectorDistance(objectPos, playerPos);
+                float distance = GetVectorDistance(objectPos, playerPos);
                 if (distance < size[0] * -1.1 || distance > size[0] * 1.1)
                     SetEntProp(obj, Prop_Send, "m_CollisionGroup", 0);
                 else
@@ -1548,7 +1548,7 @@ public ObjectSelected(Handle:menu,MenuAction:action,client,selection)
 {
     if (action == MenuAction_Select)
     {
-        decl String:SelectionInfo[12];
+        char SelectionInfo[12];
         GetMenuItem(menu,selection,SelectionInfo,sizeof(SelectionInfo));
         new objectRef = StringToInt(SelectionInfo);
         if (objectRef >= 0 && objectRef <= 13) // 0-13 are build options
@@ -1582,15 +1582,15 @@ bool:control(client, objectid, TFExtObjectType:type)
         new watcher = CreateEntityByName("info_observer_point");
         if (watcher > 0 && IsValidEdict(watcher) && DispatchSpawn(watcher))
         {
-            new Float:angles[3];
+            float angles[3];
             GetEntPropVector(objectid, Prop_Send, "m_angRotation", angles);
 
-            new Float:fwdvec[3];
-            new Float:rightvec[3];
-            new Float:upvec[3];
+            float fwdvec[3];
+            float rightvec[3];
+            float upvec[3];
             GetAngleVectors(angles, fwdvec, rightvec, upvec);
 
-            new Float:pos[3];
+            float pos[3];
             GetEntPropVector(objectid, Prop_Send, "m_vecOrigin", pos);
 
             pos[0] += fwdvec[0] * -150.0;
@@ -1602,7 +1602,7 @@ bool:control(client, objectid, TFExtObjectType:type)
             SetClientViewEntity(client, watcher);
 
             // Set the watcher's parent to the object.
-            new String:strTargetName[64];
+            char strTargetName[64];
             IntToString(objectid, strTargetName, sizeof(strTargetName));
 
             DispatchKeyValue(objectid, "targetname", strTargetName);
@@ -1622,7 +1622,7 @@ bool:control(client, objectid, TFExtObjectType:type)
     return false;
 }
 
-public Action:RemoteOff(client, args)
+public Action RemoteOff(client, args)
 {
     new objectRef = g_RemoteObjectRef[client];
     if (objectRef != INVALID_ENT_REFERENCE)
@@ -1630,7 +1630,7 @@ public Action:RemoteOff(client, args)
         new obj = EntRefToEntIndex(objectRef);
         if (obj > 0 && IsValidEdict(obj) && IsValidEntity(obj))
         {
-            new Float:angles[3];
+            float angles[3];
             GetClientEyeAngles(client, angles);	
             angles[0] = 0.0;
 
@@ -1642,13 +1642,13 @@ public Action:RemoteOff(client, args)
                  type != TFExtObject_TeleporterExit) &&
                 IsPlayerAlive(client))
             {
-                new Float:objectPos[3];
+                float objectPos[3];
                 GetEntPropVector(obj, Prop_Send, "m_vecOrigin", objectPos);
 
-                decl Float:size[3];
+                float size[3];
                 GetEntPropVector(obj, Prop_Send, "m_vecBuildMaxs", size);
 
-                new Float:distance = GetVectorDistance(objectPos, clientPosition[client]);
+                float distance = GetVectorDistance(objectPos, clientPosition[client]);
                 if (distance < size[0] * -1.1 || distance > size[0] * 1.1)
                 {
                     SetEntProp(obj, Prop_Send, "m_CollisionGroup", 5);
@@ -1678,7 +1678,7 @@ public Action:RemoteOff(client, args)
     return Plugin_Handled;
 }
 
-public Action:RemoteGod(client, args)
+public Action RemoteGod(client, args)
 {
     new objectRef = g_RemoteObjectRef[client];
     if (objectRef == INVALID_ENT_REFERENCE)
@@ -1749,7 +1749,7 @@ public OnClientDisconnect(client)
     g_isAllowed[client][TFExtObject_Teleporter]++; // 1 entry + 1 exit
 }
 
-public Action:Command_Build(client, args)
+public Action Command_Build(client, args)
 {
     new Action:iResult = Plugin_Continue;
 
@@ -1758,10 +1758,10 @@ public Action:Command_Build(client, args)
          (!(GetConVarBool(cvarBuildImmunity) &&
            (GetUserFlagBits(client) & (ADMFLAG_GENERIC|ADMFLAG_ROOT)) != 0))))
     {
-        decl String:sObject[16];
+        char sObject[16];
         GetCmdArg(1, sObject, sizeof(sObject));
 
-        decl String:sMode[16];
+        char sMode[16];
         GetCmdArg(2, sMode, sizeof(sMode));
 
         new TFExtObjectType:obj = TFExtObjectType:StringToInt(sObject);
@@ -1868,7 +1868,7 @@ public Native_StopControllingObject(Handle:plugin,numParams)
 
 public Native_BuildObject(Handle:plugin,numParams)
 {
-    decl Float:pos[3];
+    float pos[3];
     new ent = BuildSelectedObject(GetNativeCell(1), TFExtObjectType:GetNativeCell(2), GetNativeCell(3),
                                   bool:GetNativeCell(4), bool:GetNativeCell(5), bool:GetNativeCell(6),
                                   GetNativeCell(7), GetNativeCell(8), Float:GetNativeCell(9),
@@ -1883,7 +1883,7 @@ public Native_BuildSentry(Handle:plugin,numParams)
     new client = GetNativeCell(1);
     if (!IsEntLimitReached(.client=client, .message="unable to create obj_sentrygun"))
     {
-        new Float:fOrigin[3], Float:fAngle[3];
+        float fOrigin[3], Float:fAngle[3];
         GetNativeArray(2, fOrigin, sizeof(fOrigin));
         GetNativeArray(3, fAngle, sizeof(fAngle));
         return BuildSentry(client, fOrigin, fAngle, GetNativeCell(4), bool:GetNativeCell(5),
@@ -1900,7 +1900,7 @@ public Native_BuildDispenser(Handle:plugin,numParams)
     new client = GetNativeCell(1);
     if (!IsEntLimitReached(.client=client, .message="unable to create obj_dispenser"))
     {
-        new Float:fOrigin[3], Float:fAngle[3];
+        float fOrigin[3], Float:fAngle[3];
         GetNativeArray(2, fOrigin, sizeof(fOrigin));
         GetNativeArray(3, fAngle, sizeof(fAngle));
         return BuildDispenser(client, fOrigin, fAngle, GetNativeCell(4), bool:GetNativeCell(5),
@@ -1916,7 +1916,7 @@ public Native_BuildTeleporterEntry(Handle:plugin,numParams)
     new client = GetNativeCell(1);
     if (!IsEntLimitReached(.client=client, .message="unable to create obj_teleporter entrance"))
     {
-        new Float:fOrigin[3], Float:fAngle[3];
+        float fOrigin[3], Float:fAngle[3];
         GetNativeArray(2, fOrigin, sizeof(fOrigin));
         GetNativeArray(3, fAngle, sizeof(fAngle));
         return BuildTeleporterEntry(client, fOrigin, fAngle, GetNativeCell(4),
@@ -1932,7 +1932,7 @@ public Native_BuildTeleporterExit(Handle:plugin,numParams)
     new client = GetNativeCell(1);
     if (!IsEntLimitReached(.client=client, .message="unable to create obj_teleporter exit"))
     {
-        new Float:fOrigin[3], Float:fAngle[3];
+        float fOrigin[3], Float:fAngle[3];
         GetNativeArray(2, fOrigin, sizeof(fOrigin));
         GetNativeArray(3, fAngle, sizeof(fAngle));
         return BuildTeleporterExit(client, fOrigin, fAngle, GetNativeCell(4),
@@ -1959,7 +1959,7 @@ public Native_CountBuildings(Handle:plugin,numParams)
 
 public Native_CountObjects(Handle:plugin,numParams)
 {
-    decl String:class[64];
+    char class[64];
     GetNativeString(2,class,sizeof(class));
     return CountObjects(GetNativeCell(1), class, GetNativeCell(3));
 }
@@ -1985,7 +1985,7 @@ public Native_DestroyBuildings(Handle:plugin,numParams)
 {
     new count = 0;
     new client = GetNativeCell(1);
-    new bool:all = bool:GetNativeCell(2);
+    bool all = bool:GetNativeCell(2);
     new HasBuiltFlags:flags = (client > 0) ? g_HasBuilt[client]
                                            : HasBuiltFlags:-1; // all 1s
 
@@ -2048,7 +2048,7 @@ public Native_ResetBuild(Handle:plugin,numParams)
 public Native_CheckBuild(Handle:plugin,numParams)
 {
     new iCount;
-    new bool:result = CheckBuild(GetNativeCell(1), TFExtObjectType:GetNativeCell(2),
+    bool result = CheckBuild(GetNativeCell(1), TFExtObjectType:GetNativeCell(2),
                                  GetNativeCell(3), iCount);
     SetNativeCellRef(4, iCount);
     return result;
@@ -2119,7 +2119,7 @@ stock BuildSentry(hBuilder, const Float:fOrigin[3], const Float:fAngle[3], iLeve
 
         TeleportEntity(iSentry, fOrigin, fAngle, NULL_VECTOR);
 
-        decl String:sModel[64];
+        char sModel[64];
         if (bMini)
             strcopy(sModel, sizeof(sModel),"models/buildables/sentry1.mdl");
         else
@@ -2185,7 +2185,7 @@ stock BuildSentry(hBuilder, const Float:fOrigin[3], const Float:fAngle[3], iLeve
         SetVariantInt(hBuilder);
         AcceptEntityInput(iSentry, "SetBuilder", -1, -1, 0);
 
-        new Handle:event = CreateEvent("player_builtobject");
+        Handle event = CreateEvent("player_builtobject");
         if (event != INVALID_HANDLE)
         {
             SetEventInt(event, "userid", GetClientUserId(hBuilder));
@@ -2230,7 +2230,7 @@ stock BuildDispenser(hBuilder, const Float:fOrigin[3], const Float:fAngle[3], iL
 
         TeleportEntity(iDispenser, fOrigin, fAngle, NULL_VECTOR);
 
-        decl String:sModel[64];
+        char sModel[64];
         switch (type)
         {
             case TFExtObject_Amplifier:
@@ -2294,7 +2294,7 @@ stock BuildDispenser(hBuilder, const Float:fOrigin[3], const Float:fAngle[3], iL
         if (!iDisabled)
             AcceptEntityInput(iDispenser, "TurnOn");
 
-        new Handle:event = CreateEvent("player_builtobject");
+        Handle event = CreateEvent("player_builtobject");
         if (event != INVALID_HANDLE)
         {
             SetEventInt(event, "userid", GetClientUserId(hBuilder));
@@ -2399,7 +2399,7 @@ stock BuildTeleporterEntry(hBuilder, const Float:fOrigin[3], const Float:fAngle[
         if (!iDisabled)
             AcceptEntityInput(iTeleporter, "TurnOn");
 
-        new Handle:event = CreateEvent("player_builtobject");
+        Handle event = CreateEvent("player_builtobject");
         if (event != INVALID_HANDLE)
         {
             SetEventInt(event, "userid", GetClientUserId(hBuilder));
@@ -2482,7 +2482,7 @@ stock BuildTeleporterExit(hBuilder, const Float:fOrigin[3], const Float:fAngle[3
         if (!iDisabled)
             AcceptEntityInput(iTeleporter, "TurnOn");
 
-        new Handle:event = CreateEvent("player_builtobject");
+        Handle event = CreateEvent("player_builtobject");
         if (event != INVALID_HANDLE)
         {
             SetEventInt(event, "userid", GetClientUserId(hBuilder));

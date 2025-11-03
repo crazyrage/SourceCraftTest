@@ -32,7 +32,7 @@ enum InfectionFlags (<<= 1)
     Infection_Irradiation,      // Infection is Irradiation
 };
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "Medic Infection",
     author = "Twilight Suzuka & -=|JFH|=-Naris",
@@ -41,72 +41,72 @@ public Plugin:myinfo =
     url = "http://www.sourcemod.net/"
 };
 
-new const String:HurtSound[][]  = { "player/pl_pain5.wav",  "player/pl_pain6.wav",
+char HurtSound[][]  = { "player/pl_pain5.wav",  "player/pl_pain6.wav",
                                     "player/pl_pain7.wav", "player/pain.wav" };
 
-new const String:DeathSound[][]  = { "player/death.wav" };
+char DeathSound[][]  = { "player/death.wav" };
 
-new ClientInfected[MAXPLAYERS + 1];
-new ClientInfectionSource[MAXPLAYERS + 1];
-new InfectionFlags:ClientInfectionFlags[MAXPLAYERS + 1];
-new Float:ClientInfectionTime[MAXPLAYERS + 1];
+int ClientInfected[MAXPLAYERS + 1];
+int ClientInfectionSource[MAXPLAYERS + 1];
+int InfectionFlags:ClientInfectionFlags[MAXPLAYERS + 1];
+float ClientInfectionTime[MAXPLAYERS + 1];
 
-new Float:MedicInfectDelay[MAXPLAYERS + 1];
+float MedicInfectDelay[MAXPLAYERS + 1];
 
-new bool:NativeControl = false;
-new bool:NativeHooked = false;
-new bool:NativeDamageHooked = false;
-new bool:NativeMedicArmed[MAXPLAYERS + 1] = { false, ...};
-new NativeAmount[MAXPLAYERS + 1];
-new NativeChance[MAXPLAYERS + 1];
+bool NativeControl = false;
+bool NativeHooked = false;
+bool NativeDamageHooked = false;
+bool NativeMedicArmed[MAXPLAYERS + 1] = { false, ...};
+int NativeAmount[MAXPLAYERS + 1];
+int NativeChance[MAXPLAYERS + 1];
 
-new Handle:CvarEnable = INVALID_HANDLE;
-new Handle:CvarAnnounce = INVALID_HANDLE; //
+Handle CvarEnable = INVALID_HANDLE;
+Handle CvarAnnounce = INVALID_HANDLE; //
 
-new Handle:Cvar_DmgAmount = INVALID_HANDLE;
-new Handle:Cvar_DmgTime = INVALID_HANDLE;
+Handle Cvar_DmgAmount = INVALID_HANDLE;
+Handle Cvar_DmgTime = INVALID_HANDLE;
 
-new Handle:Cvar_InfectEnable = INVALID_HANDLE;
-new Handle:Cvar_InfectDistance = INVALID_HANDLE;
-new Handle:Cvar_InfectDuration = INVALID_HANDLE;
-new Handle:Cvar_InfectContagious = INVALID_HANDLE;
+Handle Cvar_InfectEnable = INVALID_HANDLE;
+Handle Cvar_InfectDistance = INVALID_HANDLE;
+Handle Cvar_InfectDuration = INVALID_HANDLE;
+Handle Cvar_InfectContagious = INVALID_HANDLE;
 
-new Handle:Cvar_InfectMedi = INVALID_HANDLE;
-new Handle:Cvar_InfectMediCheckTime = INVALID_HANDLE;
-new Handle:Cvar_InfectSyringe = INVALID_HANDLE;
+Handle Cvar_InfectMedi = INVALID_HANDLE;
+Handle Cvar_InfectMediCheckTime = INVALID_HANDLE;
+Handle Cvar_InfectSyringe = INVALID_HANDLE;
 
-new Handle:Cvar_InfectMedics = INVALID_HANDLE;
-new Handle:Cvar_InfectHeal = INVALID_HANDLE;
-new Handle:Cvar_InfectSameTeam = INVALID_HANDLE;
-new Handle:Cvar_InfectOpposingTeam = INVALID_HANDLE;
+Handle Cvar_InfectMedics = INVALID_HANDLE;
+Handle Cvar_InfectHeal = INVALID_HANDLE;
+Handle Cvar_InfectSameTeam = INVALID_HANDLE;
+Handle Cvar_InfectOpposingTeam = INVALID_HANDLE;
 
-new Handle:Cvar_InfectFailedDelay = INVALID_HANDLE;
-new Handle:Cvar_InfectSucceededDelay = INVALID_HANDLE;
+Handle Cvar_InfectFailedDelay = INVALID_HANDLE;
+Handle Cvar_InfectSucceededDelay = INVALID_HANDLE;
 
-new Handle:Cvar_SpreadEnable = INVALID_HANDLE;
-new Handle:Cvar_SpreadDistance = INVALID_HANDLE;
-new Handle:Cvar_SpreadCheckTime = INVALID_HANDLE;
+Handle Cvar_SpreadEnable = INVALID_HANDLE;
+Handle Cvar_SpreadDistance = INVALID_HANDLE;
+Handle Cvar_SpreadCheckTime = INVALID_HANDLE;
 
-new Handle:Cvar_SpreadAll = INVALID_HANDLE;
-new Handle:Cvar_SpreadInfector = INVALID_HANDLE;
-new Handle:Cvar_SpreadMedics = INVALID_HANDLE;
-new Handle:Cvar_SpreadSameTeam = INVALID_HANDLE;
-new Handle:Cvar_SpreadOpposingTeam = INVALID_HANDLE;
+Handle Cvar_SpreadAll = INVALID_HANDLE;
+Handle Cvar_SpreadInfector = INVALID_HANDLE;
+Handle Cvar_SpreadMedics = INVALID_HANDLE;
+Handle Cvar_SpreadSameTeam = INVALID_HANDLE;
+Handle Cvar_SpreadOpposingTeam = INVALID_HANDLE;
 
-new Handle:Cvar_SameColors = INVALID_HANDLE;
-new Handle:Cvar_GunColors = INVALID_HANDLE;
-new Handle:Cvar_BothTeamsRed, Handle:Cvar_BothTeamsBlue, Handle:Cvar_BothTeamsGreen, Handle:Cvar_BothTeamsAlpha;
-new Handle:Cvar_RTeamRed, Handle:Cvar_RTeamBlue, Handle:Cvar_RTeamGreen, Handle:Cvar_RTeamAlpha;
-new Handle:Cvar_BTeamRed, Handle:Cvar_BTeamBlue, Handle:Cvar_BTeamGreen, Handle:Cvar_BTeamAlpha;
+Handle Cvar_SameColors = INVALID_HANDLE;
+Handle Cvar_GunColors = INVALID_HANDLE;
+Handle Cvar_BothTeamsRed, Handle:Cvar_BothTeamsBlue, Handle:Cvar_BothTeamsGreen, Handle:Cvar_BothTeamsAlpha;
+Handle Cvar_RTeamRed, Handle:Cvar_RTeamBlue, Handle:Cvar_RTeamGreen, Handle:Cvar_RTeamAlpha;
+Handle Cvar_BTeamRed, Handle:Cvar_BTeamBlue, Handle:Cvar_BTeamGreen, Handle:Cvar_BTeamAlpha;
 
-new Handle:InfectionTimer = INVALID_HANDLE;
-new Handle:MediTimer = INVALID_HANDLE;
-new Handle:SpreadTimer = INVALID_HANDLE;
+Handle InfectionTimer = INVALID_HANDLE;
+Handle MediTimer = INVALID_HANDLE;
+Handle SpreadTimer = INVALID_HANDLE;
 
-new Handle:OnInfectedHandle = INVALID_HANDLE;
-new Handle:OnInfectionHurtHandle = INVALID_HANDLE;
+Handle OnInfectedHandle = INVALID_HANDLE;
+Handle OnInfectionHurtHandle = INVALID_HANDLE;
 
-new Handle:g_precacheTrie = INVALID_HANDLE;
+Handle g_precacheTrie = INVALID_HANDLE;
 
 public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
 {
@@ -207,7 +207,7 @@ public OnConfigsExecuted()
 {
     InfectionTimer = CreateTimer(GetConVarFloat(Cvar_DmgTime), HandleInfection, _, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
 
-    new Float:timeval = GetConVarFloat(Cvar_SpreadCheckTime);
+    float timeval = GetConVarFloat(Cvar_SpreadCheckTime);
     if (timeval > 0.0)
         SpreadTimer = CreateTimer(timeval, SpreadInfection, _, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
     else
@@ -231,7 +231,7 @@ public OnConfigsExecuted()
 
 // Osaka: catching CVAR's is cheap; reallocating a timer is slower.
 //  So catch the ConVar changes and change the timer only in those situations
-public HandleInfectionChange(Handle:convar, const String:oldValue[], const String:newValue[])
+public HandleInfectionChange(Handle:convar, const char oldValue[], const char newValue[])
 {
     if (InfectionTimer != INVALID_HANDLE)
         CloseHandle(InfectionTimer);
@@ -240,12 +240,12 @@ public HandleInfectionChange(Handle:convar, const String:oldValue[], const Strin
 }
 
 // Osaka: The timer which damages infected players
-public Action:HandleInfection(Handle:timer)
+public Action HandleInfection(Handle:timer)
 {
     if(!NativeControl && !GetConVarBool(CvarEnable)) return;
 
-    new Float:InfectDuration = GetConVarFloat(Cvar_InfectDuration);
-    new Float:InfectContagious = GetConVarFloat(Cvar_InfectContagious);
+    float InfectDuration = GetConVarFloat(Cvar_InfectDuration);
+    float InfectContagious = GetConVarFloat(Cvar_InfectContagious);
     for(new client = 1; client <= MaxClients; client++)
     {
         // Osaka: Don't check to see if they are in game. Infected people must be in game.
@@ -257,7 +257,7 @@ public Action:HandleInfection(Handle:timer)
         else if(!IsClientInGame(client) || !IsPlayerAlive(client))
             continue;
 
-        new Float:InfectionTime = GetEngineTime() - ClientInfectionTime[client];
+        float InfectionTime = GetEngineTime() - ClientInfectionTime[client];
         if (InfectDuration > 0.0 && InfectionTime > InfectDuration)
         {
             UnInfect(client, -1);
@@ -305,7 +305,7 @@ public Action:HandleInfection(Handle:timer)
             PrepareSound(HurtSound[num]);
             EmitSoundToAll(HurtSound[num], client);
 
-            decl String:agent[16];
+            char agent[16];
             if (ClientInfectionFlags[client] & Infection_Irradiation)
                 strcopy(agent, sizeof(agent), "radiation");
             else
@@ -318,7 +318,7 @@ public Action:HandleInfection(Handle:timer)
 }
 
 // Osaka: Redundant, but allows us to skip checks
-public bool:OnClientConnect(client, String:rejectmsg[], maxlen)
+public bool OnClientConnect(client, String:rejectmsg[], maxlen)
 {
     ClientInfected[client] = 0;
     ClientInfectionSource[client] = 0;
@@ -343,7 +343,7 @@ public OnClientDisconnect(client)
 }
 
 // Osaka: Modifies death message to give credit for infections
-public Action:MedicModify(Handle:event, const String:name[], bool:dontBroadcast)
+public Action MedicModify(Handle:event, const char name[], bool:dontBroadcast)
 {
     // Skip feigned deaths.
     if (GetEventInt(event, "death_flags") & TF_DEATHFLAG_DEADRINGER)
@@ -407,7 +407,7 @@ public Action:MedicModify(Handle:event, const String:name[], bool:dontBroadcast)
 }
 
 // Osaka: For Syringes, we use the critical attack function, and hope it works well enough. Time will tell.
-public Action:TF2_CalcIsAttackCritical(client, weapon, String:weaponname[], &bool:result)
+public Action TF2_CalcIsAttackCritical(client, weapon, String:weaponname[], &bool:result)
 {
     if(!NativeControl && !GetConVarBool(CvarEnable))
         return Plugin_Continue;
@@ -441,26 +441,26 @@ public OnGameFrame()
 }
 */
 
-public HandleMediChange(Handle:convar, const String:oldValue[], const String:newValue[])
+public HandleMediChange(Handle:convar, const char oldValue[], const char newValue[])
 {
     if (MediTimer != INVALID_HANDLE)
         CloseHandle(MediTimer);
 
-    new Float:val = StringToFloat(newValue);
+    float val = StringToFloat(newValue);
     if(val > 0.0)
         MediTimer = CreateTimer(val, MediInfection, _, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
     else
         MediTimer = INVALID_HANDLE;
 }
 
-public Action:MediInfection(Handle:timer)
+public Action MediInfection(Handle:timer)
 {
     if(!NativeControl && !GetConVarBool(CvarEnable))
         return; 
     else if(!GetConVarInt(Cvar_InfectMedi))
         return;
 
-    decl String:classname[32];
+    char classname[32];
 
     for(new client = 1; client <= MaxClients; client++)
     {
@@ -533,7 +533,7 @@ public MedicInfect(to, from, bool:friendlyInfect, bool:irradiate)
             return;
         }
 
-        decl Float:ori1[3], Float:ori2[3], Float:distance;
+        float ori1[3], Float:ori2[3], Float:distance;
         distance = GetConVarFloat(Cvar_InfectDistance);
 
         if (distance > 0.1)
@@ -564,19 +564,19 @@ public MedicInfect(to, from, bool:friendlyInfect, bool:irradiate)
 //  This leads me to believe the n * m algorithm to perform, on average, logarithmically.
 //  I cannot prove it, however, for our bounded example of 32 players, it is obvious that 16 * 16 for a worst case is better than 32 * 32.
 
-public HandleSpreadChange(Handle:convar, const String:oldValue[], const String:newValue[])
+public HandleSpreadChange(Handle:convar, const char oldValue[], const char newValue[])
 {
     if (SpreadTimer != INVALID_HANDLE)
         CloseHandle(SpreadTimer);
 
-    new Float:val = StringToFloat(newValue);
+    float val = StringToFloat(newValue);
     if(val > 0.0)
         SpreadTimer = CreateTimer(val, SpreadInfection, _, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
     else
         SpreadTimer = INVALID_HANDLE;
 }
 
-public Action:SpreadInfection(Handle:timer)
+public Action SpreadInfection(Handle:timer)
 {
     if (!GetConVarInt(Cvar_SpreadEnable))
         return;
@@ -616,7 +616,7 @@ public Action:SpreadInfection(Handle:timer)
 
     // Osaka: Check the infected against the uninfected
     new check;
-    new Float:distance = GetConVarFloat(Cvar_SpreadDistance);
+    float distance = GetConVarFloat(Cvar_SpreadDistance);
     for(client = 0; client < InfectedCount; client++)
     {
         for(check = 0; check < NotInfectedCount; check++)
@@ -754,7 +754,7 @@ stock Infect(to, from, bool:friendly, bool:infect, bool:irradiate)
     if (irradiate)
         ClientInfectionFlags[to] |= Infection_Irradiation;
 
-    decl String:infected[16], String:agent[16];
+    char infected[16], String:agent[16];
     if (ClientInfectionFlags[to] & Infection_Irradiation)
     {
         strcopy(agent, sizeof(agent), "Radiation");
@@ -899,10 +899,10 @@ stock SetupPreloadTrie()
 }
 
 // Natis: stock to precache a sound, if it hasn't already been precached
-stock PrepareSound(const String:sound[], bool:preload=false)
+stock PrepareSound(const char sound[], bool:preload=false)
 {
     //if (!IsSoundPrecached(sound))
-    new bool:value;
+    bool value;
     if (!GetTrieValue(g_precacheTrie, sound, value))
     {
         PrecacheSound(sound,preload);
@@ -910,7 +910,7 @@ stock PrepareSound(const String:sound[], bool:preload=false)
     }
 }
 
-public Action:RoundStartEvent(Handle:event, const String:name[], bool:dontBroadcast)
+public Action RoundStartEvent(Handle:event, const char name[], bool:dontBroadcast)
 {
     if (!NativeControl && GetGameType() == tf2 &&
         GetConVarBool(CvarEnable) && GetConVarBool(CvarAnnounce))
@@ -929,7 +929,7 @@ public Action:RoundStartEvent(Handle:event, const String:name[], bool:dontBroadc
 
         PrintToChatAll("%c[SM] %cMedics can heal infected teammates using their medigun", COLOR_GREEN,COLOR_DEFAULT);
 
-        new bool:spreadAll = GetConVarBool(Cvar_SpreadAll);
+        bool spreadAll = GetConVarBool(Cvar_SpreadAll);
 
         if(!spreadAll && GetConVarBool(Cvar_InfectMedics) )
             PrintToChatAll("%c[SM] %cMedics are immune to infections", COLOR_GREEN,COLOR_DEFAULT);
@@ -941,7 +941,7 @@ public Action:RoundStartEvent(Handle:event, const String:name[], bool:dontBroadc
     }
 }
 
-public PlayerSpawnEvent(Handle:event,const String:name[],bool:dontBroadcast)
+public PlayerSpawnEvent(Handle:event,const char name[],bool:dontBroadcast)
 {
     new index=GetClientOfUserId(GetEventInt(event,"userid")); // Get clients index
     ClientInfected[index]=0;
@@ -950,7 +950,7 @@ public PlayerSpawnEvent(Handle:event,const String:name[],bool:dontBroadcast)
     ClientInfectionFlags[index] = Infection_Normal;
 }
 
-public PlayerTeamEvent(Handle:event,const String:name[],bool:dontBroadcast)
+public PlayerTeamEvent(Handle:event,const char name[],bool:dontBroadcast)
 {
     new index=GetClientOfUserId(GetEventInt(event,"userid")); // Get clients index
     ClientInfected[index]=0;
@@ -965,9 +965,9 @@ public PlayerTeamEvent(Handle:event,const String:name[],bool:dontBroadcast)
     }
 }
 
-public PlayerHurtEvent(Handle:event,const String:name[],bool:dontBroadcast)
+public PlayerHurtEvent(Handle:event,const char name[],bool:dontBroadcast)
 {
-    new bool:infected = false;
+    bool infected = false;
     new victim=GetClientOfUserId(GetEventInt(event,"userid"));
     if (victim > 0)
     {
@@ -988,7 +988,7 @@ public PlayerHurtEvent(Handle:event,const String:name[],bool:dontBroadcast)
             }
             else if (GetGameType() == tf2 && TF2_GetPlayerClass(attacker) == TFClass_Medic) 
             {
-                decl String:weaponname[32];
+                char weaponname[32];
                 new weaponent = GetEntPropEnt(attacker, Prop_Send, "m_hActiveWeapon");
                 if (weaponent > 0 && GetEdictClassname(weaponent, weaponname, sizeof(weaponname)) )
                 {
@@ -1061,8 +1061,8 @@ public Native_MedicInfect(Handle:plugin,numParams)
     {
         new target = GetNativeCell(1);
         new client = (numParams >= 2) ? GetNativeCell(2) : 0;
-        new bool:allow = (numParams >= 3) ? (bool:GetNativeCell(3)) : false;
-        new bool:irradiate = (numParams >= 4) ? (bool:GetNativeCell(4)) : false;
+        bool allow = (numParams >= 3) ? (bool:GetNativeCell(3)) : false;
+        bool irradiate = (numParams >= 4) ? (bool:GetNativeCell(4)) : false;
 
         if (client > 0)
         {
@@ -1081,9 +1081,9 @@ public Native_Infect(Handle:plugin,numParams)
         new target = GetNativeCell(1);
         new client = (numParams >= 2) ? GetNativeCell(2) : 0;
 
-        new bool:irradiate = (numParams >= 4) ? (bool:GetNativeCell(4)) : false;
-        new bool:allow = (numParams >= 3) ? (bool:GetNativeCell(3)) : false;
-        new bool:friendly = (target > 0 && client > 0 &&
+        bool irradiate = (numParams >= 4) ? (bool:GetNativeCell(4)) : false;
+        bool allow = (numParams >= 3) ? (bool:GetNativeCell(3)) : false;
+        bool friendly = (target > 0 && client > 0 &&
                              IsClientInGame(target) && IsClientInGame(client) &&
                              GetClientTeam(target) == GetClientTeam(client));
 

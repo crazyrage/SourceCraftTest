@@ -4,13 +4,13 @@
 
 #define PLUGIN_VERSION "2.3.1"
 
-new Handle:v_Announce = INVALID_HANDLE;
-new Handle:v_Remember = INVALID_HANDLE;
-new Handle:v_Spawn = INVALID_HANDLE;
-new Handle:v_SpawnAdminOnly = INVALID_HANDLE;
-new g_iState[MAXPLAYERS+1] = 0;
+Handle v_Announce = INVALID_HANDLE;
+Handle v_Remember = INVALID_HANDLE;
+Handle v_Spawn = INVALID_HANDLE;
+Handle v_SpawnAdminOnly = INVALID_HANDLE;
+int g_iState[MAXPLAYERS+1] = 0;
 
-public Plugin:myinfo =
+public Plugin myinfo =
 {
 	name = "[Any] Deluxe Godmode",
 	author = "DarthNinja",
@@ -39,14 +39,14 @@ public OnClientDisconnect(client)
 	g_iState[client] = 0;
 }
 
-public OnPlayerSpawned(Handle:event, const String:name[], bool:dontBroadcast)
+public OnPlayerSpawned(Handle:event, const char name[], bool:dontBroadcast)
 {
 	new client = GetClientOfUserId(GetEventInt(event, "userid"));
 
 	//Had godmode on before -> reapply
 	if (g_iState[client] != 0 && GetConVarBool(v_Remember))
 	{
-		new Handle:Packhead;
+		Handle Packhead;
 		CreateDataTimer(0.1, ApplyGodMode, Packhead);
 		WritePackCell(Packhead, client);
 		WritePackCell(Packhead, 1);
@@ -60,7 +60,7 @@ public OnPlayerSpawned(Handle:event, const String:name[], bool:dontBroadcast)
 
 		if (GetConVarInt(v_Spawn) != 0)
 		{
-			new Handle:Packhead;
+			Handle Packhead;
 			CreateDataTimer(0.1, ApplyGodMode, Packhead);
 			WritePackCell(Packhead, client);
 			WritePackCell(Packhead, 0);
@@ -68,7 +68,7 @@ public OnPlayerSpawned(Handle:event, const String:name[], bool:dontBroadcast)
 	}
 }
 
-public Action:ApplyGodMode(Handle:timer, any:Packhead)
+public Action ApplyGodMode(Handle:timer, any:Packhead)
 {
 	ResetPack(Packhead);
 	new client = ReadPackCell(Packhead);
@@ -119,7 +119,7 @@ public Action:ApplyGodMode(Handle:timer, any:Packhead)
 	return Plugin_Handled;
 }
 
-public Action:Command_God(client, args)
+public Action Command_God(client, args)
 {
 	if (args != 0 && !CheckCommandAccess(client, "sm_godmode_admin", ADMFLAG_SLAY, true))
 	{
@@ -153,8 +153,8 @@ public Action:Command_God(client, args)
 	}
 
 	// Player is an admin and is using 1 or more args
-	new String:target[32];
-	new String:toggle[3];
+	char target[32];
+	char toggle[3];
 	GetCmdArg(1, target, sizeof(target));
 	new iToggle = -1;
 	if (args > 1)
@@ -163,7 +163,7 @@ public Action:Command_God(client, args)
 		iToggle = StringToInt(toggle);
 	}
 
-	decl String:target_name[MAX_TARGET_LENGTH];
+	char target_name[MAX_TARGET_LENGTH];
 	decl target_list[MAXPLAYERS], target_count, bool:tn_is_ml;
 
 	if ((target_count = ProcessTargetString(
@@ -180,7 +180,7 @@ public Action:Command_God(client, args)
 			return Plugin_Handled;
 		}
 
-	new bool:bAnnounce = GetConVarBool(v_Announce);
+	bool bAnnounce = GetConVarBool(v_Announce);
 
 	if (iToggle == 1)	 //Turn on godmode
 	{
@@ -232,7 +232,7 @@ public Action:Command_God(client, args)
 	return Plugin_Handled;
 }
 
-public Action:Command_Buddha(client, args)
+public Action Command_Buddha(client, args)
 {
 	if (args != 0 && !CheckCommandAccess(client, "sm_buddhamode_admin", ADMFLAG_SLAY, true))
 	{
@@ -266,8 +266,8 @@ public Action:Command_Buddha(client, args)
 	}
 
 	// Player is an admin and is using 1 or more args
-	new String:target[32];
-	new String:toggle[3];
+	char target[32];
+	char toggle[3];
 	GetCmdArg(1, target, sizeof(target));
 	new iToggle = -1;
 	if (args > 1)
@@ -276,7 +276,7 @@ public Action:Command_Buddha(client, args)
 		iToggle = StringToInt(toggle);
 	}
 
-	decl String:target_name[MAX_TARGET_LENGTH];
+	char target_name[MAX_TARGET_LENGTH];
 	decl target_list[MAXPLAYERS], target_count, bool:tn_is_ml;
 
 	if ((target_count = ProcessTargetString(
@@ -293,7 +293,7 @@ public Action:Command_Buddha(client, args)
 			return Plugin_Handled;
 		}
 
-	new bool:bAnnounce = GetConVarBool(v_Announce);
+	bool bAnnounce = GetConVarBool(v_Announce);
 
 	if (iToggle == 1)	 //Turn on Buddha
 	{
@@ -345,7 +345,7 @@ public Action:Command_Buddha(client, args)
 	return Plugin_Handled;
 }
 
-public Action:Command_Mortal( client, args )
+public Action Command_Mortal( client, args )
 {	
 	if (args != 0 && !CheckCommandAccess(client, "sm_mortalmode_admin", ADMFLAG_SLAY, true))
 	{
@@ -366,10 +366,10 @@ public Action:Command_Mortal( client, args )
 		return Plugin_Handled;
 	}
 
-	new String:target[32];
+	char target[32];
 	GetCmdArg(1, target, sizeof(target));
 
-	decl String:target_name[MAX_TARGET_LENGTH];
+	char target_name[MAX_TARGET_LENGTH];
 	decl target_list[MAXPLAYERS], target_count, bool:tn_is_ml;
 
 	if ((target_count = ProcessTargetString(
@@ -386,7 +386,7 @@ public Action:Command_Mortal( client, args )
 			return Plugin_Handled;
 		}
 
-	new bool:chat = GetConVarBool(v_Announce);
+	bool chat = GetConVarBool(v_Announce);
 	ShowActivity2(client, "\x04[SM] ","\x01Made \x05%s\x01 mortal", target_name);
 
 	for (new i = 0; i < target_count; i++)

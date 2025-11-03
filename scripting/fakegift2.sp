@@ -8,9 +8,9 @@
 
 #define MDL_GIFT "models/props_halloween/halloween_gift.mdl"
 
-new Float:g_pos[3];
+float g_pos[3];
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
 	name = "[TF2] Fake Halloween Gift",
 	author = "Jocker",
@@ -34,7 +34,7 @@ public OnMapStart()
 
 // FUNCTIONS
 
-public Action:Command_Spawn(client, args)
+public Action Command_Spawn(client, args)
 {
 	if(!SetTeleportEndPoint(client))
 	{
@@ -69,17 +69,17 @@ public Action:Command_Spawn(client, args)
 
 SetTeleportEndPoint(client)
 {
-	decl Float:vAngles[3];
-	decl Float:vOrigin[3];
-	decl Float:vBuffer[3];
-	decl Float:vStart[3];
-	decl Float:Distance;
+	float vAngles[3];
+	float vOrigin[3];
+	float vBuffer[3];
+	float vStart[3];
+	float Distance;
 	
 	GetClientEyePosition(client,vOrigin);
 	GetClientEyeAngles(client, vAngles);
 	
     //get endpoint for teleport
-	new Handle:trace = TR_TraceRayFilterEx(vOrigin, vAngles, MASK_SHOT, RayType_Infinite, TraceEntityFilterPlayer);
+	Handle trace = TR_TraceRayFilterEx(vOrigin, vAngles, MASK_SHOT, RayType_Infinite, TraceEntityFilterPlayer);
 
 	if(TR_DidHit(trace))
 	{   	 
@@ -101,7 +101,7 @@ SetTeleportEndPoint(client)
 	return true;
 }
 
-public bool:TraceEntityFilterPlayer(entity, contentsMask)
+public bool TraceEntityFilterPlayer(entity, contentsMask)
 {
 	return entity > GetMaxClients() || !entity;
 }
@@ -115,7 +115,7 @@ public OnGiftTouch(entity, other)
 	OnGiftBreak(NULL_STRING, entity, other, 0.0); 
 }
 
-public OnGiftBreak(const String:output[], caller, activator, Float:delay)
+public OnGiftBreak(const char output[], caller, activator, Float:delay)
 {
 	UnhookSingleEntityOutput(caller, "OnBreak", OnGiftBreak);
 	AcceptEntityInput(caller,"kill");

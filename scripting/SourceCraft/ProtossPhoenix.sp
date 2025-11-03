@@ -44,32 +44,32 @@
 #include "effect/SendEffects"
 #include "effect/FlashScreen"
 
-new const String:spawnWav[]     = "sc/pscrdy00.wav";
-new const String:deathWav[]     = "sc/pscdth00.wav";
+char spawnWav[]     = "sc/pscrdy00.wav";
+char deathWav[]     = "sc/pscdth00.wav";
 
-new g_JetpackFuel[]             = { 0,     20,   25,   35,   45 };
-new Float:g_JetpackRefuelTime[] = { 0.0, 45.0, 35.0, 25.0, 15.0 };
+int g_JetpackFuel[]             = { 0,     20,   25,   35,   45 };
+float g_JetpackRefuelTime[] = { 0.0, 45.0, 35.0, 25.0, 15.0 };
 
-new g_GravitonBeamDuration[]    = { 0,      20,     50,     80,     -1 };
-new Float:g_GravitonBeamRange[] = { 0.0, 500.0, 1500.0, 2500.0, 3500.0 };
+int g_GravitonBeamDuration[]    = { 0,      20,     50,     80,     -1 };
+float g_GravitonBeamRange[] = { 0.0, 500.0, 1500.0, 2500.0, 3500.0 };
 
-new Float:g_WeaponsPercent[]    = { 0.0, 0.15, 0.30, 0.40, 0.50 };
-new g_WeaponsChance[]           = { 0,     15,   20,   25,   30 };
+float g_WeaponsPercent[]    = { 0.0, 0.15, 0.30, 0.40, 0.50 };
+int g_WeaponsChance[]           = { 0,     15,   20,   25,   30 };
 
-new Float:g_SpeedLevels[]       = { -1.0, 1.10, 1.15, 1.20, 1.25 };
+float g_SpeedLevels[]       = { -1.0, 1.10, 1.15, 1.20, 1.25 };
 
-new Float:g_InitialShields[]    = { 0.0, 0.10, 0.20, 0.30, 0.40 };
-new Float:g_ShieldsPercent[][2] = { {0.00, 0.00},
+float g_InitialShields[]    = { 0.0, 0.10, 0.20, 0.30, 0.40 };
+float g_ShieldsPercent[][2] = { {0.00, 0.00},
                                     {0.00, 0.10},
                                     {0.00, 0.20},
                                     {0.05, 0.40},
                                     {0.10, 0.50} };
 
-new raceID, weaponsID, shieldsID, thrusterID, jetpackID, beamID, carrierID;
+int raceID, weaponsID, shieldsID, thrusterID, jetpackID, beamID, carrierID;
 
-new g_carrierRace = -1;
+int g_carrierRace = -1;
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Unit - Protoss Phoenix",
     author = "-=|JFH|=-Naris",
@@ -127,7 +127,7 @@ public OnSourceCraftReady()
 
     for (new level=0; level < sizeof(g_ShieldsPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "shields_percent_level_%d", level);
         GetConfigFloatArray(key, g_ShieldsPercent[level], sizeof(g_ShieldsPercent[]),
                             g_ShieldsPercent[level], raceID, shieldsID);
@@ -186,7 +186,7 @@ public OnMapStart()
     SetupSound(deathWav);
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -211,7 +211,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
     return Plugin_Continue;
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
@@ -301,7 +301,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                             {
                                 PrepareAndEmitSoundToClient(client,deniedWav);
 
-                                decl String:upgradeName[64];
+                                char upgradeName[64];
                                 GetUpgradeName(raceID, beamID, upgradeName, sizeof(upgradeName), client);
                                 DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
                             }
@@ -313,7 +313,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                     }
                     else if (pressed)
                     {
-                        decl String:upgradeName[64];
+                        char upgradeName[64];
                         GetUpgradeName(raceID, beamID, upgradeName, sizeof(upgradeName), client);
                         PrintHintText(client,"%t", "IsNotAvailable", upgradeName);
                         PrepareAndEmitSoundToClient(client,deniedWav);
@@ -343,7 +343,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                     }
                     else if (pressed)
                     {
-                        decl String:upgradeName[64];
+                        char upgradeName[64];
                         GetUpgradeName(raceID, jetpackID, upgradeName, sizeof(upgradeName), client);
                         PrintHintText(client,"%t", "IsNotAvailable", upgradeName);
                         PrepareAndEmitSoundToClient(client,deniedWav);
@@ -374,7 +374,7 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     if (!from_sc && attacker_index > 0 &&
@@ -391,7 +391,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
     return Plugin_Continue;
 }
 
-public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
+public Action OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
                                   assister_index, assister_race, damage,
                                   absorbed)
 {
@@ -431,7 +431,7 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
     }
 }
 
-public Action:OnGrabPlayer(client, target)
+public Action OnGrabPlayer(client, target)
 {
     TraceInto("ProtossPhoenix", "OnGrabPlayer", "client=%d:%N, client=%d:%N", \
               client, ValidClientIndex(client), target, ValidClientIndex(target));
@@ -457,7 +457,7 @@ public Action:OnGrabPlayer(client, target)
     else if (GetRestriction(client,Restriction_NoUltimates) ||
              GetRestriction(client,Restriction_Stunned))
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, beamID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
         PrepareAndEmitSoundToClient(client,deniedWav);
@@ -485,7 +485,7 @@ public Action:OnGrabPlayer(client, target)
             // Don't let flag carrier get grabbed to prevent crashes.
             if (GameType == tf2 && TF2_HasTheFlag(target))
             {
-                decl String:upgradeName[64];
+                char upgradeName[64];
                 GetUpgradeName(raceID, beamID, upgradeName, sizeof(upgradeName), client);
                 DisplayMessage(client, Display_Ultimate, "%t", "CantUseOnFlagCarrier", upgradeName);
                 PrepareAndEmitSoundToClient(client,deniedWav);
@@ -538,7 +538,7 @@ public Action:OnGrabPlayer(client, target)
     }
 }
 
-public Action:OnDragPlayer(client, target)
+public Action OnDragPlayer(client, target)
 {
     TraceInto("ProtossPhoenix", "OnDragPlayer", "client=%d:%N, client=%d:%N", \
               client, ValidClientIndex(client), target, ValidClientIndex(target));
@@ -549,7 +549,7 @@ public Action:OnDragPlayer(client, target)
         if (GetRestriction(client,Restriction_NoUltimates) ||
             GetRestriction(client,Restriction_Stunned))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, beamID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -610,7 +610,7 @@ public Action:OnDragPlayer(client, target)
     }
 }
 
-public Action:OnDropPlayer(client, target)
+public Action OnDropPlayer(client, target)
 {
     if (client > 0 && GetRace(client) == raceID)
     {
@@ -667,7 +667,7 @@ SummonCarrier(client)
 
     if (g_carrierRace < 0)
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, carrierID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "IsNotAvailable", upgradeName);
         LogError("***The Protoss Carrier race is not Available!");
@@ -681,7 +681,7 @@ SummonCarrier(client)
     }
     else if (CanInvokeUpgrade(client, raceID, carrierID))
     {
-        new Float:clientLoc[3];
+        float clientLoc[3];
         GetClientAbsOrigin(client, clientLoc);
         clientLoc[2] += 40.0; // Adjust position to the middle
 

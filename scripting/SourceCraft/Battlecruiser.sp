@@ -37,12 +37,12 @@
 #include "effect/SendEffects"
 #include "effect/FlashScreen"
 
-new const String:buildWav[]         = "sc/tbardy00.wav";
-new const String:deathWav[]         = "sc/tbadth00.wav";
-new const String:barrageWav[]       = "sc/hkmissle.wav";
-new const String:yamatoFireWav[]    = "sc/tbayam00.wav";
-new const String:yamatoRepeatWav[]  = "sc/tbayam02.wav";
-new const String:explosionsWav[][]  = { "sc/explo1.wav",
+char buildWav[]         = "sc/tbardy00.wav";
+char deathWav[]         = "sc/tbadth00.wav";
+char barrageWav[]       = "sc/hkmissle.wav";
+char yamatoFireWav[]    = "sc/tbayam00.wav";
+char yamatoRepeatWav[]  = "sc/tbayam02.wav";
+char explosionsWav[][]  = { "sc/explo1.wav",
                                         "sc/explo2.wav",
                                         "sc/explo3.wav",
                                         "sc/explo4.wav",
@@ -51,42 +51,42 @@ new const String:explosionsWav[][]  = { "sc/explo1.wav",
                                         "sc/explomed.wav",
                                         "sc/explolrg.wav" };
 
-new const String:g_ArmorName[]      = "Plating";
-new Float:g_InitialArmor[]          = { 0.05, 0.10, 0.25, 0.50, 0.75 };
-new Float:g_ArmorPercent[][2]       = { {0.00, 0.10},
+char g_ArmorName[]      = "Plating";
+float g_InitialArmor[]          = { 0.05, 0.10, 0.25, 0.50, 0.75 };
+float g_ArmorPercent[][2]       = { {0.00, 0.10},
                                         {0.05, 0.20},
                                         {0.15, 0.30},
                                         {0.20, 0.40},
                                         {0.25, 0.50} };
 
-new g_JetpackFuel[]                 = { 40,   50,   70,   90,   120 };
-new Float:g_JetpackRefuelTime[]     = { 45.0, 35.0, 25.0, 15.0, 5.0 };
+int g_JetpackFuel[]                 = { 40,   50,   70,   90,   120 };
+float g_JetpackRefuelTime[]     = { 45.0, 35.0, 25.0, 15.0, 5.0 };
 
-new Float:g_GravgunSpeed[]          = { 0.10, 0.30, 0.50, 0.70, 0.90 };
+float g_GravgunSpeed[]          = { 0.10, 0.30, 0.50, 0.70, 0.90 };
 
-new Float:g_ShipWeaponsDamage[]     = { 0.15, 0.30, 0.40, 0.50, 0.70 };
+float g_ShipWeaponsDamage[]     = { 0.15, 0.30, 0.40, 0.50, 0.70 };
 
-new Float:g_BarrageRange[]          = { 0.0, 250.0, 400.0, 550.0, 650.0 };
+float g_BarrageRange[]          = { 0.0, 250.0, 400.0, 550.0, 650.0 };
 
-new Float:g_YamatoRange[]           = { 350.0, 400.0, 650.0, 750.0, 900.0 };
-new g_YamatoDamage[][2]             = { {25,   50},
+float g_YamatoRange[]           = { 350.0, 400.0, 650.0, 750.0, 900.0 };
+int g_YamatoDamage[][2]             = { {25,   50},
                                         {75,  100},
                                         {100, 150},
                                         {125, 200},
                                         {150, 250} };
 
-new cfgAllowGravgun                 = 2;
-new bool:cfgAllowRepair             = true;
-new bool:cfgAllowEnabled            = true;
-new Float:cfgGravgunDuration        = 15.0;
-new Float:cfgGravgunThrowSpeed      = 500.0;
+int cfgAllowGravgun                 = 2;
+bool cfgAllowRepair             = true;
+bool cfgAllowEnabled            = true;
+float cfgGravgunDuration        = 15.0;
+float cfgGravgunThrowSpeed      = 500.0;
 
-new raceID, immunityID, armorID, weaponsID, gravAccelID, jetpackID, yamatoID, barrageID;
+int raceID, immunityID, armorID, weaponsID, gravAccelID, jetpackID, yamatoID, barrageID;
 
-new gMissileBarrageDuration[MAXPLAYERS+1];
-new Float:m_GravTime[MAXPLAYERS+1];
+int gMissileBarrageDuration[MAXPLAYERS+1];
+float m_GravTime[MAXPLAYERS+1];
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Terran Battlecruiser",
     author = "-=|JFH|=-Naris",
@@ -178,7 +178,7 @@ public OnSourceCraftReady()
 
     for (new level=0; level < sizeof(g_ArmorPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "armor_percent_level_%d", level);
         GetConfigFloatArray(key, g_ArmorPercent[level], sizeof(g_ArmorPercent[]),
                             g_ArmorPercent[level], raceID, armorID);
@@ -201,7 +201,7 @@ public OnSourceCraftReady()
 
     for (new level=0; level < sizeof(g_YamatoDamage); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "damage_level_%d", level);
         GetConfigArray(key, g_YamatoDamage[level], sizeof(g_YamatoDamage[]),
                        g_YamatoDamage[level], raceID, yamatoID);
@@ -246,7 +246,7 @@ public OnMapStart()
         SetupSound(explosionsWav[i]);
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -265,7 +265,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
     return Plugin_Continue;
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
@@ -369,7 +369,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                 }
                 else if (pressed)
                 {
-                    decl String:upgradeName[64];
+                    char upgradeName[64];
                     GetUpgradeName(raceID, jetpackID, upgradeName, sizeof(upgradeName), client);
                     PrintHintText(client,"%t", "IsNotAvailable", upgradeName);
                 }
@@ -380,7 +380,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                 {
                     if (pressed)
                     {
-                        decl String:upgradeName[64];
+                        char upgradeName[64];
                         GetUpgradeName(raceID, gravAccelID, upgradeName, sizeof(upgradeName), client);
                         PrintHintText(client,"%t", "IsNotAvailable", upgradeName);
                     }
@@ -390,7 +390,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                     if (cfgAllowGravgun < 2 && GetGameType() == tf2 &&
                         TF2_GetPlayerClass(client) != TFClass_Engineer)
                     {
-                        decl String:upgradeName[64];
+                        char upgradeName[64];
                         GetUpgradeName(raceID, gravAccelID, upgradeName, sizeof(upgradeName), client);
                         DisplayMessage(client, Display_Ultimate, "%t", "EngineersOnly", upgradeName);
                         PrepareAndEmitSoundToClient(client,deniedWav);
@@ -402,7 +402,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                             if (GetRestriction(client,Restriction_NoUltimates) ||
                                 GetRestriction(client,Restriction_Stunned))
                             {
-                                decl String:upgradeName[64];
+                                char upgradeName[64];
                                 GetUpgradeName(raceID, gravAccelID, upgradeName, sizeof(upgradeName), client);
                                 DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
                                 PrepareAndEmitSoundToClient(client,deniedWav);
@@ -443,7 +443,7 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     if (!from_sc && attacker_index > 0 &&
@@ -457,7 +457,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
     return Plugin_Continue;
 }
 
-public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
+public Action OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
                                   assister_index, assister_race, damage,
                                   absorbed)
 {
@@ -492,7 +492,7 @@ DoImmunity(client, level, bool:value)
 
     if (value && IsValidClientAlive(client))
     {
-        new Float:start[3];
+        float start[3];
         GetClientAbsOrigin(client, start);
 
         static const color[4] = { 0, 255, 50, 128 };
@@ -508,8 +508,8 @@ public SetupGravgun(client, level)
     {
         if (cfgAllowGravgun >= 2 || (cfgAllowGravgun >= 1 && (GameType != tf2 || TF2_GetPlayerClass(client) == TFClass_Engineer)))
         {
-            new Float:speed = cfgGravgunThrowSpeed * float(level);
-            new Float:duration = cfgGravgunDuration * float(level);
+            float speed = cfgGravgunThrowSpeed * float(level);
+            float duration = cfgGravgunDuration * float(level);
             new permissions=HAS_GRABBER|CAN_STEAL|CAN_JUMP_WHILE_HOLDING;
 
             if (GameType == tf2)
@@ -541,7 +541,7 @@ public SetupGravgun(client, level)
     }
 }
 
-public Action:OnPickupObject(client, builder, ent)
+public Action OnPickupObject(client, builder, ent)
 {
     if (GetRace(client) == raceID)
     {
@@ -566,7 +566,7 @@ public Action:OnPickupObject(client, builder, ent)
         {
             PrepareAndEmitSoundToClient(client,deniedWav);
 
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, gravAccelID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
             return Plugin_Stop;
@@ -583,7 +583,7 @@ public Action:OnPickupObject(client, builder, ent)
     return Plugin_Continue;
 }
 
-public Action:OnCarryObject(client,ent,Float:time)
+public Action OnCarryObject(client,ent,Float:time)
 {
     if (GetRace(client) == raceID)
     {
@@ -597,21 +597,21 @@ public Action:OnCarryObject(client,ent,Float:time)
         {
             PrepareAndEmitSoundToClient(client,deniedWav);
 
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, gravAccelID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
             return Plugin_Stop;
         }
         else
         {
-            new Float:now = GetEngineTime();
-            new Float:amount = GetUpgradeRecurringEnergy(raceID,gravAccelID);
+            float now = GetEngineTime();
+            float amount = GetUpgradeRecurringEnergy(raceID,gravAccelID);
             if (now-m_GravTime[client] > amount)
             {
                 new level = GetUpgradeLevel(client,raceID,gravAccelID);
                 if (level < 3 || !GetEntProp(ent, Prop_Send, "m_bDisabled"))
                 {
-                    decl String:upgradeName[64];
+                    char upgradeName[64];
                     GetUpgradeName(raceID, gravAccelID, upgradeName, sizeof(upgradeName), client);
 
                     if (CanProcessUpgrade(client, raceID, gravAccelID))
@@ -650,13 +650,13 @@ public OnDropObject(client, ent)
     }
 }
 
-public Action:OnThrowObject(client, ent)
+public Action OnThrowObject(client, ent)
 {
     OnDropObject(client, ent);
     return Plugin_Continue;
 }
 
-public bool:ShipWeapons(damage, victim_index, index)
+public bool ShipWeapons(damage, victim_index, index)
 {
     if (!GetRestriction(index,Restriction_NoUpgrades) &&
         !GetRestriction(index,Restriction_Stunned) &&
@@ -669,11 +669,11 @@ public bool:ShipWeapons(damage, victim_index, index)
             if (CanInvokeUpgrade(index, raceID, weaponsID))
             {
                 new level = GetUpgradeLevel(index, raceID, weaponsID);
-                new Float:percent = g_ShipWeaponsDamage[level];
+                float percent = g_ShipWeaponsDamage[level];
                 new dmgamt = RoundFloat(float(damage)*percent);
                 if (dmgamt > 0)
                 {
-                    new Float:Origin[3];
+                    float Origin[3];
                     GetEntityAbsOrigin(victim_index, Origin);
                     Origin[2] += 5;
 
@@ -726,7 +726,7 @@ public MissileBarrage(client,ultlevel)
 
         gMissileBarrageDuration[client] = (ultlevel+1)*3;
 
-        new Handle:MissileBarrageTimer = CreateTimer(0.4, PersistMissileBarrage,
+        Handle MissileBarrageTimer = CreateTimer(0.4, PersistMissileBarrage,
                                                      GetClientUserId(client),
                                                      TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
         TriggerTimer(MissileBarrageTimer, true);
@@ -735,7 +735,7 @@ public MissileBarrage(client,ultlevel)
     }
 }
 
-public Action:PersistMissileBarrage(Handle:timer,any:userid)
+public Action PersistMissileBarrage(Handle:timer,any:userid)
 {
     new client = GetClientOfUserId(userid);
     if (IsValidClientAlive(client) &&
@@ -743,10 +743,10 @@ public Action:PersistMissileBarrage(Handle:timer,any:userid)
         !GetRestriction(client,Restriction_Stunned))
     {
         new level = GetUpgradeLevel(client,raceID,barrageID);
-        new Float:range = g_BarrageRange[level];
+        float range = g_BarrageRange[level];
 
-        new Float:indexLoc[3];
-        new Float:clientLoc[3];
+        float indexLoc[3];
+        float clientLoc[3];
         GetClientAbsOrigin(client, clientLoc);
         clientLoc[2] += 50.0; // Adjust trace position to the middle of the person instead of the feet.
 
@@ -833,13 +833,13 @@ YamatoCannon(client,level)
                 TF2_RemovePlayerDisguise(client);
         }
 
-        new Float:range = g_YamatoRange[level];
+        float range = g_YamatoRange[level];
         new dmg = GetRandomInt(g_YamatoDamage[level][0],
                                g_YamatoDamage[level][1]);
 
-        new Float:indexLoc[3];
-        new Float:targetLoc[3];
-        new Float:clientLoc[3];
+        float indexLoc[3];
+        float targetLoc[3];
+        float clientLoc[3];
         GetClientAbsOrigin(client, clientLoc);
         clientLoc[2] += 50.0; // Adjust trace position to the middle of the person instead of the feet.
 
@@ -952,7 +952,7 @@ YamatoCannon(client,level)
             }
         }
 
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, yamatoID, upgradeName, sizeof(upgradeName), client);
 
         if (count)

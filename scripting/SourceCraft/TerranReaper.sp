@@ -39,24 +39,24 @@
 #include "effect/SendEffects"
 #include "effect/FlashScreen"
 
-new raceID, weaponsID, armorID, stimpacksID, jetpackID, bunkerID, chargeID;
+int raceID, weaponsID, armorID, stimpacksID, jetpackID, bunkerID, chargeID;
 
-new const String:g_ArmorName[]  = "Armor";
-new Float:g_InitialArmor[]      = { 0.0, 0.20, 0.30, 0.40, 0.50 };
-new Float:g_ArmorPercent[][2]   = { {0.00, 0.00},
+char g_ArmorName[]  = "Armor";
+float g_InitialArmor[]      = { 0.0, 0.20, 0.30, 0.40, 0.50 };
+float g_ArmorPercent[][2]   = { {0.00, 0.00},
                                     {0.00, 0.05},
                                     {0.00, 0.15},
                                     {0.05, 0.30},
                                     {0.10, 0.40} };
 
-new g_JetpackFuel[]             = { 0, 40, 50, 70, 90 };
-new Float:g_JetpackRefuelTime[] = { 0.0, 45.0, 35.0, 25.0, 15.0 };
+int g_JetpackFuel[]             = { 0, 40, 50, 70, 90 };
+float g_JetpackRefuelTime[] = { 0.0, 45.0, 35.0, 25.0, 15.0 };
 
-new Float:g_WeaponsPercent[]    = { 0.00, 0.15, 0.30, 0.40, 0.50 };
-new Float:g_BunkerPercent[]     = { 0.00, 0.20, 0.30, 0.40, 0.50 };
-new Float:g_SpeedLevels[]       = { -1.0, 1.10, 1.15, 1.20, 1.25 };
+float g_WeaponsPercent[]    = { 0.00, 0.15, 0.30, 0.40, 0.50 };
+float g_BunkerPercent[]     = { 0.00, 0.20, 0.30, 0.40, 0.50 };
+float g_SpeedLevels[]       = { -1.0, 1.10, 1.15, 1.20, 1.25 };
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Unit - Terran Reaper",
     author = "-=|JFH|=-Naris",
@@ -141,7 +141,7 @@ public OnSourceCraftReady()
 
     for (new level=0; level < sizeof(g_ArmorPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "armor_percent_level_%d", level);
         GetConfigFloatArray(key, g_ArmorPercent[level], sizeof(g_ArmorPercent[]),
                             g_ArmorPercent[level], raceID, armorID);
@@ -203,7 +203,7 @@ public OnMapStart()
     SetupDeniedSound();
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -235,7 +235,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
         return Plugin_Continue;
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
@@ -492,7 +492,7 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     if (!from_sc && attacker_index > 0 &&
@@ -506,7 +506,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
     return Plugin_Continue;
 }
 
-public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
+public Action OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
                                   assister_index, assister_race, damage,
                                   absorbed)
 {
@@ -532,18 +532,18 @@ bool:InfantryWeapons(Handle:event, damage, victim_index, index)
         {
             if (GetRandomInt(1,100)<=25)
             {
-                decl String:weapon[64];
-                new bool:is_equipment=GetWeapon(event,index,weapon,sizeof(weapon));
+                char weapon[64];
+                bool is_equipment=GetWeapon(event,index,weapon,sizeof(weapon));
                 if (!IsMelee(weapon, is_equipment,index,victim_index))
                 {
                     new health_take = RoundFloat(float(damage)*g_WeaponsPercent[weapons_level]);
                     if (health_take > 0 && CanInvokeUpgrade(index, raceID, weaponsID, .notify=false))
                     {
-                        new Float:indexLoc[3];
+                        float indexLoc[3];
                         GetClientAbsOrigin(index, indexLoc);
                         indexLoc[2] += 50.0;
 
-                        new Float:victimLoc[3];
+                        float victimLoc[3];
                         GetEntityAbsOrigin(victim_index, victimLoc);
                         victimLoc[2] += 50.0;
 
@@ -586,7 +586,7 @@ Jetpack(client, bool:pressed)
     }
     else if (pressed)
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, jetpackID, upgradeName, sizeof(upgradeName), client);
         PrintHintText(client,"%t", "IsNotAvailable", upgradeName);
         PrepareAndEmitSoundToClient(client,deniedWav);
@@ -627,7 +627,7 @@ SetupTNT(client, level)
     }
 }
 
-public Action:OnTNTBombed(tnt,owner,victim)
+public Action OnTNTBombed(tnt,owner,victim)
 {
     if (GetRace(owner) != raceID)
         return Plugin_Continue;
@@ -659,7 +659,7 @@ public RoundStartEvent(Handle:event,const String:name[],bool:dontBroadcast)
     }
 }
 
-public Action:ResetRateOfFire(Handle:timer,any:userid)
+public Action ResetRateOfFire(Handle:timer,any:userid)
 {
     new client = GetClientOfUserId(userid);
     if (IsValidClient(client))

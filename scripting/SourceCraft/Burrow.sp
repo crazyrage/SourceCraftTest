@@ -49,31 +49,31 @@
 
 #define MAXENTITIES 2048
 
-new const String:lurkerWav[] = "sc/zluburrw.wav";
-new const String:burrowUpWav[] = "sc/burrowup.wav";
-new const String:burrowDownWav[] = "sc/burrowdn.wav";
-new const String:enterBunkerWav[] = "sc/tdrtra00.wav";
-new const String:leaveBunkerWav[] = "sc/tdrtra01.wav";
-new const String:burrowDeniedWav[] = "sc/zdrerr00.wav"; // "sc/zpwrdown.wav";
+char lurkerWav[] = "sc/zluburrw.wav";
+char burrowUpWav[] = "sc/burrowup.wav";
+char burrowDownWav[] = "sc/burrowdn.wav";
+char enterBunkerWav[] = "sc/tdrtra00.wav";
+char leaveBunkerWav[] = "sc/tdrtra01.wav";
+char burrowDeniedWav[] = "sc/zdrerr00.wav"; // "sc/zpwrdown.wav";
 
-new m_SavedArmor[MAXPLAYERS+1];
-new m_BurrowArmor[MAXPLAYERS+1];
-new m_BurrowLevel[MAXPLAYERS+1];
-new m_BurrowDepth[MAXPLAYERS+1];
-new Float:m_BurrowEnergy[MAXPLAYERS+1];
-new Float:m_SavedPercent[MAXPLAYERS+1][2];
-new String:m_BurrowName[MAXPLAYERS+1][64];
-new String:m_SavedName[MAXPLAYERS+1][64];
+int m_SavedArmor[MAXPLAYERS+1];
+int m_BurrowArmor[MAXPLAYERS+1];
+int m_BurrowLevel[MAXPLAYERS+1];
+int m_BurrowDepth[MAXPLAYERS+1];
+float m_BurrowEnergy[MAXPLAYERS+1];
+float m_SavedPercent[MAXPLAYERS+1][2];
+char m_BurrowName[MAXPLAYERS+1][64];
+char m_SavedName[MAXPLAYERS+1][64];
 
-new m_Burrowed[MAXENTITIES+1]; //[MAXPLAYERS+1]; 
-new Float:m_BurrowLoc[MAXENTITIES+1][3]; //[MAXPLAYERS+1]; 
-new Handle:m_BurrowTimer[MAXENTITIES+1]; //[MAXPLAYERS+1]; 
-new Handle:m_UnBurrowTimer[MAXENTITIES+1]; //[MAXPLAYERS+1]; 
-new Handle:m_BurrowedTimer[MAXENTITIES+1]; //[MAXPLAYERS+1];
+int m_Burrowed[MAXENTITIES+1]; //[MAXPLAYERS+1]; 
+float m_BurrowLoc[MAXENTITIES+1][3]; //[MAXPLAYERS+1]; 
+Handle m_BurrowTimer[MAXENTITIES+1]; //[MAXPLAYERS+1]; 
+Handle m_UnBurrowTimer[MAXENTITIES+1]; //[MAXPLAYERS+1]; 
+Handle m_BurrowedTimer[MAXENTITIES+1]; //[MAXPLAYERS+1];
 
-new Handle:m_BurrowedStructures[MAXPLAYERS+1] = { INVALID_HANDLE, ... };
+Handle m_BurrowedStructures[MAXPLAYERS+1] = { INVALID_HANDLE, ... };
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Upgrade - Burrow",
     author = "-=|JFH|=-Naris",
@@ -228,7 +228,7 @@ public OnEntityDestroyed(entity)
     }
 }
 
-public Action:OnGrabPlayer(client, target)
+public Action OnGrabPlayer(client, target)
 {
     TraceInto("Burrow", "OnGrabPlayer", "client=%d:%N, target=%d:%N", \
               client, ValidClientIndex(client), \
@@ -246,7 +246,7 @@ public Action:OnGrabPlayer(client, target)
     }
 }
 
-public Action:OnJetpack(client)
+public Action OnJetpack(client)
 {
     if (m_Burrowed[client] > 0)
     {
@@ -256,7 +256,7 @@ public Action:OnJetpack(client)
     return Plugin_Continue;
 }
 
-public Action:OnPickupObject(client, builder, ent)
+public Action OnPickupObject(client, builder, ent)
 {
     if (m_Burrowed[ent] > 0)
     {
@@ -266,7 +266,7 @@ public Action:OnPickupObject(client, builder, ent)
     return Plugin_Continue;
 }
 
-public Action:OnRaceDeselected(client,oldrace,race)
+public Action OnRaceDeselected(client,oldrace,race)
 {
     ResetBurrow(client, true, false, false);
     ResetClientStructures(client, false);
@@ -296,7 +296,7 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
         ResetBurrow(client, false, false, false);
 }
 
-public Action:BurrowPlayerHurtPreEvent(Handle:event,const String:name[],bool:dontBroadcast)
+public Action BurrowPlayerHurtPreEvent(Handle:event,const String:name[],bool:dontBroadcast)
 {
     new victim_index=GetClientOfUserId(GetEventInt(event,"userid"));
     new attacker_index=GetClientOfUserId(GetEventInt(event,"attacker"));
@@ -329,9 +329,9 @@ public Action:BurrowPlayerHurtPreEvent(Handle:event,const String:name[],bool:don
         if (level < 4 && burrowed > 0 &&
             burrowed >= m_BurrowDepth[attacker_index])
         {
-            decl String:weapon[64];
-            new bool:is_equipment=GetWeapon(event,attacker_index,weapon,sizeof(weapon));
-            new bool:melee=IsMelee(weapon,is_equipment,attacker_index,victim_index,200.0);
+            char weapon[64];
+            bool is_equipment=GetWeapon(event,attacker_index,weapon,sizeof(weapon));
+            bool melee=IsMelee(weapon,is_equipment,attacker_index,victim_index,200.0);
 
             Trace("%N wounded %N while burrowed, weapon=%d,melee=%d", \
                   attacker_index,victim_index,weapon,melee);
@@ -412,8 +412,8 @@ public BurrowPlayerDeathPreEvent(Handle:event,const String:name[],bool:dontBroad
         if (level < 4 && burrowed > 0 &&
             burrowed >= m_BurrowDepth[attacker_index])
         {
-            decl String:weapon[64];
-            new bool:is_equipment=GetWeapon(event,attacker_index,weapon,sizeof(weapon));
+            char weapon[64];
+            bool is_equipment=GetWeapon(event,attacker_index,weapon,sizeof(weapon));
             if (level >= 2)
                 UnBurrow(attacker_index);
             else if (IsMelee(weapon,is_equipment,attacker_index,victim_index))
@@ -428,7 +428,7 @@ public BurrowPlayerDeathPreEvent(Handle:event,const String:name[],bool:dontBroad
     TraceReturn();
 }
 
-public Action:BurrowTimer(Handle:timer,any:client)
+public Action BurrowTimer(Handle:timer,any:client)
 {
     TraceInto("Burrow", "BurrowTimer", "client=%d:%N, m_BurrowLevel=%d, m_BurrowDepth=%d, m_Burrowed=%d", \
               client, ValidClientIndex(client), m_BurrowLevel[client], m_BurrowDepth[client], m_Burrowed[client]);
@@ -441,7 +441,7 @@ public Action:BurrowTimer(Handle:timer,any:client)
 
         if (GameType == tf2)
         {
-            new bool:ubered = false;
+            bool ubered = false;
             new numHealers = TF2_GetNumHealers(client);
             if (numHealers > 0 || TF2_IsPlayerUbercharged(client) ||
                 TF2_IsPlayerKritzkrieged(client) || TF2_IsPlayerHealing(client) ||
@@ -473,7 +473,7 @@ public Action:BurrowTimer(Handle:timer,any:client)
             }
         }
 
-        new Float:pos[3];
+        float pos[3];
         GetClientAbsOrigin(client, pos);
 
         if (level < 4)
@@ -512,7 +512,7 @@ public Action:BurrowTimer(Handle:timer,any:client)
             // Client can't attack while burrowing
             SetEntPropFloat(client, Prop_Send, "m_flNextAttack", GetGameTime()+1.0);
 
-            new Float:size[3];
+            float size[3];
             GetClientMaxs(client, size);
 
             pos[2] -= size[2] / 4.0;
@@ -533,9 +533,9 @@ public Action:BurrowTimer(Handle:timer,any:client)
             if (depth >= 4)
             {
                 // Bury the client up to his eyes (so he can still see).
-                new Float:eyes[3];
+                float eyes[3];
                 GetClientEyePosition(client, eyes);
-                new Float:eyeDepth = eyes[2] - pos[2];
+                float eyeDepth = eyes[2] - pos[2];
 
                 pos = m_BurrowLoc[client];
                 pos[2] -= eyeDepth;
@@ -552,7 +552,7 @@ public Action:BurrowTimer(Handle:timer,any:client)
             }
             else
             {
-                new Float:size[3];
+                float size[3];
                 GetClientMaxs(client, size);
 
                 pos[2] -= size[2] / 4.0;
@@ -627,7 +627,7 @@ public Action:BurrowTimer(Handle:timer,any:client)
     return Plugin_Stop;
 }
 
-public Action:BurrowedTimer(Handle:timer,any:client)
+public Action BurrowedTimer(Handle:timer,any:client)
 {
     TraceInto("Burrow", "BurrowedTimer", "client=%d:%N", \
               client, ValidClientIndex(client));
@@ -641,7 +641,7 @@ public Action:BurrowedTimer(Handle:timer,any:client)
 
         if (GameType == tf2)
         {
-            new bool:ubered = false;
+            bool ubered = false;
             if (TF2_IsPlayerUbercharged(client) ||
                 TF2_IsPlayerKritzkrieged(client) ||
                 TF2_IsPlayerHealing(client) ||
@@ -695,7 +695,7 @@ public Action:BurrowedTimer(Handle:timer,any:client)
     return Plugin_Stop;
 }
 
-public Action:UnBurrowTimer(Handle:timer,any:client)
+public Action UnBurrowTimer(Handle:timer,any:client)
 {
     TraceInto("Burrow", "UnBurrowTimer", "client=%d:%N", \
               client, ValidClientIndex(client));
@@ -706,7 +706,7 @@ public Action:UnBurrowTimer(Handle:timer,any:client)
     if (roundState >= RoundActive && roundState < RoundOver &&
         IsValidClientAlive(client))
     {
-        new Float:pos[3];
+        float pos[3];
         GetClientAbsOrigin(client, pos);
 
         new level = m_BurrowLevel[client];
@@ -742,7 +742,7 @@ public Action:UnBurrowTimer(Handle:timer,any:client)
 
         if (--m_Burrowed[client] > 0)
         {
-            new Float:angles[3];
+            float angles[3];
             GetClientAbsAngles(client, angles);
 
             if (m_Burrowed[client] >= 3 || level >= 3)
@@ -757,7 +757,7 @@ public Action:UnBurrowTimer(Handle:timer,any:client)
 
             if (level != 3)
             {
-                new Float:size[3];
+                float size[3];
                 GetClientMaxs(client, size);
 
                 pos[2] += size[2] / 4.0;
@@ -816,7 +816,7 @@ Handle:UnBurrow(client)
           client, ValidClientIndex(client), m_SavedArmor[client], \
           m_BurrowArmor[client]);
 
-    new Handle:timer = m_BurrowTimer[client];
+    Handle timer = m_BurrowTimer[client];
     if (timer != INVALID_HANDLE)
     {
         m_BurrowTimer[client] = INVALID_HANDLE;
@@ -887,7 +887,7 @@ ResetBurrow(client, bool:unburrow, bool:death, bool:disconnect)
     TraceInto("Burrow", "ResetBurrow", "client=%d:%N", \
               client, ValidClientIndex(client));
 
-    new Handle:timer = m_BurrowTimer[client];
+    Handle timer = m_BurrowTimer[client];
     if (timer != INVALID_HANDLE)
     {
         m_BurrowTimer[client] = INVALID_HANDLE;
@@ -929,7 +929,7 @@ ResetBurrow(client, bool:unburrow, bool:death, bool:disconnect)
                 }
             }
 
-            new Float:pos[3];
+            float pos[3];
             GetClientAbsOrigin(client, pos);
             if (pos[0] == m_BurrowLoc[client][0] &&
                 pos[1] == m_BurrowLoc[client][1])
@@ -1044,7 +1044,7 @@ public Native_Burrow(Handle:plugin,numParams)
         {
             if (GameType == tf2)
             {
-                new bool:ubered = false;
+                bool ubered = false;
                 if (TF2_IsPlayerUbercharged(client) || TF2_IsPlayerKritzkrieged(client) ||
                     TF2_IsPlayerHealing(client) || TF2_GetHealingTarget(client, ubered) > 0 || ubered)
                 {
@@ -1094,7 +1094,7 @@ public Native_Burrow(Handle:plugin,numParams)
                                                     TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
             }
 
-            new Handle:timer = m_UnBurrowTimer[client];
+            Handle timer = m_UnBurrowTimer[client];
             if (timer != INVALID_HANDLE)
             {
                 m_UnBurrowTimer[client] = INVALID_HANDLE;
@@ -1161,7 +1161,7 @@ public Native_IsBurrowed(Handle:plugin,numParams)
 public Native_ResetBurrow(Handle:plugin,numParams)
 {
     new client = GetNativeCell(1);
-    new bool:unburrow = bool:GetNativeCell(2);
+    bool unburrow = bool:GetNativeCell(2);
 
     TraceInto("Burrow", "Native_ResetBurrow", "client=%d:%N, unburrow=%d", \
               client, ValidClientIndex(client), unburrow);
@@ -1183,7 +1183,7 @@ public Native_ResetBurrow(Handle:plugin,numParams)
 public Native_ResetClientStructures(Handle:plugin,numParams)
 {
     new client = GetNativeCell(1);
-    new bool:unburrow = bool:GetNativeCell(2);
+    bool unburrow = bool:GetNativeCell(2);
 
     TraceInto("Burrow", "Native_ResetClientStructures", "client=%d:%N, unburrow=%d", \
               client, ValidClientIndex(client), unburrow);
@@ -1206,7 +1206,7 @@ public Native_ResetClientStructures(Handle:plugin,numParams)
 public Native_BurrowStructure(Handle:plugin,numParams)
 {
     new client       = GetNativeCell(1);
-    new Float:amount = GetNativeCell(2);
+    float amount = GetNativeCell(2);
     new flags        = GetNativeCell(3);
     new target       = GetClientAimTarget(client, false);
 
@@ -1232,7 +1232,7 @@ public Native_BurrowStructure(Handle:plugin,numParams)
 
     if (target <= 0 || m_Burrowed[target] <= 0 || !UnBurrowStructure(client, target))
     {
-        new Float:energy = GetEnergy(client);
+        float energy = GetEnergy(client);
 
         if (target > 0)
         {
@@ -1254,7 +1254,7 @@ public Native_BurrowStructure(Handle:plugin,numParams)
         }
         else
         {
-            new Handle:menu=CreateMenu(BurrowStructure_Selected);
+            Handle menu=CreateMenu(BurrowStructure_Selected);
             SetMenuTitle(menu,"[SC] %T", "BurrowWhich", client);
 
             new counts[TFOBJECT_COUNT];
@@ -1265,10 +1265,10 @@ public Native_BurrowStructure(Handle:plugin,numParams)
 
             // Added burrowed structures (if any)
             new burrowedCount = 0;
-            new Handle:array = m_BurrowedStructures[client];
+            Handle array = m_BurrowedStructures[client];
             if (array != INVALID_HANDLE)
             {
-                decl String:buf[12], String:item[64];
+                char buf[12], String:item[64];
                 new size = GetArraySize(array);
                 for (new i = 0; i < size; i++)
                 {
@@ -1327,14 +1327,14 @@ public BurrowStructure_Selected(Handle:menu,MenuAction:action,client,selection)
     {
         PrepareAndEmitSoundToClient(client,buttonWav);
         
-        decl String:SelectionInfo[12];
+        char SelectionInfo[12];
         GetMenuItem(menu,selection,SelectionInfo,sizeof(SelectionInfo));
 
         new targetRef = StringToInt(SelectionInfo);
         if (targetRef == 0)
         {
-            new Float:amount = m_BurrowEnergy[client];
-            new Float:energy = GetEnergy(client);
+            float amount = m_BurrowEnergy[client];
+            float energy = GetEnergy(client);
             if (energy < amount)
             {
                 EmitEnergySoundToClient(client,Zerg);
@@ -1358,7 +1358,7 @@ public BurrowStructure_Selected(Handle:menu,MenuAction:action,client,selection)
         }
         else if (targetRef == -1)
         {
-            new Handle:array = m_BurrowedStructures[client];
+            Handle array = m_BurrowedStructures[client];
             if (array != INVALID_HANDLE)
             {
                 new size = GetArraySize(array);
@@ -1373,7 +1373,7 @@ public BurrowStructure_Selected(Handle:menu,MenuAction:action,client,selection)
             new targetEnt = EntRefToEntIndex(targetRef);
             if (targetEnt > 0 && IsValidEntity(targetEnt))
             {
-                new Handle:array = m_BurrowedStructures[client];
+                Handle array = m_BurrowedStructures[client];
                 if (array != INVALID_HANDLE && FindValueInArray(array,targetEnt) > 0)
                     UnBurrowStructure(client, targetEnt);
                 else
@@ -1388,7 +1388,7 @@ public BurrowStructure_Selected(Handle:menu,MenuAction:action,client,selection)
 BurrowObjects(client, Float:amount, const String:ClassName[])
 {
     new ent = -1;
-    new Handle:array = m_BurrowedStructures[client];
+    Handle array = m_BurrowedStructures[client];
     while ((ent = FindEntityByClassname(ent, ClassName)) != -1)
     {
         if (GetEntPropEnt(ent, Prop_Send, "m_hBuilder") == client &&
@@ -1404,7 +1404,7 @@ BurrowObjects(client, Float:amount, const String:ClassName[])
 
 ResetClientStructures(client, bool:unburrow)
 {
-    new Handle:array = m_BurrowedStructures[client];
+    Handle array = m_BurrowedStructures[client];
     if (array != INVALID_HANDLE)
     {
         while (GetArraySize(array) > 0)
@@ -1420,7 +1420,7 @@ ResetBurrowedStructure(client, target, bool:unburrow)
     TraceInto("Burrow", "ResetBurrowedStructure", "client=%d:%N, target=%d", \
               client, ValidClientIndex(client), target);
 
-    new Handle:timer = m_BurrowTimer[target];
+    Handle timer = m_BurrowTimer[target];
     if (timer != INVALID_HANDLE)
     {
         m_BurrowTimer[target] = INVALID_HANDLE;
@@ -1462,7 +1462,7 @@ ResetBurrowedStructure(client, target, bool:unburrow)
         m_Burrowed[target] = 0;
     }
 
-    new Handle:array = m_BurrowedStructures[client];
+    Handle array = m_BurrowedStructures[client];
     if (array != INVALID_HANDLE)
     {
         new index = FindValueInArray(array,target);
@@ -1499,7 +1499,7 @@ BurrowStructure(client, target, Float:amount, flags)
         }
         else
         {
-            new Float:energy = GetEnergy(client);
+            float energy = GetEnergy(client);
             if (energy < amount)
             {
                 EmitEnergySoundToClient(client,Zerg);
@@ -1511,7 +1511,7 @@ BurrowStructure(client, target, Float:amount, flags)
             {
                 DecrementEnergy(client, amount);
 
-                new Handle:timer = m_BurrowedTimer[target];
+                Handle timer = m_BurrowedTimer[target];
                 if (timer != INVALID_HANDLE)
                 {
                     m_BurrowedTimer[target] = INVALID_HANDLE;
@@ -1525,14 +1525,14 @@ BurrowStructure(client, target, Float:amount, flags)
                     KillTimer(timer);
                 }
 
-                new Handle:array = m_BurrowedStructures[client];
+                Handle array = m_BurrowedStructures[client];
                 if (array == INVALID_HANDLE)
                     m_BurrowedStructures[client] = array = CreateArray();
 
                 m_Burrowed[target] = 0;
                 PushArrayCell(array,target);
 
-                new Handle:pack;
+                Handle pack;
                 m_BurrowTimer[target] = CreateDataTimer(0.4, BurrowStructureTimer, pack,
                                                         TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
                 if (pack != INVALID_HANDLE)
@@ -1554,7 +1554,7 @@ Handle:UnBurrowStructure(client, target)
         {
             if (TF2_GetExtObjectType(target) != TFExtObject_Unknown)
             {
-                new Handle:timer = m_BurrowTimer[target];
+                Handle timer = m_BurrowTimer[target];
                 if (timer != INVALID_HANDLE)
                 {
                     m_BurrowTimer[target] = INVALID_HANDLE;
@@ -1570,7 +1570,7 @@ Handle:UnBurrowStructure(client, target)
                     Trace("Killed %d's BurrowedStructureTimer", client);
                 }
 
-                new Handle:pack;
+                Handle pack;
                 m_UnBurrowTimer[target] = CreateDataTimer(0.4, UnBurrowStructureTimer, pack,
                                                           TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
                 if (pack != INVALID_HANDLE)
@@ -1586,7 +1586,7 @@ Handle:UnBurrowStructure(client, target)
     return INVALID_HANDLE;
 }
 
-public Action:BurrowStructureTimer(Handle:timer,any:pack)
+public Action BurrowStructureTimer(Handle:timer,any:pack)
 {
     if (pack != INVALID_HANDLE)
     {
@@ -1604,12 +1604,12 @@ public Action:BurrowStructureTimer(Handle:timer,any:pack)
         {
             if (!GetEntProp(target, Prop_Send, "m_bHasSapper"))
             {
-                new Float:pos[3];
+                float pos[3];
                 GetEntPropVector(target, Prop_Send, "m_vecOrigin", pos);
 
                 PrepareAndEmitSoundToAll(burrowDownWav,target);
 
-                new Float:size[3];
+                float size[3];
                 GetEntPropVector(target, Prop_Send, "m_vecBuildMaxs", size);
 
                 if ( ++m_Burrowed[target] < 4)
@@ -1635,7 +1635,7 @@ public Action:BurrowStructureTimer(Handle:timer,any:pack)
                     SetEntProp(target, Prop_Send, "m_bDisabled", 1); // Disable target.
                     SetEntityRenderMode(target, RENDER_NONE); // Make target invisible
 
-                    new Handle:newpack;
+                    Handle newpack;
                     m_BurrowTimer[target] = CreateDataTimer(0.1, BurrowedStructureTimer, newpack,
                                                             TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
                     if (newpack != INVALID_HANDLE)
@@ -1663,7 +1663,7 @@ public Action:BurrowStructureTimer(Handle:timer,any:pack)
     return Plugin_Stop;
 }
 
-public Action:BurrowedStructureTimer(Handle:timer,any:pack)
+public Action BurrowedStructureTimer(Handle:timer,any:pack)
 {
     if (pack != INVALID_HANDLE)
     {
@@ -1695,7 +1695,7 @@ public Action:BurrowedStructureTimer(Handle:timer,any:pack)
     return Plugin_Stop;
 }
 
-public Action:UnBurrowStructureTimer(Handle:timer,any:pack)
+public Action UnBurrowStructureTimer(Handle:timer,any:pack)
 {
     if (pack != INVALID_HANDLE)
     {
@@ -1718,10 +1718,10 @@ public Action:UnBurrowStructureTimer(Handle:timer,any:pack)
 
                 if (--m_Burrowed[target] > 0)
                 {
-                    new Float:pos[3];
+                    float pos[3];
                     GetEntPropVector(target, Prop_Send, "m_vecOrigin", pos);
 
-                    new Float:size[3];
+                    float size[3];
                     GetEntPropVector(target, Prop_Send, "m_vecBuildMaxs", size);
 
                     pos[2] += size[2] / 4.0;

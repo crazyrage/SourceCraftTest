@@ -36,7 +36,7 @@ stock War3_AddFile(const String:filename[])
 #if !defined _ResourceManager_included
 stock bool:War3_AddCustomSound(const String:sound[], bool:precache = true, bool:preload = true)
 {
-		decl String:path[PLATFORM_MAX_PATH];
+		char path[PLATFORM_MAX_PATH];
 		Format(path, sizeof(path), "sound/%s", sound);
 		if (FileExists(path)) 
 		{

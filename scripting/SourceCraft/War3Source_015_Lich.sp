@@ -7,43 +7,43 @@
 #include <sdktools_tempents>
 #include <sdktools_tempents_stocks>
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "War3Source - Race - Lich",
     author = "War3Source Team",
     description = "The Lich race for War3Source."
 };
 
-new thisRaceID;
+int thisRaceID;
 
-new SKILL_FROSTNOVA,SKILL_FROSTARMOR,SKILL_DARKRITUAL,ULT_DEATHDECAY;
+int SKILL_FROSTNOVA,SKILL_FROSTARMOR,SKILL_DARKRITUAL,ULT_DEATHDECAY;
 
 //skill 1
-new Float:FrostNovaArr[]={1.0,0.95,0.9,0.85,0.8,0.75}; 
-new Float:FrostNovaRadius=500.0;
-new FrostNovaLoopCountdown[MAXPLAYERSCUSTOM];
-new bool:HitOnForwardTide[MAXPLAYERSCUSTOM][MAXPLAYERSCUSTOM]; //[VICTIM][ATTACKER]
-new Float:FrostNovaOrigin[MAXPLAYERSCUSTOM][3];
-new Float:AbilityCooldownTime=10.0;
+float FrostNovaArr[]={1.0,0.95,0.9,0.85,0.8,0.75}; 
+float FrostNovaRadius=500.0;
+int FrostNovaLoopCountdown[MAXPLAYERSCUSTOM];
+bool HitOnForwardTide[MAXPLAYERSCUSTOM][MAXPLAYERSCUSTOM]; //[VICTIM][ATTACKER]
+float FrostNovaOrigin[MAXPLAYERSCUSTOM][3];
+float AbilityCooldownTime=10.0;
 
 //skill 2
-new Float:FrostArmorAmount[]={0.0,1.0,2.0,3.0,4.0}; 
+float FrostArmorAmount[]={0.0,1.0,2.0,3.0,4.0}; 
 
 //skill 3
-new DarkRitualAmt[]={0,1,2,3,4};
+int DarkRitualAmt[]={0,1,2,3,4};
 
 //ultimate
 #if !defined SOURCECRAFT
-new Handle:ultCooldownCvar;
-new Handle:ultRangeCvar;
+Handle ultCooldownCvar;
+Handle ultRangeCvar;
 #else
-new Float:ultmaxdistance = 99999.0;
+float ultmaxdistance = 99999.0;
 #endif
 
-new DeathDecayAmt[]={0,2,4,6,8};
-new String:ultsnd[256]; //="npc/antlion/attack_single2.wav";
-new String:novasnd[256]; //="npc/combine_gunship/ping_patrol.wav";
-new BeamSprite,HaloSprite; 
+int DeathDecayAmt[]={0,2,4,6,8};
+char ultsnd[256]; //="npc/antlion/attack_single2.wav";
+char novasnd[256]; //="npc/combine_gunship/ping_patrol.wav";
+int BeamSprite,HaloSprite; 
 
 public OnPluginStart()
 {
@@ -167,7 +167,7 @@ public OnAbilityCommand(client,ability,bool:pressed)
     }
 }
 
-public Action:BurnLoop(Handle:timer,any:attacker)
+public Action BurnLoop(Handle:timer,any:attacker)
 {
 
     if(ValidPlayer(attacker) && FrostNovaLoopCountdown[attacker]>0)
@@ -176,13 +176,13 @@ public Action:BurnLoop(Handle:timer,any:attacker)
         //War3_DealDamage(victim,damage,attacker,DMG_BURN);
         CreateTimer(0.1,BurnLoop,attacker);
         
-        new Float:hitRadius=(1.0-FloatAbs(float(FrostNovaLoopCountdown[attacker])-10.0)/10.0)*FrostNovaRadius;
+        float hitRadius=(1.0-FloatAbs(float(FrostNovaLoopCountdown[attacker])-10.0)/10.0)*FrostNovaRadius;
         
         //PrintToChatAll("distance to damage %f",hitRadius);
         
         FrostNovaLoopCountdown[attacker]--;
         
-        new Float:otherVec[3];
+        float otherVec[3];
         for(new i=1;i<=MaxClients;i++)
         {
             if(ValidPlayer(i,true)&&GetClientTeam(i)!=team&&!W3HasImmunity(i,Immunity_Skills))
@@ -195,7 +195,7 @@ public Action:BurnLoop(Handle:timer,any:attacker)
                     
                 GetClientAbsOrigin(i,otherVec);
                 //otherVec[2]+=30.0;
-                new Float:victimdistance=GetVectorDistance(FrostNovaOrigin[attacker],otherVec);
+                float victimdistance=GetVectorDistance(FrostNovaOrigin[attacker],otherVec);
                 if(victimdistance<FrostNovaRadius&&FloatAbs(otherVec[2]-FrostNovaOrigin[attacker][2])<50)
                 {
                     if(FloatAbs(victimdistance-hitRadius)<(FrostNovaRadius/10.0))
@@ -213,7 +213,7 @@ public Action:BurnLoop(Handle:timer,any:attacker)
         }
     }
 }
-public Action:RemoveFrostNova(Handle:t,any:client){
+public Action RemoveFrostNova(Handle:t,any:client){
     War3_SetBuff(client,fSlow,thisRaceID,1.0);
     War3_SetBuff(client,fAttackSpeed,thisRaceID,1.0);
 }
@@ -226,7 +226,7 @@ public OnW3TakeDmgBullet(victim,attacker,Float:damage)
     {
         if(GetClientTeam(victim)!=GetClientTeam(attacker))
         {
-            new Float:chance_mod=W3ChanceModifier(attacker);
+            float chance_mod=W3ChanceModifier(attacker);
             new skill_frostarmor=War3_GetSkillLevel(victim,thisRaceID,SKILL_FROSTARMOR);
             if(skill_frostarmor>0)
             {
@@ -243,7 +243,7 @@ public OnW3TakeDmgBullet(victim,attacker,Float:damage)
     }
 }
 
-public Action: farmor(Handle:timer,any:attacker)
+public Action  farmor(Handle:timer,any:attacker)
 {
     War3_SetBuff(attacker,fAttackSpeed,thisRaceID,1.0);
 }
@@ -293,22 +293,22 @@ public OnUltimateCommand(client,race,bool:pressed)
             {
                 if(!Silenced(client))
                 {
-                    new Float:posVec[3];
+                    float posVec[3];
                     GetClientAbsOrigin(client,posVec);
-                    new Float:otherVec[3];
+                    float otherVec[3];
                     new team = GetClientTeam(client);
                     new maxtargets=15;
                     new targetlist[MAXPLAYERSCUSTOM];
                     new targetsfound=0;
 #if !defined SOURCECRAFT
-                    new Float:ultmaxdistance=GetConVarFloat(ultRangeCvar);
+                    float ultmaxdistance=GetConVarFloat(ultRangeCvar);
 #endif
                     for(new i=1;i<=MaxClients;i++)
                     {
                         if(ValidPlayer(i,true)&&GetClientTeam(i)!=team&&!W3HasImmunity(i,Immunity_Ultimates))
                         {
                             GetClientAbsOrigin(i,otherVec);
-                            new Float:dist=GetVectorDistance(posVec,otherVec);
+                            float dist=GetVectorDistance(posVec,otherVec);
                             if(dist<ultmaxdistance)
                             {
                                 targetlist[targetsfound]=i;
@@ -340,7 +340,7 @@ public OnUltimateCommand(client,race,bool:pressed)
                         PrintHintText(client,"%T","Death and Decay attacked for {amount} total damage!",client,damage*targetsfound);
 
 #if defined SOURCECRAFT
-                        new Float:cooldown= GetUpgradeCooldown(thisRaceID,ULT_DEATHDECAY);
+                        float cooldown= GetUpgradeCooldown(thisRaceID,ULT_DEATHDECAY);
                         War3_CooldownMGR(client,cooldown,thisRaceID,ULT_DEATHDECAY,_,_);
 #else
                         War3_CooldownMGR(client,GetConVarFloat(ultCooldownCvar),thisRaceID,ULT_DEATHDECAY,_,_);

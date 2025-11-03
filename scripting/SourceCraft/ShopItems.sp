@@ -98,48 +98,48 @@
 #define ITEM_ENERGY          44 // Energy - Convert all +crystals into energy.
 #define MAXITEMS             45
 
-new const String:maskSnd[]   = "sc/mask.mp3";
-new const String:bootsWav[]  = "sc/bootospeed.mp3";
-new const String:tomeSound[] = "sc/tomes.wav";
+char maskSnd[]   = "sc/mask.mp3";
+char bootsWav[]  = "sc/bootospeed.mp3";
+char tomeSound[] = "sc/tomes.wav";
 
-new String:helmSound[][]     = { "physics/metal/metal_solid_impact_bullet1.wav",
+char helmSound[][]     = { "physics/metal/metal_solid_impact_bullet1.wav",
                                  "physics/metal/metal_solid_impact_bullet2.wav",
                                  "physics/metal/metal_solid_impact_bullet3.wav",
                                  "physics/metal/metal_solid_impact_bullet4.wav" };
 
-new bool:cfgAllowInvisibility = true;
+bool cfgAllowInvisibility = true;
 
-new shopItem[MAXITEMS+1] = { -1, ... };
+int shopItem[MAXITEMS+1] = { -1, ... };
 
-new Handle:g_BootTimers[MAXPLAYERS+1] = { INVALID_HANDLE, ... };
-new Handle:g_NadeTimers[MAXPLAYERS+1] = { INVALID_HANDLE, ... };
-new Handle:g_AmmoPackTimers[MAXPLAYERS+1] = { INVALID_HANDLE, ... };
-new Handle:g_RegenerationTimers[MAXPLAYERS+1] = { INVALID_HANDLE, ... };
+Handle g_BootTimers[MAXPLAYERS+1] = { INVALID_HANDLE, ... };
+Handle g_NadeTimers[MAXPLAYERS+1] = { INVALID_HANDLE, ... };
+Handle g_AmmoPackTimers[MAXPLAYERS+1] = { INVALID_HANDLE, ... };
+Handle g_RegenerationTimers[MAXPLAYERS+1] = { INVALID_HANDLE, ... };
 
-new Handle:g_TrackWeaponsTimers[MAXPLAYERS+1] = { INVALID_HANDLE, ... };
-new Handle:vecPlayerWeapons[MAXPLAYERS+1] = { INVALID_HANDLE, ... };
-new myWepsOffset = 0;
+Handle g_TrackWeaponsTimers[MAXPLAYERS+1] = { INVALID_HANDLE, ... };
+Handle vecPlayerWeapons[MAXPLAYERS+1] = { INVALID_HANDLE, ... };
+int myWepsOffset = 0;
 
-new m_BootCount[MAXPLAYERS+1];
-new m_MoleHealth[MAXPLAYERS+1];
-new Float:m_SpawnLoc[MAXPLAYERS+1][3];
-new bool:m_UsedPeriapt[MAXPLAYERS+1];
-new bool:m_UsedSilver[MAXPLAYERS+1];
-new bool:m_IsMole[MAXPLAYERS+1];
-new Float:m_MaskTime[MAXPLAYERS+1];
-new Float:m_ClawTime[MAXPLAYERS+1];
-new Float:m_FireTime[MAXPLAYERS+1][MAXPLAYERS+1];
+int m_BootCount[MAXPLAYERS+1];
+int m_MoleHealth[MAXPLAYERS+1];
+float m_SpawnLoc[MAXPLAYERS+1][3];
+bool m_UsedPeriapt[MAXPLAYERS+1];
+bool m_UsedSilver[MAXPLAYERS+1];
+bool m_IsMole[MAXPLAYERS+1];
+float m_MaskTime[MAXPLAYERS+1];
+float m_ClawTime[MAXPLAYERS+1];
+float m_FireTime[MAXPLAYERS+1][MAXPLAYERS+1];
 
-new Handle:hGameConf      = INVALID_HANDLE;
-new Handle:hUTILRemove    = INVALID_HANDLE;
-new Handle:hWeaponDrop    = INVALID_HANDLE;
-new Handle:hSetModel      = INVALID_HANDLE;
+Handle hGameConf      = INVALID_HANDLE;
+Handle hUTILRemove    = INVALID_HANDLE;
+Handle hWeaponDrop    = INVALID_HANDLE;
+Handle hSetModel      = INVALID_HANDLE;
 
 #define _ShopItems
 #include "sc/respawn"
 #include "sc/giveammo"
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft - Shopitems",
     author = "-=|JFH|=-Naris, PimpinJuice",
@@ -313,9 +313,9 @@ public OnSourceCraftReady()
         shopItem[ITEM_FUEL]=-1;
     }
 
-    new Float:cfgEnergyRate = GetConfigFloat("energy_rate");
-    new Float:cfgEnergyFactor = GetConfigFloat("energy_factor");
-    new bool:defEnergyItem = (cfgEnergyRate < 1.0 || cfgEnergyFactor < 1.0);
+    float cfgEnergyRate = GetConfigFloat("energy_rate");
+    float cfgEnergyFactor = GetConfigFloat("energy_factor");
+    bool defEnergyItem = (cfgEnergyRate < 1.0 || cfgEnergyFactor < 1.0);
     if (GetConfigNum("energy_item", defEnergyItem, SHOPITEM))
     {
         shopItem[ITEM_ENERGY]       = CreateShopItem("energy",       -1,    .use_pcrystals=true);   // Can use +crystals
@@ -472,7 +472,7 @@ public OnClientDisconnect(client)
     {
         KillTrackWeaponsTimer(client);
 
-        new Handle:array = vecPlayerWeapons[client];
+        Handle array = vecPlayerWeapons[client];
         if (array != INVALID_HANDLE)
         {
             CloseHandle(array);
@@ -486,7 +486,7 @@ public OnClientDisconnect(client)
     TraceReturn();
 }
 
-public Action:OnItemPurchaseEx(client,item,&bool:use_pcrystals,&cost,&cost_vespene,&cost_xp)
+public Action OnItemPurchaseEx(client,item,&bool:use_pcrystals,&cost,&cost_vespene,&cost_xp)
 {
     new Action:returnCode = Plugin_Continue;
 
@@ -593,7 +593,7 @@ public OnItemPurchase(client,item)
 
         if (IsPlayerAlive(client))
         {
-            new Float:clientLoc[3];
+            float clientLoc[3];
             GetClientAbsOrigin(client, clientLoc);
             TE_SetupDynamicLight(clientLoc, 255,255,0, 50, 105.0, 10.0, 80.0);
             TE_SendDEffectToAll();
@@ -788,9 +788,9 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
             {
                 if (GetOwnsItem(client,shopItem[ITEM_ANKH]))                         // Ankh of Reincarnation
                 {
-                    decl String:wepName[128];
+                    char wepName[128];
                     new size=GetArraySize(vecPlayerWeapons[client]);
-                    new Handle:pack = CreateDataPack();
+                    Handle pack = CreateDataPack();
                     WritePackCell(pack, GetClientUserId(client));
                     WritePackCell(pack, size);
                     for(new x=0;x<size;x++)
@@ -1029,8 +1029,8 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
         }
     }
 
-    new bool:hasAnkh      = (GetOwnsItem(victim_index,shopItem[ITEM_ANKH]) > 0);
-    new bool:isRestricted = GetRestriction(victim_index, Restriction_NoShopItems) ||
+    bool hasAnkh      = (GetOwnsItem(victim_index,shopItem[ITEM_ANKH]) > 0);
+    bool isRestricted = GetRestriction(victim_index, Restriction_NoShopItems) ||
                             GetRestriction(victim_index, Restriction_Stunned);
 
     if (!hasAnkh || isRestricted)
@@ -1245,7 +1245,7 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
             m_ReincarnationCount[victim_index] = 0;
             PrepareAndEmitSoundToClient(victim_index,deniedWav);
 
-            decl String:itemName[64];
+            char itemName[64];
             GetItemName(shopItem[ITEM_SCROLL], itemName, sizeof(itemName), victim_index);
             DisplayMessage(victim_index, Display_Item, "%t",
                            "CantUseAsMole", itemName);
@@ -1271,7 +1271,7 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
     TraceReturn();
 }
 
-public Action:OnXPGiven(client,&amount,bool:taken)
+public Action OnXPGiven(client,&amount,bool:taken)
 {
     if (GetOwnsItem(client,shopItem[ITEM_MAGNIFIER]) &&
         !GetRestriction(client, Restriction_NoShopItems) &&
@@ -1283,7 +1283,7 @@ public Action:OnXPGiven(client,&amount,bool:taken)
     return Plugin_Continue;
 }
 
-public Action:OnInfected(victim,infector,source,bool:infected,const color[4])
+public Action OnInfected(victim,infector,source,bool:infected,const color[4])
 {
     if (infected)
     {
@@ -1303,13 +1303,13 @@ public Action:OnInfected(victim,infector,source,bool:infected,const color[4])
     return Plugin_Continue;
 }
 
-public Action:OnSetTripmine(client)
+public Action OnSetTripmine(client)
 {
     if (m_IsMole[client] || GetAttribute(client, Attribute_IsAMole))
     {
         PrepareAndEmitSoundToClient(client,deniedWav);
 
-        decl String:itemName[64];
+        char itemName[64];
         GetItemName(shopItem[ITEM_TRIPMINE], itemName, sizeof(itemName), client);
         DisplayMessage(client, Display_Item, "%t", "CantUseAsMole", itemName);
         return Plugin_Stop;
@@ -1317,13 +1317,13 @@ public Action:OnSetTripmine(client)
     return Plugin_Continue;
 }
 
-public Action:OnSetMine(client)
+public Action OnSetMine(client)
 {
     if (m_IsMole[client] || GetAttribute(client, Attribute_IsAMole))
     {
         PrepareAndEmitSoundToClient(client,deniedWav);
 
-        decl String:itemName[64];
+        char itemName[64];
         GetItemName(shopItem[ITEM_FIREMINE], itemName, sizeof(itemName), client);
         DisplayMessage(client, Display_Item, "%t", "CantUseAsMole", itemName);
         return Plugin_Stop;
@@ -1331,7 +1331,7 @@ public Action:OnSetMine(client)
     return Plugin_Continue;
 }
 
-public Action:OnTraceAttack(victim, &attacker, &inflictor, &Float:damage, &damagetype, &ammotype, hitbox, hitgroup)
+public Action OnTraceAttack(victim, &attacker, &inflictor, &Float:damage, &damagetype, &ammotype, hitbox, hitgroup)
 {
     if (hitgroup == 1 &&
         GetOwnsItem(victim, shopItem[ITEM_HELM]) &&
@@ -1343,7 +1343,7 @@ public Action:OnTraceAttack(victim, &attacker, &inflictor, &Float:damage, &damag
 
         if (GameType == tf2 && GetMode() != MvM)
         {
-            decl Float:pos[3];
+            float pos[3];
             GetClientEyePosition(victim, pos);
             pos[2] += 4.0;
             TE_SetupParticle("miss_text", pos);
@@ -1371,7 +1371,7 @@ public OnImmunityInvoked(client, Immunity:immunity)
         m_UsedSilver[client] = true;
 }
 
-public Action:ResetHealth(Handle:timer,any:pack)
+public Action ResetHealth(Handle:timer,any:pack)
 {
     if (pack != INVALID_HANDLE)
     {
@@ -1383,11 +1383,11 @@ public Action:ResetHealth(Handle:timer,any:pack)
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
-    new bool:handled     = false;
-    new bool:itemInvoked = false;
+    bool handled     = false;
+    bool itemInvoked = false;
 
     TraceInto("ShopItems", "OnPlayerHurtEvent", "victim=%d:%N, victim_race=%d, attacker=%d:%N, attacker_race=%d, damage=%d, absorbed=%d, from_sc=%d", \
               victim_index, ValidClientIndex(victim_index), victim_race, \
@@ -1447,7 +1447,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
                         }
                     }
 
-                    decl String:itemName[64];
+                    char itemName[64];
                     GetItemName(shopItem[ITEM_MOLE_REFLECTION], itemName, sizeof(itemName), victim_index);
                     DisplayMessage(victim_index, Display_Item | Display_Defense,
                                    "%t", "ReceivedHPFrom", amount, attacker_index,
@@ -1455,7 +1455,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
                 }
                 else
                 {
-                    decl String:itemName[64];
+                    char itemName[64];
                     GetItemName(shopItem[ITEM_MOLE_PROTECTION], itemName, sizeof(itemName), victim_index);
                     DisplayMessage(victim_index, Display_Item | Display_Defense,
                                    "%t", "ReceivedHP", amount, itemName);
@@ -1504,7 +1504,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
                             Trace("Attacker %d:%N's has an Orb of Fire", \
                                   attacker_index, ValidClientIndex(attacker_index));
 
-                            new Float:lastTime =  m_FireTime[attacker_index][victim_index];
+                            float lastTime =  m_FireTime[attacker_index][victim_index];
                             if (lastTime == 0.0 || GetGameTime() - lastTime > 10.0)
                             {
                                 Trace("%d:%N's Orb of Fire ignited %d:%N", \
@@ -1532,7 +1532,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
 
                     if (!itemInvoked && GetOwnsItem(attacker_index,shopItem[ITEM_CLAWS]))
                     {
-                        new Float:lastTime = m_ClawTime[attacker_index];
+                        float lastTime = m_ClawTime[attacker_index];
                         if (lastTime == 0.0 || GetGameTime() - lastTime > 0.25)
                         {
                             new amount=RoundToCeil(float(damage)*0.25);
@@ -1605,7 +1605,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
                         SetEntityHealth(attacker_index,health+2);
                         FlashScreen(attacker_index,RGBA_COLOR_GREEN);
 
-                        decl String:itemName[64];
+                        char itemName[64];
                         GetItemName(shopItem[ITEM_MASK], itemName, sizeof(itemName), attacker_index);
                         if (IsClient(victim_index))
                         {
@@ -1619,7 +1619,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
                                            "%t", "ReceivedHP", 2, itemName);
                         }
 
-                        new Float:lastTime = m_MaskTime[attacker_index];
+                        float lastTime = m_MaskTime[attacker_index];
                         if (lastTime == 0.0 || GetGameTime() - lastTime > 0.25)
                         {
                             PrepareAndEmitSoundToAll(maskSnd,attacker_index);
@@ -1653,12 +1653,12 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
     return handled ? Plugin_Handled : Plugin_Continue;
 }
 
-public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
+public Action OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
                                   assister_index, assister_race, damage,
                                   absorbed)
 {
-    new bool:handled=false;
-    new bool:itemInvoked = false;
+    bool handled=false;
+    bool itemInvoked = false;
 
     if (!GetImmunity(victim_index,Immunity_ShopItems) &&
         !GetRestriction(assister_index, Restriction_NoShopItems) &&
@@ -1670,7 +1670,7 @@ public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
             {
                 if (GetOwnsItem(assister_index,shopItem[ITEM_CLAWS]))
                 {
-                    new Float:lastTime = m_ClawTime[assister_index];
+                    float lastTime = m_ClawTime[assister_index];
                     if (lastTime == 0.0 || GetGameTime() - lastTime > 0.25)
                     {
                         new amount=RoundToFloor(float(damage)*0.25);
@@ -1702,7 +1702,7 @@ public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
                 {
                     if (GetOwnsItem(assister_index,shopItem[ITEM_ORB_FIRE]))
                     {
-                        new Float:lastTime = IsClient(victim_index) ? m_FireTime[assister_index][victim_index] : 0.0;
+                        float lastTime = IsClient(victim_index) ? m_FireTime[assister_index][victim_index] : 0.0;
                         if (lastTime == 0.0 || GetGameTime() - lastTime > 10.0)
                         {
                             TF2_IgnitePlayer(victim_index, assister_index);
@@ -1749,7 +1749,7 @@ public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
                 SetEntityHealth(assister_index,health+2);
                 FlashScreen(assister_index,RGBA_COLOR_GREEN);
 
-                decl String:itemName[64];
+                char itemName[64];
                 GetItemName(shopItem[ITEM_MASK], itemName, sizeof(itemName), assister_index);
 
                 if (IsValidClient(victim_index))
@@ -1759,13 +1759,13 @@ public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
                 }
                 else
                 {
-                    decl String:victimName[64];
+                    char victimName[64];
                     GetEntityName(victim_index, victimName, sizeof(victimName));
                     DisplayMessage(assister_index, Display_Item | Display_Defense, "%t",
                                    "ReceivedHPFromEnt", 2, victimName, itemName);
                 }
 
-                new Float:lastTime = m_MaskTime[assister_index];
+                float lastTime = m_MaskTime[assister_index];
                 if (lastTime == 0.0 || GetGameTime() - lastTime > 0.25)
                 {
                     PrepareAndEmitSoundToAll(maskSnd,assister_index);
@@ -1804,7 +1804,7 @@ public EventRoundOver(Handle:event,const String:name[],bool:dontBroadcast)
     }
 }
 
-public Action:ItemCommand(client,args)
+public Action ItemCommand(client,args)
 {
     TraceInto("ShopItems", "ItemCommand");
 
@@ -1818,12 +1818,12 @@ public Action:ItemCommand(client,args)
         }
         else
         {
-            decl String:command[32];
+            char command[32];
             GetCmdArg(0,command,sizeof(command));
-            new bool:pressed=(command[0] == '+');
+            bool pressed=(command[0] == '+');
 
             new arg;
-            decl String:argString[16];
+            char argString[16];
             if (IsCharNumeric(command[5]))
             {
                 arg = command[5]-'0';
@@ -1896,7 +1896,7 @@ public Action:ItemCommand(client,args)
 }
 
 // Item specific
-public Action:RestoreSpeed(Handle:timer,any:userid)
+public Action RestoreSpeed(Handle:timer,any:userid)
 {
     new client = GetClientOfUserId(userid);
     if (client > 0)
@@ -1907,7 +1907,7 @@ public Action:RestoreSpeed(Handle:timer,any:userid)
     return Plugin_Stop;
 }
 
-public Action:Regeneration(Handle:timer, any:userid)
+public Action Regeneration(Handle:timer, any:userid)
 {
     new client = GetClientOfUserId(userid);
     if (IsValidClientAlive(client) &&
@@ -1936,7 +1936,7 @@ public Action:Regeneration(Handle:timer, any:userid)
     return Plugin_Continue;
 }
 
-public Action:ResetRestore(Handle:timer,any:userid)
+public Action ResetRestore(Handle:timer,any:userid)
 {
     new client = GetClientOfUserId(userid);
     if (client > 0 && GetImmunity(client,Immunity_Restore))
@@ -1948,7 +1948,7 @@ public Action:ResetRestore(Handle:timer,any:userid)
     return Plugin_Stop;
 }
 
-public Action:BootTimer(Handle:time, any:userid)
+public Action BootTimer(Handle:time, any:userid)
 {
     new client = GetClientOfUserId(userid);
     if (IsValidClientAlive(client))
@@ -1966,7 +1966,7 @@ public Action:BootTimer(Handle:time, any:userid)
                 }
                 else if (m_BootCount[client] > 5)
                 {
-                    new Float:vec[3];
+                    float vec[3];
                     GetEntPropVector(client, Prop_Data, "m_vecAbsVelocity", vec);
                     NormalizeVector(vec, vec);
                     ScaleVector(vec, -90.0);
@@ -1977,7 +1977,7 @@ public Action:BootTimer(Handle:time, any:userid)
 
                 if ((flags & FL_ONGROUND) && !(flags & FL_INWATER))
                 {
-                    new Float:offset[3];
+                    float offset[3];
                     offset[0] = GetRandomFloat(0.0, 32.0) - 16.0;
                     offset[1] = GetRandomFloat(0.0, 32.0) - 16.0;
                     offset[0] = 0.0;
@@ -1989,7 +1989,7 @@ public Action:BootTimer(Handle:time, any:userid)
     return Plugin_Continue;
 }
 
-public Action:NadeTimer(Handle:time, any:userid)
+public Action NadeTimer(Handle:time, any:userid)
 {
     new client = GetClientOfUserId(userid);
     if (IsValidClientAlive(client))
@@ -2020,7 +2020,7 @@ public Action:NadeTimer(Handle:time, any:userid)
     return Plugin_Continue;
 }
 
-public Action:AmmoPack(Handle:time, any:userid)
+public Action AmmoPack(Handle:time, any:userid)
 {
     new client = GetClientOfUserId(userid);
     if (IsValidClientAlive(client))
@@ -2067,14 +2067,14 @@ public Action:AmmoPack(Handle:time, any:userid)
     return Plugin_Continue;
 }
 
-public Action:Ankh(Handle:timer,Handle:pack)
+public Action Ankh(Handle:timer,Handle:pack)
 {
     ResetPack(pack);
     new client = GetClientOfUserId(ReadPackCell(pack));
     if (client > 0)
     {
-        decl String:wepName[128];
-        new Float:playerPos[3];
+        char wepName[128];
+        float playerPos[3];
         GetClientAbsOrigin(client,playerPos);
         playerPos[2]+=5.0;
         new iter=myWepsOffset;
@@ -2106,7 +2106,7 @@ public Action:Ankh(Handle:timer,Handle:pack)
     return Plugin_Stop;
 }
 
-public Action:TrackWeapons(Handle:timer, any:userid)
+public Action TrackWeapons(Handle:timer, any:userid)
 {
     new client = GetClientOfUserId(userid);
     if (myWepsOffset && IsValidClientAlive(client))
@@ -2118,7 +2118,7 @@ public Action:TrackWeapons(Handle:timer, any:userid)
             new wepEnt = GetEntDataEnt2(client,iterOffset);
             if (wepEnt > 0 && IsValidEdict(wepEnt))
             {
-                decl String:wepName[128];
+                char wepName[128];
                 GetEdictClassname(wepEnt,wepName,sizeof(wepName));
                 if(!StrEqual(wepName,"weapon_c4"))
                     PushArrayString(vecPlayerWeapons[client],wepName);
@@ -2129,15 +2129,15 @@ public Action:TrackWeapons(Handle:timer, any:userid)
     return Plugin_Continue;
 }
 
-public Action:DoMole(Handle:timer,any:userid)
+public Action DoMole(Handle:timer,any:userid)
 {
     new client = GetClientOfUserId(userid);
     if (client > 0)
     {
         new team=GetClientTeam(client);
-        new Float:teleLoc[3];
+        float teleLoc[3];
         new searchteam=(team==2)?3:2;
-        new Handle:playerList=PlayersOnTeam(searchteam);
+        Handle playerList=PlayersOnTeam(searchteam);
         if (GetArraySize(playerList) > 0) // are there any enemies?
         {
             // who gets their position mooched off them?
@@ -2209,7 +2209,7 @@ public Action:DoMole(Handle:timer,any:userid)
     return Plugin_Stop;
 }
 
-public Action:DoPeriapt(Handle:timer,any:userid)
+public Action DoPeriapt(Handle:timer,any:userid)
 {
     new client = GetClientOfUserId(userid);
     if (client > 0)
@@ -2238,10 +2238,10 @@ LootCorpse(Handle:event,victim_index, index)
     }
     else
     {
-        decl String:weapon[64];
-        new bool:is_equipment = GetWeapon(event,index,weapon,sizeof(weapon));
-        new bool:backstab     = GetEventInt(event, "customkill") == 2;
-        new bool:is_melee     = backstab || IsMelee(weapon, is_equipment,
+        char weapon[64];
+        bool is_equipment = GetWeapon(event,index,weapon,sizeof(weapon));
+        bool backstab     = GetEventInt(event, "customkill") == 2;
+        bool is_melee     = backstab || IsMelee(weapon, is_equipment,
                                                     index, victim_index);
 
         new chance=backstab ? 85 : (is_melee ? 75 : 55);
@@ -2250,7 +2250,7 @@ LootCorpse(Handle:event,victim_index, index)
             new victim_cash=GetCrystals(victim_index);
             if (victim_cash > 0)
             {
-                new Float:percent=GetRandomFloat(backstab ? 0.40 : 0.10,is_melee ? 0.50 : 0.25);
+                float percent=GetRandomFloat(backstab ? 0.40 : 0.10,is_melee ? 0.50 : 0.25);
                 new cash=GetCrystals(index);
                 new amount = RoundToCeil(float(victim_cash) * percent);
 
@@ -2300,7 +2300,7 @@ stock KillNadeTimer(client)
 
 stock CreateBootParticles(client)
 {
-    decl String:model[128];
+    char model[128];
     GetClientModel(client, model, sizeof(model));
 
     SetTraceCategory("Boots");
@@ -2385,7 +2385,7 @@ stock SetModel(entity,const String:model[])
 
 stock Handle:PlayersOnTeam(team)
 {
-    new Handle:temp=CreateArray();
+    Handle temp=CreateArray();
     for(new x=1;x<=MaxClients;x++)
     {
         if(IsClientInGame(x) && GetClientTeam(x)==team)
@@ -2405,7 +2405,7 @@ public Native_IsMole(Handle:plugin,numParams)
 public Native_SetMole(Handle:plugin,numParams)
 {
     new client = GetNativeCell(1);
-    new bool:value = bool:GetNativeCell(2);
+    bool value = bool:GetNativeCell(2);
     SetAttribute(client, Attribute_IsAMole, value);
     m_IsMole[GetNativeCell(1)] = value;
 }
@@ -2416,13 +2416,13 @@ public Native_InvokeMole(Handle:plugin,numParams)
     DoMole(INVALID_HANDLE, GetClientUserId(client));
 }
 
-public Action:CMD_Test(client,args)
+public Action CMD_Test(client,args)
 {
     static const Float:Velocity[3] = { 10.0, 10.0, 800.0 };
     new arg;
     if (args > 0)
     {
-        decl String:argString[32];
+        char argString[32];
         GetCmdArg(1,argString,sizeof(argString));
         arg = StringToInt(argString);
     }

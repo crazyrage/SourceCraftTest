@@ -7,7 +7,7 @@
 
 #define MAXENTITIES 2048
 
-new m_ObjectBuilt[MAXENTITIES+1];
+int m_ObjectBuilt[MAXENTITIES+1];
 
 bool:HookTFEvents()
 {
@@ -687,7 +687,7 @@ public EventObjectUpgraded(Handle:event,const String:name[],bool:dontBroadcast)
         new userid = GetEventInt(event,"userid");
         new index  = GetClientOfUserId(userid);
         new TFObjectType:type = TFObjectType:GetEventInt(event,"object");
-        new bool:isBuilder = GetEventBool(event,"isbuilder");
+        bool isBuilder = GetEventBool(event,"isbuilder");
 
         #if defined _TRACE
             new obj = GetEventInt(event,"index");
@@ -737,11 +737,11 @@ public EventFlagEvent(Handle:event,const String:name[],bool:dontBroadcast)
 
 public EventPointCapture(Handle:event,const String:name[],bool:dontBroadcast)
 {
-    decl String:cappers[MAXPLAYERS+1];
+    char cappers[MAXPLAYERS+1];
     GetEventString(event,"cappers", cappers, MAXPLAYERS);
     if (strlen(cappers)>0)
     {
-        new bool:startcap = StrEqual(name, "teamplay_point_startcapture");
+        bool startcap = StrEqual(name, "teamplay_point_startcapture");
         new len = strlen(cappers);
         for(new i=0;i<len;i++)
         {
@@ -1088,7 +1088,7 @@ public SortScoreDesc(x[], y[], array[][], Handle:data)
 
 public EventBroadcast(Handle:event,const String:name[],bool:dontBroadcast)
 {
-    decl String:sound[64];
+    char sound[64];
     GetEventString(event, "sound", sound, sizeof(sound));
 
     TraceInto("Events_TF2", "EventBroadcast", "sound=%s", sound);
@@ -1142,11 +1142,11 @@ public EntityOutput_OnAnimationBegun(const String:output[], caller, activator, F
 {
 	if (IsValidEntity(caller))
 	{
-		new String:modelname[128];
+		char modelname[128];
 		GetEntPropString(caller, Prop_Data, "m_ModelName", modelname, 128);
 		if (StrEqual(modelname, "models/props_gameplay/resupply_locker.mdl"))
 		{
-			decl Float:pos[3], Float:orig[3];
+			float pos[3], Float:orig[3];
 			GetEntPropVector(caller, Prop_Send, "m_vecOrigin", pos);
 
 			for (new index=1;index<=MaxClients;index++)

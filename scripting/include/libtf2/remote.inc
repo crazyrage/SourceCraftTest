@@ -203,7 +203,7 @@ native CountBuildings(client, counts[TFOBJECT_COUNT]={0});
  * @param mode              m_iObjectMode of entities to count (-1=any)
  * @return			        count of all buildings.
  */
-native CountObjects(client, const String:class[], mode=-1);
+native CountObjects(client, const char class[], mode=-1);
 
 /**
  * Adds buildings owned by client to a menu.

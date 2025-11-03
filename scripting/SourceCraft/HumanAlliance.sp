@@ -26,27 +26,27 @@
 #include "effect/SendEffects"
 #include "effect/FlashScreen"
 
-new const String:teleportWav[]      = "war3source/blinkarrival.wav";
+char teleportWav[]      = "war3source/blinkarrival.wav";
 //                                    "ambient/machines/teleport1.wav";
 //                                    "beams/beamstart5.wav";
 //                                    "sc/MassTeleportTarget.wav";
 
-new raceID, immunityID, devotionID, bashID, teleportID;
+int raceID, immunityID, devotionID, bashID, teleportID;
 
-new g_BashChance[]                  = { 0, 15, 21, 27, 32 };
+int g_BashChance[]                  = { 0, 15, 21, 27, 32 };
 
-new Float:g_DevotionHealthPercent[] = { 0.0, 0.15, 0.26, 0.38, 0.50 };
+float g_DevotionHealthPercent[] = { 0.0, 0.15, 0.26, 0.38, 0.50 };
 
-new Float:g_TeleportDistance[]      = { 0.0, 300.0, 500.0, 800.0, 1500.0 };
+float g_TeleportDistance[]      = { 0.0, 300.0, 500.0, 800.0, 1500.0 };
 
-new bool:cfgAllowTeleport           = true;
+bool cfgAllowTeleport           = true;
 
-new Float:cfgBashFactor             = 0.5;
-new Float:cfgBashDuration           = 1.0;
+float cfgBashFactor             = 0.5;
+float cfgBashDuration           = 1.0;
 
-new Float:gBashTime[MAXPLAYERS+1];
+float gBashTime[MAXPLAYERS+1];
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Human Alliance",
     author = "-=|JFH|=-Naris with credits to PimpinJuice",
@@ -114,7 +114,7 @@ public OnPlayerAuthed(client)
     gBashTime[client] = 0.0;
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -136,7 +136,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
         return Plugin_Continue;
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
@@ -173,7 +173,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
         new level=GetUpgradeLevel(client,race,teleportID);
         if (level && cfgAllowTeleport)
         {
-            new Float:energy=GetUpgradeEnergy(raceID,teleportID) * (5.0-float(level));
+            float energy=GetUpgradeEnergy(raceID,teleportID) * (5.0-float(level));
             TeleportCommand(client, race, teleportID, level, energy,
                             pressed, g_TeleportDistance, teleportWav);
         }
@@ -201,7 +201,7 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
     }
 }
 
-public Action:DoDevotionAura(Handle:timer,any:userid)
+public Action DoDevotionAura(Handle:timer,any:userid)
 {
     new client = GetClientOfUserId(userid);
     if (client > 0)
@@ -231,7 +231,7 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     #if defined HEALTH_ADDS_ARMOR
@@ -258,7 +258,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
     return Plugin_Continue;
 }
 
-public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
+public Action OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
                                   assister_index, assister_race, damage,
                                   absorbed)
 {
@@ -280,7 +280,7 @@ DoImmunity(client, level, bool:value)
 
     if (value && IsValidClientAlive(client))
     {
-        new Float:start[3];
+        float start[3];
         GetClientAbsOrigin(client, start);
 
         static const color[4] = { 0, 255, 50, 128 };
@@ -304,7 +304,7 @@ DevotionAura(client, level)
         new hpadd=RoundFloat(float(maxhp)*g_DevotionHealthPercent[level]);
         if (GetClientHealth(client) < classmax + hpadd)
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, devotionID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Message, "%t", "ReceivedHP", hpadd, upgradeName);
             SetIncreasedHealth(client, hpadd, 0, "Devotion");
@@ -313,7 +313,7 @@ DevotionAura(client, level)
             {
                 new haloSprite = HaloSprite();
 
-                new Float:start[3];
+                float start[3];
                 GetClientAbsOrigin(client, start);
 
                 decl ringColor[4];
@@ -327,7 +327,7 @@ DevotionAura(client, level)
                                       0,15,1.0,15.0,0.0,ringColor,10,0);
                 TE_SendEffectToAll();
 
-                new Float:end[3];
+                float end[3];
                 end[0] = start[0];
                 end[1] = start[1];
                 end[2] = start[2] + 150;
@@ -365,7 +365,7 @@ bool:Bash(victim_index, index)
             {
                 if (CanInvokeUpgrade(index, raceID, bashID, .notify=false))
                 {
-                    new Float:Origin[3];
+                    float Origin[3];
                     GetClientAbsOrigin(victim_index, Origin);
                     TE_SetupGlowSprite(Origin, PhysCannonGlow(), 1.0, 2.3, 90);
                     DisplayMessage(victim_index, Display_Enemy_Ultimate, "%t", "WasBashed", index);
@@ -395,7 +395,7 @@ bool:Bash(victim_index, index)
 }
 
 
-public Action:RestoreSpeed(Handle:timer,any:userid)
+public Action RestoreSpeed(Handle:timer,any:userid)
 {
     new client = GetClientOfUserId(userid);
     if (client > 0)

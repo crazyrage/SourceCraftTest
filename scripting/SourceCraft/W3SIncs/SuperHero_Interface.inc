@@ -127,7 +127,7 @@ stock SH_ChatMessage(client, const String:szMessage[], any:...)
 {
 	if (client == 0)
 	{
-		decl String:szBuffer[MAX_MESSAGE_LENGTH];
+		char szBuffer[MAX_MESSAGE_LENGTH];
 		for (new i = 1; i <= MaxClients; i++)
 		{
 			if (IsClientInGame(i) && !IsFakeClient(i))
@@ -142,7 +142,7 @@ stock SH_ChatMessage(client, const String:szMessage[], any:...)
 	}
 	else
 	{
-		decl String:szBuffer[MAX_MESSAGE_LENGTH];
+		char szBuffer[MAX_MESSAGE_LENGTH];
 		SetGlobalTransTarget(client);
 		VFormat(szBuffer, sizeof(szBuffer), szMessage, 3);
 		//Format(szBuffer, sizeof(szBuffer), "%T%s", "[SH]", client, szBuffer);

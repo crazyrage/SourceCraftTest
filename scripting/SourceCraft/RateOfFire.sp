@@ -24,7 +24,7 @@
 #tryinclude "sc/SourceCraft"
 #include "sc/weapons"
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Rate of Fire plugin",
     author = "-=|JFH|=-Naris",
@@ -33,17 +33,17 @@ public Plugin:myinfo =
     url = "http://www.jigglysfunhouse.net/"
 }
 
-new m_WeaponRateQueueLen                 = 0;
-new m_WeaponRateQueue[MAXPLAYERS+1]      = { 0, ... };
-new Float:m_EnergyAmount[MAXPLAYERS+1]   = { 0.0, ... };
-new Float:m_WeaponRateMult[MAXPLAYERS+1] = { 0.0, ... };
-new Float:m_ClientRateMult[MAXPLAYERS+1] = { 0.0, ... };
-new bool:m_ClientDisarmed[MAXPLAYERS+1]  = { false, ... };
+int m_WeaponRateQueueLen                 = 0;
+int m_WeaponRateQueue[MAXPLAYERS+1]      = { 0, ... };
+float m_EnergyAmount[MAXPLAYERS+1]   = { 0.0, ... };
+float m_WeaponRateMult[MAXPLAYERS+1] = { 0.0, ... };
+float m_ClientRateMult[MAXPLAYERS+1] = { 0.0, ... };
+bool m_ClientDisarmed[MAXPLAYERS+1]  = { false, ... };
 
-new bool:g_NativeControl                 = false;
-new Handle:g_OnWeaponFiredHandle         = INVALID_HANDLE;
-new Handle:g_hROF                        = INVALID_HANDLE;
-new Float:g_mult                         = 1.0;
+bool g_NativeControl                 = false;
+Handle g_OnWeaponFiredHandle         = INVALID_HANDLE;
+Handle g_hROF                        = INVALID_HANDLE;
+float g_mult                         = 1.0;
 
 public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
 {
@@ -95,7 +95,7 @@ public OnConfigsExecuted()
     g_mult = 1.0/GetConVarFloat(g_hROF);
 }
 
-public bool:OnClientConnect(client, String:rejectmsg[], maxlen)
+public bool OnClientConnect(client, String:rejectmsg[], maxlen)
 {
     m_ClientRateMult[client] = 0.0;
     return true;
@@ -110,16 +110,16 @@ public OnGameFrame()
 {
     if (m_WeaponRateQueueLen)
     {
-        new Float:enginetime = GetGameTime();
+        float enginetime = GetGameTime();
         for (new i=0;i<m_WeaponRateQueueLen;i++)
         {
             new ent = m_WeaponRateQueue[i];
             if (IsValidEntity(ent))
             {
-                new Float:rofmult = m_WeaponRateMult[i];
+                float rofmult = m_WeaponRateMult[i];
                 if (rofmult != 1.0)
                 {
-                    new Float:time = (GetEntPropFloat(ent, Prop_Send, "m_flNextPrimaryAttack")-enginetime)*rofmult;
+                    float time = (GetEntPropFloat(ent, Prop_Send, "m_flNextPrimaryAttack")-enginetime)*rofmult;
                     SetEntPropFloat(ent, Prop_Send, "m_flNextPrimaryAttack", time+enginetime);
 
                     time = (GetEntPropFloat(ent, Prop_Send, "m_flNextSecondaryAttack")-enginetime)*rofmult;
@@ -139,11 +139,11 @@ public Cvar_rof(Handle:convar, const String:oldValue[], const String:newValue[])
     g_mult = 1.0/GetConVarFloat(g_hROF);
 }
 
-public Action:TF2_CalcIsAttackCritical(client, weapon, String:weaponname[], &bool:result)
+public Action TF2_CalcIsAttackCritical(client, weapon, String:weaponname[], &bool:result)
 {
     if (client > 0 && weapon > 0)
     {
-        new Float:rate = g_NativeControl ? m_ClientRateMult[client] : g_mult;
+        float rate = g_NativeControl ? m_ClientRateMult[client] : g_mult;
         if (rate < 0.0)
             rate = g_mult;
 
@@ -200,15 +200,15 @@ public WeaponFireEvent(Handle:event,const String:name[],bool:dontBroadcast)
     new weapon = GetActiveWeapon(client);
     if (weapon > 0)
     {
-        new Float:rate = g_NativeControl ? m_ClientRateMult[client] : g_mult;
+        float rate = g_NativeControl ? m_ClientRateMult[client] : g_mult;
         if (rate < 0.0)
             rate = g_mult;
 
         if (rate != 0.0 && rate != 1.0)
         {
 #if defined SOURCECRAFT
-            new Float:energy = GetEnergy(client);
-            new Float:amount = m_EnergyAmount[client];
+            float energy = GetEnergy(client);
+            float amount = m_EnergyAmount[client];
             if (energy >= amount)
 #endif
             {
@@ -230,7 +230,7 @@ public WeaponFireEvent(Handle:event,const String:name[],bool:dontBroadcast)
     } 
 }
 
-public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:angles[3], &weapon)
+public Action OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:angles[3], &weapon)
 {
     if (client > 0)
     {

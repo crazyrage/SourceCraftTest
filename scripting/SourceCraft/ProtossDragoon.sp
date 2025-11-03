@@ -34,37 +34,37 @@
 #include "effect/HaloSprite"
 #include "effect/SendEffects"
 
-new const String:spawnWav[]               = "sc/pdrrdy00.wav";
-new const String:deathWav[]               = "sc/pdrdth00.wav";
+char spawnWav[]               = "sc/pdrrdy00.wav";
+char deathWav[]               = "sc/pdrdth00.wav";
 
-new const String:g_SingularityFireWav[]   = "sc/DragBull.wav";
-new const String:g_SingularityReadyWav[]  = "sc/pdryes01.wav";
-new const String:g_SingularityExpireWav[] = "sc/pdrwht05.wav";
+char g_SingularityFireWav[]   = "sc/DragBull.wav";
+char g_SingularityReadyWav[]  = "sc/pdryes01.wav";
+char g_SingularityExpireWav[] = "sc/pdrwht05.wav";
 
-new const String:g_MissileAttackSound[]   = "sc/pdrfir00.wav";
+char g_MissileAttackSound[]   = "sc/pdrfir00.wav";
 
-new raceID, immunityID, speedID, shieldsID, missileID, singularityID,  reaverID;
+int raceID, immunityID, speedID, shieldsID, missileID, singularityID,  reaverID;
 
-new g_MissileAttackChance[]               = { 5, 10, 15, 25, 35 };
-new Float:g_MissileAttackPercent[]        = { 0.15, 0.30, 0.40, 0.50, 0.70 };
+int g_MissileAttackChance[]               = { 5, 10, 15, 25, 35 };
+float g_MissileAttackPercent[]        = { 0.15, 0.30, 0.40, 0.50, 0.70 };
 
-new Float:g_SpeedLevels[]                 = { 0.80, 0.90, 0.95, 1.00, 1.05 };
+float g_SpeedLevels[]                 = { 0.80, 0.90, 0.95, 1.00, 1.05 };
 
-new g_SingularityChance[]                 = { 50, 60, 80, 90, 100 };
+int g_SingularityChance[]                 = { 50, 60, 80, 90, 100 };
 
-new Float:g_InitialShields[]              = { 0.05, 0.10, 0.25, 0.50, 0.75 };
+float g_InitialShields[]              = { 0.05, 0.10, 0.25, 0.50, 0.75 };
 
-new Float:g_ShieldsPercent[][2]           = { {0.05, 0.10},
+float g_ShieldsPercent[][2]           = { {0.05, 0.10},
                                               {0.10, 0.20},
                                               {0.15, 0.30},
                                               {0.20, 0.40},
                                               {0.25, 0.50} };
 
-new g_reaverRace = -1;
+int g_reaverRace = -1;
 
-new bool:m_SingularityActive[MAXPLAYERS+1];
+bool m_SingularityActive[MAXPLAYERS+1];
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Protoss Dragoon",
     author = "-=|JFH|=-Naris",
@@ -148,7 +148,7 @@ public OnSourceCraftReady()
 
     for (new level=0; level < sizeof(g_ShieldsPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "shields_percent_level_%d", level);
         GetConfigFloatArray(key, g_ShieldsPercent[level], sizeof(g_ShieldsPercent[]),
                             g_ShieldsPercent[level], raceID, shieldsID);
@@ -197,7 +197,7 @@ public OnClientDisconnect(client)
     m_SingularityActive[client] = false;
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -227,7 +227,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
     return Plugin_Continue;
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
@@ -340,7 +340,7 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     if (!from_sc && attacker_index > 0 && 
@@ -350,9 +350,9 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
         new weapons_level=GetUpgradeLevel(attacker_index,raceID,missileID);
         if (m_SingularityActive[attacker_index])
         {
-            decl Float:singularityPercent[sizeof(g_MissileAttackPercent)];
+            float singularityPercent[sizeof(g_MissileAttackPercent)];
             new singularity_level= GetUpgradeLevel(attacker_index,raceID,singularityID);
-            new Float:increase = (float(singularity_level) * 0.25) + 1.0;
+            float increase = (float(singularity_level) * 0.25) + 1.0;
             for (new i = 0; i < sizeof(g_MissileAttackPercent); i++)
             {
                 singularityPercent[i] = g_MissileAttackPercent[i] * increase;
@@ -418,7 +418,7 @@ DoImmunity(client, level, bool:value)
 
     if (value && IsValidClientAlive(client))
     {
-        new Float:start[3];
+        float start[3];
         GetClientAbsOrigin(client, start);
 
         static const color[4] = { 0, 255, 50, 128 };
@@ -435,7 +435,7 @@ Singularity(client, level)
         if (GetRestriction(client,Restriction_NoUltimates) ||
             GetRestriction(client,Restriction_Stunned))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, singularityID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -452,7 +452,7 @@ Singularity(client, level)
     }
 }
 
-public Action:EndSingularity(Handle:timer,any:userid)
+public Action EndSingularity(Handle:timer,any:userid)
 {
     new client = GetClientOfUserId(userid);
     if (IsValidClient(client) && m_SingularityActive[client])
@@ -477,7 +477,7 @@ SummonReaver(client)
 
     if (g_reaverRace < 0)
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, reaverID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "IsNotAvailable", upgradeName);
         LogError("***The Protoss Reaver race is not Available!");
@@ -486,14 +486,14 @@ SummonReaver(client)
     else if (GetRestriction(client,Restriction_NoUltimates) ||
              GetRestriction(client,Restriction_Stunned))
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, reaverID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "PreventedFromSummoningReaver");
         PrepareAndEmitSoundToClient(client,deniedWav);
     }
     else if (CanInvokeUpgrade(client, raceID, reaverID))
     {
-        new Float:clientLoc[3];
+        float clientLoc[3];
         GetClientAbsOrigin(client, clientLoc);
         clientLoc[2] += 40.0; // Adjust position to the middle
 

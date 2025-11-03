@@ -515,7 +515,7 @@ stock SupplyAmmo(client, amount, const String:source[],
 
     if (ammoSupplied > 0)
     {
-        decl String:type[64];
+        char type[64];
         type[0] = '\0';
 
         if (GameType == tf2)

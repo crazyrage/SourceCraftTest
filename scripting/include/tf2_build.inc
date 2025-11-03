@@ -72,7 +72,7 @@ stock BuildSentry(hBuilder, const Float:fOrigin[3], const Float:fAngle[3], iLeve
 
         TeleportEntity(iSentry, fOrigin, fAngle, NULL_VECTOR);
 
-        decl String:sModel[64];
+        char sModel[64];
         if (bMini)
             strcopy(sModel, sizeof(sModel),"models/buildables/sentry1.mdl");
         else
@@ -136,7 +136,7 @@ stock BuildSentry(hBuilder, const Float:fOrigin[3], const Float:fAngle[3], iLeve
         SetVariantInt(hBuilder);
         AcceptEntityInput(iSentry, "SetBuilder", -1, -1, 0);
 
-        new Handle:event = CreateEvent("player_builtobject");
+        Handle event = CreateEvent("player_builtobject");
         if (event != INVALID_HANDLE)
         {
             SetEventInt(event, "userid", GetClientUserId(hBuilder));
@@ -178,7 +178,7 @@ stock BuildDispenser(hBuilder, const Float:fOrigin[3], const Float:fAngle[3], iL
 
         TeleportEntity(iDispenser, fOrigin, fAngle, NULL_VECTOR);
 
-        decl String:sModel[64];
+        char sModel[64];
         switch (type)
         {
             case TFObject_Amplifier:
@@ -242,7 +242,7 @@ stock BuildDispenser(hBuilder, const Float:fOrigin[3], const Float:fAngle[3], iL
         if (!iDisabled)
             AcceptEntityInput(iDispenser, "TurnOn");
 
-        new Handle:event = CreateEvent("player_builtobject");
+        Handle event = CreateEvent("player_builtobject");
         if (event != INVALID_HANDLE)
         {
             SetEventInt(event, "userid", GetClientUserId(hBuilder));
@@ -323,7 +323,7 @@ stock BuildTeleporterEntry(hBuilder, const Float:fOrigin[3], const Float:fAngle[
         if (!iDisabled)
             AcceptEntityInput(iTeleporter, "TurnOn");
 
-        new Handle:event = CreateEvent("player_builtobject");
+        Handle event = CreateEvent("player_builtobject");
         if (event != INVALID_HANDLE)
         {
             SetEventInt(event, "userid", GetClientUserId(hBuilder));
@@ -403,7 +403,7 @@ stock BuildTeleporterExit(hBuilder, const Float:fOrigin[3], const Float:fAngle[3
         if (!iDisabled)
             AcceptEntityInput(iTeleporter, "TurnOn");
 
-        new Handle:event = CreateEvent("player_builtobject");
+        Handle event = CreateEvent("player_builtobject");
         if (event != INVALID_HANDLE)
         {
             SetEventInt(event, "userid", GetClientUserId(hBuilder));

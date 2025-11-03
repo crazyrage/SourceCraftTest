@@ -39,17 +39,17 @@
 #define DAMAGE_YES              2
 #define DAMAGE_AIM              3
 
-new const String:gSndBuy[]                    = "items/itempickup.wav";
-new const String:gSndError[]                  = "common/wpn_denyselect.wav";
-new const String:gSndCantBuy[]                = "buttons/weapon_cant_buy.wav";
+char gSndBuy[]                    = "items/itempickup.wav";
+char gSndError[]                  = "common/wpn_denyselect.wav";
+char gSndCantBuy[]                = "buttons/weapon_cant_buy.wav";
 
-new String:gSndPlaced[PLATFORM_MAX_PATH]      = "npc/roller/blade_cut.wav";
-new String:gSndActivated[PLATFORM_MAX_PATH]   = "npc/roller/mine/rmine_blades_in2.wav";
-new String:gSndReactivated[PLATFORM_MAX_PATH] = "npc/roller/mine/rmine_blades_in2.wav";
-new String:gSndRemoved[PLATFORM_MAX_PATH]     = "ui/hint.wav";
+char gSndPlaced[PLATFORM_MAX_PATH]      = "npc/roller/blade_cut.wav";
+char gSndActivated[PLATFORM_MAX_PATH]   = "npc/roller/mine/rmine_blades_in2.wav";
+char gSndReactivated[PLATFORM_MAX_PATH] = "npc/roller/mine/rmine_blades_in2.wav";
+char gSndRemoved[PLATFORM_MAX_PATH]     = "ui/hint.wav";
 
 // Colors
-new String:gMineColor[6][16] = { "",            // 0:Unassigned / Default
+char gMineColor[6][16] = { "",            // 0:Unassigned / Default
                                  "",            // 1:Spectator
                                  "255 0 0",     // 2:Red  / Allies / Terrorists
                                  "0 0 255",     // 3:Blue / Axis   / Counter-Terrorists
@@ -57,7 +57,7 @@ new String:gMineColor[6][16] = { "",            // 0:Unassigned / Default
                                  ""             // 5:Boss?
                                };
 
-new String:gBeamColor[6][16] = { "255 255 255", // 0:Unassigned / Default
+char gBeamColor[6][16] = { "255 255 255", // 0:Unassigned / Default
                                  "0 255 255",   // 1:Spectator
                                  "255 0 0",     // 2:Red  / Allies / Terrorists
                                  "0 0 255",     // 3:Blue / Axis   / Counter-Terrorists
@@ -66,74 +66,74 @@ new String:gBeamColor[6][16] = { "255 255 255", // 0:Unassigned / Default
                                };
 
 // globals
-new gRemaining[MAXPLAYERS+1];   // how many tripmines player has this spawn
-new gMaximum[MAXPLAYERS+1];     // how many tripmines player can have active at once
-new gAllowed[MAXPLAYERS+1];     // how many tripmines player allowed
-new gActive[MAXPLAYERS+1];      // how many tripmines player has active
-new gCount = 1;                 // used as an identifer for mine & beam entities
+int gRemaining[MAXPLAYERS+1];   // how many tripmines player has this spawn
+int gMaximum[MAXPLAYERS+1];     // how many tripmines player can have active at once
+int gAllowed[MAXPLAYERS+1];     // how many tripmines player allowed
+int gActive[MAXPLAYERS+1];      // how many tripmines player has active
+int gCount = 1;                 // used as an identifer for mine & beam entities
 
-new gTeamSpecific = 1;
-new bool:gAllowSpectators = false;
-new bool:gTouch = false;
+int gTeamSpecific = 1;
+bool gAllowSpectators = false;
+bool gTouch = false;
 
 // for buy
-new gInBuyZone = -1;
-new gAccount = -1;
+int gInBuyZone = -1;
+int gAccount = -1;
 
-new bool:gNativeControl = false;
-new bool:gChangingClass[MAXPLAYERS+1];
+bool gNativeControl = false;
+bool gChangingClass[MAXPLAYERS+1];
 
-new gTripmineModelIndex = 0;
-new gLaserModelIndex = 0;
+int gTripmineModelIndex = 0;
+int gLaserModelIndex = 0;
 
-new g_SavedEntityRef[MAXENTITIES+1] = { INVALID_ENT_REFERENCE, ... };
-new g_TripmineOfBeam[MAXENTITIES+1] = { INVALID_ENT_REFERENCE, ... };
+int g_SavedEntityRef[MAXENTITIES+1] = { INVALID_ENT_REFERENCE, ... };
+int g_TripmineOfBeam[MAXENTITIES+1] = { INVALID_ENT_REFERENCE, ... };
 
-new String:mdlMine[256] = "models/props_lab/tpplug.mdl";
+char mdlMine[256] = "models/props_lab/tpplug.mdl";
 
 // forwards
-new Handle:fwdOnSetTripmine;
-new Handle:fwdOnTripmineExplode;
+Handle fwdOnSetTripmine;
+Handle fwdOnTripmineExplode;
 
 // convars
-new Handle:cvActTime = INVALID_HANDLE;
-new Handle:cvReactTime = INVALID_HANDLE;
-new Handle:cvModel = INVALID_HANDLE;
-new Handle:cvMineCost = INVALID_HANDLE;
-new Handle:cvAllowSpectators = INVALID_HANDLE;
-new Handle:cvTeamRestricted = INVALID_HANDLE;
-new Handle:cvTeamSpecific = INVALID_HANDLE;
-new Handle:cvAdmin = INVALID_HANDLE;
-new Handle:cvRadius = INVALID_HANDLE;
-new Handle:cvDamage = INVALID_HANDLE;
-new Handle:cvHealth = INVALID_HANDLE;
-new Handle:cvType = INVALID_HANDLE;
-new Handle:cvStay = INVALID_HANDLE;
-new Handle:cvTouch = INVALID_HANDLE;
-new Handle:cvFriendlyFire = INVALID_HANDLE;
+Handle cvActTime = INVALID_HANDLE;
+Handle cvReactTime = INVALID_HANDLE;
+Handle cvModel = INVALID_HANDLE;
+Handle cvMineCost = INVALID_HANDLE;
+Handle cvAllowSpectators = INVALID_HANDLE;
+Handle cvTeamRestricted = INVALID_HANDLE;
+Handle cvTeamSpecific = INVALID_HANDLE;
+Handle cvAdmin = INVALID_HANDLE;
+Handle cvRadius = INVALID_HANDLE;
+Handle cvDamage = INVALID_HANDLE;
+Handle cvHealth = INVALID_HANDLE;
+Handle cvType = INVALID_HANDLE;
+Handle cvStay = INVALID_HANDLE;
+Handle cvTouch = INVALID_HANDLE;
+Handle cvFriendlyFire = INVALID_HANDLE;
 
-new Handle:cvPlacedSound = INVALID_HANDLE;
-new Handle:cvActivatedSound = INVALID_HANDLE;
-new Handle:cvReactivatedSound = INVALID_HANDLE;
-new Handle:cvRemovedSound = INVALID_HANDLE;
+Handle cvPlacedSound = INVALID_HANDLE;
+Handle cvActivatedSound = INVALID_HANDLE;
+Handle cvReactivatedSound = INVALID_HANDLE;
+Handle cvRemovedSound = INVALID_HANDLE;
 
-new Handle:cvNumMines = INVALID_HANDLE;
-new Handle:cvMaxMines = INVALID_HANDLE;
-new Handle:cvMaxMinesPerClient = INVALID_HANDLE;
-new Handle:cvNumMinesScout = INVALID_HANDLE;
-new Handle:cvNumMinesSniper = INVALID_HANDLE;
-new Handle:cvNumMinesSoldier = INVALID_HANDLE;
-new Handle:cvNumMinesDemoman = INVALID_HANDLE;
-new Handle:cvNumMinesMedic = INVALID_HANDLE;
-new Handle:cvNumMinesHeavy = INVALID_HANDLE;
-new Handle:cvNumMinesPyro = INVALID_HANDLE;
-new Handle:cvNumMinesSpy = INVALID_HANDLE;
-new Handle:cvNumMinesEngi = INVALID_HANDLE;
+Handle cvNumMines = INVALID_HANDLE;
+Handle cvMaxMines = INVALID_HANDLE;
+Handle cvMaxMinesPerClient = INVALID_HANDLE;
+Handle cvNumMinesScout = INVALID_HANDLE;
+Handle cvNumMinesSniper = INVALID_HANDLE;
+Handle cvNumMinesSoldier = INVALID_HANDLE;
+Handle cvNumMinesDemoman = INVALID_HANDLE;
+Handle cvNumMinesMedic = INVALID_HANDLE;
+Handle cvNumMinesHeavy = INVALID_HANDLE;
+Handle cvNumMinesPyro = INVALID_HANDLE;
+Handle cvNumMinesSpy = INVALID_HANDLE;
+Handle cvNumMinesEngi = INVALID_HANDLE;
 
-new Handle:cvBeamColor[4] = { INVALID_HANDLE, ... };
-new Handle:cvMineColor[4] = { INVALID_HANDLE, ... };
+Handle cvBeamColor[4] = { INVALID_HANDLE, ... };
+Handle cvMineColor[4] = { INVALID_HANDLE, ... };
 
-public Plugin:myinfo = {
+public Plugin myinfo = {
     name = "Tripmines",
     author = "L. Duke and Naris",
     description = "Plant a trip mine",
@@ -321,7 +321,7 @@ public OnConfigsExecuted()
     }
 }
 
-public CvarChange(Handle:convar, const String:oldValue[], const String:newValue[])
+public CvarChange(Handle:convar, const char oldValue[], const char newValue[])
 {
     if (convar == cvAllowSpectators)
         gAllowSpectators = bool:StringToInt(newValue);
@@ -352,7 +352,7 @@ public CvarChange(Handle:convar, const String:oldValue[], const String:newValue[
 }
 
 // When a new client is put in the server we reset their mines count
-public bool:OnClientConnect(client, String:rejectmsg[], maxlen)
+public bool OnClientConnect(client, String:rejectmsg[], maxlen)
 {
     if (client && !IsFakeClient(client))
     {
@@ -362,13 +362,13 @@ public bool:OnClientConnect(client, String:rejectmsg[], maxlen)
     return true;
 }
 
-public Action:PlayerDisconnect(Handle:event, const String:name[], bool:dontBroadcast)
+public Action PlayerDisconnect(Handle:event, const char name[], bool:dontBroadcast)
 {
     RemoveTripmines(GetClientOfUserId(GetEventInt(event, "userid")), false);
     return Plugin_Continue;
 }    
 
-public Action:PlayerSpawn(Handle:event, const String:name[], bool:dontBroadcast)
+public Action PlayerSpawn(Handle:event, const char name[], bool:dontBroadcast)
 {
     new amount = -1;
     new client = GetClientOfUserId(GetEventInt(event, "userid"));
@@ -412,13 +412,13 @@ public Action:PlayerSpawn(Handle:event, const String:name[], bool:dontBroadcast)
     return Plugin_Continue;
 }
 
-public Action:PlayerChange(Handle:event, const String:name[], bool:dontBroadcast)
+public Action PlayerChange(Handle:event, const char name[], bool:dontBroadcast)
 {
     new client = GetClientOfUserId(GetEventInt(event, "userid"));
     gChangingClass[client]=true;
 }
 
-public Action:PlayerDeath(Handle:event, const String:name[], bool:dontBroadcast)
+public Action PlayerDeath(Handle:event, const char name[], bool:dontBroadcast)
 {
     if (GameType == tf2)
     {
@@ -441,7 +441,7 @@ public Action:PlayerDeath(Handle:event, const String:name[], bool:dontBroadcast)
     new stay = GetConVarInt(cvStay);
     if (stay != 1)
     {
-        new Handle:pack;
+        Handle pack;
         CreateDataTimer(0.1, RemovePlayersTripmines, pack, TIMER_FLAG_NO_MAPCHANGE);
         WritePackCell(pack, client);
         WritePackCell(pack, (stay > 1));
@@ -450,19 +450,19 @@ public Action:PlayerDeath(Handle:event, const String:name[], bool:dontBroadcast)
     return Plugin_Continue;
 }
 
-public Action:RemovePlayersTripmines(Handle:timer, Handle:pack)
+public Action RemovePlayersTripmines(Handle:timer, Handle:pack)
 { 
     ResetPack(pack);
     new client = ReadPackCell(pack);
-    new bool:explode = bool:ReadPackCell(pack);
+    bool explode = bool:ReadPackCell(pack);
     RemoveTripmines(client, explode);
     gActive[client] = 0;
     return Plugin_Stop;
 }
 
-public Action:RoundEnd(Handle:event, const String:name[], bool:dontBroadcast)
+public Action RoundEnd(Handle:event, const char name[], bool:dontBroadcast)
 {
-    decl String:classname[64];
+    char classname[64];
     new maxents = GetMaxEntities();
     for (new c = MaxClients; c < maxents; c++)
     {
@@ -490,8 +490,8 @@ public Action:RoundEnd(Handle:event, const String:name[], bool:dontBroadcast)
 
 RemoveTripmines(client, bool:explode=false)
 {
-    new Float:time=0.1;
-    decl String:classname[64];
+    float time=0.1;
+    char classname[64];
     new maxents = GetMaxEntities();
     for (new c = MaxClients; c < maxents; c++)
     {
@@ -575,7 +575,7 @@ RemoveMineEntity(mine_ent)
     }
 }
 
-public Action:ExplodeMine(Handle:timer, any:ref)
+public Action ExplodeMine(Handle:timer, any:ref)
 {
     new ent = EntRefToEntIndex(ref);
     if (ent > 0)
@@ -585,7 +585,7 @@ public Action:ExplodeMine(Handle:timer, any:ref)
     return Plugin_Stop;
 }
 
-public Action:Command_TripMine(client, args)
+public Action Command_TripMine(client, args)
 {
     // make sure client is not spectating
     if (!IsPlayerAlive(client))
@@ -601,7 +601,7 @@ public Action:Command_TripMine(client, args)
     }
 
     // check admin flag (if any)
-    decl String:adminFlag[2];
+    char adminFlag[2];
     GetConVarString(cvAdmin, adminFlag, sizeof(adminFlag));
     if (adminFlag[0] != '\0')
     {
@@ -680,7 +680,7 @@ bool:SetMine(client)
 
     // trace client view to get position and angles for tripmine
 
-    decl Float:start[3], Float:angle[3], Float:end[3], Float:normal[3], Float:beamend[3];
+    float start[3], Float:angle[3], Float:end[3], Float:normal[3], Float:beamend[3];
     GetClientEyePosition( client, start );
     GetClientEyeAngles( client, angle );
     GetAngleVectors(angle, end, NULL_VECTOR, NULL_VECTOR);
@@ -710,9 +710,9 @@ bool:SetMine(client)
         new team = GetClientTeam(client);
 
         // setup unique target names for entities to be created with
-        decl String:tmp[128];
-        decl String:beamname[64];
-        decl String:minename[64];
+        char tmp[128];
+        char beamname[64];
+        char minename[64];
         Format(beamname, sizeof(beamname), "tripbeam%d", gCount);
         Format(minename, sizeof(minename), "tripmine%d", gCount);
 
@@ -733,7 +733,7 @@ bool:SetMine(client)
 
             if (team >= 0 && team < sizeof(gMineColor) && gMineColor[team][0] != '\0')
             {
-                decl String:color[4][4];
+                char color[4][4];
                 if (ExplodeString(gMineColor[team], " ", color, sizeof(color), sizeof(color[])) <= 3)
                     strcopy(color[3], sizeof(color[]), "255");
 
@@ -832,8 +832,8 @@ bool:SetMine(client)
                     g_SavedEntityRef[beam_ent] = beam_ref;
                     g_TripmineOfBeam[beam_ent] = mine_ref;
 
-                    new Handle:data;
-                    new Float:delay = GetConVarFloat(cvActTime);
+                    Handle data;
+                    float delay = GetConVarFloat(cvActTime);
                     CreateDataTimer(delay, ActivateTripmine, data, TIMER_FLAG_NO_MAPCHANGE);
 
                     WritePackCell(data, client);
@@ -885,7 +885,7 @@ bool:SetMine(client)
     return false;
 }
 
-public Action:ActivateTripmine(Handle:timer, Handle:data)
+public Action ActivateTripmine(Handle:timer, Handle:data)
 {
     ResetPack(data);
     new client = ReadPackCell(data);
@@ -896,7 +896,7 @@ public Action:ActivateTripmine(Handle:timer, Handle:data)
         new team = GetEntProp(mine_ent, Prop_Send, "m_iTeamNum");
         if (team >= 0 && team < sizeof(gBeamColor) && gBeamColor[team][0] != '\0')
         {
-            new String:color[4][4];
+            char color[4][4];
             if (ExplodeString(gBeamColor[team], " ", color, sizeof(color), sizeof(color[])) > 3)
             {
                 SetEntityRenderMode(beam_ent, RENDER_TRANSCOLOR);
@@ -932,7 +932,7 @@ public Action:ActivateTripmine(Handle:timer, Handle:data)
 
         if (gSndActivated[0])
         {
-            new Float:end[3];
+            float end[3];
             end[0] = ReadPackFloat(data);
             end[1] = ReadPackFloat(data);
             end[2] = ReadPackFloat(data);
@@ -958,7 +958,7 @@ public Action:ActivateTripmine(Handle:timer, Handle:data)
     return Plugin_Stop;
 }
 
-public Action:TurnBeamOn(Handle:timer, Handle:data)
+public Action TurnBeamOn(Handle:timer, Handle:data)
 {
     ResetPack(data);
     new client = ReadPackCell(data);
@@ -970,7 +970,7 @@ public Action:TurnBeamOn(Handle:timer, Handle:data)
 
         if (gSndReactivated[0])
         {
-            decl Float:end[3];
+            float end[3];
             GetEntPropVector(beam_ent, Prop_Send, "m_vecEndPos", end);
 
             PrepareAndEmitSoundToAll(gSndReactivated, beam_ent, SNDCHAN_AUTO,
@@ -988,7 +988,7 @@ public Action:TurnBeamOn(Handle:timer, Handle:data)
 
 CountMines(client)
 {
-    decl String:classname[64];
+    char classname[64];
 
     new count = 0;
     new maxents = GetMaxEntities();
@@ -1010,7 +1010,7 @@ CountMines(client)
 
 bool:CheckMineCount(client, clientMax, globalMax)
 {
-    decl String:classname[64];
+    char classname[64];
 
     new globalCount = 0;
     new clientCount = 0;
@@ -1036,7 +1036,7 @@ bool:CheckMineCount(client, clientMax, globalMax)
     return false;
 }
 
-public beamTouched(const String:output[], caller, activator, Float:delay)
+public beamTouched(const char output[], caller, activator, Float:delay)
 {
     new ref = g_SavedEntityRef[caller];
     if (ref != INVALID_ENT_REFERENCE && EntRefToEntIndex(ref) == caller) // it's an entity we created
@@ -1055,14 +1055,14 @@ public beamTouched(const String:output[], caller, activator, Float:delay)
             }
             else if (owner > 0 && IsClientInGame(owner))
             {
-                new Float:reactTime = GetConVarFloat(cvReactTime);
+                float reactTime = GetConVarFloat(cvReactTime);
                 if (reactTime > 0.0)
                 {
-                    decl Float:end[3];
+                    float end[3];
                     GetEntPropVector(caller, Prop_Send, "m_vecEndPos", end);
                     AcceptEntityInput(caller, "TurnOff");
 
-                    new Handle:data;
+                    Handle data;
                     CreateDataTimer(reactTime, TurnBeamOn, data, TIMER_FLAG_NO_MAPCHANGE);
 
                     WritePackCell(data, owner);
@@ -1071,7 +1071,7 @@ public beamTouched(const String:output[], caller, activator, Float:delay)
                 }
                 else
                 {
-                    decl String:input[128];
+                    char input[128];
                     AcceptEntityInput(caller, "TurnOff");
                     Format(input, sizeof(input), "OnUser1 !self:TurnOn::0.0:1");
                     SetVariantString(input);
@@ -1097,7 +1097,7 @@ public beamTouched(const String:output[], caller, activator, Float:delay)
     }
 }
 
-public beamBreak(const String:output[], caller, activator, Float:delay)
+public beamBreak(const char output[], caller, activator, Float:delay)
 {
     new mine_ent = EntRefToEntIndex(g_TripmineOfBeam[caller]);
     if (mine_ent > 0 && IsValidEntity(mine_ent))
@@ -1119,7 +1119,7 @@ public beamBreak(const String:output[], caller, activator, Float:delay)
     }
 }
 
-public mineTouched(const String:output[], caller, activator, Float:delay)
+public mineTouched(const char output[], caller, activator, Float:delay)
 {
     new ref = g_SavedEntityRef[caller];
     if (ref != INVALID_ENT_REFERENCE && EntRefToEntIndex(ref) == caller) // it's an entity we created
@@ -1144,7 +1144,7 @@ public mineTouched(const String:output[], caller, activator, Float:delay)
     }
 }
 
-public mineBreak(const String:output[], caller, activator, Float:delay)
+public mineBreak(const char output[], caller, activator, Float:delay)
 {
     new ref = g_SavedEntityRef[caller];
     if (ref != INVALID_ENT_REFERENCE && EntRefToEntIndex(ref) == caller) // it's an entity we created
@@ -1169,7 +1169,7 @@ mineExplode(mine_ent)
         if (gTeamSpecific || !GetConVarBool(cvFriendlyFire))
             team = GetEntProp(mine_ent, Prop_Send, "m_iTeamNum");
 
-        decl Float:vecPos[3];
+        float vecPos[3];
         GetEntPropVector(mine_ent, Prop_Send, "m_vecOrigin", vecPos);
 
         new owner = GetEntPropEnt(mine_ent, Prop_Send, "m_hOwnerEntity");
@@ -1179,12 +1179,12 @@ mineExplode(mine_ent)
         Call_Finish(res);
         gActive[owner]--;
         
-        new Float:maxdistance = GetConVarFloat(cvRadius);
+        float maxdistance = GetConVarFloat(cvRadius);
         for (new i = 1; i <= MaxClients; i++)
         {
             if (IsClientInGame(i))
             {
-                decl Float:PlayerPosition[3];
+                float PlayerPosition[3];
                 GetClientAbsOrigin(i, PlayerPosition);
                 if (GetVectorDistance(PlayerPosition, vecPos) <= maxdistance)
                 {
@@ -1213,12 +1213,12 @@ mineExplode(mine_ent)
     RemoveMineEntity(mine_ent);
 }
 
-public bool:FilterAll(entity, contentsMask)
+public bool FilterAll(entity, contentsMask)
 {
     return false;
 }
 
-public Action:Command_BuyTripMines(client, args)
+public Action Command_BuyTripMines(client, args)
 {
     if (!client || IsFakeClient(client) || !IsPlayerAlive(client) || gInBuyZone == -1 || gAccount == -1)
         return Plugin_Handled;
@@ -1227,7 +1227,7 @@ public Action:Command_BuyTripMines(client, args)
     new cnt = 1;
     if (args > 0)
     {
-        decl String:txt[MAX_LINE_LEN];
+        char txt[MAX_LINE_LEN];
         GetCmdArg(1, txt, sizeof(txt));
         cnt = StringToInt(txt);
     }

@@ -3,33 +3,33 @@
 #include <sourcemod>
 #include "W3SIncs/War3Source_Interface"  
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "War3Source - Race - Dark Elf",
     author = "War3Source Team",
     description = "The Dark Elf race for War3Source."
 };
 
-new thisRaceID;
+int thisRaceID;
 
-new SKILL_FADE,SKILL_SLOWFALL,SKILL_TRIBUNAL,ULTIMATE_DARKORB;
+int SKILL_FADE,SKILL_SLOWFALL,SKILL_TRIBUNAL,ULTIMATE_DARKORB;
 
-new Float:FadeChance[5]={0.0,0.05,0.10,0.15,0.20};  //done
-new Float:SlowfallGravity[5]={1.0,0.85,0.70,0.55,0.40};  //probably too much overhead lololol oh god
-new Float:TribunalDecay[5]={0.0,4.0,5.0,6.0,7.0};    //simple
-new Float:TribunalSpeed[5]={1.0,1.10,1.20,1.30,1.40}; //simple
+float FadeChance[5]={0.0,0.05,0.10,0.15,0.20};  //done
+float SlowfallGravity[5]={1.0,0.85,0.70,0.55,0.40};  //probably too much overhead lololol oh god
+float TribunalDecay[5]={0.0,4.0,5.0,6.0,7.0};    //simple
+float TribunalSpeed[5]={1.0,1.10,1.20,1.30,1.40}; //simple
 
-new bool:IsInTribunal[MAXPLAYERSCUSTOM];
+bool IsInTribunal[MAXPLAYERSCUSTOM];
 
-//new Float:TribunalDuration=3.5;    
-//new Float:TribunalCooldownTime=15.0;
-new Float:DarkorbDistance=1000.0;
-new Float:DarkorbDuration[5]={0.0,1.25,1.5,1.75,2.0};
-new Float:DarkorbCooldownTime=10.0;
+//float TribunalDuration=3.5;    
+//float TribunalCooldownTime=15.0;
+float DarkorbDistance=1000.0;
+float DarkorbDuration[5]={0.0,1.25,1.5,1.75,2.0};
+float DarkorbCooldownTime=10.0;
 
-new Float:darkvec[3]={0.0,0.0,0.0};
-new Float:prevdarkvec[3]={0.0,0.0,0.0};
-new Float:victimvec[3]={0.0,0.0,0.0};
+float darkvec[3]={0.0,0.0,0.0};
+float prevdarkvec[3]={0.0,0.0,0.0};
+float victimvec[3]={0.0,0.0,0.0};
 
 // Sounds
 stock String:tribunal[256]; //="war3source/darkelf/tribunal.mp3";
@@ -127,7 +127,7 @@ public OnUltimateCommand(client,race,bool:pressed)
             {
                 //War3_GetTargetInViewCone(client,Float:max_distance=0.0,bool:include_friendlys=false,Float:cone_angle=23.0,Function:FilterFunction=INVALID_FUNCTION);
                 new target = War3_GetTargetInViewCone(client,DarkorbDistance,false,23.0,DarkorbFilter);
-                new Float:duration = DarkorbDuration[ult_level];
+                float duration = DarkorbDuration[ult_level];
                 if(target>0)
                 {
                     GetClientAbsOrigin(target,victimvec);
@@ -147,7 +147,7 @@ public OnUltimateCommand(client,race,bool:pressed)
     }            
 }
 
-public bool:DarkorbFilter(client)
+public bool DarkorbFilter(client)
 {
     return (!W3HasImmunity(client,Immunity_Ultimates));
 }
@@ -184,7 +184,7 @@ public OnW3TakeDmgBulletPre(victim,attacker,Float:damage)
     }
 }
 
-public Action:FadeTimer(Handle:timer,any:victim)
+public Action FadeTimer(Handle:timer,any:victim)
 {
 
     War3_SetBuff(victim,fInvisibilitySkill,thisRaceID,1.0);
@@ -203,8 +203,8 @@ public OnAbilityCommand(client,ability,bool:pressed)
         new skilllvl = War3_GetSkillLevel(client,thisRaceID,SKILL_TRIBUNAL);
         if(skilllvl > 0)
         {
-            new Float:speed = TribunalSpeed[skilllvl];
-            new Float:decay = TribunalDecay[skilllvl];
+            float speed = TribunalSpeed[skilllvl];
+            float decay = TribunalDecay[skilllvl];
             if(!Silenced(client))
             {    //W3SetPlayerColor(client,raceid,r,g,b,a=255,overridepriority=GLOW_DEFAULT)
                 //W3SetPlayerColor(client,thisRaceID,128,0,128,255); //purple:D not sure if works
@@ -234,14 +234,14 @@ public OnAbilityCommand(client,ability,bool:pressed)
 }
 
 /*
-public Action:TribunalTimer(Handle:timer,any:client)
+public Action TribunalTimer(Handle:timer,any:client)
 {
     War3_SetBuff(client,fMaxSpeed,thisRaceID,1.0);
     War3_SetBuff(client,fHPDecay,thisRaceID,0.0);
     W3ResetPlayerColor(client,thisRaceID);
 }*/
 
-public Action:SlowfallTimer(Handle:timer,any:zclient)
+public Action SlowfallTimer(Handle:timer,any:zclient)
 {
     for(new client=1; client <= MaxClients; client++)
     {
@@ -256,7 +256,7 @@ public Action:SlowfallTimer(Handle:timer,any:zclient)
         
     }
 }
-public Action:Slowfall2Timer(Handle:timer,any:client)
+public Action Slowfall2Timer(Handle:timer,any:client)
 {
     if(ValidPlayer(client, true)){
         GetClientAbsOrigin(client,darkvec);
@@ -267,7 +267,7 @@ public Action:Slowfall2Timer(Handle:timer,any:client)
             if (darkvec[2]<prevdarkvec[2])
             {
                 new skilllevel_levi=War3_GetSkillLevel(client,thisRaceID,SKILL_SLOWFALL);
-                new Float:gravity=SlowfallGravity[skilllevel_levi];
+                float gravity=SlowfallGravity[skilllevel_levi];
                 //DP("set %f",gravity);
                 War3_SetBuff(client,fLowGravitySkill,thisRaceID,gravity);
                 if(!IsInvis(client)&&War3_GetGame()==Game_TF){

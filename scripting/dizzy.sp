@@ -11,12 +11,12 @@
 
 #define VERSION "1.0.1"
 
-new offsPunchAngle;
+int offsPunchAngle;
 
-new bool:bDizzy[MAXPLAYERS+1];
-new Float:flMagnitude[MAXPLAYERS+1];
+bool bDizzy[MAXPLAYERS+1];
+float flMagnitude[MAXPLAYERS+1];
 
-public Plugin:myinfo =
+public Plugin myinfo =
 {
     name = "PunchShot", 
     author = "Greyscale", 
@@ -62,7 +62,7 @@ public OnClientPutInServer(client)
     bDizzy[client] = false;
 }
 
-public Action:Command_Dizzy(client, argc)
+public Action Command_Dizzy(client, argc)
 {
     if (argc < 1)
     {
@@ -71,12 +71,12 @@ public Action:Command_Dizzy(client, argc)
         return Plugin_Handled;
     }
     
-    decl String:arg1[32];
+    char arg1[32];
     GetCmdArg(1, arg1, sizeof(arg1));
     
-    decl String:target_name[MAX_TARGET_LENGTH];
+    char target_name[MAX_TARGET_LENGTH];
     new targets[MAXPLAYERS];
-    new bool:tn_is_ml;
+    bool tn_is_ml;
     
     new tcount = ProcessTargetString(arg1, client, targets, MAXPLAYERS, COMMAND_FILTER_ALIVE, target_name, sizeof(target_name), tn_is_ml);
     if (tcount <= 0)
@@ -85,10 +85,10 @@ public Action:Command_Dizzy(client, argc)
         return Plugin_Handled;
     }
     
-    new Float:magnitude;
+    float magnitude;
     if (argc >= 2)
     {
-        decl String:arg2[8];
+        char arg2[8];
         GetCmdArg(2, arg2, sizeof(arg2));
         magnitude = StringToFloat(arg2);
     }
@@ -122,16 +122,16 @@ public Action:Command_Dizzy(client, argc)
     return Plugin_Handled;
 }
 
-public Action:StopDizzy(Handle:event, const String:name[], bool:dontBroadcast)
+public Action StopDizzy(Handle:event, const char name[], bool:dontBroadcast)
 {
     new index = GetClientOfUserId(GetEventInt(event, "userid"));
     
     bDizzy[index] = false;
 }
 
-public Action:Dizzy(Handle:timer)
+public Action Dizzy(Handle:timer)
 {
-    new Float:vecPunch[3];
+    float vecPunch[3];
     
     new maxplayers = GetMaxClients();
     for (new x = 1; x <= maxplayers; x++)

@@ -42,44 +42,44 @@
 #include "effect/HaloSprite"
 #include "effect/SendEffects"
 
-//new const String:healWav[]    = "sc/tmedheal.wav";
-new const String:restWav[]      = "sc/tmedrest.mp3";
-new const String:flareWav[]     = "sc/tmedflsh.mp3";
+//char healWav[]    = "sc/tmedheal.wav";
+char restWav[]      = "sc/tmedrest.mp3";
+char flareWav[]     = "sc/tmedflsh.mp3";
 
-new const String:g_ArmorName[]  = "Armor";
-new Float:g_InitialArmor[]      = { 0.0, 0.10, 0.20, 0.30, 0.40 };
-new Float:g_ArmorPercent[][2]   = { {0.00, 0.00},
+char g_ArmorName[]  = "Armor";
+float g_InitialArmor[]      = { 0.0, 0.10, 0.20, 0.30, 0.40 };
+float g_ArmorPercent[][2]   = { {0.00, 0.00},
                                    {0.00, 0.10},
                                    {0.00, 0.30},
                                    {0.10, 0.40},
                                    {0.20, 0.50} };
 
-new g_JetpackFuel[]             = { 0, 40, 50, 70, 90 };
-new Float:g_JetpackRefuelTime[] = { 0.0, 45.0, 35.0, 25.0, 15.0 };
+int g_JetpackFuel[]             = { 0, 40, 50, 70, 90 };
+float g_JetpackRefuelTime[] = { 0.0, 45.0, 35.0, 25.0, 15.0 };
 
-new Float:g_BunkerPercent[]     = { 0.00, 0.10, 0.20, 0.30, 0.40 };
+float g_BunkerPercent[]     = { 0.00, 0.10, 0.20, 0.30, 0.40 };
 
-new Float:g_FlareRange[]        = { 0.0, 150.0, 300.0, 450.0, 600.0 };
+float g_FlareRange[]        = { 0.0, 150.0, 300.0, 450.0, 600.0 };
 
-new g_MedipackCharge[]          = { 0, 0, 10, 25, 50 };
+int g_MedipackCharge[]          = { 0, 0, 10, 25, 50 };
 
-new g_RegenerationAmount[]      = { 0, 1, 2, 3, 4 };
+int g_RegenerationAmount[]      = { 0, 1, 2, 3, 4 };
 
-new g_HealingAmount[]           = { 0, 1, 2, 3, 4 };
-new Float:g_HealingRange[]      = { 0.0, 150.0, 300.0, 450.0, 600.0 };
+int g_HealingAmount[]           = { 0, 1, 2, 3, 4 };
+float g_HealingRange[]      = { 0.0, 150.0, 300.0, 450.0, 600.0 };
 
-new Float:g_RestoreRange[]      = { 0.0, 150.0, 300.0, 450.0, 600.0 };
+float g_RestoreRange[]      = { 0.0, 150.0, 300.0, 450.0, 600.0 };
 
-new g_MedicHeal[]               = { 35,  45,  50,  55,   60   };
-new g_MedicNades[]              = { 0,   1,   2,   2,    2    };
-new g_MedicWeapon[]             = { 0,   0,   0,   1,    1    };
-new Float:g_MedicSpeed[]        = { 1.0, 1.1, 1.1, 1.15, 1.15 };
-new Float:g_MedicWeight[]       = { 1.0, 1.0, 1.1, 1.1,  1.15 };
+int g_MedicHeal[]               = { 35,  45,  50,  55,   60   };
+int g_MedicNades[]              = { 0,   1,   2,   2,    2    };
+int g_MedicWeapon[]             = { 0,   0,   0,   1,    1    };
+float g_MedicSpeed[]        = { 1.0, 1.1, 1.1, 1.15, 1.15 };
+float g_MedicWeight[]       = { 1.0, 1.0, 1.1, 1.1,  1.15 };
 
-new raceID, regenerationID, healingID, chargeID, armorID, medipackID, infectID;
-new restoreID, flareID, jetpackID, combatID, medicID, bunkerID;
+int raceID, regenerationID, healingID, chargeID, armorID, medipackID, infectID;
+int restoreID, flareID, jetpackID, combatID, medicID, bunkerID;
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Terran Medic",
     author = "-=|JFH|=-Naris",
@@ -209,7 +209,7 @@ public OnSourceCraftReady()
 
     for (new level=0; level < sizeof(g_ArmorPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "armor_percent_level_%d", level);
         GetConfigFloatArray(key, g_ArmorPercent[level], sizeof(g_ArmorPercent[]),
                             g_ArmorPercent[level], raceID, armorID);
@@ -323,7 +323,7 @@ public OnClientDisconnect(client)
     KillClientTimer(client);
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -355,7 +355,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
         return Plugin_Continue;
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
@@ -656,7 +656,7 @@ public PlayerSpawnEvent(Handle:event,const String:name[],bool:dontBroadcast)
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     if (!from_sc && attacker_index > 0 &&
@@ -687,7 +687,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
 }
 
 
-public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
+public Action OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
                                   assister_index, assister_race, damage,
                                   absorbed)
 {
@@ -728,7 +728,7 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
     SetImmunity(victim_index,Immunity_Restore, false); // Also Make sure Restore goes away!
 }
 
-public Action:OnInfected(victim,infector,source,bool:infected,const color[4])
+public Action OnInfected(victim,infector,source,bool:infected,const color[4])
 {
     if (infected && (IsInvulnerable(victim) ||
         GetImmunity(victim,Immunity_HealthTaking) ||
@@ -753,7 +753,7 @@ public Action:OnInfected(victim,infector,source,bool:infected,const color[4])
     return Plugin_Continue;
 }
 
-public Action:OnInfectionHurt(victim,infector,&amount)
+public Action OnInfectionHurt(victim,infector,&amount)
 {
     if (IsInvulnerable(victim) ||
         GetImmunity(victim,Immunity_HealthTaking) ||
@@ -766,7 +766,7 @@ public Action:OnInfectionHurt(victim,infector,&amount)
         return Plugin_Continue;
 }
 
-public Action:ResetRestore(Handle:timer,any:userid)
+public Action ResetRestore(Handle:timer,any:userid)
 {
     new client = GetClientOfUserId(userid);
     if (client > 0 && GetImmunity(client,Immunity_Restore))
@@ -778,7 +778,7 @@ public Action:ResetRestore(Handle:timer,any:userid)
     return Plugin_Stop;
 }
 
-public Action:OnMedicHealed(client, patient, amount)
+public Action OnMedicHealed(client, patient, amount)
 {
     if (GetRace(client) == raceID)
     {
@@ -800,7 +800,7 @@ public Action:OnMedicHealed(client, patient, amount)
     }
 }
 
-public Action:Healing(Handle:timer, any:userid)
+public Action Healing(Handle:timer, any:userid)
 {
     new client = GetClientOfUserId(userid);
     if (IsValidClientAlive(client))
@@ -820,14 +820,14 @@ public Action:Healing(Handle:timer, any:userid)
                 static const restoreColor[4] = { 64, 245, 208, 255 };
                 static const healingColor[4] = { 0, 255, 0, 255 };
 
-                new Float:distance;
-                new Float:indexLoc[3];
-                new Float:clientLoc[3];
+                float distance;
+                float indexLoc[3];
+                float clientLoc[3];
                 GetClientAbsOrigin(client, clientLoc);
                 clientLoc[2] += 50.0; // Adjust trace position to the middle of the person instead of the feet.
 
-                new Float:restore_range = g_RestoreRange[restore_level];
-                new Float:healing_range = g_HealingRange[healing_aura_level];
+                float restore_range = g_RestoreRange[restore_level];
+                float healing_range = g_HealingRange[healing_aura_level];
                 new healing_amount = g_HealingAmount[healing_aura_level];
 
                 new count=0;
@@ -958,7 +958,7 @@ Jetpack(client, bool:pressed)
     }
     else if (pressed)
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, jetpackID, upgradeName, sizeof(upgradeName), client);
         PrintHintText(client,"%t", "IsNotAvailable", upgradeName);
     }
@@ -1010,7 +1010,7 @@ SetupMedicClass(client, medic_level, combat_level)
 {
     if (m_MedicClassAvailable)
     {
-        new bool:all_weapons = (combat_level >= 4);
+        bool all_weapons = (combat_level >= 4);
 
         AssignMedic(client, all_weapons, all_weapons, g_MedicSpeed[medic_level],
                     g_MedicWeight[medic_level], .heal=g_MedicHeal[medic_level],
@@ -1045,7 +1045,7 @@ Restore(client,restore_level)
     if (GetRestriction(client,Restriction_NoUltimates) ||
         GetRestriction(client,Restriction_Stunned))
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, restoreID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
         PrepareAndEmitSoundToClient(client,deniedWav);
@@ -1061,7 +1061,7 @@ Restore(client,restore_level)
 
         SetImmunity(client, Immunity_Restore, true);
 
-        new Float:time = 2.0 * float(restore_level);
+        float time = 2.0 * float(restore_level);
         CreateTimer(time,ResetRestore,GetClientUserId(client),TIMER_FLAG_NO_MAPCHANGE);
         PrintHintText(client, "%t", "RestoreActive", time);
         HudMessage(client, "%t", "RestoreHud");
@@ -1073,7 +1073,7 @@ OpticFlare(client,ultlevel)
     if (GetRestriction(client,Restriction_NoUltimates) ||
         GetRestriction(client,Restriction_Stunned))
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, flareID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
         PrepareAndEmitSoundToClient(client,deniedWav);
@@ -1086,14 +1086,14 @@ OpticFlare(client,ultlevel)
                 TF2_RemovePlayerDisguise(client);
         }
 
-        new Float:clientLoc[3];
+        float clientLoc[3];
         GetClientAbsOrigin(client, clientLoc);
         clientLoc[2] += 50.0; // Adjust trace position to the middle of the person instead of the feet.
 
         new count=0;
         new duration = ultlevel*100;
         new team = GetClientTeam(client);
-        new Float:range = g_FlareRange[ultlevel];
+        float range = g_FlareRange[ultlevel];
         for(new index=1;index<=MaxClients;index++)
         {
             if (client != index && IsClientInGame(index) &&
@@ -1104,7 +1104,7 @@ OpticFlare(client,ultlevel)
                     !GetImmunity(index,Immunity_Blindness) &&
                     !GetImmunity(index,Immunity_Restore))
                 {
-                    new Float:indexLoc[3];
+                    float indexLoc[3];
                     GetClientAbsOrigin(index, indexLoc);
                     if (IsPointInRange(clientLoc, indexLoc, range) &&
                         TraceTargetIndex(client, index, clientLoc, indexLoc))
@@ -1117,7 +1117,7 @@ OpticFlare(client,ultlevel)
             }
         }
         
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, flareID, upgradeName, sizeof(upgradeName), client);
 
         if (count)

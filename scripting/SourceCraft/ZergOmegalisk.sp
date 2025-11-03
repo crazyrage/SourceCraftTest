@@ -44,30 +44,30 @@
 #include "effect/HaloSprite"
 #include "effect/SendEffects"
 
-new const String:g_KaiserBladesSound[] = "sc/zulhit01.wav";
+char g_KaiserBladesSound[] = "sc/zulhit01.wav";
 
-new raceID, regenerationID, healingID, carapaceID, burrowID;
-new meleeID, nodeID, tentacleID, ultraliskID;
+int raceID, regenerationID, healingID, carapaceID, burrowID;
+int meleeID, nodeID, tentacleID, ultraliskID;
 
-new const String:g_ArmorName[]      = "Carapace";
-new Float:g_InitialArmor[]          = { 0.0, 0.10, 0.20, 0.30, 0.40 };
-new Float:g_ArmorPercent[][2]       = { {0.00, 0.00},
+char g_ArmorName[]      = "Carapace";
+float g_InitialArmor[]          = { 0.0, 0.10, 0.20, 0.30, 0.40 };
+float g_ArmorPercent[][2]       = { {0.00, 0.00},
                                         {0.00, 0.10},
                                         {0.00, 0.30},
                                         {0.10, 0.40},
                                         {0.20, 0.50} };
 
-new Float:g_KaiserBladesPercent[]   = { 0.0, 0.15, 0.30, 0.40, 0.50 };
+float g_KaiserBladesPercent[]   = { 0.0, 0.15, 0.30, 0.40, 0.50 };
 
-new g_HealingAmount[]               = { 0, 1, 2, 3, 4 };
-new Float:g_HealingRange[]          = { 0.0, 300.0, 450.0, 650.0, 800.0 };
+int g_HealingAmount[]               = { 0, 1, 2, 3, 4 };
+float g_HealingRange[]          = { 0.0, 300.0, 450.0, 650.0, 800.0 };
 
-new Float:g_TentacleRange[]         = { 0.0, 500.0, 1000.0, 1500.0, 2000.0 };
-new g_TentacleDuration[]            = { 0, 10, 30, 50, 200 };
+float g_TentacleRange[]         = { 0.0, 500.0, 1000.0, 1500.0, 2000.0 };
+int g_TentacleDuration[]            = { 0, 10, 30, 50, 200 };
 
-new g_ultraliskRace = -1;
+int g_ultraliskRace = -1;
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Unit - Zerg Omegalisk",
     author = "-=|JFH|=-Naris",
@@ -122,7 +122,7 @@ public OnSourceCraftReady()
 
     for (new level=0; level < sizeof(g_ArmorPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "armor_percent_level_%d", level);
         GetConfigFloatArray(key, g_ArmorPercent[level], sizeof(g_ArmorPercent[]),
                             g_ArmorPercent[level], raceID, carapaceID);
@@ -180,7 +180,7 @@ public OnClientDisconnect(client)
     KillClientTimer(client);
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -207,7 +207,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
     }
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
@@ -311,7 +311,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                         if (GetRestriction(client, Restriction_NoUltimates) ||
                             GetRestriction(client, Restriction_Stunned))
                         {
-                            decl String:upgradeName[64];
+                            char upgradeName[64];
                             GetUpgradeName(raceID, tentacleID, upgradeName, sizeof(upgradeName), client);
                             DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
                             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -329,7 +329,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                 }
                 else if (pressed)
                 {
-                    decl String:upgradeName[64];
+                    char upgradeName[64];
                     GetUpgradeName(raceID, tentacleID, upgradeName, sizeof(upgradeName), client);
                     PrintHintText(client,"%t", "IsNotAvailable", upgradeName);
                 }
@@ -363,7 +363,7 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     if (attacker_index && attacker_index != victim_index &&
@@ -403,7 +403,7 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
     }
 }
 
-public Action:OnGrabPlayer(client, target)
+public Action OnGrabPlayer(client, target)
 {
     TraceInto("ZergOnegalisk", "OnGrabPlayer", "client=%d:%N, client=%d:%N", \
               client, ValidClientIndex(client), target, ValidClientIndex(target));
@@ -429,7 +429,7 @@ public Action:OnGrabPlayer(client, target)
     else if (GetRestriction(client,Restriction_NoUltimates) ||
              GetRestriction(client,Restriction_Stunned))
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, tentacleID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
         PrepareAndEmitSoundToClient(client,deniedWav);
@@ -481,7 +481,7 @@ public Action:OnGrabPlayer(client, target)
             else if (TF2_HasTheFlag(target))
             {
                 // Don't let flag carrier get grabbed to prevent crashes.
-                decl String:upgradeName[64];
+                char upgradeName[64];
                 GetUpgradeName(raceID, tentacleID, upgradeName, sizeof(upgradeName), client);
                 DisplayMessage(client, Display_Ultimate, "%t", "CantUseOnFlagCarrier", upgradeName);
                 PrepareAndEmitSoundToClient(client,deniedWav);
@@ -504,7 +504,7 @@ public Action:OnGrabPlayer(client, target)
     }
 }
 
-public Action:OnDragPlayer(client, target)
+public Action OnDragPlayer(client, target)
 {
     TraceInto("ZergOnegalisk", "OnDragPlayer", "client=%d:%N, client=%d:%N", \
               client, ValidClientIndex(client), target, ValidClientIndex(target));
@@ -515,7 +515,7 @@ public Action:OnDragPlayer(client, target)
         if (GetRestriction(client,Restriction_NoUltimates) ||
             GetRestriction(client,Restriction_Stunned))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, tentacleID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -574,7 +574,7 @@ public Action:OnDragPlayer(client, target)
     }
 }
 
-public Action:OnDropPlayer(client, target)
+public Action OnDropPlayer(client, target)
 {
     if (client > 0 && GetRace(client) == raceID)
     {
@@ -598,7 +598,7 @@ public SetupTentacle(client, level)
     }
 }
 
-public Action:Regeneration(Handle:timer, any:userid)
+public Action Regeneration(Handle:timer, any:userid)
 {
     new client = GetClientOfUserId(userid);
     if (IsValidClientAlive(client) && GetRace(client) == raceID &&
@@ -613,8 +613,8 @@ public Action:Regeneration(Handle:timer, any:userid)
         if (healing_aura_level > 0)
         {
             static const healingColor[4] = {0, 255, 0, 255};
-            new Float:indexLoc[3];
-            new Float:clientLoc[3];
+            float indexLoc[3];
+            float clientLoc[3];
             GetClientAbsOrigin(client, clientLoc);
             clientLoc[2] += 50.0; // Adjust trace position to the middle of the person instead of the feet.
 
@@ -624,7 +624,7 @@ public Action:Regeneration(Handle:timer, any:userid)
             new alt_list[MaxClients+1];
             new team = GetClientTeam(client);
             new auraAmount = g_HealingAmount[healing_aura_level]; // healing_aura_level*5;
-            new Float:range=g_HealingRange[healing_aura_level];
+            float range=g_HealingRange[healing_aura_level];
             for (new index=1;index<=MaxClients;index++)
             {
                 if (index != client && IsClientInGame(index) &&
@@ -684,7 +684,7 @@ EvolveUltralisk(client)
 
     if (g_ultraliskRace < 0)
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, ultraliskID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "IsNotAvailable", upgradeName);
         LogError("***The Zerg Ultralisk race is not Available!");
@@ -698,7 +698,7 @@ EvolveUltralisk(client)
     }
     else if (HasCooldownExpired(client, raceID, ultraliskID))
     {
-        new Float:clientLoc[3];
+        float clientLoc[3];
         GetClientAbsOrigin(client, clientLoc);
         clientLoc[2] += 40.0; // Adjust position to the middle
 

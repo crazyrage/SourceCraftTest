@@ -21,7 +21,7 @@ public __pl_serverredir_SetNTVOptional()
 	MarkNativeAsOptional("LoadServerRedirectListFiltered");
 }
 
-functag OnRedirectServersLoaded public(serverCount, const String:error[], Handle:serverList, any:data);
+functag OnRedirectServersLoaded public(serverCount, const char error[], Handle:serverList, any:data);
  
 /**
  * Adds two numbers together.

@@ -56,7 +56,7 @@ stock CreateHealthTimer(client)
 
 stock KillHealthTimer(client)
 {
-    new Handle:timer=g_HealthTimers[client];
+    Handle timer=g_HealthTimers[client];
     if (timer != INVALID_HANDLE)
     {
         KillTimer(timer);

@@ -13,10 +13,10 @@
 #include <tf2_stocks>
 #include "weapons"
 
-stock const String:TF2_TeamName[/*TFTeam*/][] = { "Unassigned", "Spectator", "Red", "Blue" };
+stock const char TF2_TeamName[/*TFTeam*/][] = { "Unassigned", "Spectator", "Red", "Blue" };
 #define TF2_GetTeamName(%1) TF2_TeamName[%1]
 
-stock const String:TF2_ClassName[/*TFClassType*/][] = {"", "Scout", "Sniper", "Soldier", "Demoman", "Medic",
+stock const char TF2_ClassName[/*TFClassType*/][] = {"", "Scout", "Sniper", "Soldier", "Demoman", "Medic",
                                         "Heavy", "Pyro", "Spy", "Engineer" };
 #define TF2_GetClassName(%1) TF2_ClassName[%1]
 
@@ -84,7 +84,7 @@ stock const Float:TF2_ClassSpeed[/*TFClassType*/] = { 0.0, 400.0, 300.0, 240.0, 
  */
 stock Float:TF2_GetPlayerSpeed(client)
 {
-    new Float:speed;
+    float speed;
     new TFClassType:class = TF2_GetPlayerClass(client);
     switch (class)
     {
@@ -349,7 +349,7 @@ stock TF2_GetPlayerConditionString(client, String:condStr[], condStrLen, &pcond=
     
     //                        00000000001111111111222222222233333333334
     //                        01234567890123456789012345678901234567890
-    new String:condFlags[] = "                                        ";
+    char condFlags[] = "                                        ";
     if (TF2_IsPlayerSlowed(client))
         condFlags[0]  = 'S';
     if (TF2_IsPlayerZoomed(client))

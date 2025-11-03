@@ -18,7 +18,7 @@
  * @param model     Model to use for the eyeboss, empty string uses TF2 model
  * @return			Returns 0 if a Monoculus was spawned successfully.
  */
-native TF2_SpawnMonoculus(client, level=0, const String:model[]="");
+native TF2_SpawnMonoculus(client, level=0, const char model[]="");
 
 /**
  * Changes the client's model to the EyeBoss model
@@ -27,7 +27,7 @@ native TF2_SpawnMonoculus(client, level=0, const String:model[]="");
  * @param model     Model to use for the eyeboss, empty string uses TF2 model
  * @return			Returns 0 if the client's model was changed to the eyeboss model
  *                  Returns 1 if the client's model was changes back to normal
-native TF2_SummonMonoculus(client, const String:model[]="");
+native TF2_SummonMonoculus(client, const char model[]="");
  */
 
 /**

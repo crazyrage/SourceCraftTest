@@ -22,7 +22,7 @@ bool:Feedback(race, upgrade, level, damage, absorbed, victim_index, attacker_ind
         // Feedback is invoked by the victim!
         if (CanInvokeUpgrade(victim_index, race, upgrade, .notify=false))
         {
-            new Float:percent = GetRandomFloat(feedbackPercent[level][0],
+            float percent = GetRandomFloat(feedbackPercent[level][0],
                                                feedbackPercent[level][1]);
 
             new dmgamt=RoundToNearest(float(damage+absorbed)*percent);
@@ -45,7 +45,7 @@ bool:Feedback(race, upgrade, level, damage, absorbed, victim_index, attacker_ind
                 !GetImmunity(attacker_index,Immunity_Upgrades) &&
                 !IsInvulnerable(attacker_index))
             {
-                new Float:Origin[3];
+                float Origin[3];
                 GetClientAbsOrigin(attacker_index, Origin);
                 Origin[2] += 5;
 

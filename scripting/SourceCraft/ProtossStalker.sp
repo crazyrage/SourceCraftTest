@@ -35,34 +35,34 @@
 #include "effect/HaloSprite"
 #include "effect/SendEffects"
 
-new const String:spawnWav[]             = "sc/pdrwht07.wav";
-new const String:deathWav[]             = "sc/pdrdth00.wav";
-new const String:teleportWav[]          = "sc/ptemov00.wav";
+char spawnWav[]             = "sc/pdrwht07.wav";
+char deathWav[]             = "sc/pdrdth00.wav";
+char teleportWav[]          = "sc/ptemov00.wav";
 
-new const String:g_MissileAttackSound[] = "sc/pdrfir00.wav";
+char g_MissileAttackSound[] = "sc/pdrfir00.wav";
 
-new raceID, immunityID, speedID, shieldsID;
-new missileID, teleportID,  disrupterID;
+int raceID, immunityID, speedID, shieldsID;
+int missileID, teleportID,  disrupterID;
 
-new g_MissileAttackChance[]             = { 5, 10, 15, 25, 35 };
-new Float:g_MissileAttackPercent[]      = { 0.15, 0.30, 0.40, 0.50, 0.70 };
+int g_MissileAttackChance[]             = { 5, 10, 15, 25, 35 };
+float g_MissileAttackPercent[]      = { 0.15, 0.30, 0.40, 0.50, 0.70 };
 
-new Float:g_TeleportDistance[]          = { 0.0, 300.0, 500.0, 800.0, 1500.0 };
+float g_TeleportDistance[]          = { 0.0, 300.0, 500.0, 800.0, 1500.0 };
 
-new Float:g_SpeedLevels[]               = { 0.80, 0.90, 0.95, 1.00, 1.05 };
+float g_SpeedLevels[]               = { 0.80, 0.90, 0.95, 1.00, 1.05 };
 
-new Float:g_InitialShields[]            = { 0.05, 0.10, 0.25, 0.50, 0.75 };
-new Float:g_ShieldsPercent[][2]         = { {0.05, 0.10},
+float g_InitialShields[]            = { 0.05, 0.10, 0.25, 0.50, 0.75 };
+float g_ShieldsPercent[][2]         = { {0.05, 0.10},
                                             {0.10, 0.20},
                                             {0.15, 0.30},
                                             {0.20, 0.40},
                                             {0.25, 0.50} };
 
-new g_disrupterRace = -1;
+int g_disrupterRace = -1;
 
-new bool:cfgAllowTeleport;
+bool cfgAllowTeleport;
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Protoss Stalker",
     author = "-=|JFH|=-Naris",
@@ -119,7 +119,7 @@ public OnSourceCraftReady()
 
     for (new level=0; level < sizeof(g_ShieldsPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "shields_percent_level_%d", level);
         GetConfigFloatArray(key, g_ShieldsPercent[level], sizeof(g_ShieldsPercent[]),
                             g_ShieldsPercent[level], raceID, shieldsID);
@@ -158,7 +158,7 @@ public OnPlayerAuthed(client)
     ResetTeleport(client);
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -186,7 +186,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
     return Plugin_Continue;
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
@@ -261,7 +261,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                     new blink_level = GetUpgradeLevel(client,race,teleportID);
                     if (blink_level && cfgAllowTeleport)
                     {
-                        new Float:blink_energy=GetUpgradeEnergy(raceID,teleportID) * (5.0-float(blink_level));
+                        float blink_energy=GetUpgradeEnergy(raceID,teleportID) * (5.0-float(blink_level));
                         TeleportCommand(client, race, teleportID, blink_level, blink_energy,
                                         pressed, g_TeleportDistance, teleportWav);
                     }
@@ -272,7 +272,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                 new blink_level = GetUpgradeLevel(client,race,teleportID);
                 if (blink_level && cfgAllowTeleport)
                 {
-                    new Float:blink_energy=GetUpgradeEnergy(raceID,teleportID) * (5.0-float(blink_level));
+                    float blink_energy=GetUpgradeEnergy(raceID,teleportID) * (5.0-float(blink_level));
                     TeleportCommand(client, race, teleportID, blink_level, blink_energy,
                                     pressed, g_TeleportDistance, teleportWav);
                 }
@@ -306,7 +306,7 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     if (!from_sc && attacker_index > 0 &&
@@ -366,7 +366,7 @@ DoImmunity(client, level, bool:value)
 
     if (value && IsValidClientAlive(client))
     {
-        new Float:start[3];
+        float start[3];
         GetClientAbsOrigin(client, start);
 
         static const color[4] = { 0, 255, 50, 128 };
@@ -383,7 +383,7 @@ SummonDisrupter(client)
 
     if (g_disrupterRace < 0)
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, disrupterID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "IsNotAvailable", upgradeName);
         LogError("***The Protoss Disrupter race is not Available!");
@@ -392,14 +392,14 @@ SummonDisrupter(client)
     else if (GetRestriction(client,Restriction_NoUltimates) ||
              GetRestriction(client,Restriction_Stunned))
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, disrupterID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "PreventedFromSummoningReaver");
         PrepareAndEmitSoundToClient(client,deniedWav);
     }
     else if (CanInvokeUpgrade(client, raceID, disrupterID))
     {
-        new Float:clientLoc[3];
+        float clientLoc[3];
         GetClientAbsOrigin(client, clientLoc);
         clientLoc[2] += 40.0; // Adjust position to the middle
 

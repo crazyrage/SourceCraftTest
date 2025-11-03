@@ -18,9 +18,9 @@ stock ShowShieldParticle(client)
     new armor = GetArmor(client);
     if (armor > 25)
     {
-        new Float:pos[3];
+        float pos[3];
         pos[2] = 70.0;
-        new Float:ang[3];
+        float ang[3];
         ang[2] = 180.0;
 
         new team = GetClientTeam(client);

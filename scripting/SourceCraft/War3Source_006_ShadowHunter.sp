@@ -8,53 +8,53 @@
 #include <sdktools_tempents>
 #include <sdktools_tempents_stocks>
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "War3Source - Race - Shadow Hunter",
     author = "War3Source Team",
     description = "The Shadow Hunter race for War3Source."
 };
 
-new thisRaceID;
+int thisRaceID;
 
-new SKILL_HEALINGWAVE, SKILL_HEX, SKILL_WARD, ULT_VOODOO;
+int SKILL_HEALINGWAVE, SKILL_HEX, SKILL_WARD, ULT_VOODOO;
 
 //skill 1
-new Float:HealingWaveAmountArr[]={0.0,1.0,2.0,3.0,4.0};
-new Float:HealingWaveDistance=500.0;
-new ParticleEffect[MAXPLAYERSCUSTOM][MAXPLAYERSCUSTOM]; // ParticleEffect[Source][Destination]
+float HealingWaveAmountArr[]={0.0,1.0,2.0,3.0,4.0};
+float HealingWaveDistance=500.0;
+int ParticleEffect[MAXPLAYERSCUSTOM][MAXPLAYERSCUSTOM]; // ParticleEffect[Source][Destination]
 
 //skill 2
-new Float:HexChanceArr[]={0.00,0.025,0.05,0.075,0.100};
+float HexChanceArr[]={0.00,0.025,0.05,0.075,0.100};
 
 //skill 3
-new MaximumWards[]={0,1,2,3,4}; 
-new WardDamage[]={0,1,2,3,4};
+int MaximumWards[]={0,1,2,3,4}; 
+int WardDamage[]={0,1,2,3,4};
 
-new Float:LastThunderClap[MAXPLAYERSCUSTOM];
+float LastThunderClap[MAXPLAYERSCUSTOM];
 
 //ultimate
 #if !defined SOURCECRAFT
-new Handle:ultCooldownCvar;
+Handle ultCooldownCvar;
 #endif
 
-new Float:UltimateDuration[]={0.0,0.66,1.0,1.33,1.66}; ///big bad voodoo duration
+float UltimateDuration[]={0.0,0.66,1.0,1.33,1.66}; ///big bad voodoo duration
 
 
 
-new bool:bVoodoo[65];
+bool bVoodoo[65];
 
-//new String:ultimateSound[]="war3source/divineshield.wav";
-//new String:wardDamageSound[]="war3source/thunder_clap.wav";
+//char ultimateSound[]="war3source/divineshield.wav";
+//char wardDamageSound[]="war3source/thunder_clap.wav";
 
-new String:ultimateSound[256]; //="war3source/divineshield.mp3";
-new String:wardDamageSound[256]; //="war3source/thunder_clap.mp3";
-
-
-new bool:particled[MAXPLAYERSCUSTOM]; //heal particle
+char ultimateSound[256]; //="war3source/divineshield.mp3";
+char wardDamageSound[256]; //="war3source/thunder_clap.mp3";
 
 
-new AuraID;
+bool particled[MAXPLAYERSCUSTOM]; //heal particle
+
+
+int AuraID;
 
 public OnPluginStart()
 {
@@ -176,9 +176,9 @@ public OnUltimateCommand(client,race,bool:pressed)
                 W3SetPlayerColor(client,thisRaceID,255,200,0,_,GLOW_ULTIMATE); //255,200,0);
                 CreateTimer(UltimateDuration[ult_level],EndVoodoo,client);
 #if defined SOURCECRAFT
-                new Float:cooldown= GetUpgradeCooldown(thisRaceID,ULT_VOODOO);
+                float cooldown= GetUpgradeCooldown(thisRaceID,ULT_VOODOO);
 #else
-                new Float:cooldown=    GetConVarFloat(ultCooldownCvar);
+                float cooldown=    GetConVarFloat(ultCooldownCvar);
 #endif
                 War3_CooldownMGR(client,cooldown,thisRaceID,ULT_VOODOO,_,_);
                 W3MsgUsingVoodoo(client);
@@ -194,7 +194,7 @@ public OnUltimateCommand(client,race,bool:pressed)
     }
 }
 
-public Action:EndVoodoo(Handle:timer,any:client)
+public Action EndVoodoo(Handle:timer,any:client)
 {
     bVoodoo[client]=false;
     W3ResetPlayerColor(client,thisRaceID);
@@ -218,10 +218,10 @@ public OnAbilityCommand(client,ability,bool:pressed)
                     return;
 #endif
                 new iTeam=GetClientTeam(client);
-                new bool:conf_found=false;
+                bool conf_found=false;
                 if(War3_GetGame()==Game_TF)
                 {
-                    new Handle:hCheckEntities=War3_NearBuilding(client);
+                    Handle hCheckEntities=War3_NearBuilding(client);
                     new size_arr=0;
                     if(hCheckEntities!=INVALID_HANDLE)
                         size_arr=GetArraySize(hCheckEntities);
@@ -250,7 +250,7 @@ public OnAbilityCommand(client,ability,bool:pressed)
                         W3MsgNoWardWhenInvis(client);
                         return;
                     }
-                    new Float:location[3];
+                    float location[3];
                     GetClientAbsOrigin(client, location);
                     War3_CreateWardMod(client, location, 60, 300.0, 0.5, "damage", SKILL_WARD, WardDamage);
                     
@@ -287,7 +287,7 @@ public OnW3TakeDmgAllPre(victim,attacker,Float:damage)
                 if(!W3HasImmunity(attacker,Immunity_Ultimates))
                 {
                     if(War3_GetGame()==Game_TF){
-                        decl Float:pos[3];
+                        float pos[3];
                         GetClientEyePosition(victim, pos);
                         pos[2] += 4.0;
                         War3_TF_ParticleToClient(0, "miss_text", pos); //to the attacker at the enemy pos
@@ -320,7 +320,7 @@ public OnWar3EventDeath(victim, attacker, deathrace)
     StopParticleEffect(victim, false);
 }
 
-public Action:CalcHexHealWaves(Handle:timer,any:userid)
+public Action CalcHexHealWaves(Handle:timer,any:userid)
 {
     if(thisRaceID>0)
     {
@@ -331,7 +331,7 @@ public Action:CalcHexHealWaves(Handle:timer,any:userid)
             {
                 if(War3_GetRace(i)==thisRaceID)
                 {
-                    new bool:value=(GetRandomFloat(0.0,1.0)<=HexChanceArr[War3_GetSkillLevel(i,thisRaceID,SKILL_HEX)]&&!Hexed(i,false));
+                    bool value=(GetRandomFloat(0.0,1.0)<=HexChanceArr[War3_GetSkillLevel(i,thisRaceID,SKILL_HEX)]&&!Hexed(i,false));
 
 #if defined SOURCECRAFT
                     if (value)
@@ -362,8 +362,8 @@ StopParticleEffect(client, bKill)
     {
         for(new i=1; i <= MaxClients; i++)
         {
-            decl String:className[64];
-            decl String:className2[64];
+            char className[64];
+            char className2[64];
                 
             if(IsValidEdict(ParticleEffect[client][i]))
                 GetEdictClassname(ParticleEffect[client][i], className, sizeof(className));

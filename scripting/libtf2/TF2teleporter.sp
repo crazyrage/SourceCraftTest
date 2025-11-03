@@ -10,7 +10,7 @@
 
 #define PL_VERSION "4.0"
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "Teleport Tools",
     author = "Naris,Nican132&kim_perm",
@@ -22,20 +22,20 @@ public Plugin:myinfo =
 #define LIST_OBJECT 0
 #define LIST_TEAM 1
 
-new bool:NativeControl = false;
-new Float:TeleporterTime[ MAXPLAYERS+1 ] = { 0.0, ...};
+bool NativeControl = false;
+float TeleporterTime[ MAXPLAYERS+1 ] = { 0.0, ...};
 
-new TeleporterList[ MAXPLAYERS+1 ][ 2 ];
+int TeleporterList[ MAXPLAYERS+1 ][ 2 ];
 
-new Handle:g_cvarEnabled = INVALID_HANDLE;
-new Handle:g_cvarBlueTime = INVALID_HANDLE;
-new Handle:g_cvarRedTime = INVALID_HANDLE;
-new Handle:g_cvarTime = INVALID_HANDLE;
+Handle g_cvarEnabled = INVALID_HANDLE;
+Handle g_cvarBlueTime = INVALID_HANDLE;
+Handle g_cvarRedTime = INVALID_HANDLE;
+Handle g_cvarTime = INVALID_HANDLE;
 
-new g_Enabled;         // plugin status enabled/disabled
-new Float:g_BlueTime;  // blue team recharge time
-new Float:g_RedTime;   // red team recharge time
-new Float:g_Time;      // global recharge time
+int g_Enabled;         // plugin status enabled/disabled
+float g_BlueTime;  // blue team recharge time
+float g_RedTime;   // red team recharge time
+float g_Time;      // global recharge time
 
 public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
 {
@@ -73,7 +73,7 @@ public OnConfigsExecuted()
     HookConVarChange(g_cvarTime,  TF2ConfigsChanged );
 }
 
-public TF2ConfigsChanged(Handle:convar, const String:oldValue[], const String:newValue[])
+public TF2ConfigsChanged(Handle:convar, const char oldValue[], const char newValue[])
 {
     if (convar == g_cvarTime)
         g_Time = StringToFloat(newValue);
@@ -89,7 +89,7 @@ public TF2ConfigsChanged(Handle:convar, const String:oldValue[], const String:ne
             //plugin change status disabled -> enabled
             //must collect all existing teleports
             new owner;
-            decl String:classname[19];
+            char classname[19];
 
             for (new i = GetMaxClients() + 1; i <= GetMaxEntities(); i++)
             {
@@ -111,7 +111,7 @@ public TF2ConfigsChanged(Handle:convar, const String:oldValue[], const String:ne
     }
 }
 
-public Action:Event_player_builtobject(Handle:event, const String:name[], bool:dontBroadcast)
+public Action Event_player_builtobject(Handle:event, const char name[], bool:dontBroadcast)
 {
     if ( GetEventInt(event, "object") != 1)
         return Plugin_Continue;
@@ -131,7 +131,7 @@ public Action:Event_player_builtobject(Handle:event, const String:name[], bool:d
     return Plugin_Continue;
 }
 
-public Action:event_player_teleported(Handle:event, const String:name[], bool:dontBroadcast)
+public Action event_player_teleported(Handle:event, const char name[], bool:dontBroadcast)
 {
     if(g_Enabled)
     {
@@ -139,7 +139,7 @@ public Action:event_player_teleported(Handle:event, const String:name[], bool:do
         new entity = TeleporterList[owner][ LIST_OBJECT ];
         if(IsValidEntity(entity))
         {
-            new Float:time;
+            float time;
             if (NativeControl)
                 time = TeleporterTime[owner];
             else if( TeleporterList[owner][LIST_TEAM] == 3)

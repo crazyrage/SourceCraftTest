@@ -55,19 +55,19 @@ public Action:CMD_SetXP(client,args)
     {
         TraceInto("Console", "CMD_SetXP");
 
-        decl String:match[MAX_TARGET_LENGTH];
+        char match[MAX_TARGET_LENGTH];
         GetCmdArg(1,match,sizeof(match));
 
-        decl String:buf[32];
+        char buf[32];
         GetCmdArg(2,buf,sizeof(buf));
 
         new xp=StringToInt(buf);
         if (xp<0)
             xp=0;
 
-        new bool:tn_is_ml;
+        bool tn_is_ml;
         new target_list[MAXPLAYERS];
-        new String:target_name[MAX_TARGET_LENGTH];
+        char target_name[MAX_TARGET_LENGTH];
         new count = ProcessTargetString(match, client, target_list, sizeof(target_list),
                                         COMMAND_FILTER_NO_BOTS, target_name,
                                         sizeof(target_name), tn_is_ml);
@@ -103,19 +103,19 @@ public Action:CMD_GiveXP(client,args)
     {
         TraceInto("Console", "CMD_GiveXP");
 
-        decl String:match[MAX_TARGET_LENGTH];
+        char match[MAX_TARGET_LENGTH];
         GetCmdArg(1,match,sizeof(match));
 
-        decl String:buf[32];
+        char buf[32];
         GetCmdArg(2,buf,sizeof(buf));
 
         new xp=StringToInt(buf);
         if (xp<0)
             xp=0;
 
-        new bool:tn_is_ml;
+        bool tn_is_ml;
         new target_list[MAXPLAYERS];
-        new String:target_name[MAX_TARGET_LENGTH];
+        char target_name[MAX_TARGET_LENGTH];
         new count = ProcessTargetString(match, client, target_list, sizeof(target_list),
                                         COMMAND_FILTER_NO_BOTS, target_name,
                                         sizeof(target_name), tn_is_ml);
@@ -151,19 +151,19 @@ public Action:CMD_RemoveXP(client,args)
     {
         TraceInto("Console", "CMD_RemoveXP");
 
-        decl String:match[MAX_TARGET_LENGTH];
+        char match[MAX_TARGET_LENGTH];
         GetCmdArg(1,match,sizeof(match));
 
-        decl String:buf[32];
+        char buf[32];
         GetCmdArg(2,buf,sizeof(buf));
 
         new xp=StringToInt(buf);
         if (xp<0)
             xp=0;
 
-        new bool:tn_is_ml;
+        bool tn_is_ml;
         new target_list[MAXPLAYERS];
-        new String:target_name[MAX_TARGET_LENGTH];
+        char target_name[MAX_TARGET_LENGTH];
         new count = ProcessTargetString(match, client, target_list, sizeof(target_list),
                                         COMMAND_FILTER_NO_BOTS, target_name,
                                         sizeof(target_name), tn_is_ml);
@@ -202,19 +202,19 @@ public Action:CMD_SetLevel(client,args)
     {
         TraceInto("Console", "CMD_SetLevel");
 
-        decl String:match[MAX_TARGET_LENGTH];
+        char match[MAX_TARGET_LENGTH];
         GetCmdArg(1,match,sizeof(match));
 
-        decl String:buf[32];
+        char buf[32];
         GetCmdArg(2,buf,sizeof(buf));
 
         new level=StringToInt(buf);
         if (level<0)
             level=0;
 
-        new bool:tn_is_ml;
+        bool tn_is_ml;
         new target_list[MAXPLAYERS];
-        new String:target_name[MAX_TARGET_LENGTH];
+        char target_name[MAX_TARGET_LENGTH];
         new count = ProcessTargetString(match, client, target_list, sizeof(target_list),
                                         COMMAND_FILTER_NO_BOTS, target_name,
                                         sizeof(target_name), tn_is_ml);
@@ -256,12 +256,12 @@ public Action:CMD_GiveLevel(client,args)
     {
         TraceInto("Console", "CMD_GiveLevel");
 
-        decl String:match[MAX_TARGET_LENGTH];
+        char match[MAX_TARGET_LENGTH];
         GetCmdArg(1,match,sizeof(match));
 
-        new bool:tn_is_ml;
+        bool tn_is_ml;
         new target_list[MAXPLAYERS];
-        new String:target_name[MAX_TARGET_LENGTH];
+        char target_name[MAX_TARGET_LENGTH];
         new count = ProcessTargetString(match, client, target_list, sizeof(target_list),
                                         COMMAND_FILTER_NO_BOTS, target_name,
                                         sizeof(target_name), tn_is_ml);
@@ -303,12 +303,12 @@ public Action:CMD_RemoveLevel(client,args)
     {
         TraceInto("Console", "CMD_RemoveLevel");
 
-        decl String:match[MAX_TARGET_LENGTH];
+        char match[MAX_TARGET_LENGTH];
         GetCmdArg(1,match,sizeof(match));
 
-        new bool:tn_is_ml;
+        bool tn_is_ml;
         new target_list[MAXPLAYERS];
-        new String:target_name[MAX_TARGET_LENGTH];
+        char target_name[MAX_TARGET_LENGTH];
         new count = ProcessTargetString(match, client, target_list, sizeof(target_list),
                                         COMMAND_FILTER_NO_BOTS, target_name,
                                         sizeof(target_name), tn_is_ml);
@@ -350,10 +350,10 @@ public Action:CMD_SetCrystals(client,args)
     {
         TraceInto("Console", "CMD_SetCrystals");
 
-        decl String:match[MAX_TARGET_LENGTH];
+        char match[MAX_TARGET_LENGTH];
         GetCmdArg(1,match,sizeof(match));
 
-        decl String:buf[32];
+        char buf[32];
         GetCmdArg(2,buf,sizeof(buf));
 
         new crystals = StringToInt(buf);
@@ -362,9 +362,9 @@ public Action:CMD_SetCrystals(client,args)
         else if (crystals > g_iMaxCrystals && g_iMaxCrystals > 0)
             crystals = g_iMaxCrystals;
             
-        new bool:tn_is_ml;
+        bool tn_is_ml;
         new target_list[MAXPLAYERS];
-        new String:target_name[MAX_TARGET_LENGTH];
+        char target_name[MAX_TARGET_LENGTH];
         new count = ProcessTargetString(match, client, target_list, sizeof(target_list),
                                         COMMAND_FILTER_NO_BOTS, target_name,
                                         sizeof(target_name), tn_is_ml);
@@ -398,19 +398,19 @@ public Action:CMD_GiveCrystals(client,args)
     {
         TraceInto("Console", "CMD_GiveCrystals");
 
-        decl String:match[MAX_TARGET_LENGTH];
+        char match[MAX_TARGET_LENGTH];
         GetCmdArg(1,match,sizeof(match));
 
-        decl String:buf[32];
+        char buf[32];
         GetCmdArg(2,buf,sizeof(buf));
 
         new crystals=StringToInt(buf);
         if (crystals<0)
             crystals=0;
 
-        new bool:tn_is_ml;
+        bool tn_is_ml;
         new target_list[MAXPLAYERS];
-        new String:target_name[MAX_TARGET_LENGTH];
+        char target_name[MAX_TARGET_LENGTH];
         new count = ProcessTargetString(match, client, target_list, sizeof(target_list),
                                         COMMAND_FILTER_NO_BOTS, target_name,
                                         sizeof(target_name), tn_is_ml);
@@ -450,19 +450,19 @@ public Action:CMD_RemoveCrystals(client,args)
     {
         TraceInto("Console", "CMD_RemoveCrystals");
 
-        decl String:match[MAX_TARGET_LENGTH];
+        char match[MAX_TARGET_LENGTH];
         GetCmdArg(1,match,sizeof(match));
 
-        decl String:buf[32];
+        char buf[32];
         GetCmdArg(2,buf,sizeof(buf));
 
         new crystals=StringToInt(buf);
         if (crystals<0)
             crystals=0;
 
-        new bool:tn_is_ml;
+        bool tn_is_ml;
         new target_list[MAXPLAYERS];
-        new String:target_name[MAX_TARGET_LENGTH];
+        char target_name[MAX_TARGET_LENGTH];
         new count = ProcessTargetString(match, client, target_list, sizeof(target_list),
                                         COMMAND_FILTER_NO_BOTS, target_name,
                                         sizeof(target_name), tn_is_ml);
@@ -502,10 +502,10 @@ public Action:CMD_SetVespene(client,args)
     {
         TraceInto("Console", "CMD_SetVespene");
 
-        decl String:match[MAX_TARGET_LENGTH];
+        char match[MAX_TARGET_LENGTH];
         GetCmdArg(1,match,sizeof(match));
 
-        decl String:buf[32];
+        char buf[32];
         GetCmdArg(2,buf,sizeof(buf));
 
         new vespene = StringToInt(buf);
@@ -514,9 +514,9 @@ public Action:CMD_SetVespene(client,args)
         else if (vespene > g_iMaxVespene && g_iMaxVespene > 0)
             vespene = g_iMaxVespene;
 
-        new bool:tn_is_ml;
+        bool tn_is_ml;
         new target_list[MAXPLAYERS];
-        new String:target_name[MAX_TARGET_LENGTH];
+        char target_name[MAX_TARGET_LENGTH];
         new count = ProcessTargetString(match, client, target_list, sizeof(target_list),
                                         COMMAND_FILTER_NO_BOTS, target_name,
                                         sizeof(target_name), tn_is_ml);
@@ -550,19 +550,19 @@ public Action:CMD_GiveVespene(client,args)
     {
         TraceInto("Console", "CMD_GiveVespene");
 
-        decl String:match[MAX_TARGET_LENGTH];
+        char match[MAX_TARGET_LENGTH];
         GetCmdArg(1,match,sizeof(match));
 
-        decl String:buf[32];
+        char buf[32];
         GetCmdArg(2,buf,sizeof(buf));
 
         new amount=StringToInt(buf);
         if (amount<0)
             amount=0;
 
-        new bool:tn_is_ml;
+        bool tn_is_ml;
         new target_list[MAXPLAYERS];
-        new String:target_name[MAX_TARGET_LENGTH];
+        char target_name[MAX_TARGET_LENGTH];
         new count = ProcessTargetString(match, client, target_list, sizeof(target_list),
                                         COMMAND_FILTER_NO_BOTS, target_name,
                                         sizeof(target_name), tn_is_ml);
@@ -602,19 +602,19 @@ public Action:CMD_RemoveVespene(client,args)
     {
         TraceInto("Console", "CMD_RemoveVespene");
 
-        decl String:match[MAX_TARGET_LENGTH];
+        char match[MAX_TARGET_LENGTH];
         GetCmdArg(1,match,sizeof(match));
 
-        decl String:buf[32];
+        char buf[32];
         GetCmdArg(2,buf,sizeof(buf));
 
         new amount=StringToInt(buf);
         if (amount<0)
             amount=0;
 
-        new bool:tn_is_ml;
+        bool tn_is_ml;
         new target_list[MAXPLAYERS];
-        new String:target_name[MAX_TARGET_LENGTH];
+        char target_name[MAX_TARGET_LENGTH];
         new count = ProcessTargetString(match, client, target_list, sizeof(target_list),
                                         COMMAND_FILTER_NO_BOTS, target_name,
                                         sizeof(target_name), tn_is_ml);
@@ -654,19 +654,19 @@ public Action:CMD_SetEnergy(client,args)
     {
         TraceInto("Console", "CMD_SetEnergy");
 
-        decl String:match[MAX_TARGET_LENGTH];
+        char match[MAX_TARGET_LENGTH];
         GetCmdArg(1,match,sizeof(match));
 
-        decl String:buf[32];
+        char buf[32];
         GetCmdArg(2,buf,sizeof(buf));
 
-        new Float:energy=StringToFloat(buf);
+        float energy=StringToFloat(buf);
         if (energy<0.0)
             energy=0.0;
 
-        new bool:tn_is_ml;
+        bool tn_is_ml;
         new target_list[MAXPLAYERS];
-        new String:target_name[MAX_TARGET_LENGTH];
+        char target_name[MAX_TARGET_LENGTH];
         new count = ProcessTargetString(match, client, target_list, sizeof(target_list),
                                         COMMAND_FILTER_NO_BOTS, target_name,
                                         sizeof(target_name), tn_is_ml);
@@ -700,19 +700,19 @@ public Action:CMD_GiveEnergy(client,args)
     {
         TraceInto("Console", "CMD_GiveEnergy");
 
-        decl String:match[MAX_TARGET_LENGTH];
+        char match[MAX_TARGET_LENGTH];
         GetCmdArg(1,match,sizeof(match));
 
-        decl String:buf[32];
+        char buf[32];
         GetCmdArg(2,buf,sizeof(buf));
 
-        new Float:amount=StringToFloat(buf);
+        float amount=StringToFloat(buf);
         if (amount<0.0)
             amount=0.0;
 
-        new bool:tn_is_ml;
+        bool tn_is_ml;
         new target_list[MAXPLAYERS];
-        new String:target_name[MAX_TARGET_LENGTH];
+        char target_name[MAX_TARGET_LENGTH];
         new count = ProcessTargetString(match, client, target_list, sizeof(target_list),
                                         COMMAND_FILTER_NO_BOTS, target_name,
                                         sizeof(target_name), tn_is_ml);
@@ -746,19 +746,19 @@ public Action:CMD_RemoveEnergy(client,args)
     {
         TraceInto("Console", "CMD_RemoveEnergy");
 
-        decl String:match[MAX_TARGET_LENGTH];
+        char match[MAX_TARGET_LENGTH];
         GetCmdArg(1,match,sizeof(match));
 
-        decl String:buf[32];
+        char buf[32];
         GetCmdArg(2,buf,sizeof(buf));
 
-        new Float:amount=StringToFloat(buf);
+        float amount=StringToFloat(buf);
         if (amount<0.0)
             amount=0.0;
 
-        new bool:tn_is_ml;
+        bool tn_is_ml;
         new target_list[MAXPLAYERS];
-        new String:target_name[MAX_TARGET_LENGTH];
+        char target_name[MAX_TARGET_LENGTH];
         new count = ProcessTargetString(match, client, target_list, sizeof(target_list),
                                         COMMAND_FILTER_NO_BOTS, target_name,
                                         sizeof(target_name), tn_is_ml);
@@ -771,7 +771,7 @@ public Action:CMD_RemoveEnergy(client,args)
                 new index = target_list[x];
                 if (IsValidClient(index))
                 {
-                    new Float:energy = GetEnergy(index)-amount;
+                    float energy = GetEnergy(index)-amount;
                     if (energy < 0.0)
                         energy = 0.0;
 

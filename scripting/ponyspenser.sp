@@ -16,18 +16,18 @@
 //#undef REQUIRE_PLUGIN 
 //#tryinclude <floral_defence>
 
-new PonyRef[ME][MP];
-new LastMusic[ME][MP];
-new Float:nextsong[ME][MP];
-new Float:DispenserPos[ME][3];
-new bool:bIsEnabled[ME];
-new bool:bPony[MP];
+int PonyRef[ME][MP];
+int LastMusic[ME][MP];
+float nextsong[ME][MP];
+float DispenserPos[ME][3];
+bool bIsEnabled[ME];
+bool bPony[MP];
 
-//new bool:FD_Enabled;
+//bool FD_Enabled;
 
-new Handle:OnMusic = INVALID_HANDLE;
+Handle OnMusic = INVALID_HANDLE;
 
-new String:Music[][PLATFORM_MAX_PATH]=
+char Music[][PLATFORM_MAX_PATH]=
 {
 	"ponyspenser\\at_the_gala.mp3",
 	"ponyspenser\\winter_wrap_up.mp3",
@@ -53,11 +53,11 @@ new String:Music[][PLATFORM_MAX_PATH]=
 	"ponyspenser\\find_a_pet.mp3"
 };
 
-new Float:MusicTime[]={199.0,196.0,32.0,67.0,70.0,252.0,43.0,26.0,140.0,39.0,14.0,82.5,48.5,88.0,22.5  , 203.0,112.0,54.0,182.0,202.0};
+float MusicTime[]={199.0,196.0,32.0,67.0,70.0,252.0,43.0,26.0,140.0,39.0,14.0,82.5,48.5,88.0,22.5  , 203.0,112.0,54.0,182.0,202.0};
 
 #define PLUGIN_VERSION "1.5"
 
-public Plugin:myinfo = {
+public Plugin myinfo = {
 	name = "Ponyspenser",
 	author = "RainBolt Dash",
 	description = "Dispenser has pony on screen and Music from My Little Pony FiM in 8-bit style.",
@@ -89,13 +89,13 @@ public OnPluginStart()
 			OnClientPutInServer(client);
 }
 /*
-public OnLibraryAdded(const String:name[])
+public OnLibraryAdded(const char name[])
 {
 	if (!strcmp(name,"floral_defence"))
 		FD_Enabled=true;
 }
 
-public OnLibraryRemoved(const String:name[])
+public OnLibraryRemoved(const char name[])
 {
 	if (!strcmp(name,"floral_defence"))
 		FD_Enabled=false;
@@ -105,7 +105,7 @@ public OnLibraryRemoved(const String:name[])
 public OnMapStart()
 {	
 	decl i;
-	decl String:s[PLATFORM_MAX_PATH];
+	char s[PLATFORM_MAX_PATH];
 	for(i=0;i<=10;i++)
 	{
 		Format(s,PLATFORM_MAX_PATH,"materials\\custom\\ponyspenser0%i.vtf",i);
@@ -150,17 +150,17 @@ public OnClientPutInServer(client)
 	for(new ent=MaxClients+1;ent<ME;ent++)
 		nextsong[ent][client]=0.0;
 		
-	decl String:path[PLATFORM_MAX_PATH];
-	decl String:s[64];
+	char path[PLATFORM_MAX_PATH];
+	char s[64];
 	GetClientAuthString(client, s, 64);
 	BuildPath(Path_SM,path,PLATFORM_MAX_PATH,"configs/ponyspenser_list.cfg");
-	new Handle:kv = CreateKeyValues("ponyspenser_list");
+	Handle kv = CreateKeyValues("ponyspenser_list");
 	FileToKeyValues(kv, path);
 	bPony[client]=bool:KvGetNum(kv,s,0);
 	CloseHandle(kv);
 }
 
-public Action:event_player_spawn(Handle:event, const String:name[], bool:dontBroadcast)
+public Action event_player_spawn(Handle:event, const char name[], bool:dontBroadcast)
 {
 	new client=GetClientOfUserId(GetEventInt(event, "userid"));
 	if (!bPony[client] && TF2_GetPlayerClass(client) == TFClass_Engineer)
@@ -174,7 +174,7 @@ public Action:event_player_spawn(Handle:event, const String:name[], bool:dontBro
 	return Plugin_Continue;
 }
 
-public Action:Timer_RemoveInfo(Handle:hTimer,any:clientid)
+public Action Timer_RemoveInfo(Handle:hTimer,any:clientid)
 {
 	new client=GetClientOfUserId(clientid);
 	if (client)
@@ -182,18 +182,18 @@ public Action:Timer_RemoveInfo(Handle:hTimer,any:clientid)
 	return Plugin_Continue;
 }
 
-public Action:SelectPony(client, Args)
+public Action SelectPony(client, Args)
 {
 	bPony[client]=!bPony[client];
 	if (bPony[client])
 		CPrintToChat(client,"{olive}[SM]{default} Now you will build a ponyspenser!");
 	else
 		CPrintToChat(client,"{olive}[SM]{default} Now you will build a non-pony dispenser!");
-	decl String:path[PLATFORM_MAX_PATH];
-	decl String:s[64];
+	char path[PLATFORM_MAX_PATH];
+	char s[64];
 	GetClientAuthString(client, s, 64);
 	BuildPath(Path_SM,path,PLATFORM_MAX_PATH,"configs/ponyspenser_list.cfg");
-	new Handle:kv = CreateKeyValues("ponyspenser_list");
+	Handle kv = CreateKeyValues("ponyspenser_list");
 	FileToKeyValues(kv, path);
 	if (bPony[client])
 		KvSetNum(kv,s,1);
@@ -204,14 +204,14 @@ public Action:SelectPony(client, Args)
 	return Plugin_Handled;	
 }
 
-public Action:event_build(Handle:event, const String:name[], bool:dontBroadcast)
+public Action event_build(Handle:event, const char name[], bool:dontBroadcast)
 {
 	new ent=GetEventInt(event, "index");
 	new client=GetEntPropEnt(ent, Prop_Send, "m_hBuilder");
 	if (client<1 || !bPony[client])
 		return Plugin_Continue;
 	CreateTimer(0.01, Timer_CheckDisp, ent,TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
-	decl Float:pos[3];
+	float pos[3];
 	GetEntPropVector(ent, Prop_Send, "m_vecOrigin", pos);	
 	DispenserPos[ent][0]=RoundFloat(pos[0])*1.0;
 	DispenserPos[ent][1]=RoundFloat(pos[1])*1.0;
@@ -222,7 +222,7 @@ public Action:event_build(Handle:event, const String:name[], bool:dontBroadcast)
 	return Plugin_Continue;
 }
 
-public Action:event_destroy(Handle:event, const String:name[], bool:dontBroadcast)
+public Action event_destroy(Handle:event, const char name[], bool:dontBroadcast)
 {	
 	new ent=GetEventInt(event, "index");
 	new client=GetEntPropEnt(ent, Prop_Send, "m_hBuilder");
@@ -249,7 +249,7 @@ public Action:event_destroy(Handle:event, const String:name[], bool:dontBroadcas
 	return Plugin_Continue;
 }
 
-public Action:Timer_CheckDisp(Handle:hTimer,any:ent)
+public Action Timer_CheckDisp(Handle:hTimer,any:ent)
 {
 	if (!ZeIsValidEdict(ent,"obj_dispenser") || GetEntProp(ent, Prop_Send, "m_bPlacing"))
 	{
@@ -280,7 +280,7 @@ public Action:Timer_CheckDisp(Handle:hTimer,any:ent)
 						if (IsValidEdict(client))
 						{
 							nextsong[pony2][client]=10.0;
-							new Handle:data;
+							Handle data;
 							CreateDataTimer(0.1, Timer_EnablePony, data);
 							WritePackCell(data, EntIndexToEntRef(pony2));
 							WritePackCell(data, GetClientUserId(client));
@@ -292,15 +292,15 @@ public Action:Timer_CheckDisp(Handle:hTimer,any:ent)
 	}
 	else if (GetEntPropFloat(ent, Prop_Send, "m_flPercentageConstructed")==1.00)
 	{
-		decl Float:pos[3];
-		decl Float:distance;
+		float pos[3];
+		float distance;
 		for(new client=1;client<=MaxClients;client++)
 		if (IsValidEdict(client) && IsClientConnected(client))
 		{
 			if (nextsong[ent][client]<=0.0)
 			{
 				nextsong[ent][client]=10.0;
-				new Handle:data;
+				Handle data;
 				CreateDataTimer(0.1, Timer_EnablePony, data);
 				WritePackCell(data, EntIndexToEntRef(ent));
 				WritePackCell(data, GetClientUserId(client));
@@ -326,7 +326,7 @@ public Action:Timer_CheckDisp(Handle:hTimer,any:ent)
 }
 
 //Check for Amplifier, Beespenser, Repair node etc.
-public Action:Timer_EnablePony(Handle:hTimer,Handle:data)
+public Action Timer_EnablePony(Handle:hTimer,Handle:data)
 {
 	new ent=EntRefToEntIndex(ReadPackCell(data));
 	if (ent==-1)
@@ -335,7 +335,7 @@ public Action:Timer_EnablePony(Handle:hTimer,Handle:data)
 	new owner=GetEntPropEnt(ent, Prop_Send, "m_hBuilder");
 	if (owner<1 || !bPony[owner])
 		return Plugin_Continue;
-	/*decl bool:usefd;
+	/*bool usefd;
 	if (!FD_Enabled)
 		usefd=false;
 	else
@@ -343,13 +343,13 @@ public Action:Timer_EnablePony(Handle:hTimer,Handle:data)
 	if (ent>0 && client && (!GetEntProp(ent, Prop_Send, "m_bDisabled")/* || usefd*/))
 	{
 		decl pony;
-		decl Float:pos[3];
+		float pos[3];
 		GetEntPropVector(ent, Prop_Send, "m_vecOrigin", pos);	
 		pos[0]=RoundFloat(pos[0])*1.0;
 		pos[1]=RoundFloat(pos[1])*1.0;
 		pos[2]=RoundFloat(pos[2])*1.0;
 		new random=GetRandomInt(0,10);
-		decl Float:rot[3];
+		float rot[3];
 		GetEntPropVector(ent, Prop_Send, "m_angRotation", rot);	
 		TeleportEntity(ent, pos, rot, NULL_VECTOR);		
 		
@@ -409,8 +409,8 @@ public Action:Timer_EnablePony(Handle:hTimer,Handle:data)
 		new Action:act = Plugin_Continue;
 		Call_StartForward(OnMusic);
 		Call_PushCell(client);
-		decl String:sound2[PLATFORM_MAX_PATH];
-		new Float:time2 = MusicTime[random];
+		char sound2[PLATFORM_MAX_PATH];
+		float time2 = MusicTime[random];
 		strcopy(sound2, PLATFORM_MAX_PATH, Music[random]);
 		Call_PushStringEx(sound2, PLATFORM_MAX_PATH, 0, SM_PARAM_COPYBACK);
 		Call_PushFloatRef(time2);
@@ -439,14 +439,14 @@ public Action:Timer_EnablePony(Handle:hTimer,Handle:data)
 	return Plugin_Continue;
 }
 
-public Action:Hook_SetTransmit(entity, client)
+public Action Hook_SetTransmit(entity, client)
 {
 	if (GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity")==client)
 		return Plugin_Continue;
 	return Plugin_Handled;
 }  
 
-public Action:event_round_start(Handle:event, const String:name[], bool:dontBroadcast)
+public Action event_round_start(Handle:event, const char name[], bool:dontBroadcast)
 {
 	decl client,pony;
 	for(new ent=0;ent<ME;ent++)
@@ -468,7 +468,7 @@ stock ZeIsValidEdict(edict,String:class[]="0")
 {
 	if (edict && IsValidEdict(edict))
 	{
-		decl String:s[64];
+		char s[64];
 		GetEdictClassname(edict, s, 64);
 		if ((!StrEqual(s, "instanced_scripted_scene") && (class[0]=='0')) || StrEqual(class,s))			
 			return true;
@@ -476,14 +476,14 @@ stock ZeIsValidEdict(edict,String:class[]="0")
 	return false;
 }
 
-DoOverlay(client, const String:overlay[])
+DoOverlay(client, const char overlay[])
 {	
 	SetCommandFlags("r_screenoverlay", GetCommandFlags("r_screenoverlay") & (~FCVAR_CHEAT));
 	ClientCommand(client, "r_screenoverlay \"%s\"", overlay);
 	SetCommandFlags("r_screenoverlay", GetCommandFlags("r_screenoverlay") & FCVAR_CHEAT);
 }
 
-public Action:RemoveEnt(Handle:timer, any:entid)
+public Action RemoveEnt(Handle:timer, any:entid)
 {
 	new ent=EntRefToEntIndex(entid);
 	if (IsValidEntity(ent) && ent)

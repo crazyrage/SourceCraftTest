@@ -15,42 +15,42 @@
 #include "W3SIncs/War3Source_Interface"
 #include "W3SIncs/revantools.inc"
 //#include "W3SIncs/revantools"
-new bool:bFaerie[66];
+bool bFaerie[66];
 // War3Source stuff
-new thisRaceID;
+int thisRaceID;
 
 #if defined SOURCECRAFT
-new Float:ult_cooldown = 15.0;
-new bool:TransformSoundOn = true;
+float ult_cooldown = 15.0;
+bool TransformSoundOn = true;
 #else
-new Handle:ultCooldownCvar;
-new Handle:TransformSoundOn;
+Handle ultCooldownCvar;
+Handle TransformSoundOn;
 #endif
 
-new bool:bBeenHit[MAXPLAYERS][MAXPLAYERS];
+bool bBeenHit[MAXPLAYERS][MAXPLAYERS];
 // Chance/Data Arrays
-new Float:WebFreezeChance[5] = { 0.0, 0.18, 0.23, 0.27, 0.31 };
-//new Float:EvadeChance[5] = { 0.0, 0.21, 0.25, 0.27, 0.30 };
-new Float:JumpMultiplier[5] = { 1.0, 1.3, 1.6, 1.9, 2.45 };
-//new Float:SpiderSpeed[5] = { 1.0, 1.1, 1.2, 1.3, 1.4 };
-new Float:PushForce[5] = { 0.0, 0.7, 1.1, 1.3, 1.7 };
-new MinimumDamage[5]={10,15,18,27,38};
-new MaximumDamage[5]={15,18,27,38,49};
+float WebFreezeChance[5] = { 0.0, 0.18, 0.23, 0.27, 0.31 };
+//float EvadeChance[5] = { 0.0, 0.21, 0.25, 0.27, 0.30 };
+float JumpMultiplier[5] = { 1.0, 1.3, 1.6, 1.9, 2.45 };
+//float SpiderSpeed[5] = { 1.0, 1.1, 1.2, 1.3, 1.4 };
+float PushForce[5] = { 0.0, 0.7, 1.1, 1.3, 1.7 };
+int MinimumDamage[5]={10,15,18,27,38};
+int MaximumDamage[5]={15,18,27,38,49};
 // Sounds
-//new String:ult_sound[] = "npc/strider/fire.wav";
-new String:trans_sound[] = "ambient/levels/labs/teleport_winddown1.wav";
-new String:trans_back[] = "npc/dog/dog_footstep_run6.wav";
-new String:mark_sound[] = "bot/market.wav";
+//char ult_sound[] = "npc/strider/fire.wav";
+char trans_sound[] = "ambient/levels/labs/teleport_winddown1.wav";
+char trans_back[] = "npc/dog/dog_footstep_run6.wav";
+char mark_sound[] = "bot/market.wav";
 // Other
-new ValveGameEnum:g_GameType;
-new m_vecBaseVelocity, m_vecVelocity_0, m_vecVelocity_1;
-new BeamSprite, pfaden, GlowSprite;
-new bool:bIsWolf[MAXPLAYERS];
-new SKILL_FAR_SEER, SKILL_CHAINLGHT, SKILL_FERAL, ULT_QUAKE;
-new Float:ChainDistance[5]={0.0,150.0,200.0,250.0,300.0};
-new Float:FaerieMaxDistance[]={0.0,650.0,700.0,750.0,800.0,850.0,900.0,950.0,1000.0};
-new Float:Delay[]={0.0,2.0,3.5,4.0,4.5,5.0,5.5,6.0,6.2};
-public Plugin:myinfo = 
+int ValveGameEnum:g_GameType;
+int m_vecBaseVelocity, m_vecVelocity_0, m_vecVelocity_1;
+int BeamSprite, pfaden, GlowSprite;
+bool bIsWolf[MAXPLAYERS];
+int SKILL_FAR_SEER, SKILL_CHAINLGHT, SKILL_FERAL, ULT_QUAKE;
+float ChainDistance[5]={0.0,150.0,200.0,250.0,300.0};
+float FaerieMaxDistance[]={0.0,650.0,700.0,750.0,800.0,850.0,900.0,950.0,1000.0};
+float Delay[]={0.0,2.0,3.5,4.0,4.5,5.0,5.5,6.0,6.2};
+public Plugin myinfo = 
 {
     name = "Far Seer",
     author = "Teacher, xDr.HaaaaaaaXx, Revan",
@@ -165,7 +165,7 @@ public OnGameFrame()
         {
             if(bFaerie[i])
             {
-                new Float:this_pos[3];
+                float this_pos[3];
                 GetClientAbsOrigin(i,this_pos);
                 TE_SetupGlowSprite(this_pos,GlowSprite,0.1,1.0,90);
                 TE_SendToAll();
@@ -195,7 +195,7 @@ public OnAbilityCommand(client,ability,bool:pressed)
 
                 CreateTimer(Delay[skill_level]+2.0, W3_TransformBackFromWolf, client);
 #if defined SOURCECRAFT
-                new Float:cooldown= GetUpgradeCooldown(thisRaceID,SKILL_FERAL);
+                float cooldown= GetUpgradeCooldown(thisRaceID,SKILL_FERAL);
                 War3_CooldownMGR(client,cooldown,thisRaceID,SKILL_FERAL,_,_);
 #else
                 War3_CooldownMGR(client,15.0,thisRaceID,SKILL_FERAL,_,_);
@@ -224,7 +224,7 @@ public OnAbilityCommand(client,ability,bool:pressed)
                     bFaerie[target]=true;
                     EmitSoundToAll( mark_sound, target );
 #if defined SOURCECRAFT
-                    new Float:cooldown= GetUpgradeCooldown(thisRaceID,SKILL_FAR_SEER);
+                    float cooldown= GetUpgradeCooldown(thisRaceID,SKILL_FAR_SEER);
                     War3_CooldownMGR(client,cooldown,thisRaceID,SKILL_FAR_SEER,_,_);
 #else
                     War3_CooldownMGR(client,10.0,thisRaceID,SKILL_FAR_SEER,_,_);
@@ -244,7 +244,7 @@ public OnAbilityCommand(client,ability,bool:pressed)
     }
 }
 
-public Action:W3_TransformBackFromWolf(Handle:timer, any:client)
+public Action W3_TransformBackFromWolf(Handle:timer, any:client)
 {      
     bIsWolf[client]=false;
 
@@ -271,7 +271,7 @@ public OnWar3EventPostHurt(victim, attacker, Float:damage, const String:weapon[3
                 for(new x=0;x<65;x++)
                 bBeenHit[attacker][x]=false;
 
-                new Float:distance=ChainDistance[skill_level];
+                float distance=ChainDistance[skill_level];
                 DoChain(attacker,distance,GetRandomInt(10, 60),true,0);
                 //W3Effect1( victim, "Glow3", pfaden);
 #if defined SOURCECRAFT
@@ -286,18 +286,18 @@ public DoChain(client,Float:distance,dmg,bool:first_call,last_target)
 {
     if(client>0&&last_target>0) {
         new target=0;
-        new Float:target_dist=distance+1.0;
+        float target_dist=distance+1.0;
         new caster_team=GetClientTeam(client);
-        new Float:start_pos[3];
+        float start_pos[3];
         GetClientAbsOrigin(client,start_pos);
         GetClientAbsOrigin(last_target,start_pos);
         for(new x=1;x<=MaxClients;x++)
         {
             if(ValidPlayer(x,true)&&!bBeenHit[client][x]&&caster_team!=GetClientTeam(x)&&!W3HasImmunity(x,Immunity_Ultimates))
             {
-                new Float:this_pos[3];
+                float this_pos[3];
                 GetClientAbsOrigin(x,this_pos);
-                new Float:dist_check=GetVectorDistance(start_pos,this_pos);
+                float dist_check=GetVectorDistance(start_pos,this_pos);
                 if(dist_check<=target_dist)
                 {
                     target=x;
@@ -318,7 +318,7 @@ public DoChain(client,Float:distance,dmg,bool:first_call,last_target)
             War3_DealDamage(target,dmg,client,DMG_ENERGYBEAM,"chainlightning");
             PrintHintText(target,"Hit by Chain Lightning -%d HP",War3_GetWar3DamageDealt());
             start_pos[2]+=30.0;
-            new Float:target_pos[3];
+            float target_pos[3];
             GetClientAbsOrigin(target,target_pos);
             target_pos[2]+=30.0;
             TE_SetupBeamPoints(start_pos,target_pos,BeamSprite,BeamSprite,0,35,1.5,10.0,10.0,0,20.0,{20,20,255,255},40);
@@ -338,13 +338,13 @@ public PlayerJumpEvent( Handle:event, const String:name[], bool:dontBroadcast )
         new skill_long = War3_GetSkillLevel( client, race, SKILL_FERAL );
         if( skill_long > 0 && bIsWolf[client])
         {
-            new Float:velocity[3] = { 0.0, 0.0, 0.0 };
+            float velocity[3] = { 0.0, 0.0, 0.0 };
             velocity[0] = GetEntDataFloat( client, m_vecVelocity_0 );
             velocity[1] = GetEntDataFloat( client, m_vecVelocity_1 );
             velocity[0] *= JumpMultiplier[skill_long] * 1.45;
             velocity[1] *= JumpMultiplier[skill_long] * 1.45;
             SetEntDataVector( client, m_vecBaseVelocity, velocity, true );
-            new Float:target_pos[3];
+            float target_pos[3];
             GetClientAbsOrigin(client,target_pos);
             TE_SetupBeamRingPoint(target_pos,10.0,300.0,BeamSprite,BeamSprite,0,0,1.0,120.0,1.0,{ 255,120,120,255},0,0);
             TE_SendToAll(0.4);
@@ -352,7 +352,7 @@ public PlayerJumpEvent( Handle:event, const String:name[], bool:dontBroadcast )
     }
 }
 
-public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:angles[3], &weapon)
+public Action OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:angles[3], &weapon)
 {
     if (g_GameType != Game_CS && (buttons & IN_JUMP)) // Feral Spirit for non CS games
     {
@@ -362,13 +362,13 @@ public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:ang
             new skill_long = War3_GetSkillLevel( client, race, SKILL_FERAL );
             if( skill_long > 0 && bIsWolf[client])
             {
-                new Float:velocity[3] = { 0.0, 0.0, 0.0 };
+                float velocity[3] = { 0.0, 0.0, 0.0 };
                 velocity[0] = GetEntDataFloat( client, m_vecVelocity_0 );
                 velocity[1] = GetEntDataFloat( client, m_vecVelocity_1 );
                 velocity[0] *= JumpMultiplier[skill_long] * 1.45;
                 velocity[1] *= JumpMultiplier[skill_long] * 1.45;
                 SetEntDataVector( client, m_vecBaseVelocity, velocity, true );
-                new Float:target_pos[3];
+                float target_pos[3];
                 GetClientAbsOrigin(client,target_pos);
                 TE_SetupBeamRingPoint(target_pos,10.0,300.0,BeamSprite,BeamSprite,0,0,1.0,120.0,1.0,{ 255,120,120,255},0,0);
                 TE_SendToAll(0.4);
@@ -378,7 +378,7 @@ public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:ang
     return Plugin_Continue;
 }
 
-/*public Action:Timer_StopSmoke(Handle:timer, Handle:pack)
+/*public Action Timer_StopSmoke(Handle:timer, Handle:pack)
 {      
     ResetPack(pack);
     new SmokeEnt = ReadPackCell(pack);
@@ -405,7 +405,7 @@ public OnUltimateCommand( client, race, bool:pressed )
                 FarSeerUltimate( client );
                 //UTIL_SmokeStack1Player( client );
 #if !defined SOURCECRAFT
-                new Float:ult_cooldown=GetConVarFloat(ultCooldownCvar);
+                float ult_cooldown=GetConVarFloat(ultCooldownCvar);
 #endif
                 War3_CooldownMGR(client,ult_cooldown,thisRaceID,ULT_QUAKE,_,_);
             }
@@ -422,10 +422,10 @@ FarSeerUltimate( client )
     if( client > 0 && IsPlayerAlive( client ) )
     {
         new ult_level = War3_GetSkillLevel( client, thisRaceID, ULT_QUAKE );
-        new Float:startpos[3];
-        new Float:endpos[3];
-        new Float:localvector[3];
-        new Float:velocity[3];
+        float startpos[3];
+        float endpos[3];
+        float localvector[3];
+        float velocity[3];
         
         GetClientAbsOrigin( client, startpos );
         GetClientAbsOrigin( client, endpos );
@@ -450,9 +450,9 @@ FarSeerUltimate( client )
         {
             if(ValidPlayer(x,true)&&GetClientTeam(client)!=GetClientTeam(x)&&!W3HasImmunity(x,Immunity_Ultimates))
             {
-                new Float:targetpos[3];
+                float targetpos[3];
                 GetClientAbsOrigin(x,targetpos);
-                new Float:dist_check=GetVectorDistance(startpos,targetpos);
+                float dist_check=GetVectorDistance(startpos,targetpos);
                 if(dist_check<=300)
                 {
                     War3_ShakeScreen(x,18.0,15.0,4.5);

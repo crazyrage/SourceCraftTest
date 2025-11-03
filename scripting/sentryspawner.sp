@@ -7,7 +7,7 @@
 #define PLUGIN_VERSION "0.5"
   
   // Plugin definitions
-public Plugin:myinfo =
+public Plugin myinfo =
 {
        name = "SentrySpawner",
        author = "HL-SDK",
@@ -16,12 +16,12 @@ public Plugin:myinfo =
        url = "."
 } 
  
-new gSentRemaining[MAXPLAYERS+1];    // how many sentries player has available
+int gSentRemaining[MAXPLAYERS+1];    // how many sentries player has available
  
-new Handle:g_IsSpawnSentryOn = INVALID_HANDLE;
-new Handle:g_SentryInitLevel = INVALID_HANDLE;
-new Handle:g_NumSentries = INVALID_HANDLE;
-new Handle:g_SpawnSentryChance = INVALID_HANDLE;
+Handle g_IsSpawnSentryOn = INVALID_HANDLE;
+Handle g_SentryInitLevel = INVALID_HANDLE;
+Handle g_NumSentries = INVALID_HANDLE;
+Handle g_SpawnSentryChance = INVALID_HANDLE;
 
 
 public OnPluginStart()
@@ -52,7 +52,7 @@ public OnClientDisconnect(client) //Destroy all of a player's sentries when he/s
         if (!IsValidEntity(i))
             continue;
 
-        decl String:netclass[32];
+        char netclass[32];
         GetEntityNetClass(i, netclass, sizeof(netclass));
 
         if (!strcmp(netclass, "CObjectSentrygun") && GetEntDataEnt2(i, FindSendPropOffs("CObjectSentrygun","m_hBuilder")) == client)
@@ -63,7 +63,7 @@ public OnClientDisconnect(client) //Destroy all of a player's sentries when he/s
     }
 }  
 
-public Action:Event_PlayerChangeTeam(Handle:event, const String:name[], bool:dontBroadcast) //Destroy all of a player's sentries when he/she Changes teams
+public Action Event_PlayerChangeTeam(Handle:event, const char name[], bool:dontBroadcast) //Destroy all of a player's sentries when he/she Changes teams
 {
     new client = GetClientOfUserId(GetEventInt(event, "userid"));   //The deal with this is, it seems that the player changes
 
@@ -73,7 +73,7 @@ public Action:Event_PlayerChangeTeam(Handle:event, const String:name[], bool:don
         if (!IsValidEntity(i))
             continue;
 
-        decl String:netclass[32];
+        char netclass[32];
         GetEntityNetClass(i, netclass, sizeof(netclass));
 
         if (!strcmp(netclass, "CObjectSentrygun") && GetEntDataEnt2(i, FindSendPropOffs("CObjectSentrygun","m_hBuilder")) == client)
@@ -88,7 +88,7 @@ public Action:Event_PlayerChangeTeam(Handle:event, const String:name[], bool:don
     return Plugin_Continue
 }
 
-public Action:Event_ObjectDestroyed(Handle:event, const String:name[], bool:dontBroadcast)  //Keep track of a player's sentry count
+public Action Event_ObjectDestroyed(Handle:event, const char name[], bool:dontBroadcast)  //Keep track of a player's sentry count
 {
     new client = GetClientOfUserId(GetEventInt(event, "userid"));   //I don't know how to determine whether a sentry was created
     //by this plugin or by engie as build 
@@ -98,7 +98,7 @@ public Action:Event_ObjectDestroyed(Handle:event, const String:name[], bool:dont
         if (!IsValidEntity(i))
             continue;
 
-        decl String:netclass[32];
+        char netclass[32];
         GetEntityNetClass(i, netclass, sizeof(netclass));
 
         if (!strcmp(netclass, "CObjectSentrygun") && GetEntDataEnt2(i, FindSendPropOffs("CObjectSentrygun","m_hBuilder")) == client)
@@ -110,25 +110,25 @@ public Action:Event_ObjectDestroyed(Handle:event, const String:name[], bool:dont
     return Plugin_Continue
 }
 
-public Action:Event_PlayerDeath(Handle:event, const String:name[], bool:dontBroadcast)        //Meaty code goodness
+public Action Event_PlayerDeath(Handle:event, const char name[], bool:dontBroadcast)        //Meaty code goodness
 {
     if (GetConVarInt(g_IsSpawnSentryOn) == 1)
     {
         new userid = GetEventInt(event, "userid")
         
-        decl String:vicname[64]
+        char vicname[64]
         new client = GetClientOfUserId(userid)
         GetClientName(client, vicname, sizeof(vicname))
 
-        new Float:vicorigvec[3];
+        float vicorigvec[3];
         GetClientAbsOrigin(client, Float:vicorigvec)
         
-        new Float:angl[3];
+        float angl[3];
         angl[0] = 0.0;
         angl[1] = 0.0;
         angl[2] = 0.0;
         
-        new Float:rand = GetRandomFloat(0.0, 1.0);
+        float rand = GetRandomFloat(0.0, 1.0);
         
         if (gSentRemaining[client]>0 && GetConVarFloat(g_SpawnSentryChance) >= rand)
         {
@@ -148,7 +148,7 @@ public Action:Event_PlayerDeath(Handle:event, const String:name[], bool:dontBroa
  */
 #tryinclude <tf2_objects>
 #if !defined _tf2_objects_included
-    stock const String:TF2_ObjectClassNames[TFObjectType][] =
+    stock const char TF2_ObjectClassNames[TFObjectType][] =
     {
 	"obj_dispenser",
 	"obj_teleporter",
@@ -230,7 +230,7 @@ public Action:Event_PlayerDeath(Handle:event, const String:name[], bool:dontBroa
 
             TeleportEntity(iSentry, fOrigin, fAngle, NULL_VECTOR);
 
-            decl String:sModel[64];
+            char sModel[64];
             if (bMini)
                 strcopy(sModel, sizeof(sModel),"models/buildables/sentry1.mdl");
             else
@@ -295,7 +295,7 @@ public Action:Event_PlayerDeath(Handle:event, const String:name[], bool:dontBroa
             SetVariantInt(hBuilder);
             AcceptEntityInput(iSentry, "SetBuilder", -1, -1, 0);
 
-            new Handle:event = CreateEvent("player_builtobject");
+            Handle event = CreateEvent("player_builtobject");
             if (event != INVALID_HANDLE)
             {
                 SetEventInt(event, "userid", GetClientUserId(hBuilder));

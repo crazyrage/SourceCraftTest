@@ -5,30 +5,30 @@
 #include <tf2_stocks>
 #include "W3SIncs/War3Source_Interface"  
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "War3Source - Race - Fluttershy",
     author = "War3Source Team",
     description = "The Fluttershy race for War3Source."
 };
 
-new thisRaceID;
+int thisRaceID;
 
 public LoadCheck(){
     return GameTF();
 }
 
-new SKILL_STARE,SKILL_TOLERATE,SKILL_KINDNESS,ULTIMATE_YOUBEGENTLE;
-new AuraID;
-new Float:HealingWaveDistance=133.0;
-new Float:starerange=300.0;
-new Float:StareDuration[5]={0.0,1.5,2.0,2.5,3.0};
-new Float:ArmorPhysical[5]={0.0,0.5,1.0,1.5,2.0};
+int SKILL_STARE,SKILL_TOLERATE,SKILL_KINDNESS,ULTIMATE_YOUBEGENTLE;
+int AuraID;
+float HealingWaveDistance=133.0;
+float starerange=300.0;
+float StareDuration[5]={0.0,1.5,2.0,2.5,3.0};
+float ArmorPhysical[5]={0.0,0.5,1.0,1.5,2.0};
 
-new Float:HealAmount[5]={0.0,2.0,4.0,6.0,8.0};
+float HealAmount[5]={0.0,2.0,4.0,6.0,8.0};
 
-new Float:NotBadDuration[5]={0.0,1.0,1.3,1.6,1.8};
-new bNoDamage[MAXPLAYERSCUSTOM];
+float NotBadDuration[5]={0.0,1.0,1.3,1.6,1.8};
+int bNoDamage[MAXPLAYERSCUSTOM];
 public OnWar3LoadRaceOrItemOrdered(num)
 {
     if(num==210)
@@ -100,10 +100,10 @@ public OnUltimateCommand(client,race,bool:pressed)
         {
             if(!Silenced(client)&&War3_SkillNotInCooldown(client,thisRaceID,ULTIMATE_YOUBEGENTLE,true))
             {
-                new Float:breathrange=0.0;
+                float breathrange=0.0;
                 //War3_GetTargetInViewCone(client,Float:max_distance=0.0,bool:include_friendlys=false,Float:cone_angle=23.0,Function:FilterFunction=INVALID_FUNCTION);
                 new target = War3_GetTargetInViewCone(client,breathrange,false,23.0,UltFilter);
-                //new Float:duration = DarkorbDuration[ult_level];
+                //float duration = DarkorbDuration[ult_level];
                 if(target>0)
                 {
                     bNoDamage[target]=true;
@@ -111,7 +111,7 @@ public OnUltimateCommand(client,race,bool:pressed)
                     PrintHintText(client,"%t","You be gentle!",client);
                     PrintHintText(target,"%t","You be gentle!Cannot deal bullet damage",client);
 #if defined SOURCECRAFT
-                    new Float:cooldown= GetUpgradeCooldown(thisRaceID,ULTIMATE_YOUBEGENTLE);
+                    float cooldown= GetUpgradeCooldown(thisRaceID,ULTIMATE_YOUBEGENTLE);
                     War3_CooldownMGR(client,cooldown,thisRaceID,ULTIMATE_YOUBEGENTLE);
 #else
                     War3_CooldownMGR(client,20.0,thisRaceID,ULTIMATE_YOUBEGENTLE);
@@ -124,7 +124,7 @@ public OnUltimateCommand(client,race,bool:pressed)
         }    
     }            
 }
-public Action:EndNotBad(Handle:t,any:client){
+public Action EndNotBad(Handle:t,any:client){
     bNoDamage[client]=false;
 }
 public OnW3TakeDmgBulletPre(victim,attacker,Float:damage){
@@ -133,8 +133,8 @@ public OnW3TakeDmgBulletPre(victim,attacker,Float:damage){
     }
 } 
 
-new Handle:StareEndTimer[MAXPLAYERSCUSTOM]; //invalid handle by default
-new StareVictim[MAXPLAYERSCUSTOM];
+Handle StareEndTimer[MAXPLAYERSCUSTOM]; //invalid handle by default
+int StareVictim[MAXPLAYERSCUSTOM];
 
 public OnAbilityCommand(client,ability,bool:pressed)
 {
@@ -159,7 +159,7 @@ public OnAbilityCommand(client,ability,bool:pressed)
                     StareEndTimer[client]=CreateTimer(StareDuration[skilllvl],EndStare,client);
                     StareVictim[client]=target;
 #if defined SOURCECRAFT
-                    new Float:cooldown= GetUpgradeCooldown(thisRaceID,SKILL_STARE);
+                    float cooldown= GetUpgradeCooldown(thisRaceID,SKILL_STARE);
                     War3_CooldownMGR(client,cooldown,thisRaceID,SKILL_STARE);
 #else
                     War3_CooldownMGR(client,15.0,thisRaceID,SKILL_STARE);
@@ -172,7 +172,7 @@ public OnAbilityCommand(client,ability,bool:pressed)
         }
     }
 }
-public Action:EndStare(Handle:t,any:client){
+public Action EndStare(Handle:t,any:client){
     War3_SetBuff(client,bBashed,thisRaceID,false);
     War3_SetBuff(client,bDisarm,thisRaceID,false);
     War3_SetBuff(StareVictim[client],bBashed,thisRaceID,false);

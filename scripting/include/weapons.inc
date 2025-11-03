@@ -26,7 +26,7 @@
 
 stock GetActiveWeapon(client, bool:validate=true)
 {
-    decl String:classname[64];
+    char classname[64];
     new weapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
     return (!validate ||
             (weapon > 0 && IsValidEntity(weapon) && IsValidEdict(weapon) &&
@@ -63,7 +63,7 @@ stock GetCurrentWeaponEdictClass(client, String:name[], maxlength)
  */
 stock SetNextAttack(client, Float:duration=0.0)
 {
-    new Float:nextAttack = GetGameTime()+duration;
+    float nextAttack = GetGameTime()+duration;
     new offset=FindSendPropInfo("CBasePlayer", "m_hMyWeapons");
     for(new i=0;i<MAX_SLOTS;i++)
     {

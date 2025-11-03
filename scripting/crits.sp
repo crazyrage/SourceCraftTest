@@ -1,12 +1,12 @@
 #include <sourcemod>
 #include <tf2>
 
-new Handle:crits = INVALID_HANDLE;
-new Handle:chance = INVALID_HANDLE;
+Handle crits = INVALID_HANDLE;
+Handle chance = INVALID_HANDLE;
 
 #define PLUGIN_VERSION "0.1"
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
 	name = "SM Crits chance",
 	author = "pRED*",
@@ -24,7 +24,7 @@ public OnPluginStart()
 }
 
 
-public Action:TF2_CalcIsAttackCritical(client, weapon, String:weaponname[], &bool:result)
+public Action TF2_CalcIsAttackCritical(client, weapon, String:weaponname[], &bool:result)
 {
 	if (!GetConVarBool(crits))
 	{

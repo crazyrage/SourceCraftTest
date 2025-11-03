@@ -22,7 +22,7 @@
 
 stock Fade(clients[], numClients, duration,time,const color[4], code=FFADE_IN)
 {
-    new Handle:hBf=StartMessage("Fade", clients, numClients);
+    Handle hBf=StartMessage("Fade", clients, numClients);
     if(hBf!=INVALID_HANDLE)
     {
         BfWriteShort(hBf,duration); //*400);
@@ -40,7 +40,7 @@ stock FadeOne(client, duration,time,const color[4], code=FFADE_IN)
 {
     if (IsClient(client))
     {
-        new Handle:hBf=StartMessageOne("Fade", client);
+        Handle hBf=StartMessageOne("Fade", client);
         if(hBf!=INVALID_HANDLE)
         {
             BfWriteShort(hBf,duration); //*400);
@@ -57,7 +57,7 @@ stock FadeOne(client, duration,time,const color[4], code=FFADE_IN)
 
 stock FadeAll(duration,time,const color[4], code=FFADE_IN)
 {
-    new Handle:hBf=StartMessageAllLiving("Fade");
+    Handle hBf=StartMessageAllLiving("Fade");
     if(hBf!=INVALID_HANDLE)
     {
         BfWriteShort(hBf,duration); //*400);

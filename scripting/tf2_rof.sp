@@ -4,16 +4,16 @@
 
 #define PLUGIN_VERSION "1.2"
 
-new OffAW = -1;
-new Float:LastCharge[MAXPLAYERS+1];
-new Float:Multi[MAXPLAYERS+1];
-new bool:SpeedEnabled[MAXPLAYERS+1];
-new bool:InAttack[MAXPLAYERS+1];
-new Handle:g_hcvarSniperScope = INVALID_HANDLE;
-new Handle:g_hcvarHuntsman = INVALID_HANDLE;
+int OffAW = -1;
+float LastCharge[MAXPLAYERS+1];
+float Multi[MAXPLAYERS+1];
+bool SpeedEnabled[MAXPLAYERS+1];
+bool InAttack[MAXPLAYERS+1];
+Handle g_hcvarSniperScope = INVALID_HANDLE;
+Handle g_hcvarHuntsman = INVALID_HANDLE;
 
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
 	name = "[TF2] Rate of Fire",
 	author = "EHG",
@@ -47,12 +47,12 @@ public OnClientPostAdminCheck(client)
 }
 
 
-public Action:Command_Rof(client, args)
+public Action Command_Rof(client, args)
 {
-	decl String:arg[65];
-	decl String:arg2[20];
-	new Float:amount;
-	new bool:HasTarget = false;
+	char arg[65];
+	char arg2[20];
+	float amount;
+	bool HasTarget = false;
 	
 	if (CheckCommandAccess(client, "sm_rof_access_target", ADMFLAG_ROOT))
 	{
@@ -94,7 +94,7 @@ public Action:Command_Rof(client, args)
 	}
 	
 	
-	decl String:target_name[MAX_TARGET_LENGTH];
+	char target_name[MAX_TARGET_LENGTH];
 	
 	if (HasTarget)
 	{
@@ -158,7 +158,7 @@ public Action:Command_Rof(client, args)
 	return Plugin_Handled;
 }
 
-public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:angles[3], &weapon)
+public Action OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:angles[3], &weapon)
 {
 	if (SpeedEnabled[client] && Multi[client] != 1.0)
 	{
@@ -167,7 +167,7 @@ public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:ang
 			new ent = GetEntDataEnt2(client, OffAW);
 			if(ent != -1)
 			{
-				new String:weap[50];
+				char weap[50];
 				GetEdictClassname(ent, weap, sizeof(weap));
 				if(strcmp(weap, "tf_weapon_sniperrifle") == 0 && GetConVarInt(g_hcvarSniperScope) == 0)
 				{
@@ -177,8 +177,8 @@ public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:ang
 				
 				if (strcmp(weap, "tf_weapon_particle_cannon") == 0)
 				{
-					new Float:charge = GetEntPropFloat(ent, Prop_Send, "m_flChargeBeginTime");
-					new Float:chargemod = charge-4.0;
+					float charge = GetEntPropFloat(ent, Prop_Send, "m_flChargeBeginTime");
+					float chargemod = charge-4.0;
 					if (charge != 0 && LastCharge[client] != chargemod)
 					{
 						LastCharge[client] = chargemod;
@@ -193,7 +193,7 @@ public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:ang
 			new ent = GetEntDataEnt2(client, OffAW);
 			if(ent != -1)
 			{
-				new String:weap[50];
+				char weap[50];
 				GetEdictClassname(ent, weap, sizeof(weap));
 				if(strcmp(weap, "tf_weapon_compound_bow") == 0 && GetConVarInt(g_hcvarHuntsman) == 0)
 				{
@@ -230,8 +230,8 @@ stock ModRateOfFire(client, Float:Amount)
 	new ent = GetEntDataEnt2(client, OffAW);
 	if (ent != -1)
 	{
-		new Float:m_flNextPrimaryAttack = GetEntPropFloat(ent, Prop_Send, "m_flNextPrimaryAttack");
-		new Float:m_flNextSecondaryAttack = GetEntPropFloat(ent, Prop_Send, "m_flNextSecondaryAttack");
+		float m_flNextPrimaryAttack = GetEntPropFloat(ent, Prop_Send, "m_flNextPrimaryAttack");
+		float m_flNextSecondaryAttack = GetEntPropFloat(ent, Prop_Send, "m_flNextSecondaryAttack");
 		if (Amount > 12)
 		{
 			SetEntPropFloat(ent, Prop_Send, "m_flPlaybackRate", 12.0);
@@ -241,12 +241,12 @@ stock ModRateOfFire(client, Float:Amount)
 			SetEntPropFloat(ent, Prop_Send, "m_flPlaybackRate", Amount);
 		}
 		
-		new Float:GameTime = GetGameTime();
+		float GameTime = GetGameTime();
 		
-		new Float:PeTime = (m_flNextPrimaryAttack - GameTime) - ((Amount - 1.0) / 50);
-		new Float:SeTime = (m_flNextSecondaryAttack - GameTime) - ((Amount - 1.0) / 50);
-		new Float:FinalP = PeTime+GameTime;
-		new Float:FinalS = SeTime+GameTime;
+		float PeTime = (m_flNextPrimaryAttack - GameTime) - ((Amount - 1.0) / 50);
+		float SeTime = (m_flNextSecondaryAttack - GameTime) - ((Amount - 1.0) / 50);
+		float FinalP = PeTime+GameTime;
+		float FinalS = SeTime+GameTime;
 		
 		
 		SetEntPropFloat(ent, Prop_Send, "m_flNextPrimaryAttack", FinalP);

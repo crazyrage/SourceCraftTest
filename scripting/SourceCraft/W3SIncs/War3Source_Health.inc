@@ -96,7 +96,7 @@ native W3ForceDamageIsBullet();
 native W3GetDamageStack();
 
 stock War3_DealDamageDelayed(victim,attacker,damage,String:classname[32],Float:delay=0.0,bool:showDamage=false,showDamage_skill=0) {
-    new Handle:pack;
+    Handle pack;
     CreateDataTimer(delay, _war3source_Timer_DealDamage, pack);
     WritePackCell(pack, victim);
     WritePackCell(pack, attacker);
@@ -117,9 +117,9 @@ public Action:_war3source_Timer_DealDamage(Handle:timer, Handle:pack)
     }
     new attacker = ReadPackCell(pack);
     new damage = ReadPackCell(pack);
-    new bool:showDamage = bool:ReadPackCell(pack);
+    bool showDamage = bool:ReadPackCell(pack);
     new showDamage_skill = ReadPackCell(pack);
-    decl String:classname[32];
+    char classname[32];
     ReadPackString(pack,classname,sizeof(classname));
     
     // Glider: TODO: Figure out if the notification include or the 
@@ -379,7 +379,7 @@ stock War3_TFHealingEvent(client, amount_healed)
         return;
     }
     
-    new Handle:event = CreateEvent("player_healonhit");
+    Handle event = CreateEvent("player_healonhit");
     SetEventInt(event, "entindex", client);
     SetEventInt(event, "amount", amount_healed);
     FireEvent(event);

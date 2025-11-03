@@ -10,7 +10,7 @@
 #endif
 #define _tf2_game_text_included
 
-stock tf2_game_text(const String:message[], const String:icon[]="")
+stock tf2_game_text(const char message[], const char icon[]="")
 {
 	new Text_Ent = CreateEntityByName("game_text_tf");
     if (Text_Ent > 0 && IsValidEdict(Text_Ent))
@@ -30,11 +30,11 @@ stock tf2_game_text(const String:message[], const String:icon[]="")
 	return Plugin_Handled;
 }
 
-public Action:KillGameText(Handle:timer, any:ent)
+public Action KillGameText(Handle:timer, any:ent)
 {
     if (IsValidEntity(ent))
     {
-        decl String:classname[50];
+        char classname[50];
         if (GetEdictClassname(ent, classname, sizeof(classname)) &&
             StrEqual(classname, "game_text_tf", false))
         {

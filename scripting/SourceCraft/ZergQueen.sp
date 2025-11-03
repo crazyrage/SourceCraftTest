@@ -131,7 +131,7 @@ public OnSourceCraftReady()
 
     for (new level=0; level < sizeof(g_ArmorPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "armor_percent_level_%d", level);
         GetConfigFloatArray(key, g_ArmorPercent[level], sizeof(g_ArmorPercent[]),
                             g_ArmorPercent[level], raceID, armorID);
@@ -210,7 +210,7 @@ public OnClientDisconnect(client)
     ResetEnsnared(client);
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -228,7 +228,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
         return Plugin_Continue;
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
@@ -243,8 +243,8 @@ public Action:OnRaceSelected(client,oldrace,newrace)
         SetupJetpack(client, flyer_level);
 
         new meiosis_level = GetUpgradeLevel(client,raceID,meiosisID);
-        new Float:initial_energy = GetInitialEnergy(client);
-        new Float:meiosis_energy = 120.0 + float(meiosis_level*30);
+        float initial_energy = GetInitialEnergy(client);
+        float meiosis_energy = 120.0 + float(meiosis_level*30);
         SetInitialEnergy(client, meiosis_energy);
         if (GetEnergy(client, true) >= initial_energy)
             SetEnergy(client, meiosis_energy, true);
@@ -270,8 +270,8 @@ public OnUpgradeLevelChanged(client,race,upgrade,new_level)
             SetHealthRegen(client, float(new_level));
         else if (upgrade==meiosisID)
         {
-            new Float:initial_energy = GetInitialEnergy(client);
-            new Float:meiosis_energy = 120.0 + float(new_level*30);
+            float initial_energy = GetInitialEnergy(client);
+            float meiosis_energy = 120.0 + float(new_level*30);
             SetInitialEnergy(client, meiosis_energy);
             if (GetEnergy(client, true) >= initial_energy)
                 SetEnergy(client, meiosis_energy, true);
@@ -341,7 +341,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                     }
                     else if (pressed)
                     {
-                        decl String:upgradeName[64];
+                        char upgradeName[64];
                         GetUpgradeName(raceID, jetpackID, upgradeName, sizeof(upgradeName), client);
                         PrintHintText(client,"%t", "IsNotAvailable", upgradeName);
                     }
@@ -367,8 +367,8 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
         SetupJetpack(client, flyer_level);
 
         new meiosis_level = GetUpgradeLevel(client,raceID,meiosisID);
-        new Float:initial_energy = GetInitialEnergy(client);
-        new Float:meiosis_energy = 120.0 + float(meiosis_level*30);
+        float initial_energy = GetInitialEnergy(client);
+        float meiosis_energy = 120.0 + float(meiosis_level*30);
         SetInitialEnergy(client, meiosis_energy);
         if (GetEnergy(client, true) >= initial_energy)
             SetEnergy(client, meiosis_energy, true);
@@ -378,7 +378,7 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     new Action:returnCode = Plugin_Continue;
@@ -411,7 +411,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
                     SetOverrideSpeed(victim_index, g_EnsnareSpeed[ensnare_level]);
                     SetRestriction(victim_index, Restriction_Grounded, true);
 
-                    new Float:victim_energy=GetEnergy(victim_index)-float(ensnare_level*5);
+                    float victim_energy=GetEnergy(victim_index)-float(ensnare_level*5);
                     SetEnergy(victim_index, (victim_energy > 0.0) ? victim_energy : 0.0);
                     CreateTimer(5.0,EnsnareExpire, GetClientUserId(victim_index),TIMER_FLAG_NO_MAPCHANGE);
                     returnCode = Plugin_Handled;
@@ -455,7 +455,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
 }
 
 
-public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
+public Action OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
                                   assister_index, assister_race, damage,
                                   absorbed)
 {
@@ -487,7 +487,7 @@ public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
                     SetOverrideSpeed(victim_index, g_EnsnareSpeed[ensnare_level]);
                     SetRestriction(victim_index, Restriction_Grounded, true);
 
-                    new Float:victim_energy=GetEnergy(victim_index)-float(ensnare_level*5);
+                    float victim_energy=GetEnergy(victim_index)-float(ensnare_level*5);
                     SetEnergy(victim_index, (victim_energy > 0.0) ? victim_energy : 0.0);
                     CreateTimer(5.0,EnsnareExpire, GetClientUserId(victim_index),TIMER_FLAG_NO_MAPCHANGE);
                     returnCode = Plugin_Handled;
@@ -529,7 +529,7 @@ public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
     return returnCode;
 }
 
-public Action:OnJetpack(client)
+public Action OnJetpack(client)
 {
     if (m_Ensnared[client])
     {
@@ -539,7 +539,7 @@ public Action:OnJetpack(client)
     return Plugin_Continue;
 }
 
-public Action:EnsnareExpire(Handle:timer,any:userid)
+public Action EnsnareExpire(Handle:timer,any:userid)
 {
     new client = GetClientOfUserId(userid);
     if (client > 0)
@@ -561,7 +561,7 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
     }
 }
 
-public Action:OnPlayerRestored(client)
+public Action OnPlayerRestored(client)
 {
     ResetParasite(client);
     ResetDetected(client);
@@ -569,19 +569,19 @@ public Action:OnPlayerRestored(client)
     return Plugin_Continue;
 }
 
-public Action:Parasite(Handle:timer, any:client)
+public Action Parasite(Handle:timer, any:client)
 {
     if (IsValidClientAlive(client))
     {
-        new Float:clientLoc[3];
+        float clientLoc[3];
         GetClientAbsOrigin(client, clientLoc);
         clientLoc[2] += 50.0; // Adjust trace position to the middle of the person instead of the feet.
 
-        new bool:decloaked=false;
+        bool decloaked=false;
         if (GetGameType() == tf2 &&
             !GetImmunity(client,Immunity_Upgrades))
         {
-            new Float:meter = TF2_GetEnergyDrinkMeter(client);
+            float meter = TF2_GetEnergyDrinkMeter(client);
             if (meter > 0.0 && meter <= 100.0)
                 TF2_SetEnergyDrinkMeter(client, 0.0);
 
@@ -647,13 +647,13 @@ public Action:Parasite(Handle:timer, any:client)
             {
                 if (GetClientTeam(index) == team)
                 {
-                    new bool:detect = !GetImmunity(index,Immunity_Detection) &&
+                    bool detect = !GetImmunity(index,Immunity_Detection) &&
                                       !GetImmunity(index,Immunity_Upgrades) &&
                                       IsPlayerAlive(index) &&
                                       IsInRange(client,index,500.0);
                     if (detect)
                     {
-                        new Float:indexLoc[3];
+                        float indexLoc[3];
                         GetClientAbsOrigin(index, indexLoc);
                         detect = TraceTargetIndex(client, index, clientLoc, indexLoc);
                     }
@@ -704,7 +704,7 @@ public Action:Parasite(Handle:timer, any:client)
 
         if (amount > 0)
         {
-            new Float:energy = GetEnergy(client) - float(amount);
+            float energy = GetEnergy(client) - float(amount);
             SetEnergy(client, (energy > 0.0) ? energy : 0.0);
         }            
 
@@ -742,7 +742,7 @@ public Action:Parasite(Handle:timer, any:client)
 
 ResetParasite(client)
 {
-    new Handle:timer = m_ParasiteTimer[client];
+    Handle timer = m_ParasiteTimer[client];
     if (timer != INVALID_HANDLE)
     {
         m_ParasiteTimer[client] = INVALID_HANDLE;	
@@ -791,10 +791,10 @@ GetTarget(client, level, const Float:range[])
     if (target > 0 &&
         GetClientTeam(target) != GetClientTeam(client)) 
     {
-        new Float:clientLoc[3];
+        float clientLoc[3];
         GetClientAbsOrigin(client, clientLoc);
 
-        new Float:targetLoc[3];
+        float targetLoc[3];
         GetClientAbsOrigin(target, targetLoc);
 
         if (IsPointInRange(clientLoc,targetLoc,range[level]) &&
@@ -820,7 +820,7 @@ SpawnBroodling(client)
 
         if (g_broodlingRace < 0)
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, broodlingID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "IsNotAvailable", upgradeName);
             LogError("***The Broodling race is not Available!");
@@ -885,7 +885,7 @@ InfestEnemy(client)
 
         if (g_infestedRace < 0)
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, infestID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "IsNotAvailable", upgradeName);
             LogError("***The Infested race is not Available!");

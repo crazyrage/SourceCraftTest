@@ -14,31 +14,31 @@
 #include "sc/maxhealth"
 
 // Handles
-new Handle:g_OnSourceCraftReadyHandle = INVALID_HANDLE;
-new Handle:g_OnPlayerAuthedHandle = INVALID_HANDLE;
-new Handle:g_OnPlayerRestoredHandle = INVALID_HANDLE;
-new Handle:g_OnCrystalsGivenHandle = INVALID_HANDLE;
-new Handle:g_OnVespeneGivenHandle = INVALID_HANDLE;
-new Handle:g_OnXPGivenHandle = INVALID_HANDLE;
-new Handle:g_OnPlayerTakeDamageHandle = INVALID_HANDLE;
-new Handle:g_OnPlayerHurtEventHandle = INVALID_HANDLE;
-new Handle:g_OnPlayerAssistEventHandle = INVALID_HANDLE;
-new Handle:g_OnPlayerDeathEventHandle = INVALID_HANDLE;
-new Handle:g_OnEntityTakeDamageHandle = INVALID_HANDLE;
-new Handle:g_OnEntityHurtEventHandle = INVALID_HANDLE;
-new Handle:g_OnEntityAssistEventHandle = INVALID_HANDLE;
-new Handle:g_OnEntityStunnedEventHandle = INVALID_HANDLE;
-new Handle:g_OnEntityDeathEventHandle = INVALID_HANDLE;
-new Handle:g_OnObjectTakeDamageHandle = INVALID_HANDLE;
-new Handle:g_OnPlayerSpawnEventHandle = INVALID_HANDLE;
-new Handle:g_OnPlayerBuiltObject = INVALID_HANDLE;
-new Handle:g_OnCabinetUsedHandle = INVALID_HANDLE;
-new Handle:g_OnHealthUsedHandle = INVALID_HANDLE;
-new Handle:g_OnUltimateCommandHandle = INVALID_HANDLE;
-new Handle:g_OnImmunityInvokedHandle = INVALID_HANDLE;
+Handle g_OnSourceCraftReadyHandle = INVALID_HANDLE;
+Handle g_OnPlayerAuthedHandle = INVALID_HANDLE;
+Handle g_OnPlayerRestoredHandle = INVALID_HANDLE;
+Handle g_OnCrystalsGivenHandle = INVALID_HANDLE;
+Handle g_OnVespeneGivenHandle = INVALID_HANDLE;
+Handle g_OnXPGivenHandle = INVALID_HANDLE;
+Handle g_OnPlayerTakeDamageHandle = INVALID_HANDLE;
+Handle g_OnPlayerHurtEventHandle = INVALID_HANDLE;
+Handle g_OnPlayerAssistEventHandle = INVALID_HANDLE;
+Handle g_OnPlayerDeathEventHandle = INVALID_HANDLE;
+Handle g_OnEntityTakeDamageHandle = INVALID_HANDLE;
+Handle g_OnEntityHurtEventHandle = INVALID_HANDLE;
+Handle g_OnEntityAssistEventHandle = INVALID_HANDLE;
+Handle g_OnEntityStunnedEventHandle = INVALID_HANDLE;
+Handle g_OnEntityDeathEventHandle = INVALID_HANDLE;
+Handle g_OnObjectTakeDamageHandle = INVALID_HANDLE;
+Handle g_OnPlayerSpawnEventHandle = INVALID_HANDLE;
+Handle g_OnPlayerBuiltObject = INVALID_HANDLE;
+Handle g_OnCabinetUsedHandle = INVALID_HANDLE;
+Handle g_OnHealthUsedHandle = INVALID_HANDLE;
+Handle g_OnUltimateCommandHandle = INVALID_HANDLE;
+Handle g_OnImmunityInvokedHandle = INVALID_HANDLE;
 
-new bool:g_bDamageFromPlayerHurt = false;
-new bool:g_bSupressOnPlayerTakeDamage = false;
+bool g_bDamageFromPlayerHurt = false;
+bool g_bSupressOnPlayerTakeDamage = false;
 
 /**
  * Retrieves the SourceCraftLoaded flag.
@@ -117,39 +117,39 @@ public Native_GetMode(Handle:plugin,numParams)
  */
 public Native_CreateRace(Handle:plugin,numParams)
 {
-    decl String:short[SHORT_STRING_LENGTH];
+    char short[SHORT_STRING_LENGTH];
     GetNativeString(1,short,sizeof(short));
 
     new required_level       = GetNativeCell(2);
     new tech_level           = GetNativeCell(3);
     new max_level            = GetNativeCell(4);
-    new Float:initial_energy = Float:GetNativeCell(5);
-    new Float:energy_limit   = Float:GetNativeCell(6);
-    new Float:energy_rate    = Float:GetNativeCell(7);
+    float initial_energy = Float:GetNativeCell(5);
+    float energy_limit   = Float:GetNativeCell(6);
+    float energy_rate    = Float:GetNativeCell(7);
     new Faction:faction      = Faction:GetNativeCell(8);
     new UnitType:type        = UnitType:GetNativeCell(9);
 
-    decl String:parent[SHORT_STRING_LENGTH];
+    char parent[SHORT_STRING_LENGTH];
     GetNativeString(10,parent,sizeof(parent));
 
     new Translation:translation = Translation:GetNativeCell(11);
 
-    decl String:translation_file[PLATFORM_MAX_PATH];
+    char translation_file[PLATFORM_MAX_PATH];
     GetNativeString(12,translation_file,sizeof(translation_file));
 
-    decl String:name[NAME_STRING_LENGTH];
+    char name[NAME_STRING_LENGTH];
     GetNativeString(13,name,sizeof(name));
 
-    decl String:switch_message[LONG_STRING_LENGTH];
+    char switch_message[LONG_STRING_LENGTH];
     GetNativeString(14,switch_message,sizeof(switch_message));
 
-    decl String:pending_message[LONG_STRING_LENGTH];
+    char pending_message[LONG_STRING_LENGTH];
     GetNativeString(15,pending_message,sizeof(pending_message));
 
-    decl String:desc[DESCRIPTION_LENGTH];
+    char desc[DESCRIPTION_LENGTH];
     GetNativeString(16,desc,sizeof(desc));
 
-    decl String:image[PLATFORM_MAX_PATH];
+    char image[PLATFORM_MAX_PATH];
     GetNativeString(17,image,sizeof(image));
 
     // If the short name wasn't provided
@@ -181,10 +181,10 @@ public Native_CreateRace(Handle:plugin,numParams)
  */
 public Native_RaceComplete(Handle:plugin,numParams)
 {
-    decl String:desc[DESCRIPTION_LENGTH];
+    char desc[DESCRIPTION_LENGTH];
     GetNativeString(2,desc,sizeof(desc));
 
-    decl String:image[NAME_STRING_LENGTH];
+    char image[NAME_STRING_LENGTH];
     GetNativeString(3,image,sizeof(image));
 
     RaceComplete(GetNativeCell(1), desc, image);
@@ -222,11 +222,11 @@ public Native_RaceComplete(Handle:plugin,numParams)
  */
 public Native_SetRaceAttributes(Handle:plugin,numParams)
 {
-    new Handle:raceHandle = GetRaceHandle(GetNativeCell(1));
+    Handle raceHandle = GetRaceHandle(GetNativeCell(1));
     if (raceHandle != INVALID_HANDLE)
     {
-        new Handle:stringsHandle=GetRaceStringHandle(raceHandle);
-        new Handle:messagesHandle=GetRaceMessageHandle(raceHandle);
+        Handle stringsHandle=GetRaceStringHandle(raceHandle);
+        Handle messagesHandle=GetRaceMessageHandle(raceHandle);
 
         new required_level = GetNativeCell(2);
         if (required_level >= 0)
@@ -260,7 +260,7 @@ public Native_SetRaceAttributes(Handle:plugin,numParams)
         if (type > UnassignedUnit)
             SetRaceType(raceHandle,type);
 
-        decl String:parent[SHORT_STRING_LENGTH];
+        char parent[SHORT_STRING_LENGTH];
         GetNativeString(10,parent,sizeof(parent));
         if (parent[0] != '\0')
             SetArrayString(stringsHandle,_:RaceString_ParentName,parent);
@@ -269,27 +269,27 @@ public Native_SetRaceAttributes(Handle:plugin,numParams)
         if (translation != Translation_Default)
             SetRaceTranslation(raceHandle,translation);
 
-        decl String:translation_file[PLATFORM_MAX_PATH];
+        char translation_file[PLATFORM_MAX_PATH];
         GetNativeString(12,translation_file,sizeof(translation_file));
         if (translation_file[0] != '\0')
             LoadTranslations(translation_file);
 
-        decl String:name[NAME_STRING_LENGTH];
+        char name[NAME_STRING_LENGTH];
         GetNativeString(13,name,sizeof(name));
         if (name[0] != '\0')
             SetRaceHName(stringsHandle,name);
 
-        decl String:switch_message[LONG_STRING_LENGTH];
+        char switch_message[LONG_STRING_LENGTH];
         GetNativeString(14,switch_message,sizeof(switch_message));
         if (switch_message[0] != '\0')
             SetRaceHSwitchString(messagesHandle,switch_message);
 
-        decl String:pending_message[LONG_STRING_LENGTH];
+        char pending_message[LONG_STRING_LENGTH];
         GetNativeString(15,pending_message,sizeof(pending_message));
         if (pending_message[0] != '\0')
             SetRaceHSwitchStringDead(messagesHandle,pending_message);
 
-        decl String:short[SHORT_STRING_LENGTH];
+        char short[SHORT_STRING_LENGTH];
         GetNativeString(16,short,sizeof(short));
         if (short[0] != '\0')
             SetRaceHShortName(stringsHandle,short);
@@ -307,7 +307,7 @@ public Native_SetRaceAttributes(Handle:plugin,numParams)
  */
 public Native_GetRacePlugin(Handle:plugin,numParams)
 {
-    new Handle:raceHandle = GetRaceHandle(GetNativeCell(1));
+    Handle raceHandle = GetRaceHandle(GetNativeCell(1));
     if (raceHandle != INVALID_HANDLE)
         return _:GetRacePlugin(raceHandle);
     else
@@ -323,7 +323,7 @@ public Native_GetRacePlugin(Handle:plugin,numParams)
  */
 public Native_GetRaceEnergyRate(Handle:plugin,numParams)
 {
-    new Handle:raceHandle = GetRaceHandle(GetNativeCell(1));
+    Handle raceHandle = GetRaceHandle(GetNativeCell(1));
     if (raceHandle != INVALID_HANDLE)
         return _:GetRaceEnergyRate(raceHandle);
     else
@@ -340,7 +340,7 @@ public Native_GetRaceEnergyRate(Handle:plugin,numParams)
  */
 public Native_SetRaceEnergyRate(Handle:plugin,numParams)
 {
-    new Handle:raceHandle = GetRaceHandle(GetNativeCell(1));
+    Handle raceHandle = GetRaceHandle(GetNativeCell(1));
     if (raceHandle != INVALID_HANDLE)
     {
         SetRaceEnergyRate(raceHandle,GetNativeCell(2));
@@ -357,7 +357,7 @@ public Native_SetRaceEnergyRate(Handle:plugin,numParams)
  */
 public Native_GetRaceEnergyLimit(Handle:plugin,numParams)
 {
-    new Handle:raceHandle = GetRaceHandle(GetNativeCell(1));
+    Handle raceHandle = GetRaceHandle(GetNativeCell(1));
     if (raceHandle != INVALID_HANDLE)
         return _:GetRaceEnergyLimit(raceHandle);
     else
@@ -374,7 +374,7 @@ public Native_GetRaceEnergyLimit(Handle:plugin,numParams)
  */
 public Native_SetRaceEnergyLimit(Handle:plugin,numParams)
 {
-    new Handle:raceHandle = GetRaceHandle(GetNativeCell(1));
+    Handle raceHandle = GetRaceHandle(GetNativeCell(1));
     if (raceHandle != INVALID_HANDLE)
     {
         SetRaceEnergyLimit(raceHandle,GetNativeCell(2));
@@ -391,7 +391,7 @@ public Native_SetRaceEnergyLimit(Handle:plugin,numParams)
  */
 public Native_GetRaceInitialEnergy(Handle:plugin,numParams)
 {
-    new Handle:raceHandle = GetRaceHandle(GetNativeCell(1));
+    Handle raceHandle = GetRaceHandle(GetNativeCell(1));
     if (raceHandle != INVALID_HANDLE)
         return _:GetRaceInitialEnergy(raceHandle);
     else
@@ -408,7 +408,7 @@ public Native_GetRaceInitialEnergy(Handle:plugin,numParams)
  */
 public Native_SetRaceInitialEnergy(Handle:plugin,numParams)
 {
-    new Handle:raceHandle = GetRaceHandle(GetNativeCell(1));
+    Handle raceHandle = GetRaceHandle(GetNativeCell(1));
     if (raceHandle != INVALID_HANDLE)
     {
         SetRaceInitialEnergy(raceHandle,GetNativeCell(2));
@@ -425,7 +425,7 @@ public Native_SetRaceInitialEnergy(Handle:plugin,numParams)
  */
 public Native_GetRaceEnergyFlags(Handle:plugin,numParams)
 {
-    new Handle:raceHandle = GetRaceHandle(GetNativeCell(1));
+    Handle raceHandle = GetRaceHandle(GetNativeCell(1));
     if (raceHandle != INVALID_HANDLE)
         return _:GetRaceEnergyFlags(raceHandle);
     else
@@ -442,7 +442,7 @@ public Native_GetRaceEnergyFlags(Handle:plugin,numParams)
  */
 public Native_SetRaceEnergyFlags(Handle:plugin,numParams)
 {
-    new Handle:raceHandle = GetRaceHandle(GetNativeCell(1));
+    Handle raceHandle = GetRaceHandle(GetNativeCell(1));
     if (raceHandle != INVALID_HANDLE)
     {
         SetRaceEnergyFlags(raceHandle,EnergyFlags:GetNativeCell(2));
@@ -493,61 +493,61 @@ public Native_SetRaceEnergyFlags(Handle:plugin,numParams)
 public Native_AddUpgrade(Handle:plugin,numParams)
 {
     new race = GetNativeCell(1);
-    new Handle:raceHandle = GetRaceHandle(race);
+    Handle raceHandle = GetRaceHandle(race);
     if (raceHandle != INVALID_HANDLE)
     {
-        decl String:short[SHORT_STRING_LENGTH];
+        char short[SHORT_STRING_LENGTH];
         GetNativeString(2,short,sizeof(short));
 
         new upgrade_category           = GetNativeCell(3);
         new required_level             = GetNativeCell(4);
         new max_level                  = GetNativeCell(5);
-        new Float:energy               = Float:GetNativeCell(6);
-        new Float:recurring_energy     = Float:GetNativeCell(7);
-        new Float:recurring_interval   = Float:GetNativeCell(8);
-        new bool:accumulated           = bool:GetNativeCell(9);
+        float energy               = Float:GetNativeCell(6);
+        float recurring_energy     = Float:GetNativeCell(7);
+        float recurring_interval   = Float:GetNativeCell(8);
+        bool accumulated           = bool:GetNativeCell(9);
         new vespene                    = GetNativeCell(10);
         new crystals                   = GetNativeCell(11);
         new cost_crystals              = GetNativeCell(12);
         new cost_vespene               = GetNativeCell(13);
-        new Float:cooldown             = Float:GetNativeCell(14);
+        float cooldown             = Float:GetNativeCell(14);
         new CooldownType:cooldown_type = CooldownType:GetNativeCell(15);
-        new bool:disabled              = bool:GetNativeCell(16);
+        bool disabled              = bool:GetNativeCell(16);
 
-        decl String:name[LONG_STRING_LENGTH];
+        char name[LONG_STRING_LENGTH];
         GetNativeString(17,name,sizeof(name));
 
-        decl String:desc[LONG_STRING_LENGTH];
+        char desc[LONG_STRING_LENGTH];
         GetNativeString(18,desc,sizeof(desc));
 
-        decl String:invoke[LONG_STRING_LENGTH];
+        char invoke[LONG_STRING_LENGTH];
         GetNativeString(19,invoke,sizeof(invoke));
 
-        decl String:bind[LONG_STRING_LENGTH];
+        char bind[LONG_STRING_LENGTH];
         GetNativeString(20,bind,sizeof(bind));
 
-        decl String:image[LONG_STRING_LENGTH];
+        char image[LONG_STRING_LENGTH];
         GetNativeString(21,image,sizeof(image));
 
-        decl String:p1[NAME_STRING_LENGTH];
+        char p1[NAME_STRING_LENGTH];
         GetNativeString(22,p1,sizeof(p1));
 
-        decl String:p2[NAME_STRING_LENGTH];
+        char p2[NAME_STRING_LENGTH];
         GetNativeString(23,p2,sizeof(p2));
 
-        decl String:p3[NAME_STRING_LENGTH];
+        char p3[NAME_STRING_LENGTH];
         GetNativeString(24,p3,sizeof(p3));
 
-        decl String:p4[NAME_STRING_LENGTH];
+        char p4[NAME_STRING_LENGTH];
         GetNativeString(25,p4,sizeof(p4));
 
-        decl String:p5[NAME_STRING_LENGTH];
+        char p5[NAME_STRING_LENGTH];
         GetNativeString(26,p5,sizeof(p5));
 
-        decl String:p6[NAME_STRING_LENGTH];
+        char p6[NAME_STRING_LENGTH];
         GetNativeString(27,p6,sizeof(p6));
 
-        decl String:p7[NAME_STRING_LENGTH];
+        char p7[NAME_STRING_LENGTH];
         GetNativeString(28,p7,sizeof(p7));
 
         // If the short name wasn't provided
@@ -582,7 +582,7 @@ public Native_AddUpgrade(Handle:plugin,numParams)
 public Native_SetUpgradeCost(Handle:plugin,numParams)
 {
     new race = GetNativeCell(1);
-    new Handle:raceHandle = GetRaceHandle(race);
+    Handle raceHandle = GetRaceHandle(race);
     if (raceHandle != INVALID_HANDLE)
     {
         new upgrade = GetNativeCell(2);
@@ -593,11 +593,11 @@ public Native_SetUpgradeCost(Handle:plugin,numParams)
         {
             // Check if the config file has cost_crystals and/or cost_vespene for this upgrade
             new ConfigLoadedStatus:raceLoaded;
-            new Handle:raceConfig = GetRaceConfig(raceHandle, raceLoaded);
+            Handle raceConfig = GetRaceConfig(raceHandle, raceLoaded);
             if (raceConfig != INVALID_HANDLE)
             {
-                new bool:upgradeFound;
-                decl String:short[NAME_STRING_LENGTH];
+                bool upgradeFound;
+                char short[NAME_STRING_LENGTH];
                 GetUpgradeShortName(raceHandle,upgrade,short,sizeof(short));
 
                 if (raceLoaded != ConfigNotLoaded)
@@ -707,22 +707,22 @@ public Native_SetUpgradeCost(Handle:plugin,numParams)
 public Native_SetUpgradeCooldown(Handle:plugin,numParams)
 {
     new race = GetNativeCell(1);
-    new Handle:raceHandle = GetRaceHandle(race);
+    Handle raceHandle = GetRaceHandle(race);
     if (raceHandle != INVALID_HANDLE)
     {
         new upgrade = GetNativeCell(2);
-        new Float:cooldown = Float:GetNativeCell(3);
+        float cooldown = Float:GetNativeCell(3);
         new CooldownType:cooldown_type = CooldownType:GetNativeCell(4);
 
         if (!GetNativeCell(5)) // !override
         {
             // Check if the config file has a cooldown for this upgrade
             new ConfigLoadedStatus:raceLoaded;
-            new Handle:raceConfig = GetRaceConfig(raceHandle, raceLoaded);
+            Handle raceConfig = GetRaceConfig(raceHandle, raceLoaded);
             if (raceConfig != INVALID_HANDLE)
             {
-                new bool:upgradeFound;
-                decl String:short[NAME_STRING_LENGTH];
+                bool upgradeFound;
+                char short[NAME_STRING_LENGTH];
                 GetUpgradeShortName(raceHandle,upgrade,short,sizeof(short));
 
                 if (raceLoaded != ConfigNotLoaded)
@@ -779,12 +779,12 @@ public Native_SetUpgradeCooldown(Handle:plugin,numParams)
 public Native_GetUpgradeCooldown(Handle:plugin,numParams)
 {
     new race = GetNativeCell(1);
-    new Handle:raceHandle = GetRaceHandle(race);
+    Handle raceHandle = GetRaceHandle(race);
     if (raceHandle != INVALID_HANDLE)
     {
         new CooldownType:cooldown_type;
         new upgrade = GetNativeCell(2);
-        new Float:cooldown = GetUpgradeCooldown(race, raceHandle, upgrade, cooldown_type);
+        float cooldown = GetUpgradeCooldown(race, raceHandle, upgrade, cooldown_type);
         SetNativeCellRef(3, cooldown_type);
         return _:cooldown;
     }
@@ -803,10 +803,10 @@ public Native_GetUpgradeCooldown(Handle:plugin,numParams)
  */         
 public Native_GetRaceName(Handle:plugin,numParams)
 {
-    new Handle:raceHandle = GetRaceHandle(GetNativeCell(1));
+    Handle raceHandle = GetRaceHandle(GetNativeCell(1));
     if (raceHandle != INVALID_HANDLE)
     {
-        decl String:name[NAME_STRING_LENGTH];
+        char name[NAME_STRING_LENGTH];
         new maxlength = GetNativeCell(3);
         new lang = GetNativeCell(4);
         GetRaceName(raceHandle, name, sizeof(name), lang);
@@ -826,10 +826,10 @@ public Native_GetRaceName(Handle:plugin,numParams)
  */ 
 public Native_GetRaceDescription(Handle:plugin,numParams)
 {
-    new Handle:raceHandle = GetRaceHandle(GetNativeCell(1));
+    Handle raceHandle = GetRaceHandle(GetNativeCell(1));
     if (raceHandle != INVALID_HANDLE)
     {
-        decl String:description[DESCRIPTION_LENGTH];
+        char description[DESCRIPTION_LENGTH];
         new maxlength = GetNativeCell(3);
         new lang = GetNativeCell(4);
         GetRaceDescription(raceHandle, description, sizeof(description), "", lang, true);
@@ -848,10 +848,10 @@ public Native_GetRaceDescription(Handle:plugin,numParams)
  */         
 public Native_GetRaceShortName(Handle:plugin,numParams)
 {
-    new Handle:raceHandle = GetRaceHandle(GetNativeCell(1));
+    Handle raceHandle = GetRaceHandle(GetNativeCell(1));
     if (raceHandle != INVALID_HANDLE)
     {
-        decl String:short[SHORT_STRING_LENGTH];
+        char short[SHORT_STRING_LENGTH];
         new maxlength = GetNativeCell(3);
         GetRaceShortName(raceHandle, short, sizeof(short));
         SetNativeString(2, short, maxlength);
@@ -869,10 +869,10 @@ public Native_GetRaceShortName(Handle:plugin,numParams)
  */         
 public Native_GetRaceParentName(Handle:plugin,numParams)
 {
-    new Handle:raceHandle = GetRaceHandle(GetNativeCell(1));
+    Handle raceHandle = GetRaceHandle(GetNativeCell(1));
     if (raceHandle != INVALID_HANDLE)
     {
-        decl String:name[SHORT_STRING_LENGTH];
+        char name[SHORT_STRING_LENGTH];
         new maxlength = GetNativeCell(3);
         GetRaceParentName(raceHandle, name, sizeof(name));
         SetNativeString(2, name, maxlength);
@@ -888,7 +888,7 @@ public Native_GetRaceParentName(Handle:plugin,numParams)
  */         
 public Native_GetRaceParentId(Handle:plugin,numParams)
 {
-    new Handle:raceHandle = GetRaceHandle(GetNativeCell(1));
+    Handle raceHandle = GetRaceHandle(GetNativeCell(1));
     if (raceHandle != INVALID_HANDLE)
         return GetRaceParentId(raceHandle);
     else        
@@ -905,7 +905,7 @@ public Native_GetRaceParentId(Handle:plugin,numParams)
  */
 public Native_GetRaceFaction(Handle:plugin,numParams)
 {
-    new Handle:raceHandle = GetRaceHandle(GetNativeCell(1));
+    Handle raceHandle = GetRaceHandle(GetNativeCell(1));
     if (raceHandle != INVALID_HANDLE)
         return (GetNativeCell(2)) ? (_:GetRaceFactionId(raceHandle)) : (_:GetRaceFaction(raceHandle));
     else
@@ -924,7 +924,7 @@ public Native_GetRaceFaction(Handle:plugin,numParams)
  */
 public Native_GetUnitTypeName(Handle:plugin,numParams)
 {
-    decl String:name[NAME_STRING_LENGTH];
+    char name[NAME_STRING_LENGTH];
     GetUnitTypeName(UnitType:GetNativeCell(1), name, sizeof(name), GetNativeCell(4));
     SetNativeString(2, name, GetNativeCell(3));
 }
@@ -941,7 +941,7 @@ public Native_GetUnitTypeName(Handle:plugin,numParams)
  */
 public Native_GetFactionName(Handle:plugin,numParams)
 {
-    decl String:name[NAME_STRING_LENGTH];
+    char name[NAME_STRING_LENGTH];
     GetFactionName(Faction:GetNativeCell(1), name, sizeof(name), GetNativeCell(4));
     SetNativeString(2, name, GetNativeCell(3));
 }
@@ -958,7 +958,7 @@ public Native_GetFactionName(Handle:plugin,numParams)
  */
 public Native_GetFactionDescription(Handle:plugin,numParams)
 {
-    decl String:desc[NAME_STRING_LENGTH];
+    char desc[NAME_STRING_LENGTH];
     GetFactionDescription(Faction:GetNativeCell(1), desc, sizeof(desc), GetNativeCell(4));
     SetNativeString(2, desc, GetNativeCell(3));
 }
@@ -975,7 +975,7 @@ public Native_GetFactionDescription(Handle:plugin,numParams)
  */
 public Native_GetFactionCrystalSound(Handle:plugin,numParams)
 {
-    decl String:sound[NAME_STRING_LENGTH];
+    char sound[NAME_STRING_LENGTH];
     GetFactionCrystalSound(Faction:GetNativeCell(1), sound, sizeof(sound), GetNativeCell(4));
     SetNativeString(2, sound, GetNativeCell(3));
 }
@@ -1015,7 +1015,7 @@ public Native_EmitCrystalSoundToClient(Handle:plugin,numParams)
  */
 public Native_GetFactionVespeneSound(Handle:plugin,numParams)
 {
-    decl String:sound[NAME_STRING_LENGTH];
+    char sound[NAME_STRING_LENGTH];
     GetFactionVespeneSound(Faction:GetNativeCell(1), sound, sizeof(sound), GetNativeCell(4));
     SetNativeString(2, sound, GetNativeCell(3));
 }
@@ -1055,7 +1055,7 @@ public Native_EmitVespeneSoundToClient(Handle:plugin,numParams)
  */
 public Native_GetFactionEnergySound(Handle:plugin,numParams)
 {
-    decl String:sound[NAME_STRING_LENGTH];
+    char sound[NAME_STRING_LENGTH];
     GetFactionEnergySound(Faction:GetNativeCell(1), sound, sizeof(sound), GetNativeCell(4));
     SetNativeString(2, sound, GetNativeCell(3));
 }
@@ -1095,7 +1095,7 @@ public Native_EmitEnergySoundToClient(Handle:plugin,numParams)
  */
 public Native_GetFactionXPSound(Handle:plugin,numParams)
 {
-    decl String:sound[NAME_STRING_LENGTH];
+    char sound[NAME_STRING_LENGTH];
     GetFactionXPSound(Faction:GetNativeCell(1), sound, sizeof(sound), GetNativeCell(4));
     SetNativeString(2, sound, GetNativeCell(3));
 }
@@ -1135,7 +1135,7 @@ public Native_EmitXPSoundToClient(Handle:plugin,numParams)
  */
 public Native_GetFactionLevelSound(Handle:plugin,numParams)
 {
-    decl String:sound[NAME_STRING_LENGTH];
+    char sound[NAME_STRING_LENGTH];
     GetFactionLevelSound(Faction:GetNativeCell(1), sound, sizeof(sound), GetNativeCell(4));
     SetNativeString(2, sound, GetNativeCell(3));
 }
@@ -1176,10 +1176,10 @@ public Native_EmitLevelSoundToClient(Handle:plugin,numParams)
  */         
 public Native_GetUpgradeName(Handle:plugin,numParams)
 {
-    new Handle:raceHandle = GetRaceHandle(GetNativeCell(1));
+    Handle raceHandle = GetRaceHandle(GetNativeCell(1));
     if (raceHandle != INVALID_HANDLE)
     {
-        decl String:name[NAME_STRING_LENGTH];
+        char name[NAME_STRING_LENGTH];
         new upgrade   = GetNativeCell(2);
         new maxlength = GetNativeCell(4);
         new lang = GetNativeCell(5);
@@ -1201,10 +1201,10 @@ public Native_GetUpgradeName(Handle:plugin,numParams)
  */         
 public Native_GetUpgradeShortName(Handle:plugin,numParams)
 {
-    new Handle:raceHandle = GetRaceHandle(GetNativeCell(1));
+    Handle raceHandle = GetRaceHandle(GetNativeCell(1));
     if (raceHandle != INVALID_HANDLE)
     {
-        decl String:short[NAME_STRING_LENGTH];
+        char short[NAME_STRING_LENGTH];
         new upgrade   = GetNativeCell(2);
         new maxlength = GetNativeCell(4);
         GetUpgradeShortName(raceHandle, upgrade, short, sizeof(short));
@@ -1227,10 +1227,10 @@ public Native_GetUpgradeShortName(Handle:plugin,numParams)
 public Native_GetUpgradeDescription(Handle:plugin,numParams)
 {
     new category = 0;
-    new Handle:raceHandle = GetRaceHandle(GetNativeCell(1));
+    Handle raceHandle = GetRaceHandle(GetNativeCell(1));
     if (raceHandle != INVALID_HANDLE)
     {
-        decl String:description[NAME_STRING_LENGTH];
+        char description[NAME_STRING_LENGTH];
         new upgrade   = GetNativeCell(2);
         new maxlength = GetNativeCell(4);
         new lang = GetNativeCell(5);
@@ -1252,12 +1252,12 @@ public Native_GetUpgradeDescription(Handle:plugin,numParams)
  */         
 public Native_SetUpgradeDescription(Handle:plugin,numParams)
 {
-    new Handle:raceHandle = GetRaceHandle(GetNativeCell(1));
+    Handle raceHandle = GetRaceHandle(GetNativeCell(1));
     if (raceHandle != INVALID_HANDLE)
     {
         new upgrade   = GetNativeCell(2);
 
-        decl String:description[NAME_STRING_LENGTH];
+        char description[NAME_STRING_LENGTH];
         GetNativeString(3,description,sizeof(description));
 
         SetUpgradeDescription(raceHandle, upgrade, description);
@@ -1275,7 +1275,7 @@ public Native_SetUpgradeDescription(Handle:plugin,numParams)
  */         
 public Native_GetUpgradeEnergy(Handle:plugin,numParams)
 {
-    new Handle:raceHandle = GetRaceHandle(GetNativeCell(1));
+    Handle raceHandle = GetRaceHandle(GetNativeCell(1));
     if (raceHandle != INVALID_HANDLE)
         return _:GetUpgradeEnergy(raceHandle, GetNativeCell(2));
     else
@@ -1295,21 +1295,21 @@ public Native_GetUpgradeEnergy(Handle:plugin,numParams)
 public Native_SetUpgradeEnergy(Handle:plugin,numParams)
 {
     new race = GetNativeCell(1);
-    new Handle:raceHandle = GetRaceHandle(race);
+    Handle raceHandle = GetRaceHandle(race);
     if (raceHandle != INVALID_HANDLE)
     {
         new upgrade = GetNativeCell(2);
-        new Float:energy = Float:GetNativeCell(3);
+        float energy = Float:GetNativeCell(3);
 
         if (!GetNativeCell(4)) // !override
         {
             // Check if the config file has energy for this upgrade
             new ConfigLoadedStatus:raceLoaded;
-            new Handle:raceConfig = GetRaceConfig(raceHandle, raceLoaded);
+            Handle raceConfig = GetRaceConfig(raceHandle, raceLoaded);
             if (raceConfig != INVALID_HANDLE)
             {
-                new bool:upgradeFound;
-                decl String:short[NAME_STRING_LENGTH];
+                bool upgradeFound;
+                char short[NAME_STRING_LENGTH];
                 GetUpgradeShortName(raceHandle,upgrade,short,sizeof(short));
 
                 if (raceLoaded != ConfigNotLoaded)
@@ -1318,7 +1318,7 @@ public Native_SetUpgradeEnergy(Handle:plugin,numParams)
                     upgradeFound = KvJumpToKey(raceConfig, short, false);
                     if (upgradeFound)
                     {
-                        new Float:value = KvGetFloat(raceConfig,"energy", energy);
+                        float value = KvGetFloat(raceConfig,"energy", energy);
                         if (value == energy)
                         {
                             if (GetRaceConfigIsLoaded(raceHandle) != ConfigWasLoaded)
@@ -1376,7 +1376,7 @@ public Native_SetUpgradeEnergy(Handle:plugin,numParams)
  */         
 public N_GetUpgradeRecurringEnergy(Handle:plugin,numParams)
 {
-    new Handle:raceHandle = GetRaceHandle(GetNativeCell(1));
+    Handle raceHandle = GetRaceHandle(GetNativeCell(1));
     if (raceHandle != INVALID_HANDLE)
         return _:GetUpgradeRecurringEnergy(raceHandle, GetNativeCell(2));
     else
@@ -1396,21 +1396,21 @@ public N_GetUpgradeRecurringEnergy(Handle:plugin,numParams)
 public N_SetUpgradeRecurringEnergy(Handle:plugin,numParams)
 {
     new race = GetNativeCell(1);
-    new Handle:raceHandle = GetRaceHandle(race);
+    Handle raceHandle = GetRaceHandle(race);
     if (raceHandle != INVALID_HANDLE)
     {
         new upgrade = GetNativeCell(2);
-        new Float:recurring_energy = Float:GetNativeCell(3);
+        float recurring_energy = Float:GetNativeCell(3);
 
         if (!GetNativeCell(4)) // !override
         {
             // Check if the config file has recurring_energy for this upgrade
             new ConfigLoadedStatus:raceLoaded;
-            new Handle:raceConfig = GetRaceConfig(raceHandle, raceLoaded);
+            Handle raceConfig = GetRaceConfig(raceHandle, raceLoaded);
             if (raceConfig != INVALID_HANDLE)
             {
-                new bool:upgradeFound;
-                decl String:short[NAME_STRING_LENGTH];
+                bool upgradeFound;
+                char short[NAME_STRING_LENGTH];
                 GetUpgradeShortName(raceHandle,upgrade,short,sizeof(short));
 
                 if (raceLoaded != ConfigNotLoaded)
@@ -1419,7 +1419,7 @@ public N_SetUpgradeRecurringEnergy(Handle:plugin,numParams)
                     upgradeFound = KvJumpToKey(raceConfig, short, false);
                     if (upgradeFound)
                     {
-                        new Float:value = KvGetFloat(raceConfig,"recurring_energy", recurring_energy);
+                        float value = KvGetFloat(raceConfig,"recurring_energy", recurring_energy);
                         if (value == recurring_energy)
                         {
                             if (GetRaceConfigIsLoaded(raceHandle) != ConfigWasLoaded)
@@ -1477,7 +1477,7 @@ public N_SetUpgradeRecurringEnergy(Handle:plugin,numParams)
  */         
 public Native_GetUpgradeVespene(Handle:plugin,numParams)
 {
-    new Handle:raceHandle = GetRaceHandle(GetNativeCell(1));
+    Handle raceHandle = GetRaceHandle(GetNativeCell(1));
     if (raceHandle != INVALID_HANDLE)
         return GetUpgradeVespene(raceHandle, GetNativeCell(2));
     else
@@ -1497,7 +1497,7 @@ public Native_GetUpgradeVespene(Handle:plugin,numParams)
 public Native_SetUpgradeVespene(Handle:plugin,numParams)
 {
     new race = GetNativeCell(1);
-    new Handle:raceHandle = GetRaceHandle(race);
+    Handle raceHandle = GetRaceHandle(race);
     if (raceHandle != INVALID_HANDLE)
     {
         new upgrade = GetNativeCell(2);
@@ -1507,11 +1507,11 @@ public Native_SetUpgradeVespene(Handle:plugin,numParams)
         {
             // Check if the config file has vespene for this upgrade
             new ConfigLoadedStatus:raceLoaded;
-            new Handle:raceConfig = GetRaceConfig(raceHandle, raceLoaded);
+            Handle raceConfig = GetRaceConfig(raceHandle, raceLoaded);
             if (raceConfig != INVALID_HANDLE)
             {
-                new bool:upgradeFound;
-                decl String:short[NAME_STRING_LENGTH];
+                bool upgradeFound;
+                char short[NAME_STRING_LENGTH];
                 GetUpgradeShortName(raceHandle,upgrade,short,sizeof(short));
 
                 if (raceLoaded != ConfigNotLoaded)
@@ -1578,7 +1578,7 @@ public Native_SetUpgradeVespene(Handle:plugin,numParams)
  */         
 public Native_GetUpgradeCrystals(Handle:plugin,numParams)
 {
-    new Handle:raceHandle = GetRaceHandle(GetNativeCell(1));
+    Handle raceHandle = GetRaceHandle(GetNativeCell(1));
     if (raceHandle != INVALID_HANDLE)
         return GetUpgradeCrystals(raceHandle, GetNativeCell(2));
     else
@@ -1598,7 +1598,7 @@ public Native_GetUpgradeCrystals(Handle:plugin,numParams)
 public Native_SetUpgradeCrystals(Handle:plugin,numParams)
 {
     new race = GetNativeCell(1);
-    new Handle:raceHandle = GetRaceHandle(race);
+    Handle raceHandle = GetRaceHandle(race);
     if (raceHandle != INVALID_HANDLE)
     {
         new upgrade = GetNativeCell(2);
@@ -1608,11 +1608,11 @@ public Native_SetUpgradeCrystals(Handle:plugin,numParams)
         {
             // Check if the config file has crystals for this upgrade
             new ConfigLoadedStatus:raceLoaded;
-            new Handle:raceConfig = GetRaceConfig(raceHandle, raceLoaded);
+            Handle raceConfig = GetRaceConfig(raceHandle, raceLoaded);
             if (raceConfig != INVALID_HANDLE)
             {
-                new bool:upgradeFound;
-                decl String:short[NAME_STRING_LENGTH];
+                bool upgradeFound;
+                char short[NAME_STRING_LENGTH];
                 GetUpgradeShortName(raceHandle,upgrade,short,sizeof(short));
 
                 if (raceLoaded != ConfigNotLoaded)
@@ -1679,7 +1679,7 @@ public Native_SetUpgradeCrystals(Handle:plugin,numParams)
  */         
 public Native_GetUpgradeRequiredLevel(Handle:plugin,numParams)
 {
-    new Handle:raceHandle = GetRaceHandle(GetNativeCell(1));
+    Handle raceHandle = GetRaceHandle(GetNativeCell(1));
     if (raceHandle != INVALID_HANDLE)
         return GetUpgradeRequiredLevel(raceHandle, GetNativeCell(2));
     else
@@ -1699,7 +1699,7 @@ public Native_GetUpgradeRequiredLevel(Handle:plugin,numParams)
 public Native_SetUpgradeRequiredLevel(Handle:plugin,numParams)
 {
     new race = GetNativeCell(1);
-    new Handle:raceHandle = GetRaceHandle(race);
+    Handle raceHandle = GetRaceHandle(race);
     if (raceHandle != INVALID_HANDLE)
     {
         new upgrade = GetNativeCell(2);
@@ -1709,11 +1709,11 @@ public Native_SetUpgradeRequiredLevel(Handle:plugin,numParams)
         {
             // Check if the config file has a required_level for this upgrade
             new ConfigLoadedStatus:raceLoaded;
-            new Handle:raceConfig = GetRaceConfig(raceHandle, raceLoaded);
+            Handle raceConfig = GetRaceConfig(raceHandle, raceLoaded);
             if (raceConfig != INVALID_HANDLE)
             {
-                new bool:upgradeFound;
-                decl String:short[NAME_STRING_LENGTH];
+                bool upgradeFound;
+                char short[NAME_STRING_LENGTH];
                 GetUpgradeShortName(raceHandle,upgrade,short,sizeof(short));
 
                 if (raceLoaded != ConfigNotLoaded)
@@ -1780,7 +1780,7 @@ public Native_SetUpgradeRequiredLevel(Handle:plugin,numParams)
  */         
 public Native_GetUpgradeMaxLevel(Handle:plugin,numParams)
 {
-    new Handle:raceHandle = GetRaceHandle(GetNativeCell(1));
+    Handle raceHandle = GetRaceHandle(GetNativeCell(1));
     if (raceHandle != INVALID_HANDLE)
         return GetUpgradeMaxLevel(raceHandle, GetNativeCell(2));
     else
@@ -1799,7 +1799,7 @@ public Native_GetUpgradeMaxLevel(Handle:plugin,numParams)
  */
 public Native_SetUpgradeMaxLevel(Handle:plugin,numParams)
 {
-    new Handle:raceHandle = GetRaceHandle(GetNativeCell(1));
+    Handle raceHandle = GetRaceHandle(GetNativeCell(1));
     if (raceHandle != INVALID_HANDLE)
     {
         new upgrade = GetNativeCell(2);
@@ -1818,7 +1818,7 @@ public Native_SetUpgradeMaxLevel(Handle:plugin,numParams)
  */         
 public Native_GetUpgradeCategory(Handle:plugin,numParams)
 {
-    new Handle:raceHandle = GetRaceHandle(GetNativeCell(1));
+    Handle raceHandle = GetRaceHandle(GetNativeCell(1));
     if (raceHandle != INVALID_HANDLE)
         return GetUpgradeCategory(raceHandle, GetNativeCell(2));
     else
@@ -1836,7 +1836,7 @@ public Native_GetUpgradeCategory(Handle:plugin,numParams)
  */         
 public Native_SetUpgradeCategory(Handle:plugin,numParams)
 {
-    new Handle:raceHandle = GetRaceHandle(GetNativeCell(1));
+    Handle raceHandle = GetRaceHandle(GetNativeCell(1));
     if (raceHandle != INVALID_HANDLE)
     {
         new upgrade = GetNativeCell(2);
@@ -1855,7 +1855,7 @@ public Native_SetUpgradeCategory(Handle:plugin,numParams)
  */         
 public Native_GetUpgradeDisabled(Handle:plugin,numParams)
 {
-    new Handle:raceHandle = GetRaceHandle(GetNativeCell(1));
+    Handle raceHandle = GetRaceHandle(GetNativeCell(1));
     if (raceHandle != INVALID_HANDLE)
         return GetUpgradeCategory(raceHandle, GetNativeCell(2));
     else
@@ -1873,7 +1873,7 @@ public Native_GetUpgradeDisabled(Handle:plugin,numParams)
  */         
 public Native_SetUpgradeDisabled(Handle:plugin,numParams)
 {
-    new Handle:raceHandle = GetRaceHandle(GetNativeCell(1));
+    Handle raceHandle = GetRaceHandle(GetNativeCell(1));
     if (raceHandle != INVALID_HANDLE)
     {
         new upgrade = GetNativeCell(2);
@@ -1905,7 +1905,7 @@ public Native_GetRaceCount(Handle:plugin,numParams)
  */         
 public Native_GetUpgradeCount(Handle:plugin,numParams)
 {
-    new Handle:raceHandle = GetRaceHandle(GetNativeCell(1));
+    Handle raceHandle = GetRaceHandle(GetNativeCell(1));
     if (raceHandle != INVALID_HANDLE)
         return GetUpgradeCount(raceHandle);
     else
@@ -1937,13 +1937,13 @@ public Native_GetUpgradeCount(Handle:plugin,numParams)
  */         
 public Native_CreateShopItem(Handle:plugin,numParams)
 {
-    decl String:short[SHORT_STRING_LENGTH];
+    char short[SHORT_STRING_LENGTH];
     GetNativeString(1,short,sizeof(short));
 
     new crystals = GetNativeCell(2);
     new vespene = GetNativeCell(3);
     new money = GetNativeCell(4);
-    new bool:pcrystals = bool:GetNativeCell(5);
+    bool pcrystals = bool:GetNativeCell(5);
     new xp = GetNativeCell(6);
     new max = GetNativeCell(7);
     new required_level = GetNativeCell(8);
@@ -1951,19 +1951,19 @@ public Native_CreateShopItem(Handle:plugin,numParams)
 
     new Translation:translation = Translation:GetNativeCell(10);
 
-    decl String:translation_file[PLATFORM_MAX_PATH];
+    char translation_file[PLATFORM_MAX_PATH];
     GetNativeString(11,translation_file,sizeof(translation_file));
 
-    decl String:category[NAME_STRING_LENGTH];
+    char category[NAME_STRING_LENGTH];
     GetNativeString(12,category,sizeof(category));
 
-    decl String:name[NAME_STRING_LENGTH];
+    char name[NAME_STRING_LENGTH];
     GetNativeString(13,name,sizeof(name));
 
-    decl String:desc[LONG_STRING_LENGTH];
+    char desc[LONG_STRING_LENGTH];
     GetNativeString(14,desc,sizeof(desc));
 
-    decl String:image[PLATFORM_MAX_PATH];
+    char image[PLATFORM_MAX_PATH];
     GetNativeString(15,image,sizeof(image));
 
     return CreateShopItem(short, crystals, vespene, money, pcrystals, xp, max,
@@ -1997,10 +1997,10 @@ public Native_GetShopItemCount(Handle:plugin,numParams)
  */         
 public Native_GetItemName(Handle:plugin,numParams)
 {
-    new Handle:itemHandle = GetShopItemHandle(GetNativeCell(1));
+    Handle itemHandle = GetShopItemHandle(GetNativeCell(1));
     if (itemHandle != INVALID_HANDLE)
     {
-        decl String:name[NAME_STRING_LENGTH];
+        char name[NAME_STRING_LENGTH];
         new maxlength = GetNativeCell(3);
         new lang = GetNativeCell(4);
         GetItemName(itemHandle, name, sizeof(name), lang);
@@ -2020,10 +2020,10 @@ public Native_GetItemName(Handle:plugin,numParams)
  */ 
 public Native_GetItemDescription(Handle:plugin,numParams)
 {
-    new Handle:itemHandle = GetShopItemHandle(GetNativeCell(1));
+    Handle itemHandle = GetShopItemHandle(GetNativeCell(1));
     if (itemHandle != INVALID_HANDLE)
     {
-        decl String:description[DESCRIPTION_LENGTH];
+        char description[DESCRIPTION_LENGTH];
         new maxlength = GetNativeCell(3);
         new lang = GetNativeCell(4);
         GetItemDescription(itemHandle, description, sizeof(description), lang);
@@ -2044,10 +2044,10 @@ public Native_GetItemDescription(Handle:plugin,numParams)
  */ 
 public Native_GetItemCategory(Handle:plugin,numParams)
 {
-    new Handle:itemHandle = GetShopItemHandle(GetNativeCell(1));
+    Handle itemHandle = GetShopItemHandle(GetNativeCell(1));
     if (itemHandle != INVALID_HANDLE)
     {
-        decl String:category[NAME_STRING_LENGTH];
+        char category[NAME_STRING_LENGTH];
         new maxlength = GetNativeCell(3);
         new lang = GetNativeCell(4);
         GetItemCategory(itemHandle, category, sizeof(category), lang);
@@ -2066,10 +2066,10 @@ public Native_GetItemCategory(Handle:plugin,numParams)
  */         
 public Native_GetItemShortName(Handle:plugin,numParams)
 {
-    new Handle:itemHandle = GetShopItemHandle(GetNativeCell(1));
+    Handle itemHandle = GetShopItemHandle(GetNativeCell(1));
     if (itemHandle != INVALID_HANDLE)
     {
-        decl String:name[NAME_STRING_LENGTH];
+        char name[NAME_STRING_LENGTH];
         new maxlength = GetNativeCell(3);
         GetItemShortName(itemHandle, name, sizeof(name));
         SetNativeString(2, name, maxlength);
@@ -2086,10 +2086,10 @@ public Native_GetItemShortName(Handle:plugin,numParams)
  */
 public Native_SetItemShortName(Handle:plugin,numParams)
 {
-    new Handle:itemHandle=GetShopItemHandle(GetNativeCell(1));
+    Handle itemHandle=GetShopItemHandle(GetNativeCell(1));
     if (itemHandle != INVALID_HANDLE)
     {
-        decl String:short[SHORT_STRING_LENGTH];
+        char short[SHORT_STRING_LENGTH];
         GetNativeString(2,short,sizeof(short));
         SetItemShortName(itemHandle,short);
     }
@@ -2104,7 +2104,7 @@ public Native_SetItemShortName(Handle:plugin,numParams)
  */
 public Native_GetItemPlugin(Handle:plugin,numParams)
 {
-    new Handle:itemHandle=GetShopItemHandle(GetNativeCell(1));
+    Handle itemHandle=GetShopItemHandle(GetNativeCell(1));
     if (itemHandle != INVALID_HANDLE)
         return _:GetItemPlugin(itemHandle);
     else
@@ -2120,7 +2120,7 @@ public Native_GetItemPlugin(Handle:plugin,numParams)
  */         
 public Native_FindShopItem(Handle:plugin,numParams)
 {
-    decl String:name[SHORT_STRING_LENGTH];
+    char name[SHORT_STRING_LENGTH];
     GetNativeString(1,name,sizeof(name));
     return FindShopItem(name);
 }
@@ -2135,8 +2135,8 @@ public Native_FindShopItem(Handle:plugin,numParams)
  */
 public Native_CreateHelpCommand(Handle:plugin,numParams)
 {
-    decl String:name[NAME_STRING_LENGTH];
-    decl String:desc[LONG_STRING_LENGTH];
+    char name[NAME_STRING_LENGTH];
+    char desc[LONG_STRING_LENGTH];
     GetNativeString(1,name,sizeof(name));
     GetNativeString(2,desc,sizeof(desc));
     return NewHelpCommand(name,desc);
@@ -2151,7 +2151,7 @@ public Native_CreateHelpCommand(Handle:plugin,numParams)
  */
 public Native_FindRace(Handle:plugin,numParams)
 {
-    decl String:name[SHORT_STRING_LENGTH];
+    char name[SHORT_STRING_LENGTH];
     GetNativeString(1,name,sizeof(name));
     return FindRace(name);
 }
@@ -2231,22 +2231,22 @@ public Native_HurtPlayer(Handle:plugin,numParams)
     new attacker = GetNativeCell(3);
 
     new xp = GetNativeCell(6);
-    new bool:explode = bool:GetNativeCell(7);
+    bool explode = bool:GetNativeCell(7);
     new type = GetNativeCell(8);
     new DamageFrom:category = DamageFrom:GetNativeCell(9);
-    new Float:limit = Float:GetNativeCell(10);
-    new bool:ignore_armor = bool:GetNativeCell(11);
-    new bool:ignore_immunity = bool:GetNativeCell(12);
-    new bool:in_hurt_event = bool:GetNativeCell(13);
-    new bool:no_suicide = bool:GetNativeCell(14);
-    new bool:no_forward = bool:GetNativeCell(15);
-    new bool:no_translate = bool:GetNativeCell(16);
-    new bool:prevent_stack = bool:GetNativeCell(17);
+    float limit = Float:GetNativeCell(10);
+    bool ignore_armor = bool:GetNativeCell(11);
+    bool ignore_immunity = bool:GetNativeCell(12);
+    bool in_hurt_event = bool:GetNativeCell(13);
+    bool no_suicide = bool:GetNativeCell(14);
+    bool no_forward = bool:GetNativeCell(15);
+    bool no_translate = bool:GetNativeCell(16);
+    bool prevent_stack = bool:GetNativeCell(17);
 
-    decl String:weapon_name[NAME_STRING_LENGTH];
+    char weapon_name[NAME_STRING_LENGTH];
     GetNativeString(4,weapon_name,sizeof(weapon_name));
 
-    decl String:weapon_desc[NAME_STRING_LENGTH];
+    char weapon_desc[NAME_STRING_LENGTH];
     GetNativeString(5,weapon_desc,sizeof(weapon_desc));
 
     return HurtPlayer(victim, damage, attacker, weapon_name,
@@ -2292,7 +2292,7 @@ HurtPlayer(victim, damage, attacker=0, const String:weapon_name[]="",
                 damage = max;
         }
 
-        new bool:isVictimClient = IsClient(victim);
+        bool isVictimClient = IsClient(victim);
         if (isVictimClient && prevent_stack)
             g_InjuredBy[victim] = attacker;
 
@@ -2357,7 +2357,7 @@ HurtPlayer(victim, damage, attacker=0, const String:weapon_name[]="",
 
                 if (!in_hurt_event && !no_forward)
                 {
-                    new Handle:event = CreateEvent("player_hurt");
+                    Handle event = CreateEvent("player_hurt");
                     if (event != INVALID_HANDLE)
                     {
                         SetEventInt(event, "userid", GetClientUserId(victim));
@@ -2476,16 +2476,16 @@ public Native_KillPlayer(Handle:plugin,numParams)
         new attacker = GetNativeCell(2);
 
         new xp = GetNativeCell(5);
-        new bool:explode = GetNativeCell(6);
+        bool explode = GetNativeCell(6);
         new type = GetNativeCell(7);
-        new bool:silent = GetNativeCell(8);
-        new bool:no_suicide = GetNativeCell(9);
-        new bool:no_translate = bool:GetNativeCell(10);
+        bool silent = GetNativeCell(8);
+        bool no_suicide = GetNativeCell(9);
+        bool no_translate = bool:GetNativeCell(10);
 
-        decl String:weapon_name[NAME_STRING_LENGTH];
+        char weapon_name[NAME_STRING_LENGTH];
         GetNativeString(3,weapon_name,sizeof(weapon_name));
 
-        decl String:weapon_desc[NAME_STRING_LENGTH];
+        char weapon_desc[NAME_STRING_LENGTH];
         GetNativeString(4,weapon_desc,sizeof(weapon_desc));
 
         KillPlayer(victim, attacker, weapon_name, weapon_desc,
@@ -2511,7 +2511,7 @@ KillPlayer(victim, attacker, const String:weapon_name[], const String:weapon_des
 
     if (IsClient(victim))
     {
-        new bool:validAttacker = IsValidClient(attacker);
+        bool validAttacker = IsValidClient(attacker);
         g_KilledBy[victim] = attacker;
         g_Killed[victim] = true;
 
@@ -2531,7 +2531,7 @@ KillPlayer(victim, attacker, const String:weapon_name[], const String:weapon_des
                     DispatchKeyValue(ent, "spawnflags", "3964");
                     DispatchSpawn(ent);
 
-                    new Float:pos[3];
+                    float pos[3];
                     GetClientAbsOrigin(victim, pos);
 
                     TeleportEntity(ent, pos, NULL_VECTOR, NULL_VECTOR);
@@ -2613,7 +2613,7 @@ KillPlayer(victim, attacker, const String:weapon_name[], const String:weapon_des
             DispatchKeyValue(ent, "spawnflags", "3964");
             DispatchSpawn(ent);
 
-            new Float:pos[3];
+            float pos[3];
             GetEntPropVector(victim, Prop_Send, "m_vecOrigin", pos);
 
             TeleportEntity(ent, pos, NULL_VECTOR, NULL_VECTOR);
@@ -2759,7 +2759,7 @@ public Native_DamageEntity(Handle:plugin,numParams)
     new attacker = GetNativeCell(3);
     new dmg_type = GetNativeCell(4);
 
-    decl String:weapon[NAME_STRING_LENGTH];
+    char weapon[NAME_STRING_LENGTH];
     GetNativeString(5,weapon,sizeof(weapon));
 
     DamageEntity(victim,damage,attacker,dmg_type,weapon);
@@ -2802,7 +2802,7 @@ public Native_GetSuppressDamageForward(Handle:plugin,numParams)
  */
 public Native_GetDamage(Handle:plugin,numParams)
 {
-    new Handle:event = GetNativeCell(1);
+    Handle event = GetNativeCell(1);
     new client = (numParams >= 2) ? GetNativeCell(2) : 0;
     return GetDamage(event, client);
 }
@@ -2823,13 +2823,13 @@ public Native_GetDamage(Handle:plugin,numParams)
  */
 public Native_DisplayDamage(Handle:plugin,numParams)
 {
-    decl String:weapon[NAME_STRING_LENGTH],String:desc[LONG_STRING_LENGTH];
+    char weapon[NAME_STRING_LENGTH],String:desc[LONG_STRING_LENGTH];
     new client = GetNativeCell(1);
     new victim = GetNativeCell(2);
     new hp = GetNativeCell(3);
     GetNativeString(4,weapon,sizeof(weapon));
     GetNativeString(5,desc,sizeof(desc));
-    new bool:no_translate = bool:GetNativeCell(6);
+    bool no_translate = bool:GetNativeCell(6);
     DisplayDamage(client, victim, hp, weapon,
                   desc, no_translate);
 }
@@ -2849,13 +2849,13 @@ public Native_DisplayDamage(Handle:plugin,numParams)
  */
 public Native_DisplayKill(Handle:plugin,numParams)
 {
-    decl String:weapon[NAME_STRING_LENGTH],String:desc[LONG_STRING_LENGTH];
+    char weapon[NAME_STRING_LENGTH],String:desc[LONG_STRING_LENGTH];
     new client = GetNativeCell(1);
     new victim = GetNativeCell(2);
     new xp = GetNativeCell(3);
     GetNativeString(4,weapon,sizeof(weapon));
     GetNativeString(5,desc,sizeof(desc));
-    new bool:no_translate = bool:GetNativeCell(6);
+    bool no_translate = bool:GetNativeCell(6);
 
     g_Killed[victim] = true;
     g_KilledBy[victim] = client;
@@ -2881,7 +2881,7 @@ public Native_DisplayKill(Handle:plugin,numParams)
  */
 public Native_DisplayMessage(Handle:plugin,numParams)
 {
-    decl String:buffer[1024], written;
+    char buffer[1024], written;
     new client = GetNativeCell(1);
     new Display:flags = Display:GetNativeCell(2);
 
@@ -2893,7 +2893,7 @@ public Native_DisplayMessage(Handle:plugin,numParams)
                        written, /* Store # of written bytes */
                        buffer); /* Use our buffer */
 
-    new bool:displayToClient = (IsValidClient(client) && !IsFakeClient(client));
+    bool displayToClient = (IsValidClient(client) && !IsFakeClient(client));
     if (displayToClient)
     {
         if (FlipBit_IsSet(g_ClientDisplayBits[client] & flags))
@@ -2914,7 +2914,7 @@ public Native_DisplayMessage(Handle:plugin,numParams)
     // Debug
     if (StrContains(buffer, "{") >= 0 || StrContains(buffer, "%") >= 0)
     {
-        decl String:fmt[128];
+        char fmt[128];
         GetNativeString(3,fmt,sizeof(fmt));
         LogError("Malformed %s Message displayed to %N:%s",
                  fmt, ValidClientIndex(client), buffer);
@@ -2935,11 +2935,11 @@ public Native_DisplayMessage(Handle:plugin,numParams)
  */
 public Native_DisplayHint(Handle:plugin,numParams)
 {
-    decl String:buffer[1024], written;
+    char buffer[1024], written;
     new client = GetNativeCell(1);
     new HintSlot:slot = HintSlot:GetNativeCell(2);
-    new bool:exclusive = bool:GetNativeCell(3);
-    new Float:duration = Float:GetNativeCell(4);
+    bool exclusive = bool:GetNativeCell(3);
+    float duration = Float:GetNativeCell(4);
 
     SetGlobalTransTarget(client);
     FormatNativeString(0, /* Use an output buffer */
@@ -3008,7 +3008,7 @@ public Native_ClearHud(Handle:plugin,numParams)
     if (IsValidClient(client))
     {
         new written = 0;
-        decl String:contains[sizeof(m_HudMessage[])];
+        char contains[sizeof(m_HudMessage[])];
         SetGlobalTransTarget(client);
         FormatNativeString(0, /* Use an output buffer */
                            2, /* Format param */
@@ -3128,7 +3128,7 @@ public Native_ShowEnergy(Handle:plugin,numParams)
  */
 public Native_GetEntityName(Handle:plugin,numParams)
 {
-    decl String:name[NAME_STRING_LENGTH];
+    char name[NAME_STRING_LENGTH];
     new maxlength = GetNativeCell(3);
     GetEntityName(GetNativeCell(1), name, sizeof(name), GetNativeCell(4));
     SetNativeString(2, name, maxlength);
@@ -3195,7 +3195,7 @@ public Native_SetArmor(Handle:plugin,numParams)
     SetArmor(client, amount);
     SetArmorFlags(client, flags);
 
-    new bool:hasShields = ((flags & Armor_IsShield) == Armor_IsShield);
+    bool hasShields = ((flags & Armor_IsShield) == Armor_IsShield);
     SetMaxShields(client, (max > 0) ? max : (hasShields ? amount : 0));
 
     if (bytes == 0 && (amount > 0 || max > 0))
@@ -3401,7 +3401,7 @@ stock RegenerateShields(client, amount=1, Float:power=-1.0, bool:limitToMaxHP=tr
         if (power < 0.0)
             power = float(amount);
 
-        new Float:energy = GetEnergy(client);
+        float energy = GetEnergy(client);
         if (energy >= power)
         {
             new e = RoundToNearest(energy);
@@ -3410,7 +3410,7 @@ stock RegenerateShields(client, amount=1, Float:power=-1.0, bool:limitToMaxHP=tr
 
             if (amount > 0)
             {
-                new Float:a = float(amount);
+                float a = float(amount);
                 if (power > a)
                     power = a;
 
@@ -3647,7 +3647,7 @@ public Native_GetUpgradeLevel(Handle:plugin,numParams)
     new client      = GetNativeCell(1);
     new race        = GetNativeCell(2);
     new upgrade     = GetNativeCell(3);
-    new bool:check  = bool:GetNativeCell(4);
+    bool check  = bool:GetNativeCell(4);
 
     TraceInto("Natives", "GetUpgradeLevel", "client=%d, race=%d, upgrade=%d; level=%d", \
               client, race, upgrade, level);
@@ -3875,7 +3875,7 @@ public Native_GetEnergy(Handle:plugin,numParams)
     new client = GetNativeCell(1);
     if (IsValidClient(client))
     {
-        new Float:amount = GetEnergy(client);
+        float amount = GetEnergy(client);
         if (GetNativeCell(2))
             amount /= g_fEnergyFactor;
         return _:amount;
@@ -3898,7 +3898,7 @@ public Native_SetEnergy(Handle:plugin,numParams)
     new client = GetNativeCell(1);
     if (IsValidClient(client))
     {
-        new Float:amount = Float:GetNativeCell(2);
+        float amount = Float:GetNativeCell(2);
         if (GetNativeCell(3))
             amount *= g_fEnergyFactor;
 
@@ -3920,7 +3920,7 @@ public Native_IncrementEnergy(Handle:plugin,numParams)
     new client = GetNativeCell(1);
     if (IsValidClient(client))
     {
-        new Float:amount = Float:GetNativeCell(2);
+        float amount = Float:GetNativeCell(2);
         if (GetNativeCell(3))
             amount *= g_fEnergyFactor;
 
@@ -3942,7 +3942,7 @@ public Native_DecrementEnergy(Handle:plugin,numParams)
     new client = GetNativeCell(1);
     if (IsValidClient(client))
     {
-        new Float:amount = Float:GetNativeCell(2);
+        float amount = Float:GetNativeCell(2);
         if (GetNativeCell(3))
             amount *= g_fEnergyFactor;
 
@@ -4572,7 +4572,7 @@ public Native_SetAttribute(Handle:plugin,numParams)
     new client = GetNativeCell(1);
     if (IsValidClient(client))
     {
-        new bool:attrib_state = (numParams >= 3) ? (bool:GetNativeCell(3)) : true;
+        bool attrib_state = (numParams >= 3) ? (bool:GetNativeCell(3)) : true;
         SetAttribute(client,Attribute:GetNativeCell(2),attrib_state);
     }
 }
@@ -4650,17 +4650,17 @@ public Native_SetImmunity(Handle:plugin,numParams)
     if (IsValidClient(client))
     {
         new Immunity:imm = Immunity:GetNativeCell(2);
-        new bool:imm_state = (numParams >= 3) ? (bool:GetNativeCell(3)) : true;
+        bool imm_state = (numParams >= 3) ? (bool:GetNativeCell(3)) : true;
 
-        new Handle:propData=GetPropData(client);
+        Handle propData=GetPropData(client);
         if (propData != INVALID_HANDLE)
         {
             new id=GetNativeCell(4);
-            new Handle:pluginid=Handle:GetNativeCell(5);
+            Handle pluginid=Handle:GetNativeCell(5);
             if (pluginid == INVALID_HANDLE)
                 pluginid = plugin;
 
-            new Handle:propInfo = GetPropInfo(propData, pluginid, id);
+            Handle propInfo = GetPropInfo(propData, pluginid, id);
             if (propInfo == INVALID_HANDLE)
             {
                 // create a new entry
@@ -4692,7 +4692,7 @@ public Native_SetImmunity(Handle:plugin,numParams)
                     new size=GetArraySize(propData);
                     for (new x=0;x<size;x++)
                     {
-                        new Handle:prop=GetArrayCell(propData,x);
+                        Handle prop=GetArrayCell(propData,x);
                         immunities |= GetPropInfoImmunities(prop);
                     }
                     SetImmunityBits(client, immunities);
@@ -4775,17 +4775,17 @@ public Native_SetRestriction(Handle:plugin,numParams)
     if (IsValidClient(client))
     {
         new Restriction:restrict = Restriction:GetNativeCell(2);
-        new bool:restrict_state = (numParams >= 3) ? (bool:GetNativeCell(3)) : true;
+        bool restrict_state = (numParams >= 3) ? (bool:GetNativeCell(3)) : true;
 
-        new Handle:propData=GetPropData(client);
+        Handle propData=GetPropData(client);
         if (propData != INVALID_HANDLE)
         {
             new id=GetNativeCell(4);
-            new Handle:pluginid=Handle:GetNativeCell(5);
+            Handle pluginid=Handle:GetNativeCell(5);
             if (pluginid == INVALID_HANDLE)
                 pluginid = plugin;
 
-            new Handle:propInfo = GetPropInfo(propData, pluginid, id);
+            Handle propInfo = GetPropInfo(propData, pluginid, id);
             if (propInfo == INVALID_HANDLE)
             {
                 // create a new entry
@@ -4817,7 +4817,7 @@ public Native_SetRestriction(Handle:plugin,numParams)
                     new size=GetArraySize(propData);
                     for (new x=0;x<size;x++)
                     {
-                        new Handle:prop=GetArrayCell(propData,x);
+                        Handle prop=GetArrayCell(propData,x);
                         restrictions |= GetPropInfoRestrictions(prop);
                     }
                     SetRestrictionBits(client, restrictions);
@@ -4847,18 +4847,18 @@ public Native_SetSpeed(Handle:plugin,numParams)
     new client = GetNativeCell(1);
     if (IsValidClient(client))
     {
-        new Handle:propData=GetPropData(client);
+        Handle propData=GetPropData(client);
         if (propData != INVALID_HANDLE)
         {
-            new Float:speed     = GetNativeCell(2);
-            new bool:apply      = GetNativeCell(3);
+            float speed     = GetNativeCell(2);
+            bool apply      = GetNativeCell(3);
             new id              = GetNativeCell(4);
-            new Handle:pluginid = Handle:GetNativeCell(5);
+            Handle pluginid = Handle:GetNativeCell(5);
             if (pluginid == INVALID_HANDLE)
                 pluginid = plugin;
 
-            new Float:oldSpeed = speed;
-            new Handle:propInfo = GetPropInfo(propData, pluginid, id);
+            float oldSpeed = speed;
+            Handle propInfo = GetPropInfo(propData, pluginid, id);
             if (propInfo == INVALID_HANDLE)
             {
                 // create a new entry
@@ -4903,18 +4903,18 @@ public Native_SetGravity(Handle:plugin,numParams)
     new client = GetNativeCell(1);
     if (IsValidClient(client))
     {
-        new Handle:propData=GetPropData(client);
+        Handle propData=GetPropData(client);
         if (propData != INVALID_HANDLE)
         {
-            new Float:gravity   = GetNativeCell(2);
-            new bool:apply      = GetNativeCell(3);
+            float gravity   = GetNativeCell(2);
+            bool apply      = GetNativeCell(3);
             new id              = GetNativeCell(4);
-            new Handle:pluginid = Handle:GetNativeCell(5);
+            Handle pluginid = Handle:GetNativeCell(5);
             if (pluginid == INVALID_HANDLE)
                 pluginid = plugin;
 
-            new Float:oldGravity = gravity;
-            new Handle:propInfo = GetPropInfo(propData, plugin, id);
+            float oldGravity = gravity;
+            Handle propInfo = GetPropInfo(propData, plugin, id);
             if (propInfo == INVALID_HANDLE)
             {
                 // create a new entry
@@ -4982,30 +4982,30 @@ public Native_SetVisibility(Handle:plugin,numParams)
         TraceInto("Native", "Native_SetVisibility", "client=%d:%L", \
                   client, ValidClientIndex(client));
 
-        new Handle:propData=GetPropData(client);
+        Handle propData=GetPropData(client);
         if (propData != INVALID_HANDLE)
         {
             new VisibilityType:type         = GetNativeCell(2);
             new visibility                  = GetNativeCell(3);
-            new Float:factor1               = GetNativeCell(4);
-            new Float:factor2               = GetNativeCell(5);
+            float factor1               = GetNativeCell(4);
+            float factor2               = GetNativeCell(5);
             new RenderMode:mode             = GetNativeCell(6);
             new RenderFx:fx                 = GetNativeCell(7); 
             new r                           = GetNativeCell(8);
             new g                           = GetNativeCell(9);
             new b                           = GetNativeCell(10);
             new weaponAlpha                 = GetNativeCell(11);
-            new bool:colorWeapons           = GetNativeCell(12);
+            bool colorWeapons           = GetNativeCell(12);
             new VisibilityPriority:priority = GetNativeCell(13);
-            new Float:timestamp             = GetNativeCell(14);
-            new bool:apply                  = GetNativeCell(15);
+            float timestamp             = GetNativeCell(14);
+            bool apply                  = GetNativeCell(15);
             new id                          = GetNativeCell(16);
-            new Handle:pluginid             = Handle:GetNativeCell(17);
+            Handle pluginid             = Handle:GetNativeCell(17);
             if (pluginid == INVALID_HANDLE)
                 pluginid = plugin;
 
             new oldVisibility  = visibility;
-            new Handle:propInfo = GetPropInfo(propData, pluginid, id);
+            Handle propInfo = GetPropInfo(propData, pluginid, id);
             if (propInfo == INVALID_HANDLE)
             {
                 Trace("Create new properties for %d:%L: visibility=%d,type=%d,f1=%f,f2=%f,mode=%d,fx=%d,r=%d,g=%d,b=%d,weaponAlpha=%d", \
@@ -5106,18 +5106,18 @@ public Native_SetOverrideSpeed(Handle:plugin,numParams)
     new client = GetNativeCell(1);
     if (IsValidClient(client))
     {
-        new Handle:propData=GetPropData(client);
+        Handle propData=GetPropData(client);
         if (propData != INVALID_HANDLE)
         {
-            new Float:speed     = GetNativeCell(2);
-            new bool:apply      = GetNativeCell(3);
+            float speed     = GetNativeCell(2);
+            bool apply      = GetNativeCell(3);
             new id              = GetNativeCell(4);
-            new Handle:pluginid = Handle:GetNativeCell(5);
+            Handle pluginid = Handle:GetNativeCell(5);
             if (pluginid == INVALID_HANDLE)
                 pluginid = plugin;
 
-            new Float:oldSpeed = speed;
-            new Handle:propInfo = GetPropInfo(propData, pluginid, id);
+            float oldSpeed = speed;
+            Handle propInfo = GetPropInfo(propData, pluginid, id);
             if (propInfo == INVALID_HANDLE)
             {
                 // create a new entry
@@ -5161,18 +5161,18 @@ public Native_SetOverrideGravity(Handle:plugin,numParams)
     new client = GetNativeCell(1);
     if (IsValidClient(client))
     {
-        new Handle:propData=GetPropData(client);
+        Handle propData=GetPropData(client);
         if (propData != INVALID_HANDLE)
         {
-            new Float:gravity   = GetNativeCell(2);
-            new bool:apply      = GetNativeCell(3);
+            float gravity   = GetNativeCell(2);
+            bool apply      = GetNativeCell(3);
             new id              = GetNativeCell(4);
-            new Handle:pluginid = Handle:GetNativeCell(5);
+            Handle pluginid = Handle:GetNativeCell(5);
             if (pluginid == INVALID_HANDLE)
                 pluginid = plugin;
 
-            new Float:oldGravity = gravity;
-            new Handle:propInfo = GetPropInfo(propData, pluginid, id);
+            float oldGravity = gravity;
+            Handle propInfo = GetPropInfo(propData, pluginid, id);
             if (propInfo == INVALID_HANDLE)
             {
                 // create a new entry
@@ -5216,18 +5216,18 @@ public Native_SetOverrideVisiblity(Handle:plugin,numParams)
     new client = GetNativeCell(1);
     if (IsValidClient(client))
     {
-        new Handle:propData=GetPropData(client);
+        Handle propData=GetPropData(client);
         if (propData != INVALID_HANDLE)
         {
             new visibility      = GetNativeCell(2);
-            new bool:apply      = GetNativeCell(3);
+            bool apply      = GetNativeCell(3);
             new id              = GetNativeCell(4);
-            new Handle:pluginid = Handle:GetNativeCell(5);
+            Handle pluginid = Handle:GetNativeCell(5);
             if (pluginid == INVALID_HANDLE)
                 pluginid = plugin;
 
             new oldVisibility=visibility;
-            new Handle:propInfo = GetPropInfo(propData, pluginid, id);
+            Handle propInfo = GetPropInfo(propData, pluginid, id);
             if (propInfo == INVALID_HANDLE)
             {
                 // create a new entry
@@ -5273,18 +5273,18 @@ public Native_SetMoveType(Handle:plugin,numParams)
     new client = GetNativeCell(1);
     if (IsValidClient(client))
     {
-        new Handle:propData=GetPropData(client);
+        Handle propData=GetPropData(client);
         if (propData != INVALID_HANDLE)
         {
             new MoveType:mt     = MoveType:GetNativeCell(2);
-            new bool:apply      = GetNativeCell(3);
+            bool apply      = GetNativeCell(3);
             new id              = GetNativeCell(4);
-            new Handle:pluginid = Handle:GetNativeCell(5);
+            Handle pluginid = Handle:GetNativeCell(5);
             if (pluginid == INVALID_HANDLE)
                 pluginid = plugin;
 
             new MoveType:oldMt = mt;
-            new Handle:propInfo = GetPropInfo(propData, pluginid, id);
+            Handle propInfo = GetPropInfo(propData, pluginid, id);
             if (propInfo == INVALID_HANDLE)
             {
                 // create a new entry
@@ -5298,7 +5298,7 @@ public Native_SetMoveType(Handle:plugin,numParams)
                 SetPropInfoMoveType(propInfo,mt);
             }
 
-            new bool:setNow = (mt != oldMt || mt != MOVETYPE_DEFAULT ||
+            bool setNow = (mt != oldMt || mt != MOVETYPE_DEFAULT ||
                                (mt == MOVETYPE_DEFAULT && oldMt != MOVETYPE_DEFAULT));
 
             if (apply)
@@ -5347,18 +5347,18 @@ public Native_SetHealthRegen(Handle:plugin,numParams)
     new client = GetNativeCell(1);
     if (IsValidClient(client))
     {
-        new Handle:propData=GetPropData(client);
+        Handle propData=GetPropData(client);
         if (propData != INVALID_HANDLE)
         {
-            new Float:rate=Float:GetNativeCell(2);
+            float rate=Float:GetNativeCell(2);
             new RegenFlags:flags=RegenFlags:GetNativeCell(3);
 
             new id=GetNativeCell(4);
-            new Handle:pluginid = Handle:GetNativeCell(5);
+            Handle pluginid = Handle:GetNativeCell(5);
             if (pluginid == INVALID_HANDLE)
                 pluginid = plugin;
 
-            new Handle:propInfo = GetPropInfo(propData, pluginid, id);
+            Handle propInfo = GetPropInfo(propData, pluginid, id);
             if (propInfo == INVALID_HANDLE)
             {
                 // create a new entry
@@ -5375,11 +5375,11 @@ public Native_SetHealthRegen(Handle:plugin,numParams)
 
             if (rate == 0.0)
             {
-                new Float:regen=rate;
+                float regen=rate;
                 new numprops=GetArraySize(propData);
                 for (new x=0;x<numprops;x++)
                 {
-                    new Handle:checkInfo=GetArrayCell(propData,x);
+                    Handle checkInfo=GetArrayCell(propData,x);
                     if (checkInfo != INVALID_HANDLE)
                     {
                         regen += Float:GetArrayCell(checkInfo,_:PropInfo_RegenHealth);
@@ -5429,18 +5429,18 @@ public Native_SetShieldRegen(Handle:plugin,numParams)
     new client = GetNativeCell(1);
     if (IsValidClient(client))
     {
-        new Handle:propData=GetPropData(client);
+        Handle propData=GetPropData(client);
         if (propData != INVALID_HANDLE)
         {
-            new Float:rate=GetNativeCell(2);
+            float rate=GetNativeCell(2);
             new RegenFlags:flags=RegenFlags:GetNativeCell(3);
 
             new id=GetNativeCell(4);
-            new Handle:pluginid = Handle:GetNativeCell(5);
+            Handle pluginid = Handle:GetNativeCell(5);
             if (pluginid == INVALID_HANDLE)
                 pluginid = plugin;
 
-            new Handle:propInfo = GetPropInfo(propData, pluginid, id);
+            Handle propInfo = GetPropInfo(propData, pluginid, id);
             if (propInfo == INVALID_HANDLE)
             {
                 // create a new entry
@@ -5457,11 +5457,11 @@ public Native_SetShieldRegen(Handle:plugin,numParams)
 
             if (rate == 0.0)
             {
-                new Float:regen=rate;
+                float regen=rate;
                 new numprops=GetArraySize(propData);
                 for (new x=0;x<numprops;x++)
                 {
-                    new Handle:checkInfo=GetArrayCell(propData,x);
+                    Handle checkInfo=GetArrayCell(propData,x);
                     if (checkInfo != INVALID_HANDLE)
                     {
                         regen += Float:GetArrayCell(checkInfo,_:PropInfo_RegenShield);
@@ -5510,17 +5510,17 @@ public Native_SetPhysicalArmorPercent(Handle:plugin,numParams)
     new client = GetNativeCell(1);
     if (IsValidClient(client))
     {
-        new Handle:propData=GetPropData(client);
+        Handle propData=GetPropData(client);
         if (propData != INVALID_HANDLE)
         {
-            new Float:armor=GetNativeCell(2);
+            float armor=GetNativeCell(2);
 
             new id=GetNativeCell(3);
-            new Handle:pluginid = Handle:GetNativeCell(4);
+            Handle pluginid = Handle:GetNativeCell(4);
             if (pluginid == INVALID_HANDLE)
                 pluginid = plugin;
 
-            new Handle:propInfo = GetPropInfo(propData, pluginid, id);
+            Handle propInfo = GetPropInfo(propData, pluginid, id);
             if (propInfo == INVALID_HANDLE)
             {
                 // create a new entry
@@ -5568,17 +5568,17 @@ public Native_SetMagicalArmorPercent(Handle:plugin,numParams)
     new client = GetNativeCell(1);
     if (IsValidClient(client))
     {
-        new Handle:propData=GetPropData(client);
+        Handle propData=GetPropData(client);
         if (propData != INVALID_HANDLE)
         {
-            new Float:armor=GetNativeCell(2);
+            float armor=GetNativeCell(2);
 
             new id=GetNativeCell(3);
-            new Handle:pluginid = Handle:GetNativeCell(4);
+            Handle pluginid = Handle:GetNativeCell(4);
             if (pluginid == INVALID_HANDLE)
                 pluginid = plugin;
 
-            new Handle:propInfo = GetPropInfo(propData, pluginid, id);
+            Handle propInfo = GetPropInfo(propData, pluginid, id);
             if (propInfo == INVALID_HANDLE)
             {
                 // create a new entry
@@ -5630,13 +5630,13 @@ public Native_RestorePlayer(Handle:plugin,numParams)
 
         if (result != Plugin_Stop)
         {
-            new Handle:propData=GetPropData(client); // Player's properties
+            Handle propData=GetPropData(client); // Player's properties
             if (propData != INVALID_HANDLE)
             {
                 new size=GetArraySize(propData);
                 for (new y=0;y<size;y++)
                 {
-                    new Handle:propInfo = GetArrayCell(propData,y);
+                    Handle propInfo = GetArrayCell(propData,y);
                     SetPropInfoOverrideSpeed(propInfo, -1.0);
                     SetPropInfoOverrideGravity(propInfo, -1.0);
                     SetPropInfoOverrideVisibility(propInfo, -1.0);
@@ -5708,16 +5708,16 @@ public Native_CreateCooldown(Handle:plugin,numParams)
     new client = GetNativeCell(1);
     new race = GetNativeCell(2);
     new upgrade = GetNativeCell(3);
-    new Float:duration = Float:GetNativeCell(4);
+    float duration = Float:GetNativeCell(4);
     new CooldownType:type = CooldownType:GetNativeCell(6);
 
-    decl String:name[NAME_STRING_LENGTH];
+    char name[NAME_STRING_LENGTH];
     GetNativeString(5,name,sizeof(name));
 
-    decl String:expireSound[LONG_STRING_LENGTH];
+    char expireSound[LONG_STRING_LENGTH];
     GetNativeString(7,expireSound,sizeof(expireSound));
 
-    new Handle:raceHandle = GetRaceHandle(race);
+    Handle raceHandle = GetRaceHandle(race);
 
     if (duration <= 0.0)
     {
@@ -5825,22 +5825,22 @@ public Native_CanInvokeUpgrade(Handle:plugin,numParams)
     new client = GetNativeCell(1);
     new race = GetNativeCell(2);
     new upgrade = GetNativeCell(3);
-    new bool:chargeCosts = bool:GetNativeCell(4);
-    new bool:notify = bool:GetNativeCell(5);
+    bool chargeCosts = bool:GetNativeCell(4);
+    bool notify = bool:GetNativeCell(5);
 
     if (race <= 0)
         race = GetRace(client);
 
-    new Handle:raceHandle = GetRaceHandle(race);
+    Handle raceHandle = GetRaceHandle(race);
     new Faction:faction = (race >= 0) ? GetRaceFactionId(raceHandle) : Generic;
 
-    new Float:energy;
-    new Float:accumulated;
-    new bool:canUseAccumulated;
-    new Float:energy_cost = GetUpgradeEnergy(raceHandle,upgrade);
+    float energy;
+    float accumulated;
+    bool canUseAccumulated;
+    float energy_cost = GetUpgradeEnergy(raceHandle,upgrade);
     if (energy_cost > 0.0)
     {
-        new Float:available = energy = GetEnergy(client);
+        float available = energy = GetEnergy(client);
         canUseAccumulated = GetUpgradeCanUseAccumulated(raceHandle,upgrade);
         if (canUseAccumulated)
         {
@@ -5852,7 +5852,7 @@ public Native_CanInvokeUpgrade(Handle:plugin,numParams)
         {
             if (notify)
             {
-                decl String:upgradeName[NAME_STRING_LENGTH];
+                char upgradeName[NAME_STRING_LENGTH];
                 GetUpgradeName(raceHandle, upgrade, upgradeName, sizeof(upgradeName), client);
 
                 if (canUseAccumulated)
@@ -5884,7 +5884,7 @@ public Native_CanInvokeUpgrade(Handle:plugin,numParams)
         {
             if (notify)
             {
-                decl String:upgradeName[NAME_STRING_LENGTH];
+                char upgradeName[NAME_STRING_LENGTH];
                 GetUpgradeName(raceHandle, upgrade, upgradeName, sizeof(upgradeName), client);
                 DisplayMessage(client, Display_Ultimate, "%t", "InsufficientCrystalsFor", upgradeName, crystal_cost);
                 EmitEnergySoundToClient(client,faction);
@@ -5899,7 +5899,7 @@ public Native_CanInvokeUpgrade(Handle:plugin,numParams)
         {
             if (notify)
             {
-                decl String:upgradeName[NAME_STRING_LENGTH];
+                char upgradeName[NAME_STRING_LENGTH];
                 GetUpgradeName(raceHandle, upgrade, upgradeName, sizeof(upgradeName), client);
                 DisplayMessage(client, Display_Ultimate, "%t", "InsufficientVespeneFor", upgradeName, vespene_cost);
                 EmitEnergySoundToClient(client,faction);
@@ -5958,8 +5958,8 @@ public Native_CanProcessUpgrade(Handle:plugin,numParams)
     new client = GetNativeCell(1);
     new race = GetNativeCell(2);
     new upgrade = GetNativeCell(3);
-    new bool:chargeCosts = bool:GetNativeCell(4);
-    new bool:notify = bool:GetNativeCell(5);
+    bool chargeCosts = bool:GetNativeCell(4);
+    bool notify = bool:GetNativeCell(5);
 
     TraceInto("Natives", "Native_CanProcessUpgrade", "client=%d:%N, race=%d, upgrade=%d, chargeCosts=%d, notify=%d", \
               client, ValidClientIndex(client), race, upgrade, chargeCosts, notify);
@@ -5967,11 +5967,11 @@ public Native_CanProcessUpgrade(Handle:plugin,numParams)
     if (race <= 0)
         race = GetRace(client);
 
-    new Handle:raceHandle = GetRaceHandle(race);
+    Handle raceHandle = GetRaceHandle(race);
     new Faction:faction = (race >= 0) ? GetRaceFactionId(raceHandle) : Generic;
 
-    new Float:energy = GetEnergy(client);
-    new Float:energy_cost = GetUpgradeRecurringEnergy(raceHandle,upgrade);
+    float energy = GetEnergy(client);
+    float energy_cost = GetUpgradeRecurringEnergy(raceHandle,upgrade);
     Trace("race=%d, raceHandle=0x%08x, energy_cost=%f, energy=%f", race, raceHandle, energy_cost, energy);
     if (energy_cost > 0.0)
     {
@@ -5979,7 +5979,7 @@ public Native_CanProcessUpgrade(Handle:plugin,numParams)
         {
             if (notify)
             {
-                decl String:upgradeName[NAME_STRING_LENGTH];
+                char upgradeName[NAME_STRING_LENGTH];
                 GetUpgradeName(raceHandle, upgrade, upgradeName, sizeof(upgradeName), client);
                 DisplayMessage(client, Display_Ultimate, "%t", "InsufficientEnergyFor", upgradeName, energy_cost);
                 EmitEnergySoundToClient(client,faction);
@@ -6021,7 +6021,7 @@ public Native_ChargeForUpgrade(Handle:plugin,numParams)
     new race = GetNativeCell(2);
     new upgrade = GetNativeCell(3);
 
-    new Handle:raceHandle = GetRaceHandle(race);
+    Handle raceHandle = GetRaceHandle(race);
 
     if (g_bChargeForUpgrades)
     {
@@ -6034,14 +6034,14 @@ public Native_ChargeForUpgrade(Handle:plugin,numParams)
             SetCrystals(client, GetCrystals(client)-crystal_cost);
     }
 
-    new Float:energy_cost = GetUpgradeEnergy(raceHandle,upgrade);
+    float energy_cost = GetUpgradeEnergy(raceHandle,upgrade);
     if (energy_cost > 0.0)
     {
-        new Float:energy = GetEnergy(client);
+        float energy = GetEnergy(client);
 
         if (GetUpgradeCanUseAccumulated(raceHandle,upgrade))
         {
-            new Float:accumulated = GetAccumulatedEnergy(client, race) - energy_cost;
+            float accumulated = GetAccumulatedEnergy(client, race) - energy_cost;
             if (accumulated < 0.0)
             {
                 SetEnergy(client, energy+accumulated);
@@ -6065,11 +6065,11 @@ public Native_ChargeForUpgrade(Handle:plugin,numParams)
  */
 public Native_HasAttribute(Handle:plugin,numParams)
 {
-    decl String:attrName[NAME_STRING_LENGTH];
+    char attrName[NAME_STRING_LENGTH];
     GetNativeString(2,attrName,sizeof(attrName));
 
-    new Handle:data;
-    new bool:result = HasAttribute(GetNativeCell(1), attrName, data);
+    Handle data;
+    bool result = HasAttribute(GetNativeCell(1), attrName, data);
     if (result)
         SetNativeCellRef(3, data);
 
@@ -6087,7 +6087,7 @@ public Native_HasAttribute(Handle:plugin,numParams)
  */         
 public Native_AssignAttribute(Handle:plugin,numParams)
 {
-    decl String:attrName[NAME_STRING_LENGTH];
+    char attrName[NAME_STRING_LENGTH];
     GetNativeString(2,attrName,sizeof(attrName));
     return AssignAttribute(GetNativeCell(1), attrName, Handle:GetNativeCell(3));
 }
@@ -6102,7 +6102,7 @@ public Native_AssignAttribute(Handle:plugin,numParams)
  */
 public Native_RemoveAttribute(Handle:plugin,numParams)
 {
-    decl String:attrName[NAME_STRING_LENGTH];
+    char attrName[NAME_STRING_LENGTH];
     GetNativeString(2,attrName,sizeof(attrName));
     return RemoveAttribute(GetNativeCell(1), attrName);
 }
@@ -6128,7 +6128,7 @@ public Native_RemoveAllAttributes(Handle:plugin,numParams)
  */         
 public Native_CreateAttribute(Handle:plugin,numParams)
 {
-    decl String:attrName[NAME_STRING_LENGTH];
+    char attrName[NAME_STRING_LENGTH];
     GetNativeString(1,attrName,sizeof(attrName));
     return CreateAttribute(attrName);
 }
@@ -6144,8 +6144,8 @@ public Native_CreateAttribute(Handle:plugin,numParams)
  */
 public Native_HasAttributeId(Handle:plugin,numParams)
 {
-    new Handle:data;
-    new bool:result = HasAttributeId(GetNativeCell(1), GetNativeCell(2), data);
+    Handle data;
+    bool result = HasAttributeId(GetNativeCell(1), GetNativeCell(2), data);
     if (result)
         SetNativeCellRef(3, data);
 
@@ -6192,10 +6192,10 @@ public Native_RemoveAttributeId(Handle:plugin,numParams)
  */
 public Native_GetConfigNum(Handle:plugin,numParams)
 {
-    decl String:key[NAME_STRING_LENGTH];
+    char key[NAME_STRING_LENGTH];
     GetNativeString(1,key,sizeof(key));
 
-    decl String:section[NAME_STRING_LENGTH];
+    char section[NAME_STRING_LENGTH];
     GetNativeString(5,section,sizeof(section));
 
     return GetConfigNum(key, GetNativeCell(2), GetNativeCell(3), GetNativeCell(4), section);
@@ -6215,10 +6215,10 @@ public Native_GetConfigNum(Handle:plugin,numParams)
  */
 public Native_GetConfigFloat(Handle:plugin,numParams)
 {
-    decl String:key[NAME_STRING_LENGTH];
+    char key[NAME_STRING_LENGTH];
     GetNativeString(1,key,sizeof(key));
 
-    decl String:section[NAME_STRING_LENGTH];
+    char section[NAME_STRING_LENGTH];
     GetNativeString(5,section,sizeof(section));
 
     return _:GetConfigFloat(key, Float:GetNativeCell(2), GetNativeCell(3), GetNativeCell(4), section);
@@ -6241,16 +6241,16 @@ public Native_GetConfigFloat(Handle:plugin,numParams)
  */
 public Native_GetConfigString(Handle:plugin,numParams)
 {
-    decl String:key[NAME_STRING_LENGTH];
+    char key[NAME_STRING_LENGTH];
     GetNativeString(1,key,sizeof(key));
 
-    decl String:defvalue[LONG_STRING_LENGTH];
+    char defvalue[LONG_STRING_LENGTH];
     GetNativeString(4,defvalue,sizeof(defvalue));
 
-    decl String:section[NAME_STRING_LENGTH];
+    char section[NAME_STRING_LENGTH];
     GetNativeString(7,section,sizeof(section));
 
-    decl String:value[LONG_STRING_LENGTH];
+    char value[LONG_STRING_LENGTH];
     GetConfigString(key, value, sizeof(value), defvalue,
                     GetNativeCell(5), GetNativeCell(6), section);
 
@@ -6273,10 +6273,10 @@ public Native_GetConfigString(Handle:plugin,numParams)
  */
 public Native_GetConfigArray(Handle:plugin,numParams)
 {
-    decl String:key[NAME_STRING_LENGTH];
+    char key[NAME_STRING_LENGTH];
     GetNativeString(1,key,sizeof(key));
 
-    decl String:section[NAME_STRING_LENGTH];
+    char section[NAME_STRING_LENGTH];
     GetNativeString(7,section,sizeof(section));
 
     decl any:value[256];
@@ -6313,14 +6313,14 @@ public Native_GetConfigArray(Handle:plugin,numParams)
  */
 public Native_GetConfigFloatArray(Handle:plugin,numParams)
 {
-    decl String:key[NAME_STRING_LENGTH];
+    char key[NAME_STRING_LENGTH];
     GetNativeString(1,key,sizeof(key));
 
-    decl String:section[NAME_STRING_LENGTH];
+    char section[NAME_STRING_LENGTH];
     GetNativeString(7,section,sizeof(section));
 
-    decl Float:value[256];
-    decl Float:defvalue[256];
+    float value[256];
+    float defvalue[256];
     GetNativeArray(4, defvalue, sizeof(defvalue));
 
     new size = GetNativeCell(3);
@@ -6347,7 +6347,7 @@ public Native_GetConfigFloatArray(Handle:plugin,numParams)
  */
 public Native_LoadSCTranslations(Handle:plugin,numParams)
 {
-    decl String:file[PLATFORM_MAX_PATH];
+    char file[PLATFORM_MAX_PATH];
     GetNativeString(1,file,sizeof(file));
     LoadTranslations(file);
 }

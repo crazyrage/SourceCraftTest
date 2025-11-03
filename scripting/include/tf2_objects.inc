@@ -38,7 +38,7 @@ enum TFExtObjectType
 #define TFObject_RepairNode         (TFObjectType:TFExtObject_RepairNode)
 #define TFObject_UpgradeStation     (TFObjectType:TFExtObject_UpgradeStation)
 
-stock const String:TF2_ObjectClassNames[/*TFExtObjectType*/][] =
+stock const char TF2_ObjectClassNames[/*TFExtObjectType*/][] =
 {
     "obj_dispenser",
     "obj_teleporter",
@@ -52,7 +52,7 @@ stock const String:TF2_ObjectClassNames[/*TFExtObjectType*/][] =
     "obj_dispenser"   // upgrade_station
 };
 
-stock const String:TF2_ObjectNames[/*TFExtObjectType*/][] =
+stock const char TF2_ObjectNames[/*TFExtObjectType*/][] =
 {
     "Dispenser",
     "Teleporter",
@@ -90,7 +90,7 @@ stock const TF2_MaxDispenserMetal  = 400;
 
 stock TFExtObjectType:TF2_GetExtObjectType(entity, bool:specific=false)
 {
-    decl String:class[5];
+    char class[5];
     if (GetEdictClassname(entity, class, sizeof(class)) &&
         strncmp(class, "obj_", 4) == 0)
     {

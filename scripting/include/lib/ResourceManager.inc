@@ -26,9 +26,9 @@
  * @noreturn
  *
  */
-native AddDirToDownloadTable(const String:directory[], bool:recursive=false);
+native AddDirToDownloadTable(const char directory[], bool:recursive=false);
 
-stock AddFolderToDownloadTable(const String:directory[], bool:recursive=false)
+stock AddFolderToDownloadTable(const char directory[], bool:recursive=false)
 {
 #if defined REQUIRE_PLUGIN
     AddDirToDownloadTable(directory, recursive);
@@ -50,11 +50,11 @@ stock AddFolderToDownloadTable(const String:directory[], bool:recursive=false)
  *                      that list additional files to download (if any).
  * @return              Returns a model index (if precached).
  */
-native PreSetupModel(const String:model[], &index=0, bool:download=false,
+native PreSetupModel(const char model[], &index=0, bool:download=false,
                      bool:precache=false, bool:preload=false,
                      Handle:files=INVALID_HANDLE);
 
-stock SetupModel(const String:model[], &index=0, bool:download=false,
+stock SetupModel(const char model[], &index=0, bool:download=false,
                  bool:precache=false, bool:preload=false,
                  Handle:files=INVALID_HANDLE)
  {
@@ -81,9 +81,9 @@ stock SetupModel(const String:model[], &index=0, bool:download=false,
  * @param preload       If preload is true the file will be precached before level startup (if required).
  * @return              Returns a model index.
  */
-native PrepModel(const String:model[], &index=0, bool:preload=true);
+native PrepModel(const char model[], &index=0, bool:preload=true);
 
-stock PrepareModel(const String:model[], &index=0, bool:preload=true)
+stock PrepareModel(const char model[], &index=0, bool:preload=true)
 {
 #if defined REQUIRE_PLUGIN
     return PrepModel(model, index, preload);
@@ -104,10 +104,10 @@ stock PrepareModel(const String:model[], &index=0, bool:preload=true)
  * @param preload       If preload is true the file will be precached before level startup.
  * @return              Returns a decal index (if precached).
  */
-native PreSetupDecal(const String:decal[], &index=0, bool:download=false,
+native PreSetupDecal(const char decal[], &index=0, bool:download=false,
                      bool:precache=false, bool:preload=false);
 
-stock SetupDecal(const String:decal[], &index=0, bool:download=false,
+stock SetupDecal(const char decal[], &index=0, bool:download=false,
                  bool:precache=false, bool:preload=false)
  {
 #if defined REQUIRE_PLUGIN
@@ -133,9 +133,9 @@ stock SetupDecal(const String:decal[], &index=0, bool:download=false,
  * @param preload       If preload is true the file will be precached before level startup (if required).
  * @return              Returns a decal index.
  */
-native PrepDecal(const String:decal[], &index=0, bool:preload=true);
+native PrepDecal(const char decal[], &index=0, bool:preload=true);
 
-stock PrepareDecal(const String:decal[], &index=0, bool:preload=true)
+stock PrepareDecal(const char decal[], &index=0, bool:preload=true)
 {
 #if defined REQUIRE_PLUGIN
     return PrepDecal(decal, index, preload);
@@ -157,10 +157,10 @@ stock PrepareDecal(const String:decal[], &index=0, bool:preload=true)
  * @param preload       If preload is true the file will be precached before level startup.
  * @return              Returns true if successfully precached.
  */
-native bool:PreSetupSound(const String:sound[], bool:force=false, download=AUTO_DOWNLOAD,
+native bool:PreSetupSound(const char sound[], bool:force=false, download=AUTO_DOWNLOAD,
                           bool:precache=false, bool:preload=false);
 
-stock bool:SetupSound(const String:sound[], bool:force=false, download=AUTO_DOWNLOAD,
+stock bool:SetupSound(const char sound[], bool:force=false, download=AUTO_DOWNLOAD,
                        bool:precache=false, bool:preload=false)
  {
 #if defined REQUIRE_PLUGIN
@@ -186,9 +186,9 @@ stock bool:SetupSound(const String:sound[], bool:force=false, download=AUTO_DOWN
  * @param preload       If preload is true the file will be precached before level startup (if required).
  * @return              Returns false if the sound limit has been reached.
  */
-native bool:PrepSound(const String:sound[], bool:force=false, bool:preload=true);
+native bool:PrepSound(const char sound[], bool:force=false, bool:preload=true);
 
-stock bool:PrepareSound(const String:sound[], bool:force=false, bool:preload=true)
+stock bool:PrepareSound(const char sound[], bool:force=false, bool:preload=true)
 {
 #if defined REQUIRE_PLUGIN
     return PrepSound(sound, force, preload);
@@ -212,7 +212,7 @@ stock bool:PrepareSound(const String:sound[], bool:force=false, bool:preload=tru
  * @param delay     Play delay.
  * @noreturn
  */
-stock PrepareAndEmitAmbientSound(const String:name[],
+stock PrepareAndEmitAmbientSound(const char name[],
                                  const Float:pos[3],
                                  entity = SOUND_FROM_WORLD,
                                  level = SNDLEVEL_NORMAL,
@@ -265,7 +265,7 @@ stock PrepareAndEmitAmbientSound(const String:name[],
  */
 stock PrepareAndEmitSound(const clients[],
                           numClients,
-                          const String:sample[],
+                          const char sample[],
                           entity = SOUND_FROM_PLAYER,
                           channel = SNDCHAN_AUTO,
                           level = SNDLEVEL_NORMAL,
@@ -318,7 +318,7 @@ stock PrepareAndEmitSound(const clients[],
  * @error               Invalid client index.
  */
 stock PrepareAndEmitSoundToClient(client,
-                                  const String:sample[],
+                                  const char sample[],
                                   entity = SOUND_FROM_PLAYER,
                                   channel = SNDCHAN_AUTO,
                                   level = SNDLEVEL_NORMAL,
@@ -368,7 +368,7 @@ stock PrepareAndEmitSoundToClient(client,
  * @noreturn
  * @error               Invalid client index.
  */
-stock PrepareAndEmitSoundToAll(const String:sample[],
+stock PrepareAndEmitSoundToAll(const char sample[],
                                entity = SOUND_FROM_PLAYER,
                                channel = SNDCHAN_AUTO,
                                level = SNDLEVEL_NORMAL,
@@ -428,7 +428,7 @@ stock bool:IsResourceManagerAvailable(bool:force=false)
  * @param   name    the name parameter from the OnLibraryLoaded() call
  * @return  Returns true if name is for this plugin
  */
-stock bool:WasResourceManagerAdded(const String:name[])
+stock bool:WasResourceManagerAdded(const char name[])
 {
     if (StrEqual(name, "ResourceManager"))
     {

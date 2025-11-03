@@ -4,7 +4,7 @@
 #define PLUGIN_VERSION "1.0.1"
 
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
 	
 	name = "[TF2] Ball Projectile Limit",
@@ -19,7 +19,7 @@ public Plugin:myinfo =
 
 public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
 {
-	new String:Game[32];
+	char Game[32];
 	GetGameFolderName(Game, sizeof(Game));
 	if(!StrEqual(Game, "tf"))
 	{
@@ -30,9 +30,9 @@ public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
 }
 
 
-new Handle:g_hBallLimit = INVALID_HANDLE;
-new g_iBallLimit = 32;
-new g_iCount = 0;
+Handle g_hBallLimit = INVALID_HANDLE;
+int g_iBallLimit = 32;
+int g_iCount = 0;
 
 public OnPluginStart()
 {
@@ -47,7 +47,7 @@ public OnConfigsExecuted()
 	g_iBallLimit = GetConVarInt(g_hBallLimit);
 }
 
-public CvarChange_BallLimit(Handle:Cvar, const String:strOldValue[], const String:strNewValue[])
+public CvarChange_BallLimit(Handle:Cvar, const char strOldValue[], const char strNewValue[])
 {
 	g_iBallLimit = StringToInt(strNewValue);
 	ClearAllBalls()
@@ -59,14 +59,14 @@ public OnMapStart()
 	g_iCount = 0;
 }
 
-public Action:Command_ClearBalls(client, args)
+public Action Command_ClearBalls(client, args)
 {
 	ClearAllBalls();
 	g_iCount = 0
 	return Plugin_Handled;
 }
 
-public OnEntityCreated(entity, const String:classname[])
+public OnEntityCreated(entity, const char classname[])
 {
 	if(!strcmp(classname, "tf_projectile_stun_ball") || !strcmp(classname, "tf_projectile_ball_ornament"))
 	{
@@ -79,7 +79,7 @@ public OnEntityDestroyed(entity)
 {
 	if(entity > MaxClients && IsValidEntity(entity))
 	{
-		new String:classname[256];
+		char classname[256];
 		GetEntityClassname(entity, classname, sizeof(classname));
 		if(!strcmp(classname, "tf_projectile_stun_ball") || !strcmp(classname, "tf_projectile_ball_ornament"))
 		{

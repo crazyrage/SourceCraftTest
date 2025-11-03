@@ -10,10 +10,10 @@
 #endif
 #define _string_to_included
 
-stock StringToIntegerArray(const String:buffer[], Handle:array)
+stock StringToIntegerArray(const char buffer[], Handle:array)
 {
     new count=0;
-    decl String:num[16];
+    char num[16];
     for (new index=0, pos=0; index >= 0; pos += index)
     {
         index = BreakString(buffer[pos], num, sizeof(num));
@@ -23,10 +23,10 @@ stock StringToIntegerArray(const String:buffer[], Handle:array)
     return count;
 }
 
-stock StringToFloatArray(const String:buffer[], Handle:array)
+stock StringToFloatArray(const char buffer[], Handle:array)
 {
     new count=0;
-    decl String:num[16];
+    char num[16];
     for (new index=0, pos=0; index >= 0; pos += index)
     {
         index = BreakString(buffer[pos], num, sizeof(num));
@@ -36,10 +36,10 @@ stock StringToFloatArray(const String:buffer[], Handle:array)
     return count;
 }
 
-stock StringToIntegers(const String:buffer[], array[], size)
+stock StringToIntegers(const char buffer[], array[], size)
 {
     new count=0;
-    decl String:num[16];
+    char num[16];
     for (new index=0, pos=0; index >= 0; pos += index)
     {
         index = BreakString(buffer[pos], num, sizeof(num));
@@ -50,10 +50,10 @@ stock StringToIntegers(const String:buffer[], array[], size)
     return count;
 }
 
-stock StringToFloats(const String:buffer[], Float:array[], size)
+stock StringToFloats(const char buffer[], Float:array[], size)
 {
     new count=0;
-    decl String:num[16];
+    char num[16];
     for (new index=0, pos=0; index >= 0; pos += index)
     {
         index = BreakString(buffer[pos], num, sizeof(num));

@@ -1,7 +1,7 @@
 #include <sourcemod>
 #include "W3SIncs/War3Source_Interface"
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "War3Source - Engine - EasyBuff",
     author = "War3Source Team",
@@ -11,20 +11,20 @@ public Plugin:myinfo =
 
 
 // EasyBuffs for skills
-new Handle:g_hSkillBuffs = INVALID_HANDLE; // Holds the W3Buff
-new Handle:g_hBuffSkillValues = INVALID_HANDLE; // Holds the values
-new Handle:g_hBuffRace = INVALID_HANDLE; // Holds the race id
-new Handle:g_hBuffSkill = INVALID_HANDLE; // Holds the skill id
+Handle g_hSkillBuffs = INVALID_HANDLE; // Holds the W3Buff
+Handle g_hBuffSkillValues = INVALID_HANDLE; // Holds the values
+Handle g_hBuffRace = INVALID_HANDLE; // Holds the race id
+Handle g_hBuffSkill = INVALID_HANDLE; // Holds the skill id
 
 // EasyBuffs auras
-new Handle:g_hAuraId = INVALID_HANDLE;
+Handle g_hAuraId = INVALID_HANDLE;
 
 // EasyBuffs for items
-new Handle:g_hItemBuffs = INVALID_HANDLE;  // Holds the W3Buff
-new Handle:g_hItemBuffValue = INVALID_HANDLE; // Holds the value
-new Handle:g_hBuffItem = INVALID_HANDLE; // Holds the item id
+Handle g_hItemBuffs = INVALID_HANDLE;  // Holds the W3Buff
+Handle g_hItemBuffValue = INVALID_HANDLE; // Holds the value
+Handle g_hBuffItem = INVALID_HANDLE; // Holds the item id
 
-public bool:InitNativesForwards()
+public bool InitNativesForwards()
 {
     CreateNative("War3_AddSkillBuff", Native_War3_AddSkillBuff);
     CreateNative("War3_AddAuraSkillBuff", Native_War3_AddSkillAuraBuff);
@@ -93,10 +93,10 @@ public Native_War3_AddSkillAuraBuff(Handle:plugin, numParams)
 {
     if(AddSkillBuff())
     {
-        decl String:auraShortName[32];
+        char auraShortName[32];
         GetNativeString(5, auraShortName, sizeof(auraShortName));
-        new Float:distance = GetNativeCell(6);
-        new bool:bTrackOtherTeam = GetNativeCell(7);
+        float distance = GetNativeCell(6);
+        bool bTrackOtherTeam = GetNativeCell(7);
         
         new iAuraID = W3RegisterAura(auraShortName, distance, bTrackOtherTeam);
         PushArrayCell(g_hAuraId, iAuraID);

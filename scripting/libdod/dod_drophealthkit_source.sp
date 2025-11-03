@@ -85,7 +85,7 @@
 
 #define PLUGIN_VERSION "2.1"
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "DoD DropHealthKit Source",
     author = "FeuerSturm",
@@ -96,29 +96,29 @@ public Plugin:myinfo =
 
 #define MAXENTITIES 2048
 
-new const String:g_HealthKit_Model[] = "models/props_misc/ration_box01.mdl";
-new const String:g_HealthKit_Sound[] = "object/object_taken.wav";
+char g_HealthKit_Model[] = "models/props_misc/ration_box01.mdl";
+char g_HealthKit_Sound[] = "object/object_taken.wav";
 
-new const g_HealthKit_Skin[4] = { 0, 0, 2, 1 };
+int const g_HealthKit_Skin[4] = { 0, 0, 2, 1 };
 
-new g_HasHealthKit[MAXPLAYERS+1];
+int g_HasHealthKit[MAXPLAYERS+1];
 
-new g_HealthKitRef[MAXENTITIES+1]            = { INVALID_ENT_REFERENCE, ... };
-new g_HealthKitOwner[MAXENTITIES+1];
-new Handle:HealthKitDropTimer[MAXENTITIES+1] = INVALID_HANDLE;
+int g_HealthKitRef[MAXENTITIES+1]            = { INVALID_ENT_REFERENCE, ... };
+int g_HealthKitOwner[MAXENTITIES+1];
+Handle HealthKitDropTimer[MAXENTITIES+1] = INVALID_HANDLE;
 
-new Handle:healthkitdeaddrop = INVALID_HANDLE;
-new Handle:healthkitrule = INVALID_HANDLE;
-new Handle:healthkitdropcmd = INVALID_HANDLE;
-new Handle:healthkitmaxhealth = INVALID_HANDLE;
-new Handle:healthkithealth = INVALID_HANDLE;
-new Handle:healthkitliefetime = INVALID_HANDLE;
-new Handle:healthkitteamcolor = INVALID_HANDLE;
+Handle healthkitdeaddrop = INVALID_HANDLE;
+Handle healthkitrule = INVALID_HANDLE;
+Handle healthkitdropcmd = INVALID_HANDLE;
+Handle healthkitmaxhealth = INVALID_HANDLE;
+Handle healthkithealth = INVALID_HANDLE;
+Handle healthkitliefetime = INVALID_HANDLE;
+Handle healthkitteamcolor = INVALID_HANDLE;
 
-new bool:g_NativeControl = false;
-new g_NativeHealthkit[MAXPLAYERS+1];
-new g_NativeHealthkitRule[MAXPLAYERS+1];
-new g_NativeHealthkitCount[MAXPLAYERS+1];
+bool g_NativeControl = false;
+int g_NativeHealthkit[MAXPLAYERS+1];
+int g_NativeHealthkitRule[MAXPLAYERS+1];
+int g_NativeHealthkitCount[MAXPLAYERS+1];
 
 public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
 {
@@ -145,7 +145,7 @@ public OnPluginStart()
     AutoExecConfig(true, "dod_drophealthkit_source", "dod_drophealthkit_source");
 }
 
-public Action:cmdDropHealthKit(client, args) 
+public Action cmdDropHealthKit(client, args) 
 {
     if (!IsClientInGame(client) || !IsPlayerAlive(client) ||
         g_HasHealthKit[client] <= 0)
@@ -166,14 +166,14 @@ public Action:cmdDropHealthKit(client, args)
         return Plugin_Continue;
     }
 
-    new Float:origin[3];
+    float origin[3];
     GetClientAbsOrigin(client, origin);
     origin[2] += 55.0;
 
-    new Float:angles[3];
+    float angles[3];
     GetClientEyeAngles(client, angles);
 
-    new Float:velocity[3];
+    float velocity[3];
     GetAngleVectors(angles, velocity, NULL_VECTOR, NULL_VECTOR);
     NormalizeVector(velocity,velocity);
     ScaleVector(velocity,350.0);
@@ -188,7 +188,7 @@ public OnMapStart()
     PrecacheSound(g_HealthKit_Sound, true);
 }
 
-public Action:OnPlayerSpawn(Handle:event, const String:name[], bool:dontBroadcast)
+public Action OnPlayerSpawn(Handle:event, const char name[], bool:dontBroadcast)
 {
     new client = GetClientOfUserId(GetEventInt(event, "userid"));
     if (IsClientInGame(client) && IsPlayerAlive(client) && GetClientTeam(client) > 1)
@@ -201,7 +201,7 @@ public Action:OnPlayerSpawn(Handle:event, const String:name[], bool:dontBroadcas
     return Plugin_Continue;
 }
 
-public Action:OnPlayerDeath(Handle:event, const String:name[], bool:dontBroadcast)
+public Action OnPlayerDeath(Handle:event, const char name[], bool:dontBroadcast)
 {
     new client = GetClientOfUserId(GetEventInt(event, "userid"));
     if (GetClientHealth(client) > 0 || !IsClientInGame(client) ||
@@ -223,7 +223,7 @@ public Action:OnPlayerDeath(Handle:event, const String:name[], bool:dontBroadcas
         return Plugin_Continue;
     }
 
-    new Float:deathorigin[3];
+    float deathorigin[3];
     GetClientAbsOrigin(client, deathorigin);
     deathorigin[2] += 5.0;
 
@@ -258,7 +258,7 @@ CreateHealthkit(client, const Float:origin[3],
     }
 }
 
-public Action:OnHealthKitTouched(healthkit, client)
+public Action OnHealthKitTouched(healthkit, client)
 {
     if (client > 0 && client <= MaxClients && healthkit > 0 &&
         EntRefToEntIndex(g_HealthKitRef[healthkit]) == healthkit &&
@@ -316,7 +316,7 @@ public Action:OnHealthKitTouched(healthkit, client)
     return Plugin_Handled;
 }
 
-public Action:RemoveDroppedHealthKit(Handle:timer, any:healthkit)
+public Action RemoveDroppedHealthKit(Handle:timer, any:healthkit)
 {
     HealthKitDropTimer[healthkit] = INVALID_HANDLE;
     if (EntRefToEntIndex(g_HealthKitRef[healthkit]) == healthkit &&
@@ -331,7 +331,7 @@ public Action:RemoveDroppedHealthKit(Handle:timer, any:healthkit)
 
 KillHealthKitTimer(healthkit)
 {
-    new Handle:timer = HealthKitDropTimer[healthkit];
+    Handle timer = HealthKitDropTimer[healthkit];
     if (timer != INVALID_HANDLE)
     {
         CloseHandle(HealthKitDropTimer[healthkit]);
@@ -363,7 +363,7 @@ public Native_SetHealthkit(Handle:plugin, numParams)
  */
 #tryinclude <entlimit>
 #if !defined _entlimit_included
-    stock IsEntLimitReached(warn=20,critical=16,client=0,const String:message[]="")
+    stock IsEntLimitReached(warn=20,critical=16,client=0,const char message[]="")
     {
         new max = GetMaxEntities();
         new count = GetEntityCount();

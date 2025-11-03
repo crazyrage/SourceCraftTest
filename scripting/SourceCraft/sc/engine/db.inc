@@ -29,13 +29,13 @@
 #define DatabaseConnected(%1)   (g_DbHandle[%1] != CONNECTING && g_DbHandle[%1] != INVALID_HANDLE)
 #define DatabaseAvailable(%1)   (g_DbHandle[%1] != CONNECTING && DatabaseHandle(%1) != INVALID_HANDLE && g_DbHandle[%1] != CONNECTING)
 
-new bool:g_MapChanging = false;
+bool g_MapChanging = false;
 #pragma unused g_MapChanging // Prevent unused warnings about g_MapChanging
 
-new Handle:g_DbHandle[DB_MAX]  = { INVALID_HANDLE, ...};
-new Handle:g_SaveThreadsInFlight = INVALID_HANDLE;
-new Handle:g_PlayersToReload = INVALID_HANDLE;
-new String:g_DBConf[64];
+Handle g_DbHandle[DB_MAX]  = { INVALID_HANDLE, ...};
+Handle g_SaveThreadsInFlight = INVALID_HANDLE;
+Handle g_PlayersToReload = INVALID_HANDLE;
+char g_DBConf[64];
 
 bool:InitDatabase()
 {
@@ -44,7 +44,7 @@ bool:InitDatabase()
     else
         strcopy(g_DBConf, sizeof(g_DBConf), "default");
 
-    new bool:status = true;
+    bool status = true;
     for (new i=0; i < sizeof(g_DbHandle); i++)
     {
         if (ConnectToDatabase(i, (i != DB_MAIN)) == INVALID_HANDLE)
@@ -120,7 +120,7 @@ Handle:ConnectToDatabase(connection, bool:threaded)
     }
     else
     {
-        decl String:error[ERROR_STRING_LENGTH]; error[0] = '\0';
+        char error[ERROR_STRING_LENGTH]; error[0] = '\0';
         g_DbHandle[connection] = SQL_Connect(g_DBConf,true,error,sizeof(error));
         if (g_DbHandle[connection] == INVALID_HANDLE || error[0] != '\0')
         {
@@ -134,7 +134,7 @@ Handle:ConnectToDatabase(connection, bool:threaded)
         {
             SQL_LockDatabase(g_DbHandle[connection]);
 
-            decl String:dbident[ID_STRING_LENGTH];
+            char dbident[ID_STRING_LENGTH];
             SQL_ReadDriver(g_DbHandle[connection], dbident, sizeof(dbident));
             LogToGame("Connection %d:%08x connected to the %s database",
                       connection, g_DbHandle[connection], dbident);
@@ -221,7 +221,7 @@ SQL_SetOptions(Handle:dbHandle)
 
 bool:SQL_CheckItemTable(Handle:dbHandle)
 {
-    new Handle:query=SQL_Query(dbHandle,"show tables like 'sc_items'");
+    Handle query=SQL_Query(dbHandle,"show tables like 'sc_items'");
     if (query)
     {
         if (!SQL_HasResultSet(query) ||
@@ -238,7 +238,7 @@ bool:SQL_CheckItemTable(Handle:dbHandle)
 SQL_CreateItemTable(Handle:dbHandle)
 {
     // Create the sc_races table, if it doesn't exist
-    new String:create_sc_items[][] = {
+    char create_sc_items[][] = {
         "CREATE TABLE IF NOT EXISTS sc_items",
         "(item_ident int not null auto_increment,",
         " item_name varchar(32) not null,",
@@ -258,11 +258,11 @@ SQL_CreateItemTable(Handle:dbHandle)
 
     LogMessage("Creating Item Table");
 
-    decl String:SQLString[LONG_QUERY_STRING_LENGTH];
+    char SQLString[LONG_QUERY_STRING_LENGTH];
     ImplodeStrings(create_sc_items, sizeof(create_sc_items), " ", SQLString, sizeof(SQLString));
     if (!SQL_FastQuery(dbHandle,SQLString))
     {
-        decl String:error[ERROR_STRING_LENGTH]; error[0] = '\0';
+        char error[ERROR_STRING_LENGTH]; error[0] = '\0';
         SQL_GetError(dbHandle, error, sizeof(error));
         SetFailState("Error in the creation of the sc_items SQL table:%s", error);
     }
@@ -270,7 +270,7 @@ SQL_CreateItemTable(Handle:dbHandle)
 
 bool:SQL_CheckRaceTable(Handle:dbHandle)
 {
-    new Handle:query=SQL_Query(dbHandle,"show tables like 'sc_races'");
+    Handle query=SQL_Query(dbHandle,"show tables like 'sc_races'");
     if (query)
     {
         if (!SQL_HasResultSet(query) || !SQL_FetchRow(query))
@@ -285,7 +285,7 @@ bool:SQL_CheckRaceTable(Handle:dbHandle)
 SQL_CreateRaceTables(Handle:dbHandle)
 {
     // Create the sc_races table, if it doesn't exist
-    new String:create_sc_factions[][] = {
+    char create_sc_factions[][] = {
         "CREATE TABLE IF NOT EXISTS sc_factions",
         "(faction ENUM ('Terran', 'Protoss', 'Zerg', 'HumanAlliance',",
         "               'OrcishHorde', 'NightElf', 'UndeadScourge',",
@@ -301,11 +301,11 @@ SQL_CreateRaceTables(Handle:dbHandle)
 
     LogMessage("Creating Race Tables");
 
-    decl String:SQLString[LONG_QUERY_STRING_LENGTH];
+    char SQLString[LONG_QUERY_STRING_LENGTH];
     ImplodeStrings(create_sc_factions, sizeof(create_sc_factions), " ", SQLString, sizeof(SQLString));
     if (!SQL_FastQuery(dbHandle,SQLString))
     {
-        decl String:error[ERROR_STRING_LENGTH]; error[0] = '\0';
+        char error[ERROR_STRING_LENGTH]; error[0] = '\0';
         SQL_GetError(dbHandle, error, sizeof(error));
         SetFailState("Error in the creation of the sc_factions SQL table:%s", error);
     }
@@ -314,7 +314,7 @@ SQL_CreateRaceTables(Handle:dbHandle)
         CreateFactions(dbHandle);
 
         // Create the sc_races table, if it doesn't exist
-        new String:create_sc_races[][] = {
+        char create_sc_races[][] = {
             "CREATE TABLE IF NOT EXISTS sc_races ",
             "(race_ident int not null auto_increment,",
             " race_name varchar(32) not null,",
@@ -344,14 +344,14 @@ SQL_CreateRaceTables(Handle:dbHandle)
 
         if (!SQL_FastQuery(dbHandle,SQLString))
         {
-            decl String:error[ERROR_STRING_LENGTH]; error[0] = '\0';
+            char error[ERROR_STRING_LENGTH]; error[0] = '\0';
             SQL_GetError(dbHandle, error, sizeof(error));
             SetFailState("Error in the creation of the sc_races SQL table:%s", error);
         }
         else
         {
             // Create the sc_upgrades table, if it doesn't exist
-            new String:create_sc_upgrades[][] = {
+            char create_sc_upgrades[][] = {
                 "CREATE TABLE IF NOT EXISTS sc_upgrades",
                 "(race_ident int NOT NULL,",
                 " upgrade int NOT NULL,",
@@ -386,7 +386,7 @@ SQL_CreateRaceTables(Handle:dbHandle)
 
             if (!SQL_FastQuery(dbHandle,SQLString))
             {
-                decl String:error[ERROR_STRING_LENGTH]; error[0] = '\0';
+                char error[ERROR_STRING_LENGTH]; error[0] = '\0';
                 SQL_GetError(dbHandle, error, sizeof(error));
                 SetFailState("Error in the creation of the sc_upgrades SQL table:%s", error);
             }
@@ -418,7 +418,7 @@ public SQL_PlayersChecked(Handle:owner, Handle:hndl, const String:error[], any:d
 CreatePlayerTables(Handle:dbHandle)
 {
     // Create the sc_players table, if it doesn't exist
-    new String:create_sc_players[][] = {
+    char create_sc_players[][] = {
         "CREATE TABLE IF NOT EXISTS sc_players ",
         "(player_ident int not null auto_increment,",
         " steamid varchar(64) not null,",
@@ -440,7 +440,7 @@ CreatePlayerTables(Handle:dbHandle)
 
     LogMessage("Creating Player Tables");
 
-    decl String:SQLString[LONG_QUERY_STRING_LENGTH];
+    char SQLString[LONG_QUERY_STRING_LENGTH];
     ImplodeStrings(create_sc_players, sizeof(create_sc_players),
                    " ", SQLString, sizeof(SQLString));
 
@@ -454,7 +454,7 @@ public SQL_PlayersCreated(Handle:owner, Handle:hndl, const String:error[], any:d
     else
     {
         // Create the sc_player_upgrades table, if it doesn't exist
-        new String:create_sc_players_alias[][] = {
+        char create_sc_players_alias[][] = {
             "CREATE TABLE IF NOT EXISTS sc_player_alias",
             "(player_ident int not null,",
             " steamid varchar(64),",
@@ -466,7 +466,7 @@ public SQL_PlayersCreated(Handle:owner, Handle:hndl, const String:error[], any:d
             "        ON DELETE CASCADE ON UPDATE CASCADE)",
             "ENGINE=INNODB" };
 
-        decl String:SQLString[QUERY_STRING_LENGTH];
+        char SQLString[QUERY_STRING_LENGTH];
         ImplodeStrings(create_sc_players_alias, sizeof(create_sc_players_alias),
                        " ", SQLString, sizeof(SQLString));
 
@@ -481,7 +481,7 @@ public SQL_PlayerAliasCreated(Handle:owner, Handle:hndl, const String:error[], a
     else
     {
         // Create the sc_player_races table, if it doesn't exist
-        new String:create_sc_players_races[][] = {
+        char create_sc_players_races[][] = {
             "CREATE TABLE IF NOT EXISTS sc_player_races ",
             "(player_ident int not null,",
             " race_ident int not null,",
@@ -496,7 +496,7 @@ public SQL_PlayerAliasCreated(Handle:owner, Handle:hndl, const String:error[], a
             "        ON DELETE CASCADE ON UPDATE CASCADE) ",
             "ENGINE=INNODB" };
 
-        decl String:SQLString[QUERY_STRING_LENGTH];
+        char SQLString[QUERY_STRING_LENGTH];
         ImplodeStrings(create_sc_players_races, sizeof(create_sc_players_races),
                        " ", SQLString, sizeof(SQLString));
 
@@ -511,7 +511,7 @@ public SQL_PlayerRacesCreated(Handle:owner, Handle:hndl, const String:error[], a
     else
     {
         // Create the sc_player_upgrades table, if it doesn't exist
-        new String:create_sc_players_upgrades[][] = {
+        char create_sc_players_upgrades[][] = {
             "CREATE TABLE IF NOT EXISTS sc_player_upgrades ",
             "(player_ident int not null,",
             " race_ident int not null,",
@@ -532,7 +532,7 @@ public SQL_PlayerRacesCreated(Handle:owner, Handle:hndl, const String:error[], a
             "        ON DELETE CASCADE ON UPDATE CASCADE)",
             "ENGINE=INNODB" };
 
-        decl String:SQLString[LONG_QUERY_STRING_LENGTH];
+        char SQLString[LONG_QUERY_STRING_LENGTH];
         ImplodeStrings(create_sc_players_upgrades, sizeof(create_sc_players_upgrades),
                        " ", SQLString, sizeof(SQLString));
 
@@ -547,7 +547,7 @@ public SQL_PlayerUpgradesCreated(Handle:owner, Handle:hndl, const String:error[]
     else
     {
         // Create the sc_player_upgrades table, if it doesn't exist
-        new String:create_sc_players_tech[][] = {
+        char create_sc_players_tech[][] = {
             "CREATE TABLE IF NOT EXISTS sc_player_tech",
             "(player_ident int not null,",
             " faction ENUM ('Terran', 'Protoss', 'Zerg', 'HumanAlliance',",
@@ -566,7 +566,7 @@ public SQL_PlayerUpgradesCreated(Handle:owner, Handle:hndl, const String:error[]
             "        ON DELETE CASCADE ON UPDATE CASCADE)",
             "ENGINE=INNODB" };
 
-        decl String:SQLString[LONG_QUERY_STRING_LENGTH];
+        char SQLString[LONG_QUERY_STRING_LENGTH];
         ImplodeStrings(create_sc_players_tech, sizeof(create_sc_players_tech),
                        " ", SQLString, sizeof(SQLString));
 
@@ -588,13 +588,13 @@ CreateFactions(Handle:dbHandle)
 {
     for (new Faction:faction = Terran; faction < Faction:sizeof(g_FactionShortNames); faction++)
     {
-        decl String:factionName[NAME_STRING_LENGTH];
+        char factionName[NAME_STRING_LENGTH];
         GetFactionName(faction, factionName, sizeof(factionName));
 
-        decl String:description[DESCRIPTION_LENGTH];
+        char description[DESCRIPTION_LENGTH];
         GetFactionDescription(faction, description,sizeof(description));
 
-        decl String:image[PLATFORM_MAX_PATH];
+        char image[PLATFORM_MAX_PATH];
         GetFactionImage(faction, image,sizeof(image));
 
         InsertFaction(dbHandle, faction, factionName, description, image);
@@ -607,21 +607,21 @@ InsertFaction(Handle:dbHandle, Faction:faction, const String:longName[],
     TraceInto("DB", "UpdateFaction", "faction=%d, longName=%s, image=%s, description=%s", \
               faction, longName, image, description);
 
-    decl String:escName[NAME_STRING_LENGTH*4+1];
+    char escName[NAME_STRING_LENGTH*4+1];
     if (!SQL_EscapeString(dbHandle, longName, escName, sizeof(escName)))
     {
         LogError("Unable to escape %s!", longName);
         strcopy(escName, sizeof(escName), longName);
     }
 
-    decl String:escDesc[DESCRIPTION_LENGTH*4+1];
+    char escDesc[DESCRIPTION_LENGTH*4+1];
     if (!SQL_EscapeString(dbHandle, description, escDesc, sizeof(escDesc)))
     {
         LogError("Unable to escape %s!", description);
         strcopy(escDesc, sizeof(escDesc), description);
     }
 
-    decl String:SQLString[QUERY_STRING_LENGTH+(sizeof(escDesc)*2)];
+    char SQLString[QUERY_STRING_LENGTH+(sizeof(escDesc)*2)];
     Format(SQLString,sizeof(SQLString),
             "INSERT INTO sc_factions (faction,long_name,description,image) VALUES (%d,'%s','%s','%s') ON DUPLICATE KEY UPDATE long_name='%s',description='%s',image='%s'", faction, escName, escDesc, image, escName, escDesc, image);
 
@@ -649,10 +649,10 @@ LoadItemIdent(const String:shortName[])
         {
             SQL_LockDatabase(g_DbHandle[DB_MAIN]);
 
-            decl String:SQLString[SHORT_QUERY_STRING_LENGTH];
+            char SQLString[SHORT_QUERY_STRING_LENGTH];
             Format(SQLString,sizeof(SQLString), "SELECT item_ident FROM sc_items WHERE item_name='%s'", shortName);
 
-            new Handle:query=SQL_Query(g_DbHandle[DB_MAIN],SQLString);
+            Handle query=SQL_Query(g_DbHandle[DB_MAIN],SQLString);
             if (query)
             {
                 if (SQL_HasResultSet(query) &&
@@ -689,14 +689,14 @@ InsertItem(const String:shortName[], const String:itemName[], const String:descr
     {
         SQL_LockDatabase(g_DbHandle[DB_MAIN]);
 
-        decl String:escDesc[DESCRIPTION_LENGTH*2+1];
+        char escDesc[DESCRIPTION_LENGTH*2+1];
         if (!SQL_EscapeString(g_DbHandle[DB_MAIN], description, escDesc, sizeof(escDesc)))
         {
             LogError("Unable to escape %s!", description);
             strcopy(escDesc, sizeof(escDesc), description);
         }
 
-        decl String:SQLString[sizeof(escDesc)*2+SHORT_QUERY_STRING_LENGTH];
+        char SQLString[sizeof(escDesc)*2+SHORT_QUERY_STRING_LENGTH];
         Format(SQLString,sizeof(SQLString),
                "INSERT INTO sc_items (item_name,long_name,category,required_level,crystals,vespene,max,image,description,add_date) VALUES ('%s','%s','%s',%d,%d,%d,%d,'%s','%s',current_timestamp) ON DUPLICATE KEY UPDATE long_name='%s',category='%s',required_level=%d,vespene=%d,max=%d,description='%s',image='%s'",
                shortName, itemName, category, required_level, crystals, vespene, max, image, escDesc, itemName, category, required_level, crystals, vespene, max, image, escDesc);
@@ -707,7 +707,7 @@ InsertItem(const String:shortName[], const String:itemName[], const String:descr
             item_ident = SQL_GetInsertId(g_DbHandle[DB_MAIN]);
         else
         {
-            decl String:error[ERROR_STRING_LENGTH]; error[0] = '\0';
+            char error[ERROR_STRING_LENGTH]; error[0] = '\0';
             SQL_GetError(g_DbHandle[DB_MAIN], error, sizeof(error));
             LogError("Unable to insert race %s: %s\nSQL:%s",
                      shortName, error, SQLString);
@@ -735,10 +735,10 @@ LoadRaceIdent(const String:shortName[])
         {
             SQL_LockDatabase(g_DbHandle[DB_MAIN]);
 
-            decl String:SQLString[SHORT_QUERY_STRING_LENGTH];
+            char SQLString[SHORT_QUERY_STRING_LENGTH];
             Format(SQLString,sizeof(SQLString), "SELECT race_ident FROM sc_races WHERE race_name='%s'", shortName);
 
-            new Handle:query=SQL_Query(g_DbHandle[DB_MAIN],SQLString);
+            Handle query=SQL_Query(g_DbHandle[DB_MAIN],SQLString);
             if (query)
             {
                 if (SQL_HasResultSet(query) &&
@@ -772,10 +772,10 @@ LoadRaceData(const String:shortName[], &Faction:faction, &UnitType:type)
         {
             SQL_LockDatabase(g_DbHandle[DB_MAIN]);
 
-            decl String:SQLString[SHORT_QUERY_STRING_LENGTH];
+            char SQLString[SHORT_QUERY_STRING_LENGTH];
             Format(SQLString,sizeof(SQLString), "SELECT race_ident,faction,type FROM sc_races WHERE race_name='%s'", shortName);
 
-            new Handle:query=SQL_Query(g_DbHandle[DB_MAIN],SQLString);
+            Handle query=SQL_Query(g_DbHandle[DB_MAIN],SQLString);
             if (query)
             {
                 if (SQL_HasResultSet(query) &&
@@ -814,17 +814,17 @@ InsertRace(const String:shortName[], const String:raceName[], required_level,
     {
         SQL_LockDatabase(g_DbHandle[DB_MAIN]);
 
-        decl String:escDesc[DESCRIPTION_LENGTH*2+1];
+        char escDesc[DESCRIPTION_LENGTH*2+1];
         if (!SQL_EscapeString(g_DbHandle[DB_MAIN], description, escDesc, sizeof(escDesc)))
         {
             LogError("Unable to escape %s!", description);
             strcopy(escDesc, sizeof(escDesc), description);
         }
 
-        decl String:unitType[NAME_STRING_LENGTH];
+        char unitType[NAME_STRING_LENGTH];
         GetUnitTypeName(type, unitType, sizeof(unitType));
 
-        decl String:SQLString[sizeof(escDesc)+SHORT_QUERY_STRING_LENGTH];
+        char SQLString[sizeof(escDesc)+SHORT_QUERY_STRING_LENGTH];
         Format(SQLString,sizeof(SQLString),
                "INSERT INTO sc_races (race_name,long_name,required_level,tech_level,parent_name,faction,type,image,description,add_date) VALUES ('%s','%s',%d,%d,'%s',%d,'%s','%s','%s',current_timestamp)",
                shortName, raceName, required_level, tech_level, parentName,
@@ -836,7 +836,7 @@ InsertRace(const String:shortName[], const String:raceName[], required_level,
             race_ident = SQL_GetInsertId(g_DbHandle[DB_MAIN]);
         else
         {
-            decl String:error[ERROR_STRING_LENGTH]; error[0] = '\0';
+            char error[ERROR_STRING_LENGTH]; error[0] = '\0';
             SQL_GetError(g_DbHandle[DB_MAIN], error, sizeof(error));
             LogError("Unable to insert race %s: %s\nSQL:%s",
                      shortName, error, SQLString);
@@ -864,11 +864,11 @@ UpdateRace(race_ident, const String:shortName[], const String:raceName[], requir
     {
         SQL_LockDatabase(g_DbHandle[DB_MAIN]);
 
-        decl String:unitType[NAME_STRING_LENGTH];
+        char unitType[NAME_STRING_LENGTH];
         GetUnitTypeName(type, unitType, sizeof(unitType));
 
-        decl String:escDesc[DESCRIPTION_LENGTH*2+1];
-        decl String:SQLString[sizeof(escDesc)+SHORT_QUERY_STRING_LENGTH];
+        char escDesc[DESCRIPTION_LENGTH*2+1];
+        char SQLString[sizeof(escDesc)+SHORT_QUERY_STRING_LENGTH];
         Format(SQLString,sizeof(SQLString),
                "UPDATE sc_races SET race_name='%s', long_name='%s', required_level=%d, tech_level=%d, parent_name='%s', faction=%d, type='%s'",
                shortName, raceName, required_level, tech_level, parentName, faction, unitType);
@@ -895,7 +895,7 @@ UpdateRace(race_ident, const String:shortName[], const String:raceName[], requir
 
         if (!SQL_FastQuery(g_DbHandle[DB_MAIN],SQLString))
         {
-            decl String:error[ERROR_STRING_LENGTH]; error[0] = '\0';
+            char error[ERROR_STRING_LENGTH]; error[0] = '\0';
             SQL_GetError(g_DbHandle[DB_MAIN], error, sizeof(error));
             LogError("Unable to update race %s: %s\nSQL:%s",
                      shortName, error, SQLString);
@@ -924,7 +924,7 @@ bool:InsertUpgrade(race_ident, upgrade, upgrade_category, const String:short[],
 
     TraceDebug("desc=(length=%d,string=%s)", strlen(desc), desc);
 
-    new bool:status = false;
+    bool status = false;
 
     if (race_ident > 0)
     {
@@ -932,28 +932,28 @@ bool:InsertUpgrade(race_ident, upgrade, upgrade_category, const String:short[],
         {
             SQL_LockDatabase(g_DbHandle[DB_MAIN]);
 
-            decl String:escDesc[DESCRIPTION_LENGTH*2+1];
+            char escDesc[DESCRIPTION_LENGTH*2+1];
             if (!SQL_EscapeString(g_DbHandle[DB_MAIN], desc, escDesc, sizeof(escDesc)))
             {
                 LogError("Unable to escape %s!", desc);
                 strcopy(escDesc, sizeof(escDesc), desc);
             }
 
-            decl String:escInvoke[DESCRIPTION_LENGTH*2+1];
+            char escInvoke[DESCRIPTION_LENGTH*2+1];
             if (!SQL_EscapeString(g_DbHandle[DB_MAIN], invoke, escInvoke, sizeof(escInvoke)))
             {
                 LogError("Unable to escape %s!", bind);
                 strcopy(escInvoke, sizeof(escInvoke), invoke);
             }
 
-            decl String:escBind[DESCRIPTION_LENGTH*2+1];
+            char escBind[DESCRIPTION_LENGTH*2+1];
             if (!SQL_EscapeString(g_DbHandle[DB_MAIN], bind, escBind, sizeof(escBind)))
             {
                 LogError("Unable to escape %s!", bind);
                 strcopy(escBind, sizeof(escBind), bind);
             }
 
-            decl String:SQLString[QUERY_STRING_LENGTH+sizeof(escDesc)+sizeof(escBind)];
+            char SQLString[QUERY_STRING_LENGTH+sizeof(escDesc)+sizeof(escBind)];
             Format(SQLString,sizeof(SQLString),
                    "INSERT INTO sc_upgrades (race_ident,upgrade,category,upgrade_name,long_name,description,invoke,bind,image,cost_crystals,cost_vespene,required_level,max_level,energy,accumulated,recurring_energy,recurring_interval,crystals,vespene,cooldown) VALUES (%d,%d,%d,'%s','%s','%s','%s','%s','%s',%d,%d,%d,%d,%f,%d,%f,%f,%d,%d,%f) ON DUPLICATE KEY UPDATE category=%d,upgrade_name='%s',long_name='%s',description='%s',invoke='%s',bind='%s',image='%s',cost_crystals=%d,cost_vespene=%d,required_level=%d,max_level=%d,energy=%f,accumulated=%d,recurring_energy=%f,recurring_interval=%f,crystals=%d,vespene=%d,cooldown=%f",
                    race_ident, upgrade, upgrade_category, short, name, escDesc, escInvoke, escBind, image, cost_crystals, cost_vespene, required_level, max_level, energy, accumulated, recurring_energy, recurring_interval, crystals, vespene, cooldown,
@@ -964,7 +964,7 @@ bool:InsertUpgrade(race_ident, upgrade, upgrade_category, const String:short[],
             status = SQL_FastQuery(g_DbHandle[DB_MAIN],SQLString);
             if (!status)
             {
-                decl String:error[ERROR_STRING_LENGTH]; error[0] = '\0';
+                char error[ERROR_STRING_LENGTH]; error[0] = '\0';
                 SQL_GetError(g_DbHandle[DB_MAIN], error, sizeof(error));
                 LogError("Unable to insert/update upgrade %s for race %d: %s\nSQL:%s",
                          short, race_ident, error, SQLString);
@@ -990,10 +990,10 @@ QueryRaceDescription(race_ident, String:description[], maxlength)
     {
         SQL_LockDatabase(g_DbHandle[DB_MAIN]);
 
-        decl String:SQLString[SHORT_QUERY_STRING_LENGTH];
+        char SQLString[SHORT_QUERY_STRING_LENGTH];
         Format(SQLString,sizeof(SQLString), "SELECT description FROM sc_races WHERE race_ident=%d", race_ident);
 
-        new Handle:query=SQL_Query(g_DbHandle[DB_MAIN],SQLString);
+        Handle query=SQL_Query(g_DbHandle[DB_MAIN],SQLString);
         if (query)
         {
             if (SQL_HasResultSet(query) && SQL_FetchRow(query))
@@ -1031,10 +1031,10 @@ QueryRaceImage(race_ident, String:image[], maxlength)
     {
         SQL_LockDatabase(g_DbHandle[DB_MAIN]);
 
-        decl String:SQLString[SHORT_QUERY_STRING_LENGTH];
+        char SQLString[SHORT_QUERY_STRING_LENGTH];
         Format(SQLString,sizeof(SQLString), "SELECT image FROM sc_races WHERE race_ident=%d", race_ident);
 
-        new Handle:query=SQL_Query(g_DbHandle[DB_MAIN],SQLString);
+        Handle query=SQL_Query(g_DbHandle[DB_MAIN],SQLString);
         if (query)
         {
             if (SQL_HasResultSet(query) && SQL_FetchRow(query))
@@ -1072,12 +1072,12 @@ QueryUpgradeImage(race_ident, upgrade, String:image[], maxlength)
     {
         SQL_LockDatabase(g_DbHandle[DB_MAIN]);
 
-        decl String:SQLString[SHORT_QUERY_STRING_LENGTH];
+        char SQLString[SHORT_QUERY_STRING_LENGTH];
         Format(SQLString,sizeof(SQLString),
                "SELECT image FROM sc_upgrades WHERE race_ident=%d AND upgrade=%d",
                race_ident, upgrade);
 
-        new Handle:query=SQL_Query(g_DbHandle[DB_MAIN],SQLString);
+        Handle query=SQL_Query(g_DbHandle[DB_MAIN],SQLString);
         if (query)
         {
             if (SQL_HasResultSet(query) && SQL_FetchRow(query))
@@ -1112,11 +1112,11 @@ LoadPlayerData(client)
     TraceInto("DB", "LoadPlayerData", "client=%d:%L", \
               client, ValidClientIndex(client));
 
-    decl String:steamid[CLASS_STRING_LENGTH];
+    char steamid[CLASS_STRING_LENGTH];
     if (GetClientAuthId(client, AuthId_Steam2, steamid, sizeof(steamid)))
     {
         // Generate the 'other' steamid and check that one also.
-        decl String:steamidalt[CLASS_STRING_LENGTH];
+        char steamidalt[CLASS_STRING_LENGTH];
         strcopy(steamidalt, sizeof(steamidalt), steamid);
         steamidalt[6] = (steamid[6] == '0') ? '1' : '0';
 
@@ -1130,7 +1130,7 @@ LoadPlayerData(client)
                 ReloadPlayer(steamidalt, client);
         }
 
-        decl String:SQLString[QUERY_STRING_LENGTH];
+        char SQLString[QUERY_STRING_LENGTH];
         Format(SQLString,sizeof(SQLString),
                "SELECT player_ident, status+0, crystals, vespene, overall_level, display_settings, settings, name, race_ident FROM sc_players WHERE (steamid = '%s' OR steamid = '%s') AND del_rec_date IS NULL",
                steamid, steamidalt);
@@ -1217,7 +1217,7 @@ public SQL_LoadPlayerData(Handle:owner, Handle:query, const String:error[], any:
                 if (g_SaveThreadsInFlight != INVALID_HANDLE)
                 {
                     new threads;
-                    decl String:key[CLASS_STRING_LENGTH];
+                    char key[CLASS_STRING_LENGTH];
                     Format(key, sizeof(key), "%d", player_ident);
                     if (GetTrieValue(g_SaveThreadsInFlight, key, threads) && threads > 0)
                         ReloadPlayer(key, client);
@@ -1237,7 +1237,7 @@ public SQL_LoadPlayerData(Handle:owner, Handle:query, const String:error[], any:
                     SQL_FetchString(query, 7, playerPrevName[client], sizeof(playerPrevName[]));
 
                     #if defined _TRACE
-                        decl String:name[MAX_NAME_LENGTH];
+                        char name[MAX_NAME_LENGTH];
                         name[0] = '\0';
                         if (GetClientName(client,name,sizeof(name)) &&
                             name[0] == '\0')
@@ -1261,7 +1261,7 @@ public SQL_LoadPlayerData(Handle:owner, Handle:query, const String:error[], any:
                     new raceId = FindRaceForIdent(race_ident);
                     if (raceId >= 0)
                     {
-                        new Handle:raceHandle = GetRaceHandle(raceId);
+                        Handle raceHandle = GetRaceHandle(raceId);
                         if (GetRaceRequiredLevel(raceHandle) < 0)
                         {
                             #if defined _TRACE
@@ -1270,7 +1270,7 @@ public SQL_LoadPlayerData(Handle:owner, Handle:query, const String:error[], any:
 
                             // If the race is restricted,
                             // Change to the Parent Race instead (if any)
-                            decl String:parentName[NAME_STRING_LENGTH];
+                            char parentName[NAME_STRING_LENGTH];
                             GetRaceParentName(raceHandle, parentName, sizeof(parentName));
                             raceId = FindRace(parentName);
 
@@ -1312,7 +1312,7 @@ public SQL_LoadPlayerData(Handle:owner, Handle:query, const String:error[], any:
                 new raceId = GetRace(client);
                 if (raceId >= 0)
                 {
-                    new Handle:raceInfo = GetRaceInfo(client, raceId);
+                    Handle raceInfo = GetRaceInfo(client, raceId);
                     if (raceInfo != INVALID_HANDLE)
                         SetRaceInfoLoaded(raceInfo,DataNotFound);
                 }
@@ -1340,19 +1340,19 @@ LoadPlayerRaceData(client, raceId)
     new player_ident = GetDatabaseIdent(client);
     if (player_ident > 0)
     {
-        new Handle:raceHandle = GetRaceHandle(raceId);
-        new Handle:raceInfo = GetRaceInfo(client, raceId);
+        Handle raceHandle = GetRaceHandle(raceId);
+        Handle raceInfo = GetRaceInfo(client, raceId);
         if (raceHandle != INVALID_HANDLE && raceInfo != INVALID_HANDLE)
         {
             new race_ident = GetRaceIdent(raceHandle);
-            decl String:SQLString[SHORT_QUERY_STRING_LENGTH];
+            char SQLString[SHORT_QUERY_STRING_LENGTH];
             Format(SQLString,sizeof(SQLString),
                    "SELECT xp, level FROM sc_player_races WHERE player_ident = %d AND race_ident = %d",
                    player_ident, race_ident);
 
             if (DatabaseAvailable(DB_THREAD))
             {
-                new Handle:dataPack = CreateDataPack();
+                Handle dataPack = CreateDataPack();
                 WritePackCell(dataPack, GetClientUserId(client));
                 WritePackCell(dataPack, raceId);
 
@@ -1362,7 +1362,7 @@ LoadPlayerRaceData(client, raceId)
             }
             else
             {
-                decl String:raceName[SHORT_STRING_LENGTH];
+                char raceName[SHORT_STRING_LENGTH];
                 GetRaceShortName(raceHandle, raceName, sizeof(raceName));
                 SetRaceInfoLoaded(raceInfo,DataNotLoaded);
                 LogError("***ERROR*** Database not available, unable to load %d:%L's %d:%s race data, ident=%d\n",
@@ -1385,8 +1385,8 @@ LoadPlayerRaceData(client, raceId)
     }
     else if (player_ident >= 0)
     {
-        decl String:raceName[SHORT_STRING_LENGTH];
-        new Handle:raceHandle = GetRaceHandle(raceId);
+        char raceName[SHORT_STRING_LENGTH];
+        Handle raceHandle = GetRaceHandle(raceId);
         GetRaceShortName(raceHandle, raceName, sizeof(raceName));
         LogError("***ERROR*** Unable to obtain ident to load %d:%L's %d:%s race data, ident=%d\n",
                  client, ValidClientIndex(client), raceId, raceName, player_ident);
@@ -1394,8 +1394,8 @@ LoadPlayerRaceData(client, raceId)
     else
     {
         #if defined _TRACE
-            decl String:raceName[SHORT_STRING_LENGTH];
-            new Handle:raceHandle = GetRaceHandle(raceId);
+            char raceName[SHORT_STRING_LENGTH];
+            Handle raceHandle = GetRaceHandle(raceId);
             GetRaceShortName(raceHandle, raceName, sizeof(raceName));
             Trace("Unable to load %d:%L's %d:%s race data!", \
                   client, ValidClientIndex(client), \
@@ -1421,13 +1421,13 @@ public SQL_LoadPlayerRaceData(Handle:owner, Handle:query, const String:error[], 
     {
         if (client > 0)
         {
-            new Handle:raceInfo = GetRaceInfo(client, raceId);
+            Handle raceInfo = GetRaceInfo(client, raceId);
             if (raceInfo != INVALID_HANDLE)
                 SetRaceInfoLoaded(raceInfo,DataNotLoaded);
         }
 
-        decl String:raceName[SHORT_STRING_LENGTH];
-        new Handle:raceHandle = GetRaceHandle(raceId);
+        char raceName[SHORT_STRING_LENGTH];
+        Handle raceHandle = GetRaceHandle(raceId);
         GetRaceShortName(raceHandle, raceName, sizeof(raceName));
 
         // Retry Access denied or Lost connection errors.
@@ -1444,7 +1444,7 @@ public SQL_LoadPlayerRaceData(Handle:owner, Handle:query, const String:error[], 
             if (client > 0)
             {
                 // Retry loading the client's data
-                new Handle:dataPack = CreateDataPack();
+                Handle dataPack = CreateDataPack();
                 WritePackCell(dataPack, userid);
                 WritePackCell(dataPack, raceId);
                 CreateTimer(0.2, Retry_LoadPlayerRaceData, dataPack,TIMER_FLAG_NO_MAPCHANGE);
@@ -1471,8 +1471,8 @@ public SQL_LoadPlayerRaceData(Handle:owner, Handle:query, const String:error[], 
         new player_ident = GetDatabaseIdent(client);
         if (client > 0 && player_ident > 0)
         {
-            new Handle:raceHandle = GetRaceHandle(raceId);
-            new Handle:raceInfo = GetRaceInfo(client, raceId);
+            Handle raceHandle = GetRaceHandle(raceId);
+            Handle raceInfo = GetRaceInfo(client, raceId);
             if (raceHandle != INVALID_HANDLE && raceInfo != INVALID_HANDLE)
             {
                 if (SQL_HasResultSet(query) &&
@@ -1494,12 +1494,12 @@ public SQL_LoadPlayerRaceData(Handle:owner, Handle:query, const String:error[], 
                         new race_ident = GetRaceIdent(raceHandle);
                         if (DatabaseConnected(DB_THREAD))
                         {
-                            decl String:SQLString[SHORT_QUERY_STRING_LENGTH];
+                            char SQLString[SHORT_QUERY_STRING_LENGTH];
                             Format(SQLString,sizeof(SQLString),
                                    "SELECT upgrade, upgrade_level FROM sc_player_upgrades WHERE player_ident = %d AND race_ident = %d",
                                    player_ident,race_ident);
 
-                            new Handle:dataPack = CreateDataPack();
+                            Handle dataPack = CreateDataPack();
                             WritePackCell(dataPack, userid);
                             WritePackCell(dataPack, raceId);
 
@@ -1508,7 +1508,7 @@ public SQL_LoadPlayerRaceData(Handle:owner, Handle:query, const String:error[], 
                         }
                         else
                         {
-                            decl String:raceName[SHORT_STRING_LENGTH];
+                            char raceName[SHORT_STRING_LENGTH];
                             GetRaceShortName(raceHandle, raceName, sizeof(raceName));
                             LogError("***ERROR*** Database not available, unable to load %d:%L's %d:%s upgrade data, ident=%d\n",
                                      client, ValidClientIndex(client), raceId, raceName, player_ident);
@@ -1565,8 +1565,8 @@ public SQL_LoadPlayerUpgradeData(Handle:owner, Handle:query, const String:error[
             g_DbHandle[DB_THREAD] = INVALID_HANDLE;
         }
 
-        decl String:raceName[SHORT_STRING_LENGTH];
-        new Handle:raceHandle = GetRaceHandle(raceId);
+        char raceName[SHORT_STRING_LENGTH];
+        Handle raceHandle = GetRaceHandle(raceId);
         GetRaceShortName(raceHandle, raceName, sizeof(raceName));
 
         LogError("Unable to query %d:%L's %d:%s upgrade data: %s",
@@ -1577,8 +1577,8 @@ public SQL_LoadPlayerUpgradeData(Handle:owner, Handle:query, const String:error[
     {
         if (client > 0)
         {
-            new Handle:raceHandle = GetRaceHandle(raceId);
-            new Handle:raceInfo = GetRaceInfo(client, raceId);
+            Handle raceHandle = GetRaceHandle(raceId);
+            Handle raceInfo = GetRaceInfo(client, raceId);
             if (raceHandle != INVALID_HANDLE && raceInfo != INVALID_HANDLE)
             {
                 if (SQL_HasResultSet(query))
@@ -1613,20 +1613,20 @@ LoadPlayerTechData(client, Faction:techId)
     new player_ident = GetDatabaseIdent(client);
     if (player_ident > 0)
     {
-        new Handle:techData = GetTechData(client);
+        Handle techData = GetTechData(client);
         if (techData != INVALID_HANDLE)
         {
-            new Handle:techInfo = GetArrayCell(techData,_:techId);
+            Handle techInfo = GetArrayCell(techData,_:techId);
             if (techInfo != INVALID_HANDLE)
             {
-                decl String:SQLString[SHORT_QUERY_STRING_LENGTH];
+                char SQLString[SHORT_QUERY_STRING_LENGTH];
                 Format(SQLString,sizeof(SQLString),
                        "SELECT tech_count, tech_level FROM sc_player_tech WHERE player_ident = %d AND faction = %d",
                        player_ident, techId);
 
                 if (DatabaseAvailable(DB_THREAD))
                 {
-                    new Handle:dataPack = CreateDataPack();
+                    Handle dataPack = CreateDataPack();
                     WritePackCell(dataPack, GetClientUserId(client));
                     WritePackCell(dataPack, _:techId);
 
@@ -1638,7 +1638,7 @@ LoadPlayerTechData(client, Faction:techId)
                 {
                     SetTechInfoLoaded(techInfo,DataNotLoaded);
 
-                    decl String:techName[NAME_STRING_LENGTH];
+                    char techName[NAME_STRING_LENGTH];
                     GetFactionName(techId, techName, sizeof(techName));
                     LogError("***ERROR*** Database not available, unable to load %d:%L's %d:%s tech data, ident=%d\n",
                              client, ValidClientIndex(client), techId, techName, player_ident);
@@ -1649,7 +1649,7 @@ LoadPlayerTechData(client, Faction:techId)
     }
     else
     {
-        decl String:techName[NAME_STRING_LENGTH];
+        char techName[NAME_STRING_LENGTH];
         GetFactionName(techId, techName, sizeof(techName));
         Trace("Unable to load %d:%L's %d:%s tech data!, ident=%d", \
               client, ValidClientIndex(client), techId, techName, player_ident);
@@ -1678,15 +1678,15 @@ public SQL_LoadPlayerTechData(Handle:owner, Handle:query, const String:error[], 
             g_DbHandle[DB_THREAD] = INVALID_HANDLE;
         }
 
-        decl String:techName[NAME_STRING_LENGTH];
+        char techName[NAME_STRING_LENGTH];
         GetFactionName(techId, techName, sizeof(techName));
         LogError("Unable to query %d:%L's %d:%s tech data: %s",
                  client, ValidClientIndex(client), techId, techName, error);
 
         if (client > 0)
         {
-            new Handle:techData = GetTechData(client);
-            new Handle:techInfo = GetArrayCell(techData,_:techId);
+            Handle techData = GetTechData(client);
+            Handle techInfo = GetArrayCell(techData,_:techId);
             SetTechInfoLoaded(techInfo,DataNotLoaded);
         }
     }
@@ -1694,10 +1694,10 @@ public SQL_LoadPlayerTechData(Handle:owner, Handle:query, const String:error[], 
     {
         if (client > 0)
         {
-            new Handle:techData = GetTechData(client);
+            Handle techData = GetTechData(client);
             if (techData != INVALID_HANDLE)
             {
-                new Handle:techInfo = GetArrayCell(techData,_:techId);
+                Handle techInfo = GetArrayCell(techData,_:techId);
                 if (techInfo != INVALID_HANDLE)
                 {
                     if (SQL_HasResultSet(query) &&
@@ -1710,7 +1710,7 @@ public SQL_LoadPlayerTechData(Handle:owner, Handle:query, const String:error[], 
                         SetTechInfoLevel(techInfo,level);
                         SetTechInfoLoaded(techInfo,DataLoaded);
 
-                        decl String:techName[NAME_STRING_LENGTH];
+                        char techName[NAME_STRING_LENGTH];
                         GetFactionName(techId, techName, sizeof(techName));
                         Trace("Loaded %d:%L's %d:%s tech data, count=%d, level=%d", \
                               client,ValidClientIndex(client), techId, techName, count, level);
@@ -1730,7 +1730,7 @@ SavePlayerData(client)
     TraceInto("DB", "SavePlayerData", "client=%d:%L", \
               client, ValidClientIndex(client));
 
-    new bool:threaded = true;
+    bool threaded = true;
     /*
     new timeleft;
     if (g_MapChanging)
@@ -1751,7 +1751,7 @@ SavePlayerData(client)
     if (player_ident > 0)
     {
         new race              = GetRace(client);
-        new Handle:raceHandle = GetRaceHandle(race);
+        Handle raceHandle = GetRaceHandle(race);
         new race_ident        = GetRaceIdent(raceHandle);
         new Settings:bits     = GetSettingsBits(client);
         new overall_level     = GetOverallLevel(client);
@@ -1761,8 +1761,8 @@ SavePlayerData(client)
         Trace("Save %d:%L's data, race=%d, race_ident=%d, overall_level=%d", \
               client, ValidClientIndex(client), race, race_ident, overall_level);
 
-        decl String:key[CLASS_STRING_LENGTH];
-        decl String:steamid[CLASS_STRING_LENGTH];
+        char key[CLASS_STRING_LENGTH];
+        char steamid[CLASS_STRING_LENGTH];
         if (IsClientConnected(client) &&
             GetClientAuthId(client, AuthId_Steam2, steamid, sizeof(steamid)))
         {
@@ -1780,8 +1780,8 @@ SavePlayerData(client)
         // Start the thread count at 0
         SetTrieValue(g_SaveThreadsInFlight, key, 0, true);
 
-        decl String:name[MAX_NAME_LENGTH];
-        decl String:escName[sizeof(name)*2+1];
+        char name[MAX_NAME_LENGTH];
+        char escName[sizeof(name)*2+1];
 
         name[0] = escName[0] = '\0';
         if (IsClientInGame(client))
@@ -1814,7 +1814,7 @@ SavePlayerData(client)
             strcopy(escName, sizeof(escName), name);
         }
 
-        decl String:SQLString[QUERY_STRING_LENGTH];
+        char SQLString[QUERY_STRING_LENGTH];
         Format(SQLString,sizeof(SQLString), "UPDATE sc_players SET race_ident=%d, crystals=%d, vespene=%d, overall_level=%d, settings=%d, name='%s', last_update=current_timestamp WHERE player_ident = %d", race_ident, crystals, vespene, overall_level, bits, escName, player_ident);
 
         Trace("Saving %d:%L's Player Data; player_ident=%d, name='%s', race=%d, race_ident=%d, overall_level=%d, crystals=%d, vespene=%d", client, ValidClientIndex(client), player_ident, name, race, race_ident, overall_level, crystals, vespene);
@@ -1822,7 +1822,7 @@ SavePlayerData(client)
         if (threaded && DatabaseAvailable(DB_THREAD))
         {
             // Start threaded SQL update to update player table
-            new Handle:dataPack = CreateDataPack();
+            Handle dataPack = CreateDataPack();
             WritePackCell(dataPack, GetClientUserId(client));
             WritePackCell(dataPack, player_ident);
             WritePackCell(dataPack, crystals);
@@ -1840,8 +1840,8 @@ SavePlayerData(client)
                 SQL_UnlockDatabase(g_DbHandle[DB_MAIN]);
             else
             {
-                new bool:success = false;
-                decl String:error[ERROR_STRING_LENGTH]; error[0] = '\0';
+                bool success = false;
+                char error[ERROR_STRING_LENGTH]; error[0] = '\0';
                 SQL_GetError(g_DbHandle[DB_MAIN], error, sizeof(error));
                 SQL_UnlockDatabase(g_DbHandle[DB_MAIN]);
 
@@ -1916,7 +1916,7 @@ SavePlayerData(client)
             Format(SQLString,sizeof(SQLString), "INSERT INTO sc_player_alias (player_ident,steamid,name,last_used) VALUES (%d,'%s','%s',current_timestamp) ON DUPLICATE KEY UPDATE last_used=current_timestamp", player_ident, steamid, escName);
             if (threaded && DatabaseAvailable(DB_THREAD))
             {
-                new Handle:dataPack = CreateDataPack();
+                Handle dataPack = CreateDataPack();
                 WritePackCell(dataPack, GetClientUserId(client));
                 WritePackCell(dataPack, player_ident);
 
@@ -1937,8 +1937,8 @@ SavePlayerData(client)
                 }
                 else
                 {
-                    new bool:success = false;
-                    decl String:error[ERROR_STRING_LENGTH]; error[0] = '\0';
+                    bool success = false;
+                    char error[ERROR_STRING_LENGTH]; error[0] = '\0';
                     SQL_GetError(g_DbHandle[DB_MAIN], error, sizeof(error));
                     SQL_UnlockDatabase(g_DbHandle[DB_MAIN]);
 
@@ -2015,7 +2015,7 @@ public SQL_UpdatePlayer(Handle:owner, Handle:hndl, const String:error[], any:dat
         new crystals = ReadPackCell(data);
         new vespene = ReadPackCell(data);
 
-        decl String:key[CLASS_STRING_LENGTH];
+        char key[CLASS_STRING_LENGTH];
         ReadPackString(data, key, sizeof(key));
 
         if (hndl != INVALID_HANDLE && error[0] == '\0')
@@ -2107,21 +2107,21 @@ InsertPlayerData(client, bool:threaded)
     TraceInto("DB", "InsertPlayerData", "client=%d:%L, threaded=%d", \
               client, ValidClientIndex(client), threaded);
 
-    decl String:steamid[ID_STRING_LENGTH];
+    char steamid[ID_STRING_LENGTH];
     if (GetClientAuthId(client, AuthId_Steam2, steamid, sizeof(steamid)))
     {
         if (DatabaseAvailable(DB_MAIN))
         {
             new race              = GetRace(client);
-            new Handle:raceHandle = GetRaceHandle(race);
+            Handle raceHandle = GetRaceHandle(race);
             new race_ident        = GetRaceIdent(raceHandle);
             new Settings:bits     = GetSettingsBits(client);
             new overall_level     = GetOverallLevel(client);
             new crystals          = GetCrystals(client);
             new vespene           = GetVespene(client);
 
-            decl String:name[MAX_NAME_LENGTH];
-            decl String:escName[sizeof(name)*2+1];
+            char name[MAX_NAME_LENGTH];
+            char escName[sizeof(name)*2+1];
 
             SQL_LockDatabase(g_DbHandle[DB_MAIN]);
 
@@ -2139,13 +2139,13 @@ InsertPlayerData(client, bool:threaded)
             Trace("Insert %d:%L's data, race=%d, race_ident=%d, overall_level=%d", \
                   client, ValidClientIndex(client), race, race_ident, overall_level);
 
-            decl String:SQLString[QUERY_STRING_LENGTH];
+            char SQLString[QUERY_STRING_LENGTH];
             Format(SQLString,sizeof(SQLString), "INSERT INTO sc_players (steamid,name,race_ident,crystals,vespene,overall_level,settings,last_update) VALUES ('%s','%s',%d,%d,%d,%d,%d,current_timestamp) ON DUPLICATE KEY UPDATE race_ident=%d, crystals=%d, vespene=%d, overall_level=%d, settings=%d, last_update=current_timestamp", steamid, escName, race_ident, crystals, vespene, overall_level, bits, race_ident, crystals, vespene, overall_level, bits);
 
             Trace("Inserting %d:%L's Player Data; steamid=%s, name='%s', race=%d, race_ident=%d, overall_level=%d, crystals=%d, vespene=%d", client, ValidClientIndex(client), steamid, name, race, race_ident, overall_level, crystals, vespene);
 
             new player_ident = -1;
-            new bool:success = SQL_FastQuery(g_DbHandle[DB_MAIN],SQLString);
+            bool success = SQL_FastQuery(g_DbHandle[DB_MAIN],SQLString);
             if (success)
             {
                 player_ident = SQL_GetInsertId(g_DbHandle[DB_MAIN]);
@@ -2154,7 +2154,7 @@ InsertPlayerData(client, bool:threaded)
             }
             else
             {
-                decl String:error[ERROR_STRING_LENGTH]; error[0] = '\0';
+                char error[ERROR_STRING_LENGTH]; error[0] = '\0';
                 SQL_GetError(g_DbHandle[DB_MAIN], error, sizeof(error));
                 SQL_UnlockDatabase(g_DbHandle[DB_MAIN]);
 
@@ -2215,7 +2215,7 @@ InsertPlayerData(client, bool:threaded)
 
                 SQL_LockDatabase(g_DbHandle[DB_MAIN]);
 
-                new Handle:ident_query=SQL_Query(g_DbHandle[DB_MAIN],SQLString);
+                Handle ident_query=SQL_Query(g_DbHandle[DB_MAIN],SQLString);
                 if (ident_query)
                 {
                     if (SQL_HasResultSet(ident_query) &&
@@ -2225,7 +2225,7 @@ InsertPlayerData(client, bool:threaded)
                     }
                     else
                     {
-                        decl String:error[ERROR_STRING_LENGTH]; error[0] = '\0';
+                        char error[ERROR_STRING_LENGTH]; error[0] = '\0';
                         SQL_GetError(g_DbHandle[DB_MAIN], error, sizeof(error));
                         LogError("Unable to query %d:%L's ident: %s\nSQL:%s",
                                   client, ValidClientIndex(client), error, SQLString);
@@ -2234,7 +2234,7 @@ InsertPlayerData(client, bool:threaded)
                 }
                 else
                 {
-                    decl String:error[ERROR_STRING_LENGTH]; error[0] = '\0';
+                    char error[ERROR_STRING_LENGTH]; error[0] = '\0';
                     SQL_GetError(g_DbHandle[DB_MAIN], error, sizeof(error));
                     LogError("Unable to query %d:%L's ident: %s\nSQL:%s",
                             client, ValidClientIndex(client), error, SQLString);
@@ -2280,11 +2280,11 @@ bool:SavePlayerRaceData(client, player_ident, race, bool:threaded, const String:
               "client=%d:%L, player_ident=%d, race=%d, threaded=%d, key=%s", \
               client, ValidClientIndex(client), player_ident, race, threaded, key);
 
-    new bool:success    = false;
-    new Handle:raceInfo = GetRaceInfo(client, race);
+    bool success    = false;
+    Handle raceInfo = GetRaceInfo(client, race);
     if (raceInfo != INVALID_HANDLE)
     {
-        new Handle:raceHandle = GetRaceHandle(race);
+        Handle raceHandle = GetRaceHandle(race);
         new race_ident        = GetRaceIdent(raceHandle);
 
         new level = GetRaceInfoLevel(raceInfo);
@@ -2293,7 +2293,7 @@ bool:SavePlayerRaceData(client, player_ident, race, bool:threaded, const String:
         Trace("%d:%L Save Race Data, race=%d, raceInfo=0x%08x, race_ident=%d, level=%d, xp=%d, threaded=%d", \
               client, ValidClientIndex(client), race, raceInfo, race_ident, level, xp, threaded);
 
-        new String:SQLString[QUERY_STRING_LENGTH];
+        char SQLString[QUERY_STRING_LENGTH];
         Format(SQLString,sizeof(SQLString), "INSERT INTO sc_player_races (player_ident,race_ident,xp,level) VALUES (%d,%d,%d,%d) ON DUPLICATE KEY UPDATE xp=%d,level=%d", player_ident, race_ident, xp, level, xp, level);
 
         if (threaded && DatabaseAvailable(DB_THREAD))
@@ -2304,10 +2304,10 @@ bool:SavePlayerRaceData(client, player_ident, race, bool:threaded, const String:
             // (and the sc_player_races entry already exists)
             // Otherwise, attempt to save them AFTER saving
             // the player's race's data has completed!
-            new bool:saveUpgrades = (GetRaceInfoLoaded(raceInfo) >= DataLoaded);
+            bool saveUpgrades = (GetRaceInfoLoaded(raceInfo) >= DataLoaded);
             //                      && (g_bSaveUpgrades || !g_bChargeForUpgrades);
 
-            new Handle:dataPack = CreateDataPack();
+            Handle dataPack = CreateDataPack();
             WritePackCell(dataPack, GetClientUserId(client));
             WritePackCell(dataPack, player_ident);
             WritePackCell(dataPack, race);
@@ -2332,8 +2332,8 @@ bool:SavePlayerRaceData(client, player_ident, race, bool:threaded, const String:
         }
         else if (DatabaseAvailable(DB_MAIN))
         {
-            decl String:error[ERROR_STRING_LENGTH]; error[0] = '\0';
-            decl String:raceName[SHORT_STRING_LENGTH]; raceName[0] = '\0';
+            char error[ERROR_STRING_LENGTH]; error[0] = '\0';
+            char raceName[SHORT_STRING_LENGTH]; raceName[0] = '\0';
 
             Trace("Save player data no thread");
             SQL_LockDatabase(g_DbHandle[DB_MAIN]);
@@ -2412,7 +2412,7 @@ bool:SavePlayerRaceData(client, player_ident, race, bool:threaded, const String:
         }
         else
         {
-            decl String:raceName[SHORT_STRING_LENGTH];
+            char raceName[SHORT_STRING_LENGTH];
             GetRaceShortName(raceHandle, raceName, sizeof(raceName));
             LogError("Unable to connect to DB to insert/update %d:%L's (ident=%d) %d:%s race data\n",
                      client, ValidClientIndex(client), player_ident, race_ident, raceName);
@@ -2453,9 +2453,9 @@ public SQL_SavePlayerRaceData(Handle:owner, Handle:hndl, const String:error[], a
         new race_ident        = ReadPackCell(data);
         new xp                = ReadPackCell(data);
         new level             = ReadPackCell(data);
-        new bool:saveUpgrades = bool:ReadPackCell(data);
+        bool saveUpgrades = bool:ReadPackCell(data);
 
-        decl String:key[CLASS_STRING_LENGTH];
+        char key[CLASS_STRING_LENGTH];
         ReadPackString(data, key, sizeof(key));
 
         if (hndl != INVALID_HANDLE && error[0] == '\0')
@@ -2467,7 +2467,7 @@ public SQL_SavePlayerRaceData(Handle:owner, Handle:hndl, const String:error[], a
         }
         else
         {
-            new bool:clientIsValid = IsValidClient(client);
+            bool clientIsValid = IsValidClient(client);
             if (clientIsValid)
             {
                 SetSavedXP(client,race,0);
@@ -2484,7 +2484,7 @@ public SQL_SavePlayerRaceData(Handle:owner, Handle:hndl, const String:error[], a
                 if (clientIsValid)
                 {
                     // Retry saving the client's race data
-                    new Handle:dataPack = CreateDataPack();
+                    Handle dataPack = CreateDataPack();
                     WritePackCell(dataPack, userid);
                     WritePackCell(dataPack, player_ident);
                     WritePackCell(dataPack, race);
@@ -2494,7 +2494,7 @@ public SQL_SavePlayerRaceData(Handle:owner, Handle:hndl, const String:error[], a
             }
             else
             {
-                decl String:raceName[SHORT_STRING_LENGTH];
+                char raceName[SHORT_STRING_LENGTH];
                 GetRaceShortName(GetRaceHandle(race), raceName, sizeof(raceName));
                 LogError("Unable to insert/update %d:%L's (ident=%d) %d:%s race data (xp=%d,level=%d,key=%s): %s",
                          client, ValidClientIndex(client), player_ident, race_ident, raceName, xp, level, key, error);
@@ -2534,7 +2534,7 @@ public Action:Retry_SavePlayerRaceData(Handle:timer,Handle:data)
     new player_ident = ReadPackCell(data);
     new raceId = ReadPackCell(data);
 
-    decl String:key[CLASS_STRING_LENGTH];
+    char key[CLASS_STRING_LENGTH];
     ReadPackString(data, key, sizeof(key));
 
     CloseHandle(data);
@@ -2550,8 +2550,8 @@ bool:SavePlayerTechData(client, player_ident, Faction:techId, bool:threaded, con
               "client=%d:%L, player_ident=%d, tech=%d, threaded=%d", \
               client, ValidClientIndex(client), player_ident, techId, threaded);
 
-    new bool:success    = false;           
-    new Handle:techInfo = GetTechInfo(client, techId);
+    bool success    = false;           
+    Handle techInfo = GetTechInfo(client, techId);
     if (techInfo != INVALID_HANDLE)
     {
         new count = GetTechInfoCount(techInfo);
@@ -2560,12 +2560,12 @@ bool:SavePlayerTechData(client, player_ident, Faction:techId, bool:threaded, con
         Trace("%d:%L Save Tech Data, tech=%d, techInfo=0x%08x, count=%d, level=%d", \
               client, ValidClientIndex(client), techId, techInfo, count, level);
 
-        decl String:SQLString[QUERY_STRING_LENGTH];
+        char SQLString[QUERY_STRING_LENGTH];
         Format(SQLString,sizeof(SQLString), "INSERT INTO sc_player_tech (player_ident,faction,tech_count,tech_level) VALUES (%d,%d,%d,%d) ON DUPLICATE KEY UPDATE tech_count=%d,tech_level=%d", player_ident, techId, count, level, count, level);
 
         if (threaded && DatabaseAvailable(DB_THREAD))
         {
-            new Handle:dataPack = CreateDataPack();
+            Handle dataPack = CreateDataPack();
             WritePackCell(dataPack, GetClientUserId(client));
             WritePackCell(dataPack, player_ident);
             WritePackCell(dataPack, _:techId);
@@ -2577,7 +2577,7 @@ bool:SavePlayerTechData(client, player_ident, Faction:techId, bool:threaded, con
         }
         else if (DatabaseAvailable(DB_MAIN))
         {
-            decl String:error[ERROR_STRING_LENGTH]; error[0] = '\0';
+            char error[ERROR_STRING_LENGTH]; error[0] = '\0';
 
             SQL_LockDatabase(g_DbHandle[DB_MAIN]);
 
@@ -2592,7 +2592,7 @@ bool:SavePlayerTechData(client, player_ident, Faction:techId, bool:threaded, con
                 // Retry Access denied or Lost connection errors.
                 if (StrContains(error, "denied") >= 0 || StrContains(error, "connection") >= 0)
                 {
-                    decl String:techName[NAME_STRING_LENGTH];
+                    char techName[NAME_STRING_LENGTH];
                     GetFactionName(techId, techName, sizeof(techName));
                     LogError("Initial attempt to insert/update %d:%L's (ident=%d) %d:%s tech data failed: %s\nSQL:%s",
                              client, ValidClientIndex(client), player_ident, techId, techName, error, SQLString);
@@ -2629,7 +2629,7 @@ bool:SavePlayerTechData(client, player_ident, Faction:techId, bool:threaded, con
             {
                 SetDatabaseSaved(client, false);
 
-                decl String:techName[NAME_STRING_LENGTH];
+                char techName[NAME_STRING_LENGTH];
                 GetFactionName(techId, techName, sizeof(techName));
                 LogError("Unable to insert/update %d:%L's (ident=%d) %d:%s tech data: %s\nSQL:%s",
                          client, ValidClientIndex(client), player_ident, techId,
@@ -2638,7 +2638,7 @@ bool:SavePlayerTechData(client, player_ident, Faction:techId, bool:threaded, con
         }
         else
         {
-            decl String:techName[NAME_STRING_LENGTH];
+            char techName[NAME_STRING_LENGTH];
             GetFactionName(techId, techName, sizeof(techName));
             LogError("Unable to connect to DB to insert/update %d:%L's (ident=%d) %d:%s tech data",
                      client, ValidClientIndex(client), player_ident, techId, techName);
@@ -2670,14 +2670,14 @@ public SQL_SavePlayerTechData(Handle:owner, Handle:hndl, const String:error[], a
         new player_ident      = ReadPackCell(data); 
         new Faction:techId    = Faction:ReadPackCell(data); 
 
-        decl String:key[CLASS_STRING_LENGTH];
+        char key[CLASS_STRING_LENGTH];
         ReadPackString(data, key, sizeof(key));
 
         if (hndl != INVALID_HANDLE && error[0] == '\0')
             UpdateThreadsInFlight(key, -1);
         else
         {
-            decl String:techName[NAME_STRING_LENGTH];
+            char techName[NAME_STRING_LENGTH];
             GetFactionName(techId, techName, sizeof(techName));
             LogError("Unable to insert/update %d:%L's (ident=%d) %d:%s tech data: %s",
                      client, ValidClientIndex(client), player_ident, techId, techName, error);
@@ -2720,16 +2720,16 @@ bool:SavePlayerUpgrades(client, player_ident, race_ident, raceId,
               "client=%d:%L, player_ident=%d, race_ident=%d, raceId=%d, raceInfo=0x%08x, raceHandle=0x%08x", \
               client, ValidClientIndex(client), player_ident, race_ident, raceId, raceInfo, raceHandle);
 
-    new bool:success = true;
+    bool success = true;
     if (DatabaseAvailable(DB_MAIN))
     {
         static const String:prepareStmt[] = "INSERT INTO sc_player_upgrades (player_ident,race_ident,upgrade,upgrade_level) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE upgrade_level=?";
 
-        decl String:error[ERROR_STRING_LENGTH]; error[0] = '\0';
+        char error[ERROR_STRING_LENGTH]; error[0] = '\0';
 
         SQL_LockDatabase(g_DbHandle[DB_MAIN]);
 
-        new Handle:dbReplaceUpgradeStmtHandle = SQL_PrepareQuery(g_DbHandle[DB_MAIN], prepareStmt,
+        Handle dbReplaceUpgradeStmtHandle = SQL_PrepareQuery(g_DbHandle[DB_MAIN], prepareStmt,
                                                                  error, sizeof(error));
 
         if (dbReplaceUpgradeStmtHandle == INVALID_HANDLE)
@@ -2791,7 +2791,7 @@ bool:SavePlayerUpgrades(client, player_ident, race_ident, raceId,
                         SetDatabaseSaved(client, false);
                         success = false;
 
-                        decl String:raceName[SHORT_STRING_LENGTH];
+                        char raceName[SHORT_STRING_LENGTH];
                         GetRaceShortName(raceHandle, raceName, sizeof(raceName));
 
                         SQL_GetError(dbReplaceUpgradeStmtHandle, error, sizeof(error));
@@ -2816,7 +2816,7 @@ bool:SavePlayerUpgrades(client, player_ident, race_ident, raceId,
                             {
                                 // Retry saving the client's upgrade data
                                 // (after adding the upgrade to the sc_upgrade table)
-                                new Handle:dataPack = CreateDataPack();
+                                Handle dataPack = CreateDataPack();
                                 WritePackCell(dataPack, GetClientUserId(client));
                                 WritePackCell(dataPack, player_ident);
                                 WritePackCell(dataPack, race_ident);
@@ -2860,12 +2860,12 @@ ThreadedSavePlayerUpgrades(client, player_ident, race_ident, raceId,
         new upgradeLevel = GetRaceInfoUpgradeLevel(raceInfo,upgrade);
         if (upgradeLevel != GetRaceInfoSavedUpgradeLevel(raceInfo,upgrade))
         {
-            decl String:SQLString[QUERY_STRING_LENGTH];
+            char SQLString[QUERY_STRING_LENGTH];
             Format(SQLString,sizeof(SQLString),
                    "INSERT INTO sc_player_upgrades (player_ident,race_ident,upgrade,upgrade_level) VALUES (%d,%d,%d,%d) ON DUPLICATE KEY UPDATE upgrade_level=%d",
                    player_ident, race_ident, upgrade, upgradeLevel, upgradeLevel);
 
-            new Handle:dataPack = CreateDataPack();
+            Handle dataPack = CreateDataPack();
             WritePackCell(dataPack, GetClientUserId(client));
             WritePackCell(dataPack, player_ident);
             WritePackCell(dataPack, race_ident);
@@ -2900,7 +2900,7 @@ public SQL_SavePlayerUpgrades(Handle:owner, Handle:hndl, const String:error[], a
         new upgrade = ReadPackCell(data);
         new level = ReadPackCell(data);
 
-        decl String:key[CLASS_STRING_LENGTH];
+        char key[CLASS_STRING_LENGTH];
         ReadPackString(data, key, sizeof(key));
 
         if (hndl != INVALID_HANDLE && error[0] == '\0')
@@ -2908,7 +2908,7 @@ public SQL_SavePlayerUpgrades(Handle:owner, Handle:hndl, const String:error[], a
             UpdateThreadsInFlight(key, -1);
             if (client > 0)
             {
-                new Handle:raceInfo = GetRaceInfo(client, raceId);
+                Handle raceInfo = GetRaceInfo(client, raceId);
                 if (raceInfo != INVALID_HANDLE)
                     SetRaceInfoSavedUpgradeLevel(raceInfo, upgrade, level);
             }
@@ -2917,13 +2917,13 @@ public SQL_SavePlayerUpgrades(Handle:owner, Handle:hndl, const String:error[], a
         {
             if (client > 0)
             {
-                new Handle:raceInfo = GetRaceInfo(client, raceId);
+                Handle raceInfo = GetRaceInfo(client, raceId);
                 if (raceInfo != INVALID_HANDLE)
                     SetRaceInfoSavedUpgradeLevel(raceInfo, upgrade, -1);
             }
 
-            decl String:raceName[SHORT_STRING_LENGTH];
-            new Handle:raceHandle = GetRaceHandle(raceId);
+            char raceName[SHORT_STRING_LENGTH];
+            Handle raceHandle = GetRaceHandle(raceId);
             GetRaceShortName(raceHandle, raceName, sizeof(raceName));
             LogError("Unable to insert/update %d:%L's (ident=%d) %d:%s upgrade %d data: %s",
                      client, ValidClientIndex(client), player_ident, race_ident, raceName,
@@ -2953,7 +2953,7 @@ public SQL_SavePlayerUpgrades(Handle:owner, Handle:hndl, const String:error[], a
                 {
                     // Retry saving the client's upgrade data
                     // (after adding the upgrade to the sc_upgrade table)
-                    new Handle:dataPack = CreateDataPack();
+                    Handle dataPack = CreateDataPack();
                     WritePackCell(dataPack, userid);
                     WritePackCell(dataPack, player_ident);
                     WritePackCell(dataPack, race_ident);
@@ -2981,7 +2981,7 @@ public Action:Retry_SavePlayerUpgradeData(Handle:timer,Handle:data)
     new raceId = ReadPackCell(data);
     new upgrade = ReadPackCell(data);
 
-    decl String:key[CLASS_STRING_LENGTH];
+    char key[CLASS_STRING_LENGTH];
     ReadPackString(data, key, sizeof(key));
 
     CloseHandle(data);
@@ -2989,18 +2989,18 @@ public Action:Retry_SavePlayerUpgradeData(Handle:timer,Handle:data)
     if (raceId > 0)
     {
         // Upgrade doesn't exist in DB for the race so add it here
-        new Handle:raceHandle = GetRaceHandle(raceId);
+        Handle raceHandle = GetRaceHandle(raceId);
 
-        decl String:short[SHORT_STRING_LENGTH];
+        char short[SHORT_STRING_LENGTH];
         GetUpgradeShortName(raceHandle,upgrade,short,sizeof(short));
 
-        decl String:image[NAME_STRING_LENGTH];
+        char image[NAME_STRING_LENGTH];
         GetUpgradeImage(raceHandle,upgrade,image,sizeof(image));
 
-        decl String:name[NAME_STRING_LENGTH];
-        decl String:desc[DESCRIPTION_LENGTH];
-        decl String:bind[DESCRIPTION_LENGTH];
-        decl String:invoke[DESCRIPTION_LENGTH];
+        char name[NAME_STRING_LENGTH];
+        char desc[DESCRIPTION_LENGTH];
+        char bind[DESCRIPTION_LENGTH];
+        char invoke[DESCRIPTION_LENGTH];
         GetUpgradeStrings(raceHandle,upgrade,name,sizeof(name),desc,sizeof(desc),invoke,sizeof(invoke),bind,sizeof(bind));
 
         InsertUpgrade(race_ident, upgrade, GetUpgradeCategory(raceHandle,upgrade), short, name, desc, invoke, bind, image,
@@ -3030,12 +3030,12 @@ DisablePlayer(admin, target)
         new player_ident = GetDatabaseIdent(target);
         if (player_ident > 0)
         {
-            decl String:SQLString[SHORT_QUERY_STRING_LENGTH];
+            char SQLString[SHORT_QUERY_STRING_LENGTH];
             Format(SQLString,sizeof(SQLString),
                    "UPDATE LOW_PRIORITY sc_players SET status = 'Disabled' WHERE player_ident = %d",
                    player_ident);
 
-            new Handle:dataPack = CreateDataPack();
+            Handle dataPack = CreateDataPack();
             WritePackCell(dataPack, GetClientUserId(admin));
             WritePackCell(dataPack, GetClientUserId(target));
             WritePackCell(dataPack, player_ident);
@@ -3045,16 +3045,16 @@ DisablePlayer(admin, target)
         }
         else
         {
-            decl String:steamid[ID_STRING_LENGTH];
+            char steamid[ID_STRING_LENGTH];
             if (IsClientConnected(target) &&
                 GetClientAuthId(target, AuthId_Steam2, steamid, sizeof(steamid)))
             {
-                decl String:SQLString[SHORT_QUERY_STRING_LENGTH];
+                char SQLString[SHORT_QUERY_STRING_LENGTH];
                 Format(SQLString,sizeof(SQLString),
                        "UPDATE LOW_PRIORITY sc_players SET status = 'Disabled' WHERE steamid = %d AND del_rec_date IS NULL",
                        steamid);
 
-                new Handle:dataPack = CreateDataPack();
+                Handle dataPack = CreateDataPack();
                 WritePackCell(dataPack, GetClientUserId(admin));
                 WritePackCell(dataPack, GetClientUserId(target));
                 WritePackCell(dataPack, player_ident);
@@ -3082,7 +3082,7 @@ public SQL_DisablePlayer(Handle:owner, Handle:hndl, const String:error[], any:da
     new target = GetClientOfUserId(userid); 
     new player_ident = ReadPackCell(data);
 
-    decl String:steamid[ID_STRING_LENGTH];
+    char steamid[ID_STRING_LENGTH];
     ReadPackString(data, steamid, sizeof(steamid));
 
     CloseHandle(data);
@@ -3130,12 +3130,12 @@ EnablePlayer(admin, target)
         new player_ident = GetDatabaseIdent(target);
         if (player_ident > 0)
         {
-            decl String:SQLString[SHORT_QUERY_STRING_LENGTH];
+            char SQLString[SHORT_QUERY_STRING_LENGTH];
             Format(SQLString,sizeof(SQLString),
                    "UPDATE LOW_PRIORITY sc_players SET status = 'Active' WHERE player_ident = %d",
                    player_ident);
 
-            new Handle:dataPack = CreateDataPack();
+            Handle dataPack = CreateDataPack();
             WritePackCell(dataPack, GetClientUserId(admin));
             WritePackCell(dataPack, GetClientUserId(target));
             WritePackCell(dataPack, player_ident);
@@ -3145,16 +3145,16 @@ EnablePlayer(admin, target)
         }
         else
         {
-            decl String:steamid[ID_STRING_LENGTH];
+            char steamid[ID_STRING_LENGTH];
             if (IsClientConnected(target) &&
                 GetClientAuthId(target, AuthId_Steam2, steamid, sizeof(steamid)))
             {
-                decl String:SQLString[SHORT_QUERY_STRING_LENGTH];
+                char SQLString[SHORT_QUERY_STRING_LENGTH];
                 Format(SQLString,sizeof(SQLString),
                        "UPDATE LOW_PRIORITY sc_players SET status = 'Active' WHERE steamid = %d AND del_rec_date IS NULL",
                        steamid);
 
-                new Handle:dataPack = CreateDataPack();
+                Handle dataPack = CreateDataPack();
                 WritePackCell(dataPack, GetClientUserId(admin));
                 WritePackCell(dataPack, GetClientUserId(target));
                 WritePackCell(dataPack, player_ident);
@@ -3182,7 +3182,7 @@ public SQL_EnablePlayer(Handle:owner, Handle:hndl, const String:error[], any:dat
     new target = GetClientOfUserId(userid); 
     new player_ident = ReadPackCell(data);
 
-    decl String:steamid[ID_STRING_LENGTH];
+    char steamid[ID_STRING_LENGTH];
     ReadPackString(data, steamid, sizeof(steamid));
 
     CloseHandle(data);
@@ -3230,13 +3230,13 @@ DeletePlayer(admin, target)
         new player_ident = GetDatabaseIdent(target);
         if (player_ident > 0)
         {
-            decl String:SQLString[SHORT_QUERY_STRING_LENGTH];
+            char SQLString[SHORT_QUERY_STRING_LENGTH];
             Format(SQLString,sizeof(SQLString),
             //     "DELETE LOW_PRIORITY FROM sc_players WHERE player_ident = %d",
                    "UPDATE LOW_PRIORITY sc_players SET del_rec_date = NOW() WHERE player_ident = %d",
                    player_ident);
 
-            new Handle:dataPack = CreateDataPack();
+            Handle dataPack = CreateDataPack();
             WritePackCell(dataPack, GetClientUserId(admin));
             WritePackCell(dataPack, GetClientUserId(target));
             WritePackCell(dataPack, player_ident);
@@ -3246,17 +3246,17 @@ DeletePlayer(admin, target)
         }
         else
         {
-            decl String:steamid[ID_STRING_LENGTH];
+            char steamid[ID_STRING_LENGTH];
             if (IsClientConnected(target) &&
                 GetClientAuthId(target, AuthId_Steam2, steamid, sizeof(steamid)))
             {
-                decl String:SQLString[SHORT_QUERY_STRING_LENGTH];
+                char SQLString[SHORT_QUERY_STRING_LENGTH];
                 Format(SQLString,sizeof(SQLString),
                 //     "DELETE LOW_PRIORITY FROM sc_players WHERE steamid = %d",
                        "UPDATE LOW_PRIORITY sc_players SET del_rec_date = NOW() WHERE steamid = %d AND del_rec_date IS NULL",
                        steamid);
 
-                new Handle:dataPack = CreateDataPack();
+                Handle dataPack = CreateDataPack();
                 WritePackCell(dataPack, GetClientUserId(admin));
                 WritePackCell(dataPack, GetClientUserId(target));
                 WritePackCell(dataPack, player_ident);
@@ -3284,7 +3284,7 @@ public SQL_DeletePlayer(Handle:owner, Handle:hndl, const String:error[], any:dat
     new target = GetClientOfUserId(userid); 
     new player_ident = ReadPackCell(data);
 
-    decl String:steamid[ID_STRING_LENGTH];
+    char steamid[ID_STRING_LENGTH];
     ReadPackString(data, steamid, sizeof(steamid));
 
     CloseHandle(data);

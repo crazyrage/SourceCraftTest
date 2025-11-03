@@ -33,39 +33,39 @@
 #include "effect/HaloSprite"
 #include "effect/SendEffects"
 
-new const String:morphWav[]             = "sc/zlurdy00.wav";
-new const String:deathWav[]             = "sc/zludth00.wav";
-new const String:poisonHitWav[]         = "sc/spifir00.wav";
-new const String:poisonReadyWav[]       = "sc/zhyrdy00.wav";
-new const String:poisonExpireWav[]      = "sc/zhywht01.wav";
-new const String:spineAttackWav[][]     = { "sc/zlrkfir1.wav",  "sc/zlrkfir2.wav" };
+char morphWav[]             = "sc/zlurdy00.wav";
+char deathWav[]             = "sc/zludth00.wav";
+char poisonHitWav[]         = "sc/spifir00.wav";
+char poisonReadyWav[]       = "sc/zhyrdy00.wav";
+char poisonExpireWav[]      = "sc/zhywht01.wav";
+char spineAttackWav[][]     = { "sc/zlrkfir1.wav",  "sc/zlrkfir2.wav" };
 
-new const String:g_MissileAttackSound[] = "sc/zulhit00.wav";
+char g_MissileAttackSound[] = "sc/zulhit00.wav";
 
-new raceID, carapaceID, regenerationID, warrenID;
-new missileID, augmentsID, poisonID, spineID;
+int raceID, carapaceID, regenerationID, warrenID;
+int missileID, augmentsID, poisonID, spineID;
 
-new g_MissileAttackChance[]             = { 5, 15, 25, 35, 45 };
-new Float:g_MissileAttackPercent[]      = { 0.05, 0.10, 0.25, 0.50, 0.70 };
+int g_MissileAttackChance[]             = { 5, 15, 25, 35, 45 };
+float g_MissileAttackPercent[]      = { 0.05, 0.10, 0.25, 0.50, 0.70 };
 
-new Float:g_SpeedLevels[]               = { 0.60, 0.70, 0.80, 0.90, 1.00 };
+float g_SpeedLevels[]               = { 0.60, 0.70, 0.80, 0.90, 1.00 };
 
-new Float:g_SpineRange[]                = { 350.0, 400.0, 650.0, 750.0, 900.0 };
-new g_SpineDamage[][2]                  = { { 25, 50},
+float g_SpineRange[]                = { 350.0, 400.0, 650.0, 750.0, 900.0 };
+int g_SpineDamage[][2]                  = { { 25, 50},
                                             { 50, 75},
                                             { 75, 100},
                                             {100, 125},
                                             {125, 150} };
 
-new const String:g_ArmorName[]          = "Carapace";
-new Float:g_InitialArmor[]              = { 0.05, 0.10, 0.25, 0.50, 0.75 };
-new Float:g_ArmorPercent[][2]           = { {0.05, 0.10},
+char g_ArmorName[]          = "Carapace";
+float g_InitialArmor[]              = { 0.05, 0.10, 0.25, 0.50, 0.75 };
+float g_ArmorPercent[][2]           = { {0.05, 0.10},
                                             {0.10, 0.20},
                                             {0.15, 0.30},
                                             {0.20, 0.40},
                                             {0.25, 0.50} };
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Zerg Lurker",
     author = "-=|JFH|=-Naris",
@@ -113,7 +113,7 @@ public OnSourceCraftReady()
 
     for (new level=0; level < sizeof(g_ArmorPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "armor_percent_level_%d", level);
         GetConfigFloatArray(key, g_ArmorPercent[level], sizeof(g_ArmorPercent[]),
                             g_ArmorPercent[level], raceID, carapaceID);
@@ -130,7 +130,7 @@ public OnSourceCraftReady()
 
     for (new level=0; level < sizeof(g_SpineDamage); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "damage_level_%d", level);
         GetConfigArray(key, g_SpineDamage[level], sizeof(g_SpineDamage[]),
                        g_SpineDamage[level], raceID, spineID);
@@ -171,7 +171,7 @@ public OnClientDisconnect(client)
     KillClientTimer(client);
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -183,7 +183,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
     return Plugin_Continue;
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
@@ -287,7 +287,7 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     new Action:returnCode = Plugin_Continue;
@@ -338,7 +338,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
 }
 
 
-public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
+public Action OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
                                   assister_index, assister_race, damage,
                                   absorbed)
 {
@@ -399,7 +399,7 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
     }
 }
 
-public Action:Regeneration(Handle:timer, any:userid)
+public Action Regeneration(Handle:timer, any:userid)
 {
     new client = GetClientOfUserId(userid);
     if (IsValidClientAlive(client))
@@ -427,7 +427,7 @@ public Action:Regeneration(Handle:timer, any:userid)
 
 SpineAttack(client, level)
 {
-    decl String:upgradeName[64];
+    char upgradeName[64];
     GetUpgradeName(raceID, spineID, upgradeName, sizeof(upgradeName), client);
 
     if (GetRestriction(client,Restriction_NoUltimates) ||
@@ -442,13 +442,13 @@ SpineAttack(client, level)
     }
     else if (CanInvokeUpgrade(client, raceID, spineID))
     {
-        new Float:range = g_SpineRange[level];
+        float range = g_SpineRange[level];
         new dmg = GetRandomInt(g_SpineDamage[level][0],
                                g_SpineDamage[level][1]);
 
-        new Float:indexLoc[3];
-        new Float:targetLoc[3];
-        new Float:clientLoc[3];
+        float indexLoc[3];
+        float targetLoc[3];
+        float clientLoc[3];
         GetClientEyePosition(client, clientLoc);
 
         new lightning  = Lightning();
@@ -590,7 +590,7 @@ SpineAttack(client, level)
     }
 }
 
-public Action:ReCloak(Handle:timer,any:userid)
+public Action ReCloak(Handle:timer,any:userid)
 {
     new index = GetClientOfUserId(userid);
     if (IsValidClient(index))

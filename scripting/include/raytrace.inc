@@ -54,7 +54,7 @@ stock bool:TraceTargetClients(client, target, Float:clientLoc[3], Float:targetLo
 
 stock TraceAimTarget(client)
 {
-    new Float:clientloc[3],Float:clientang[3];
+    float clientloc[3],Float:clientang[3];
     GetClientEyePosition(client,clientloc);
     GetClientEyeAngles(client,clientang);
     TR_TraceRayFilter(clientloc, clientang, MASK_SOLID,
@@ -66,7 +66,7 @@ stock TraceAimTarget(client)
 
 stock bool:TraceAimPosition(client, Float:destLoc[3], bool:hitPlayers)
 {
-    new Float:clientloc[3],Float:clientang[3];
+    float clientloc[3],Float:clientang[3];
     GetClientEyePosition(client,clientloc);
     GetClientEyeAngles(client,clientang);
 
@@ -89,7 +89,7 @@ stock bool:TraceAimPosition(client, Float:destLoc[3], bool:hitPlayers)
 
 stock IsPlayerStuck(client)
 {
-    decl Float:vecMin[3], Float:vecMax[3], Float:vecOrigin[3];
+    float vecMin[3], Float:vecMax[3], Float:vecOrigin[3];
     GetClientMins(client, vecMin);
     GetClientMaxs(client, vecMax);
     GetClientAbsOrigin(client, vecOrigin);
@@ -103,23 +103,23 @@ stock IsPlayerStuck(client)
  *Trace Filters*
 ****************/
 
-public bool:TraceRayDontHitPlayers(entity,mask)
+public bool TraceRayDontHitPlayers(entity,mask)
 {
   // Check if the beam hit a player and tell it to keep tracing if it did
   return (entity <= 0 || entity > MaxClients);
 }
 
-public bool:TraceRayDontHitSelf(entity, mask, any:data)
+public bool TraceRayDontHitSelf(entity, mask, any:data)
 {
     return (entity != data); // Check if the TraceRay hit the owning entity.
 }
 
-public bool:TraceRayHitEntities(entity, mask)
+public bool TraceRayHitEntities(entity, mask)
 {
 	return (entity > MaxClients);
 }
 
-public bool:TraceRayHitCollidable(entity, mask)
+public bool TraceRayHitCollidable(entity, mask)
 {
     if (entity > MaxClients)
     {

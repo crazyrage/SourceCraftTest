@@ -6,18 +6,18 @@
  * Credits: Anthony Iacono 
  */
 
-new MenuMode:gShopMenuMode[MAXPLAYERS+1];
-new MenuMode:gRaceMenuMode[MAXPLAYERS+1];
-new MenuMode:gUpgradeMenuMode[MAXPLAYERS+1];
-new gFactionMenuRace[MAXPLAYERS+1];
-new gUpgradeMenuRace[MAXPLAYERS+1];
-new gShopMenuTarget[MAXPLAYERS+1];
+int MenuMode:gShopMenuMode[MAXPLAYERS+1];
+int MenuMode:gRaceMenuMode[MAXPLAYERS+1];
+int MenuMode:gUpgradeMenuMode[MAXPLAYERS+1];
+int gFactionMenuRace[MAXPLAYERS+1];
+int gUpgradeMenuRace[MAXPLAYERS+1];
+int gShopMenuTarget[MAXPLAYERS+1];
 
 IntroMenu(client)
 {
     if (IsValidClient(client) && !IsFakeClient(client))
     {
-        new Handle:introMenu=CreateMenu(IntroMenu_Action);
+        Handle introMenu=CreateMenu(IntroMenu_Action);
         SetMenuExitButton(introMenu,false);
         if (GetRaceCount() > 1)
         {
@@ -65,11 +65,11 @@ MainMenu(client)
 {
     if (IsValidClient(client) && !IsFakeClient(client))
     {
-        new Handle:mainMenu=CreateMenu(Menu_Select);
+        Handle mainMenu=CreateMenu(Menu_Select);
         SetMenuExitButton(mainMenu,true);
         SetMenuTitle(mainMenu,"[SC] %T", "ChooseTask", client);
 
-        new bool:shopAvailable = (GetShopItemCount() >= 1);
+        bool shopAvailable = (GetShopItemCount() >= 1);
         if (shopAvailable)
         {
             AddMenuItemT(mainMenu,"0","ShowShopMenu",client);
@@ -111,7 +111,7 @@ public Menu_Select(Handle:menu,MenuAction:action,client,selection)
     {
         PrepareAndEmitSoundToClient(client,buttonWav);
 
-        decl String:SelectionInfo[SMALL_STRING_LENGTH];
+        char SelectionInfo[SMALL_STRING_LENGTH];
         GetMenuItem(menu,selection,SelectionInfo,sizeof(SelectionInfo));
         switch(StringToInt(SelectionInfo))
         {
@@ -162,8 +162,8 @@ RaceMenu(client,MenuMode:mode)
         {
             new lastIndex = indexCount - 1;
             new level = GetOverallLevel(client);
-            new bool:change   = bool:(mode & ChangeRaceMode);
-            new Handle:crMenu = CreateMenu(Faction_Selected);
+            bool change   = bool:(mode & ChangeRaceMode);
+            Handle crMenu = CreateMenu(Faction_Selected);
 
             if (change)
                 SetMenuTitle(crMenu, "[SC] %T", "ChooseRace", client, "", level);
@@ -183,7 +183,7 @@ RaceMenu(client,MenuMode:mode)
             {
                 for (new index=1; index < indexCount; index++)
                 {
-                    new Handle:raceHandle = GetRaceIndexHandle(index);
+                    Handle raceHandle = GetRaceIndexHandle(index);
                     new reqLevel = GetRaceRequiredLevel(raceHandle);
                     if (level >= reqLevel && reqLevel >= 0)
                     {
@@ -195,12 +195,12 @@ RaceMenu(client,MenuMode:mode)
             new Faction:lastFaction = Unassigned;
             for (new index=1; index < indexCount; index++)
             {
-                new Handle:raceHandle = GetRaceIndexHandle(index);
+                Handle raceHandle = GetRaceIndexHandle(index);
                 new Faction:faction   = GetRaceFaction(raceHandle);
                 if (faction != lastFaction)
                 {
                     new reqLevel = GetRaceRequiredLevel(raceHandle);
-                    new bool:disable = (level < reqLevel || reqLevel < 0);
+                    bool disable = (level < reqLevel || reqLevel < 0);
                     if (!disable || (GetSetting(client, Show_All_Races)))
                     {
                         lastFaction = faction;
@@ -209,11 +209,11 @@ RaceMenu(client,MenuMode:mode)
                             new Faction:nextFaction = (index < lastIndex) ? GetRaceFaction(GetRaceIndexHandle(index+1)) : faction;
                             if (nextFaction != faction || raceCount < g_iRaceMenuThreshold)
                             {
-                                decl String:item[ITEM_STRING_LENGTH];
+                                char item[ITEM_STRING_LENGTH];
                                 GetRaceMenuItem(item, sizeof(item), client, raceHandle, reqLevel, disable);
                                 if (item[0] != 0)
                                 {
-                                    decl String:rbuf[SMALL_STRING_LENGTH];
+                                    char rbuf[SMALL_STRING_LENGTH];
                                     Format(rbuf,sizeof(rbuf),"%d",GetRaceId(raceHandle));
                                     new style = (change && disable) ? ITEMDRAW_DISABLED : ITEMDRAW_DEFAULT;
                                     AddMenuItem(crMenu,rbuf,item,style);
@@ -222,15 +222,15 @@ RaceMenu(client,MenuMode:mode)
                             }
                         }
 
-                        decl String:name[NAME_STRING_LENGTH];
+                        char name[NAME_STRING_LENGTH];
                         GetFactionName(faction,name,sizeof(name), client);
                         if (name[0] == '\0')
                             Format(name, sizeof(name), "%T", "Miscellaneous", client);
 
-                        decl String:item[ITEM_STRING_LENGTH];
+                        char item[ITEM_STRING_LENGTH];
                         Format(item, sizeof(item), "%T", "FactionItem", client, name);
 
-                        decl String:rbuf[SMALL_STRING_LENGTH];
+                        char rbuf[SMALL_STRING_LENGTH];
                         Format(rbuf,sizeof(rbuf),"%d",-index);
                         AddMenuItem(crMenu,rbuf,item,ITEMDRAW_DEFAULT);
                     }
@@ -253,7 +253,7 @@ public Faction_Selected(Handle:menu,MenuAction:action,client,selection)
 {
     if (action == MenuAction_Select)
     {
-        decl String:SelectionInfo[SMALL_STRING_LENGTH];
+        char SelectionInfo[SMALL_STRING_LENGTH];
         GetMenuItem(menu,selection,SelectionInfo,sizeof(SelectionInfo));
         new sel = StringToInt(SelectionInfo);
         if (sel < 0)
@@ -284,11 +284,11 @@ FactionMenu(client, start=-1)
     if (start > 0 && start < indexCount)
     {
         new level              = GetOverallLevel(client);
-        new bool:change        = bool:(gRaceMenuMode[client] & ChangeRaceMode);
-        new Handle:crMenu      = CreateMenu(RaceMenu_Selected);
+        bool change        = bool:(gRaceMenuMode[client] & ChangeRaceMode);
+        Handle crMenu      = CreateMenu(RaceMenu_Selected);
         new Faction:theFaction = GetRaceFaction(GetRaceIndexHandle(start));
 
-        decl String:factionName[NAME_STRING_LENGTH];
+        char factionName[NAME_STRING_LENGTH];
         GetFactionName(theFaction,factionName,sizeof(factionName), client);
 
         if (change)
@@ -301,20 +301,20 @@ FactionMenu(client, start=-1)
 
         for(new index = start; index < indexCount; index++)
         {
-            new Handle:raceHandle=GetRaceIndexHandle(index);
+            Handle raceHandle=GetRaceIndexHandle(index);
             if (GetRaceFaction(raceHandle) != theFaction)
                 break;
             else
             {
-                decl String:item[ITEM_STRING_LENGTH];
+                char item[ITEM_STRING_LENGTH];
                 new reqLevel = GetRaceRequiredLevel(raceHandle);
-                new bool:disable = (level < reqLevel || reqLevel < 0);
+                bool disable = (level < reqLevel || reqLevel < 0);
                 if (!disable || GetSetting(client, Show_All_Races))
                 {
                     GetRaceMenuItem(item, sizeof(item), client, raceHandle, reqLevel, disable);
                     if (item[0] != 0)
                     {
-                        decl String:rbuf[SMALL_STRING_LENGTH];
+                        char rbuf[SMALL_STRING_LENGTH];
                         Format(rbuf,sizeof(rbuf),"%d",GetRaceId(raceHandle));
                         new style = (change && disable) ? ITEMDRAW_DISABLED : ITEMDRAW_DEFAULT;
                         AddMenuItem(crMenu,rbuf,item,style);
@@ -335,7 +335,7 @@ GetRaceMenuItem(String:item[], maxlength, client, Handle:raceHandle, reqLevel, b
     else if (id == GetPendingRace(client))
         flag[0] = '<';
 
-    decl String:name[NAME_STRING_LENGTH];
+    char name[NAME_STRING_LENGTH];
     GetRaceName(raceHandle,name,sizeof(name), client);
     if (name[0] == '\0')
         item[0] = '\0';
@@ -346,14 +346,14 @@ GetRaceMenuItem(String:item[], maxlength, client, Handle:raceHandle, reqLevel, b
     }
     else
     {
-        decl String:parent[NAME_STRING_LENGTH];
+        char parent[NAME_STRING_LENGTH];
         GetRaceParentName(raceHandle,parent,sizeof(parent));
         if (parent[0] != '\0')
         {
             new pRace = FindRace(parent);
             if (pRace >= 0)
             {
-                new Handle:pHandle = GetRaceHandle(pRace);
+                Handle pHandle = GetRaceHandle(pRace);
                 if (pHandle != INVALID_HANDLE)
                     GetRaceName(pHandle,parent,sizeof(parent),client);
             }
@@ -377,7 +377,7 @@ public RaceMenu_Selected(Handle:menu,MenuAction:action,client,selection)
 {
     if (action == MenuAction_Select)
     {
-        decl String:SelectionInfo[SMALL_STRING_LENGTH];
+        char SelectionInfo[SMALL_STRING_LENGTH];
         GetMenuItem(menu,selection,SelectionInfo,sizeof(SelectionInfo));
         if (SelectionInfo[0])
         {
@@ -404,7 +404,7 @@ UpgradeMenu(client, MenuMode:mode, bool:interactive)
 
     if (IsValidClient(client) && !IsFakeClient(client))
     {
-        new bool:fromMain = bool:(mode & FromMainMenu);
+        bool fromMain = bool:(mode & FromMainMenu);
         if (GetRaceCount() <= 1)
         {
             CPrintToChat(client, "{green}[SC]{default} %t", "NoRacesOrUpgrades");
@@ -421,11 +421,11 @@ UpgradeMenu(client, MenuMode:mode, bool:interactive)
         }
         else
         {
-            new bool:needVespene=false;
-            new bool:needCrystals=false;
-            new Handle:sMenu=CreateMenu(UpgradeMenu_Selected);
+            bool needVespene=false;
+            bool needCrystals=false;
+            Handle sMenu=CreateMenu(UpgradeMenu_Selected);
             new race=GetRace(client);
-            new Handle:raceHandle=GetRaceHandle(race);
+            Handle raceHandle=GetRaceHandle(race);
             new upgradecount=GetUpgradeLevelCount(client,race);
             new level=GetLevel(client,race);
             new vespene=GetVespene(client);
@@ -450,8 +450,8 @@ UpgradeMenu(client, MenuMode:mode, bool:interactive)
                 SetMenuExitBackButton(sMenu,true);
 
             new style;
-            decl String:sbuf[SMALL_STRING_LENGTH];
-            decl String:item[ITEM_STRING_LENGTH];
+            char sbuf[SMALL_STRING_LENGTH];
+            char item[ITEM_STRING_LENGTH];
             new maxLevel = GetRaceMaxLevel(raceHandle);
             new raceLevel = GetLevel(client,race);
 
@@ -486,14 +486,14 @@ UpgradeMenu(client, MenuMode:mode, bool:interactive)
                 else
                     item[0] = 0;
 
-                decl String:upgradeName[NAME_STRING_LENGTH];
+                char upgradeName[NAME_STRING_LENGTH];
                 GetUpgradeName(raceHandle, upgrade, upgradeName, sizeof(upgradeName), client);
                 StrCat(item, sizeof(item), upgradeName);
 
                 new upgradeLevel    = GetUpgradeLevel(client,race,upgrade);
                 new maxUpgradeLevel = GetUpgradeMaxLevel(raceHandle,upgrade);
                 new requiredLevel   = GetUpgradeRequiredLevel(raceHandle,upgrade);
-                new bool:disabled   = GetUpgradeDisabled(raceHandle,upgrade);
+                bool disabled   = GetUpgradeDisabled(raceHandle,upgrade);
                 if (disabled || requiredLevel > maxLevel || maxUpgradeLevel <= 0)
                 {
                     new len=strlen(item);
@@ -625,10 +625,10 @@ public UpgradeMenu_Selected(Handle:menu,MenuAction:action,client,selection)
         if (IsValidClient(client))
         {
             new race = gUpgradeMenuRace[client]; //GetRace(client);
-            new Handle:raceHandle=GetRaceHandle(race);
+            Handle raceHandle=GetRaceHandle(race);
             new upgradeCount=GetUpgradeCount(raceHandle);
 
-            decl String:SelectionInfo[SMALL_STRING_LENGTH];
+            char SelectionInfo[SMALL_STRING_LENGTH];
             GetMenuItem(menu,selection,SelectionInfo,sizeof(SelectionInfo));
             new upgrade=StringToInt(SelectionInfo);
             if (upgrade >= 0 && upgrade < upgradeCount)
@@ -714,7 +714,7 @@ SelectUpgrade(client, race, upgrade, Handle:raceHandle)
         new minLevel = GetUpgradeRequiredLevel(raceHandle,upgrade);
         if (level < minLevel)
         {
-            decl String:upgradeName[NAME_STRING_LENGTH];
+            char upgradeName[NAME_STRING_LENGTH];
             GetUpgradeName(raceHandle, upgrade, upgradeName, sizeof(upgradeName), client);
             CPrintToChat(client, "{green}[SC]{default} %t", "InsufficientLevels",
                         minLevel, upgradeName);
@@ -725,7 +725,7 @@ SelectUpgrade(client, race, upgrade, Handle:raceHandle)
             new activeUltimate = GetActiveUltimate(client,race,upgradeCategory);
             if (activeUltimate >= 0 && activeUltimate != upgrade)
             {
-                decl String:activename[NAME_STRING_LENGTH];
+                char activename[NAME_STRING_LENGTH];
                 GetUpgradeName(raceHandle, activeUltimate, activename, sizeof(activename), client);
                 CPrintToChat(client, "{green}[SC]{default} %t", "UltimateTaken", activename, upgradeCategory);
             }
@@ -734,7 +734,7 @@ SelectUpgrade(client, race, upgrade, Handle:raceHandle)
                 new maxLevel = GetUpgradeMaxLevel(raceHandle,upgrade);
                 if (!IncrementUpgradeLevel(client,race,upgrade,upgradeCategory,maxLevel))
                 {
-                    decl String:upgradeName[NAME_STRING_LENGTH];
+                    char upgradeName[NAME_STRING_LENGTH];
                     GetUpgradeName(raceHandle, upgrade, upgradeName, sizeof(upgradeName), client);
                     CPrintToChat(client, "{green}[SC]{default} %t", "UpgradeMaxed", upgradeName, maxLevel);
                 }
@@ -765,7 +765,7 @@ SelectUpgrade(client, race, upgrade, Handle:raceHandle)
                     if (vespene_cost > 0)
                         SetVespene(client,vespene-vespene_cost);
 
-                    decl String:upgradeName[NAME_STRING_LENGTH];
+                    char upgradeName[NAME_STRING_LENGTH];
                     GetUpgradeName(raceHandle, upgrade, upgradeName, sizeof(upgradeName), client);
                     CPrintToChat(client, "{green}[SC]{default} %s is now level %d.",
                                  upgradeName, GetUpgradeLevel(client,race,upgrade));
@@ -800,14 +800,14 @@ ShopMenu(client, target, MenuMode:mode)
         if (shopItemCount >= 1)
         {
             new count = 0;
-            new Handle:shopMenu;
-            new Handle:itemHandle;
-            decl String:itembuf[SMALL_STRING_LENGTH];
+            Handle shopMenu;
+            Handle itemHandle;
+            char itembuf[SMALL_STRING_LENGTH];
 
             if (client != target || (mode & InfoMode))
             {
                 decl id;
-                decl String:itemName[NAME_STRING_LENGTH];
+                char itemName[NAME_STRING_LENGTH];
 
                 shopMenu = CreateMenu(ShopMenu_Selected);
                 SetMenuTitle(shopMenu, "[SC] %T", "ListItems", client, target);
@@ -827,8 +827,8 @@ ShopMenu(client, target, MenuMode:mode)
             }
             else
             {
-                decl String:lastCategory[NAME_STRING_LENGTH];
-                decl String:itemCategory[NAME_STRING_LENGTH];
+                char lastCategory[NAME_STRING_LENGTH];
+                char itemCategory[NAME_STRING_LENGTH];
 
                 mode    |= FromShopMenu;
                 shopMenu = CreateMenu(Category_Selected);
@@ -894,18 +894,18 @@ public Category_Selected(Handle:menu,MenuAction:action,client,selection)
         {
             PrepareAndEmitSoundToClient(client,buttonWav);
 
-            decl String:SelectionInfo[SMALL_STRING_LENGTH];
+            char SelectionInfo[SMALL_STRING_LENGTH];
             GetMenuItem(menu,selection,SelectionInfo,sizeof(SelectionInfo));
             new index=StringToInt(SelectionInfo);
             new shopItemCount = GetShopIndexCount();
             if (index >= 0 && index < shopItemCount)
             {
-                decl String:item[ITEM_STRING_LENGTH];
-                decl String:theCategory[NAME_STRING_LENGTH];
-                decl String:itemCategory[NAME_STRING_LENGTH];
+                char item[ITEM_STRING_LENGTH];
+                char theCategory[NAME_STRING_LENGTH];
+                char itemCategory[NAME_STRING_LENGTH];
 
                 new MenuMode:mode     = gShopMenuMode[client];
-                new Handle:shopMenu   = CreateMenu(ShopMenu_Selected);
+                Handle shopMenu   = CreateMenu(ShopMenu_Selected);
 
                 if (g_bUseMoney)
                 {
@@ -923,21 +923,21 @@ public Category_Selected(Handle:menu,MenuAction:action,client,selection)
                 new count = 0;
                 for (new x=index;x<shopItemCount;x++)
                 {
-                    new Handle:itemHandle=GetItemIndexHandle(x);
+                    Handle itemHandle=GetItemIndexHandle(x);
                     GetItemCategory(itemHandle, itemCategory, sizeof(itemCategory),client);
                     if (strcmp(itemCategory,theCategory,false) != 0)
                         break;
                     else
                     {
                         new id=GetItemId(itemHandle);
-                        decl String:itembuf[SMALL_STRING_LENGTH];
+                        char itembuf[SMALL_STRING_LENGTH];
                         Format(itembuf,sizeof(itembuf),"%d",id);
 
-                        decl String:itemName[NAME_STRING_LENGTH];
+                        char itemName[NAME_STRING_LENGTH];
                         GetItemName(itemHandle, itemName, sizeof(itemName),client);
                         count++;
 
-                        decl String:shortName[SHORT_STRING_LENGTH];
+                        char shortName[SHORT_STRING_LENGTH];
                         GetItemShortName(itemHandle, shortName, sizeof(shortName));
 
                         new cost = GetItemCrystals(itemHandle);
@@ -1024,7 +1024,7 @@ public ShopMenu_Selected(Handle:menu,MenuAction:action,client,selection)
         {
             PrepareAndEmitSoundToClient(client,buttonWav);
 
-            decl String:SelectionInfo[SMALL_STRING_LENGTH];
+            char SelectionInfo[SMALL_STRING_LENGTH];
             GetMenuItem(menu,selection,SelectionInfo,sizeof(SelectionInfo));
 
             new item=StringToInt(SelectionInfo);
@@ -1063,16 +1063,16 @@ public ShopMenu_Selected(Handle:menu,MenuAction:action,client,selection)
 
 public ShopMenu_Item(client,item)
 {
-    new Handle:shopMenu_Item=CreateMenu(ShopMenu_Item_Select);
+    Handle shopMenu_Item=CreateMenu(ShopMenu_Item_Select);
     SetMenuExitButton(shopMenu_Item,true);
     SetMenuExitBackButton(shopMenu_Item,true);
 
-    new Handle:itemHandle=GetShopItemHandle(item);
+    Handle itemHandle=GetShopItemHandle(item);
 
-    decl String:itemName[NAME_STRING_LENGTH];
+    char itemName[NAME_STRING_LENGTH];
     GetItemName(itemHandle, itemName, sizeof(itemName),client);
 
-    decl String:desc[LONG_STRING_LENGTH];
+    char desc[LONG_STRING_LENGTH];
     GetItemDescription(itemHandle, desc, sizeof(desc));
 
     new vespene = GetVespene(client);
@@ -1104,7 +1104,7 @@ public ShopMenu_Item(client,item)
 
     if (gShopMenuMode[client] & PurchaseItemMode)
     {
-        decl String:buf[SMALL_STRING_LENGTH];
+        char buf[SMALL_STRING_LENGTH];
         Format(buf,sizeof(buf),"%d",item);
         AddMenuItemT(shopMenu_Item,buf,"Purchase", client);
     }
@@ -1123,7 +1123,7 @@ public ShopMenu_Item_Select(Handle:menu,MenuAction:action,client,selection)
             if (selection==0 && client == gShopMenuTarget[client] &&
                 (gShopMenuMode[client] & PurchaseItemMode))
             {
-                decl String:SelectionInfo[SMALL_STRING_LENGTH];
+                char SelectionInfo[SMALL_STRING_LENGTH];
                 GetMenuItem(menu,selection,SelectionInfo,sizeof(SelectionInfo));
 
                 if (SelectionInfo[0] &&

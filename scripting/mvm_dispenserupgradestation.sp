@@ -14,7 +14,7 @@
 #define PLUGIN_URL  "http://www.mattsfiles.com"
 
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
 	name = PLUGIN_NAME,
 	author = PLUGIN_AUTHOR,
@@ -23,7 +23,7 @@ public Plugin:myinfo =
 	url = PLUGIN_URL
 }
 
-new Handle:g_hDispenserUpgradeStations = INVALID_HANDLE;
+Handle g_hDispenserUpgradeStations = INVALID_HANDLE;
 
 public OnPluginStart()
 {
@@ -40,7 +40,7 @@ public OnMapStart()
 	PrecacheModel("models/props_hydro/road_bumper01.mdl");
 }
 
-public Action:OnBuiltObject(Handle:hEvent, String:strEventName[], bool:bDontBroadcast)
+public Action OnBuiltObject(Handle:hEvent, String:strEventName[], bool:bDontBroadcast)
 {
 	// new client = GetClientOfUserId(GetEventInt(hEvent, "userid"));
 	new obj = GetEventInt(hEvent, "object");
@@ -54,7 +54,7 @@ public Action:OnBuiltObject(Handle:hEvent, String:strEventName[], bool:bDontBroa
 	DispatchSpawn(entindex);
 	ActivateEntity(entindex);
 	
-	decl Float:objpos[3]; GetEntPropVector(entity, Prop_Data, "m_vecOrigin", objpos);
+	float objpos[3]; GetEntPropVector(entity, Prop_Data, "m_vecOrigin", objpos);
 	TeleportEntity(entindex, objpos, NULL_VECTOR, NULL_VECTOR);
 	SetEntityModel(entindex, "models/props_hydro/road_bumper01.mdl");
 
@@ -66,7 +66,7 @@ public Action:OnBuiltObject(Handle:hEvent, String:strEventName[], bool:bDontBroa
 	enteffects |= 32;
 	SetEntProp(entindex, Prop_Send, "m_fEffects", enteffects);
 	
-	decl String:key[8]; Format(key, sizeof(key), "%i", EntIndexToEntRef(entity));
+	char key[8]; Format(key, sizeof(key), "%i", EntIndexToEntRef(entity));
 	SetTrieValue(g_hDispenserUpgradeStations, key, entindex);
 
 	return Plugin_Continue;
@@ -75,7 +75,7 @@ public Action:OnBuiltObject(Handle:hEvent, String:strEventName[], bool:bDontBroa
 public OnEntityDestroyed(entity)
 {
 	if(!IsValidEntity(entity)) return;
-	decl String:classname[64]; GetEntityClassname(entity, classname, sizeof(classname));
+	char classname[64]; GetEntityClassname(entity, classname, sizeof(classname));
 	
 	if(StrEqual(classname, "obj_dispenser"))
 	{
@@ -83,7 +83,7 @@ public OnEntityDestroyed(entity)
 	}
 }
 
-public Action:OnPickupObject(Handle:hEvent, String:strEventName[], bool:bDontBroadcast)
+public Action OnPickupObject(Handle:hEvent, String:strEventName[], bool:bDontBroadcast)
 {
 	new entity = GetEventInt(hEvent, "index");
 	
@@ -94,7 +94,7 @@ public Action:OnPickupObject(Handle:hEvent, String:strEventName[], bool:bDontBro
 stock RemoveUpgradeStation(dispenser)
 {
 	new upgradestation;
-	decl String:key[8]; Format(key, sizeof(key), "%i", EntIndexToEntRef(dispenser));
+	char key[8]; Format(key, sizeof(key), "%i", EntIndexToEntRef(dispenser));
 	if(GetTrieValue(g_hDispenserUpgradeStations, key, upgradestation))
 	{
 		if(IsValidEntity(upgradestation))

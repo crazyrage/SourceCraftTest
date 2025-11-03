@@ -25,7 +25,7 @@
 
 enum MedicState { NotMedic=0, IsMedic, NotMedicPending, IsMedicPending }
 
-new const String:g_classlist[][] = { "",
+char g_classlist[][] = { "",
     "Rifleman",
     "Assault",
     "Support",
@@ -33,11 +33,11 @@ new const String:g_classlist[][] = { "",
     "MG",
     "Rocket" };
 
-new const String:g_model[][] = { "", "",
+char g_model[][] = { "", "",
     "models/player/american_medic.mdl",
     "models/player/german_medic.mdl" };
 
-new const String:g_model_files[][]  = {
+char g_model_files[][]  = {
     "models/player/american_medic.dx80.vtx",
     "models/player/american_medic.dx90.vtx",
     "models/player/american_medic.mdl",
@@ -56,61 +56,61 @@ new const String:g_model_files[][]  = {
     "materials/models/player/german/axs_mc_body.vtf" };
 
 
-new Handle:g_Cvar_MedicEnable;
-new Handle:g_Cvar_MedicWeapon;
-new Handle:g_Cvar_MedicNades;
-new Handle:g_Cvar_MedicNadeAmmo;
-new Handle:g_Cvar_MedicAmmo;
-new Handle:g_Cvar_MedicSpeed;
-new Handle:g_Cvar_MedicWeight;
-new Handle:g_Cvar_MedicHealth;
-new Handle:g_Cvar_MedicMaxHeal;
-new Handle:g_Cvar_MedicMax;
-new Handle:g_Cvar_MedicPacks;
-new Handle:g_Cvar_MedicMessages;
-new Handle:g_Cvar_MedicRestrict;
-new Handle:g_Cvar_MedicPickup;
-new Handle:g_Cvar_MedicKeepWeapon;
-new Handle:g_Cvar_MedicMinPlayers;
-new Handle:g_Cvar_MedicMaxHealth;
-new Handle:g_Cvar_MedicSelf;
+Handle g_Cvar_MedicEnable;
+Handle g_Cvar_MedicWeapon;
+Handle g_Cvar_MedicNades;
+Handle g_Cvar_MedicNadeAmmo;
+Handle g_Cvar_MedicAmmo;
+Handle g_Cvar_MedicSpeed;
+Handle g_Cvar_MedicWeight;
+Handle g_Cvar_MedicHealth;
+Handle g_Cvar_MedicMaxHeal;
+Handle g_Cvar_MedicMax;
+Handle g_Cvar_MedicPacks;
+Handle g_Cvar_MedicMessages;
+Handle g_Cvar_MedicRestrict;
+Handle g_Cvar_MedicPickup;
+Handle g_Cvar_MedicKeepWeapon;
+Handle g_Cvar_MedicMinPlayers;
+Handle g_Cvar_MedicMaxHealth;
+Handle g_Cvar_MedicSelf;
 
-new Handle:g_OnMedicHealedHandle = INVALID_HANDLE;
-new Handle:g_PistolPluginHandle = INVALID_HANDLE;
+Handle g_OnMedicHealedHandle = INVALID_HANDLE;
+Handle g_PistolPluginHandle = INVALID_HANDLE;
 
-new Handle:g_WeaponTimer[MAXPLAYERS+1];
+Handle g_WeaponTimer[MAXPLAYERS+1];
 
-new g_medic_master[4][17];
+int g_medic_master[4][17];
 
-new MedicState:g_IsMedic[MAXPLAYERS+1];
-new bool:g_MedicKeepWeapon[MAXPLAYERS+1];
-new bool:g_MedicPickup[MAXPLAYERS+1];
-new Float:g_MedicWeight[MAXPLAYERS+1];
-new Float:g_MedicSpeed[MAXPLAYERS+1];
-new g_MedicPacksLeft[MAXPLAYERS+1];
-new g_NumMedicPacks[MAXPLAYERS+1];
-new g_MedicNadeAmmo[MAXPLAYERS+1];
-new g_MaxMedicHeal[MAXPLAYERS+1];
-new g_MedicHealth[MAXPLAYERS+1];
-new g_MedicWeapon[MAXPLAYERS+1];
-new g_MedicNades[MAXPLAYERS+1];
-new g_MedicAmmo[MAXPLAYERS+1];
+int MedicState:g_IsMedic[MAXPLAYERS+1];
+bool g_MedicKeepWeapon[MAXPLAYERS+1];
+bool g_MedicPickup[MAXPLAYERS+1];
+float g_MedicWeight[MAXPLAYERS+1];
+float g_MedicSpeed[MAXPLAYERS+1];
+int g_MedicPacksLeft[MAXPLAYERS+1];
+int g_NumMedicPacks[MAXPLAYERS+1];
+int g_MedicNadeAmmo[MAXPLAYERS+1];
+int g_MaxMedicHeal[MAXPLAYERS+1];
+int g_MedicHealth[MAXPLAYERS+1];
+int g_MedicWeapon[MAXPLAYERS+1];
+int g_MedicNades[MAXPLAYERS+1];
+int g_MedicAmmo[MAXPLAYERS+1];
 
-new bool:swap[MAXPLAYERS+1];
-new bool:yell[MAXPLAYERS+1];
+bool swap[MAXPLAYERS+1];
+bool yell[MAXPLAYERS+1];
 
-new g_MaxMedics;
-new g_MinPlayers;
-new g_SelfHealth;
-new g_MedicRestrict;
-new g_MaxMedicHealth;
-new bool:g_MedicEnabled;
-new bool:g_MedicMessages;
-new bool:g_NativeOverride = false;
+int g_MaxMedics;
+int g_MinPlayers;
+int g_SelfHealth;
+int g_MedicRestrict;
+int g_MaxMedicHealth;
+bool g_MedicEnabled;
+bool g_MedicMessages;
+bool g_NativeOverride = false;
 
-new ammo_offset;
+int ammo_offset;
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "Medic Class for DoDS",
     author = "<eVa>Dog",
@@ -212,7 +212,7 @@ public OnMapStart()
     ammo_offset = FindSendPropOffs("CDODPlayer", "m_iAmmo")
 }
 
-public bool:OnClientConnect(client, String:rejectmsg[], maxlen)
+public bool OnClientConnect(client, String:rejectmsg[], maxlen)
 {
     g_MedicPickup[client] = GetConVarBool(g_Cvar_MedicPickup);
     g_MedicKeepWeapon[client] = GetConVarBool(g_Cvar_MedicKeepWeapon);
@@ -253,7 +253,7 @@ public OnClientDisconnect(client)
     }
 }
 
-public PlayerSpawnEvent(Handle:event, const String:name[], bool:dontBroadcast)
+public PlayerSpawnEvent(Handle:event, const char name[], bool:dontBroadcast)
 {
     if (g_NativeOverride || g_MedicEnabled)
     {
@@ -325,7 +325,7 @@ public PlayerSpawnEvent(Handle:event, const String:name[], bool:dontBroadcast)
 }
 
 //added by psychocoder, if a swap plugin swap medic 
-public PlayerChangeTeamEvent(Handle:event, const String:name[], bool:dontBroadcast)
+public PlayerChangeTeamEvent(Handle:event, const char name[], bool:dontBroadcast)
 {
     if (g_NativeOverride || g_MedicEnabled)
     {
@@ -357,7 +357,7 @@ public PlayerChangeTeamEvent(Handle:event, const String:name[], bool:dontBroadca
 }
 //end add 
 
-public PlayerChangeClassEvent(Handle:event, const String:name[], bool:dontBroadcast)
+public PlayerChangeClassEvent(Handle:event, const char name[], bool:dontBroadcast)
 {
     new client = GetClientOfUserId(GetEventInt(event, "userid"))
     if (g_NativeOverride)
@@ -401,7 +401,7 @@ public PlayerChangeClassEvent(Handle:event, const String:name[], bool:dontBroadc
     }
 }
 
-public Action:WeaponsCheck(Handle:timer, any:client)
+public Action WeaponsCheck(Handle:timer, any:client)
 {
     if (!g_IsMedic[client]      || g_MedicPickup[client] ||
         !IsClientInGame(client) || !IsPlayerAlive(client))
@@ -426,7 +426,7 @@ public Action:WeaponsCheck(Handle:timer, any:client)
     return Plugin_Continue;
 }
 
-public Action:beMedic(client, args)
+public Action beMedic(client, args)
 {
     if (g_MedicEnabled || g_NativeOverride)
     {
@@ -503,7 +503,7 @@ public Action:beMedic(client, args)
     return Plugin_Handled;
 }
 
-public Action:Yell(client, args)
+public Action Yell(client, args)
 {
     if (g_NativeOverride || g_MedicEnabled)
     {
@@ -543,7 +543,7 @@ public Action:Yell(client, args)
     return Plugin_Handled
 }
 
-public Action:Call(client, args)
+public Action Call(client, args)
 {
     if (g_NativeOverride || g_MedicEnabled)
     {
@@ -582,19 +582,19 @@ public Action:Call(client, args)
     return Plugin_Handled
 }
 
-public Action:ResetYell(Handle:timer, any:client)
+public Action ResetYell(Handle:timer, any:client)
 {
     yell[client] = false;
 }
 
-public Action:Heal(client, args)
+public Action Heal(client, args)
 {
     if (g_NativeOverride || g_MedicEnabled)
     {
         if (g_IsMedic[client] >= IsMedic && g_IsMedic[client] <= NotMedicPending)
         {
-            new Float:medicVector[3];
-            new Float:patientVector[3];
+            float medicVector[3];
+            float patientVector[3];
 
             if (IsPlayerAlive(client))
             {
@@ -613,7 +613,7 @@ public Action:Heal(client, args)
                                 GetClientAbsOrigin(client, medicVector);
                                 GetClientAbsOrigin(patient, patientVector);
 
-                                new Float:distance = GetVectorDistance(medicVector, patientVector);
+                                float distance = GetVectorDistance(medicVector, patientVector);
 
                                 if (distance > 100)
                                 {
@@ -625,9 +625,9 @@ public Action:Heal(client, args)
                                 else
                                 {
                                     //Perform healing
-                                    new String:patientName[128];
+                                    char patientName[128];
                                     GetClientName(patient, patientName, sizeof(patientName));
-                                    new String:medicName[128];
+                                    char medicName[128];
                                     GetClientName(client, medicName, sizeof(medicName));
 
                                     new patienthealth = GetClientHealth(patient);
@@ -697,7 +697,7 @@ public Action:Heal(client, args)
     return Plugin_Handled;
 }
 
-public Action:GiveClientWeapon(Handle:timer, any:client)
+public Action GiveClientWeapon(Handle:timer, any:client)
 {
     if (IsClientInGame(client))
     {
@@ -772,7 +772,7 @@ public Action:GiveClientWeapon(Handle:timer, any:client)
 }
 
  // Added by Lebson506th
-public Action:Who(client, args)
+public Action Who(client, args)
 {
     if (g_NativeOverride || g_MedicEnabled)
     {
@@ -783,7 +783,7 @@ public Action:Who(client, args)
             {
                 if (g_medic_master[3][i] != 0)
                 {
-                    new String:playerName[128];
+                    char playerName[128];
                     GetClientName(g_medic_master[3][i], playerName, sizeof(playerName));
                     PrintToServer("Axis Medic #%i: %s", i, playerName);
                     ctr++;
@@ -793,7 +793,7 @@ public Action:Who(client, args)
             {
                 if (g_medic_master[2][i] != 0)
                 {
-                    new String:playerName[128];
+                    char playerName[128];
                     GetClientName(g_medic_master[2][i], playerName, sizeof(playerName));
                     PrintToServer("Allies Medic #%i: %s", i, playerName);
                     ctr++;
@@ -809,7 +809,7 @@ public Action:Who(client, args)
             {
                 if (g_medic_master[team][i] != 0)
                 {
-                    new String:playerName[128];
+                    char playerName[128];
                     GetClientName(g_medic_master[team][i], playerName, sizeof(playerName));
 
                     if (IsClientInGame(client))
@@ -985,13 +985,13 @@ public AssignMedic(client)
 
 public Native_GetMedicSpeed(Handle:plugin,numParams)
 {
-    new Float:speed = g_MedicSpeed[GetNativeCell(1)]
+    float speed = g_MedicSpeed[GetNativeCell(1)]
     return (speed < 0.0) ? (_:GetConVarFloat(g_Cvar_MedicSpeed)) : (_:speed);
 }
 
 public Native_GetMedicWeight(Handle:plugin,numParams)
 {
-    new Float:weight = g_MedicWeight[GetNativeCell(1)]
+    float weight = g_MedicWeight[GetNativeCell(1)]
     return (weight < 0.0) ? (_:GetConVarFloat(g_Cvar_MedicWeight)) : (_:weight);
 }
 

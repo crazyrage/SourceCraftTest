@@ -34,7 +34,7 @@
 #define MDL_REDSHIELD           "models/shield/redshield.mdl"
 #define MDL_BLUESHIELD          "models/shield/blueshield.mdl"
 
-new const String:ShieldModelFiles[][][]  =
+char ShieldModelFiles[][][]  =
 {
     {
         "models/shield/redshield.phy",
@@ -93,56 +93,56 @@ enum ShieldFlags (<<= 1)
 #define ShieldReloadMask    (Shield_Reload_Normal|Shield_Reload_Immobilize|Shield_Reload_Team_Specific|Shield_Reload_Mobile|Shield_Reload_Self|Shield_Reload_Team|Shield_Reload_Location)
 #define ShieldDefault       (ShieldNormalMask|ShieldReloadMask)
 
-new gShieldRedModelIndex;
-new gShieldBlueModelIndex;
-new Float:gAlternateStartTime;
-new Float:gAlternateStopTime;
-new Float:gStartTime;
-new Float:gStopTime;
+int gShieldRedModelIndex;
+int gShieldBlueModelIndex;
+float gAlternateStartTime;
+float gAlternateStopTime;
+float gStartTime;
+float gStopTime;
 
-new String:mdlRedShield[256];
-new String:mdlBlueShield[256];
+char mdlRedShield[256];
+char mdlBlueShield[256];
 
-new String:gAlternateActiveSound[PLATFORM_MAX_PATH];
-new String:gAlternateStartSound[PLATFORM_MAX_PATH];
-new String:gAlternateStopSound[PLATFORM_MAX_PATH];
-new String:gStartSound[PLATFORM_MAX_PATH];
-new String:gActiveSound[PLATFORM_MAX_PATH];
-new String:gStopSound[PLATFORM_MAX_PATH];
+char gAlternateActiveSound[PLATFORM_MAX_PATH];
+char gAlternateStartSound[PLATFORM_MAX_PATH];
+char gAlternateStopSound[PLATFORM_MAX_PATH];
+char gStartSound[PLATFORM_MAX_PATH];
+char gActiveSound[PLATFORM_MAX_PATH];
+char gStopSound[PLATFORM_MAX_PATH];
 
-new gField[MAXPLAYERS+1]                = { INVALID_ENT_REFERENCE, ... };   // EntRef for the player's field
-new gShield[MAXPLAYERS+1]               = { INVALID_ENT_REFERENCE, ... };   // EntRef for the player's shield
-new gParent[MAXPLAYERS+1]               = { INVALID_ENT_REFERENCE, ... };   // EntRef for entity to "parent" to the player
-new gAllowed[MAXPLAYERS+1];             // how many shields player allowed
-new gRemaining[MAXPLAYERS+1];           // how many shields player has this spawn
-new ShieldFlags:gFlags[MAXPLAYERS+1];   // Shield type/permissions flags for each player
-new bool:m_ShieldCharged[MAXPLAYERS+1]; // Shield charged flags for each player
-new Handle:gObjectTimers[MAXPLAYERS+1]  = { INVALID_HANDLE, ... };
+int gField[MAXPLAYERS+1]                = { INVALID_ENT_REFERENCE, ... };   // EntRef for the player's field
+int gShield[MAXPLAYERS+1]               = { INVALID_ENT_REFERENCE, ... };   // EntRef for the player's shield
+int gParent[MAXPLAYERS+1]               = { INVALID_ENT_REFERENCE, ... };   // EntRef for entity to "parent" to the player
+int gAllowed[MAXPLAYERS+1];             // how many shields player allowed
+int gRemaining[MAXPLAYERS+1];           // how many shields player has this spawn
+int ShieldFlags:gFlags[MAXPLAYERS+1];   // Shield type/permissions flags for each player
+bool m_ShieldCharged[MAXPLAYERS+1]; // Shield charged flags for each player
+Handle gObjectTimers[MAXPLAYERS+1]  = { INVALID_HANDLE, ... };
 
-new Handle:cvRedModel = INVALID_HANDLE;
-new Handle:cvBlueModel = INVALID_HANDLE;
+Handle cvRedModel = INVALID_HANDLE;
+Handle cvBlueModel = INVALID_HANDLE;
 
-new Handle:cvActiveSound = INVALID_HANDLE;
-new Handle:cvStartSound = INVALID_HANDLE;
-new Handle:cvStartTime = INVALID_HANDLE;
-new Handle:cvStopSound = INVALID_HANDLE;
-new Handle:cvStopTime = INVALID_HANDLE;
+Handle cvActiveSound = INVALID_HANDLE;
+Handle cvStartSound = INVALID_HANDLE;
+Handle cvStartTime = INVALID_HANDLE;
+Handle cvStopSound = INVALID_HANDLE;
+Handle cvStopTime = INVALID_HANDLE;
 
-new Handle:cvPerLife = INVALID_HANDLE;
-new Handle:cvMinUber = INVALID_HANDLE;
-new Handle:cvMaxUber = INVALID_HANDLE;
-new Handle:cvKritzkrieg = INVALID_HANDLE;
-new Handle:cvMaxDuration = INVALID_HANDLE;
-new Handle:cvRechargeTime = INVALID_HANDLE;
-new Handle:cvMediShieldFlags = INVALID_HANDLE;
-new Handle:cvMediReloadShieldFlags = INVALID_HANDLE;
+Handle cvPerLife = INVALID_HANDLE;
+Handle cvMinUber = INVALID_HANDLE;
+Handle cvMaxUber = INVALID_HANDLE;
+Handle cvKritzkrieg = INVALID_HANDLE;
+Handle cvMaxDuration = INVALID_HANDLE;
+Handle cvRechargeTime = INVALID_HANDLE;
+Handle cvMediShieldFlags = INVALID_HANDLE;
+Handle cvMediReloadShieldFlags = INVALID_HANDLE;
 
-new bool:gNativeControl = false;
+bool gNativeControl = false;
 
 // forwards
-new Handle:fwdOnDeployUberShield;
+Handle fwdOnDeployUberShield;
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "Uber Shield",
     author = "-=|JFH|=-Naris",
@@ -261,8 +261,8 @@ public OnConfigsExecuted()
         SetupSound(gAlternateActiveSound, true, AUTO_DOWNLOAD, true, true);
 
     // Added custom models to download stack
-    new Handle:redFiles = CreateStack();
-    new Handle:blueFiles = CreateStack();
+    Handle redFiles = CreateStack();
+    Handle blueFiles = CreateStack();
     for (new i = 0; i < sizeof(ShieldModelFiles); i++)
     {
         PushStackString(redFiles, ShieldModelFiles[i][0]);
@@ -288,7 +288,7 @@ public OnClientDisconnect(client)
 {
     RemoveShield(client);
 
-    new Handle:timer=gObjectTimers[client];
+    Handle timer=gObjectTimers[client];
     if (timer != INVALID_HANDLE)
     {
         gObjectTimers[client] = INVALID_HANDLE;
@@ -308,10 +308,10 @@ public OnGameFrame()
             new ent = EntRefToEntIndex(ref);
             if (ent > 0)
             {
-                new Float:pos[3];
+                float pos[3];
                 GetClientAbsOrigin(i, pos);
 
-                new Float:vel[3];
+                float vel[3];
                 GetEntPropVector(i, Prop_Data, "m_vecVelocity", vel);
 
                 TeleportEntity(ent, pos, NULL_VECTOR, vel);
@@ -320,7 +320,7 @@ public OnGameFrame()
     }
 }
 
-public PlayerSpawnEvent(Handle:event,const String:name[],bool:dontBroadcast)
+public PlayerSpawnEvent(Handle:event,const char name[],bool:dontBroadcast)
 {
     new client=GetClientOfUserId(GetEventInt(event,"userid")); // Get clients index
     new TFClassType:class = (GameType == tf2) ? TF2_GetPlayerClass(client) : TFClass_Unknown;
@@ -343,7 +343,7 @@ public PlayerSpawnEvent(Handle:event,const String:name[],bool:dontBroadcast)
     }
 }
 
-public PlayerDeathEvent(Handle:event,const String:name[],bool:dontBroadcast)
+public PlayerDeathEvent(Handle:event,const char name[],bool:dontBroadcast)
 {
     if (GameType == tf2)
     {
@@ -363,7 +363,7 @@ public PlayerDeathEvent(Handle:event,const String:name[],bool:dontBroadcast)
 
     RemoveShield(client);
 
-    new Handle:timer=gObjectTimers[client];
+    Handle timer=gObjectTimers[client];
     if (timer != INVALID_HANDLE)
     {
         gObjectTimers[client] = INVALID_HANDLE;
@@ -371,7 +371,7 @@ public PlayerDeathEvent(Handle:event,const String:name[],bool:dontBroadcast)
     }
 }
 
-public EventFlagEvent(Handle:event,const String:name[],bool:dontBroadcast)
+public EventFlagEvent(Handle:event,const char name[],bool:dontBroadcast)
 {
     new player = GetEventInt(event,"player");
     if (player > 0 && IsClientInGame(player))
@@ -380,7 +380,7 @@ public EventFlagEvent(Handle:event,const String:name[],bool:dontBroadcast)
         if (eventtype == 1) // Flag Picked Up
         {
             // Remove the UberShield and it's timer
-            new Handle:timer=gObjectTimers[player];
+            Handle timer=gObjectTimers[player];
             if (timer != INVALID_HANDLE)
             {
                 gObjectTimers[player] = INVALID_HANDLE;
@@ -392,7 +392,7 @@ public EventFlagEvent(Handle:event,const String:name[],bool:dontBroadcast)
     }
 }
 
-public Action:Timer_Advert(Handle:timer, any:client)
+public Action Timer_Advert(Handle:timer, any:client)
 {
     if (IsClientConnected(client) && IsClientInGame(client))
     {
@@ -408,16 +408,16 @@ public Action:Timer_Advert(Handle:timer, any:client)
     }
 }
 
-public Action:ShieldCommand(client, args)
+public Action ShieldCommand(client, args)
 {
     new ShieldFlags:flags = gFlags[client];
-    new Float:duration    = GetConVarFloat(cvMaxDuration);
+    float duration    = GetConVarFloat(cvMaxDuration);
 
     if (GetGameType() == tf2)
     {
         if (TF2_GetPlayerClass(client) == TFClass_Medic)
         {
-            new Float:UberCharge = TF2_GetUberLevel(client);
+            float UberCharge = TF2_GetUberLevel(client);
             if (UberCharge >= GetConVarFloat(cvMinUber))
             {
                 duration *= UberCharge;
@@ -444,7 +444,7 @@ public Action:ShieldCommand(client, args)
     return Plugin_Handled;
 }
 
-public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:angles[3], &weapon)
+public Action OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:angles[3], &weapon)
 {
     if (buttons & (IN_RELOAD|IN_ATTACK2) != 0 && gRemaining[client] != 0 &&
         TF2_GetPlayerClass(client) == TFClass_Medic && TF2_IsUberCharge(client) == 0) 
@@ -452,7 +452,7 @@ public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:ang
         new weaponent = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
         if (weaponent > 0)
         {
-            decl String:classname[32];
+            char classname[32];
             if (GetEdictClassname(weaponent, classname , sizeof(classname)) &&
                 StrEqual(classname, "tf_weapon_medigun") )
             {
@@ -468,13 +468,13 @@ public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:ang
                         return Plugin_Continue;
                 }
 
-                new Float:UberCharge = TF2_GetUberLevel(client);
+                float UberCharge = TF2_GetUberLevel(client);
                 if (buttons & IN_ATTACK2)
                 {
                     if (UberCharge >= GetConVarFloat(cvMinUber) &&
                         UberCharge < GetConVarFloat(cvMaxUber))
                     {
-                        new Float:duration = GetConVarFloat(cvMaxDuration)*UberCharge;
+                        float duration = GetConVarFloat(cvMaxDuration)*UberCharge;
                         if (ShieldTarget(client, flags, duration))
                             TF2_SetUberLevel(client, 0.0);
                     }
@@ -487,7 +487,7 @@ public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:ang
                 {
                     if (UberCharge >= GetConVarFloat(cvMinUber))
                     {
-                        new Float:duration = GetConVarFloat(cvMaxDuration)*UberCharge;
+                        float duration = GetConVarFloat(cvMaxDuration)*UberCharge;
                         if (flags & Shield_Reload_Location)
                         {
                             // Copy the Reload bits into the "normal" bits location
@@ -521,7 +521,7 @@ public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:ang
 bool:ShieldTarget(client, ShieldFlags:flags, Float:duration)
 {
     new target = 0;
-    new Float:targetLoc[3];
+    float targetLoc[3];
     if (flags & (Shield_Target_Self|Shield_Target_Team|Shield_Target_Enemy))
     {
         target = GetClientAimTarget(client);
@@ -564,7 +564,7 @@ bool:ShieldLocation(client, ShieldFlags:flags, Float:duration)
 {
     if (flags & Shield_Target_Location)
     {
-        new Float:targetLoc[3];
+        float targetLoc[3];
         TraceAimPosition(client, targetLoc, true);
         return (CreateShield(client, 0, targetLoc, flags, duration) != 0);
     }
@@ -633,7 +633,7 @@ CreateShield(client, target, const Float:pos[3], ShieldFlags:flags, Float:Durati
             }
         }
 
-        new String:tmp[16];
+        char tmp[16];
         Format(tmp, sizeof(tmp), "shield%d", shield);
         DispatchKeyValue(shield, "targetname", tmp);
 
@@ -702,7 +702,7 @@ CreateShield(client, target, const Float:pos[3], ShieldFlags:flags, Float:Durati
 
         if (target > 0 && (flags & Shield_Mobile))
         {
-            new String:strTargetName[64];
+            char strTargetName[64];
             Format(strTargetName, sizeof(strTargetName), "target%i", target);
             DispatchKeyValue(target, "targetname", strTargetName);
 
@@ -735,8 +735,8 @@ CreateShield(client, target, const Float:pos[3], ShieldFlags:flags, Float:Durati
             target = client;
         }
 
-        new Float:startTime = 0.0;
-        new bool:useAlt = ((flags & Shield_UseAlternateSounds) != Shield_None);
+        float startTime = 0.0;
+        bool useAlt = ((flags & Shield_UseAlternateSounds) != Shield_None);
         if (!(flags & Shield_DisableStartSound))
         {
             if (useAlt && gAlternateStartSound[0])
@@ -751,12 +751,12 @@ CreateShield(client, target, const Float:pos[3], ShieldFlags:flags, Float:Durati
             }
         }
 
-        new bool:longEnough = (Duration > startTime || Duration <= 0.0);
+        bool longEnough = (Duration > startTime || Duration <= 0.0);
         if (longEnough && !(flags & Shield_DisableActiveSound))
         {
             if (useAlt && gAlternateActiveSound[0])
             {
-                new Handle:pack;
+                Handle pack;
                 CreateDataTimer(startTime, PlaySound, pack, TIMER_FLAG_NO_MAPCHANGE);
                 WritePackCell(pack, shieldRef);
                 WritePackCell(pack, false);
@@ -764,7 +764,7 @@ CreateShield(client, target, const Float:pos[3], ShieldFlags:flags, Float:Durati
             }
             else if (gActiveSound[0])
             {
-                new Handle:pack;
+                Handle pack;
                 CreateDataTimer(startTime, PlaySound, pack, TIMER_FLAG_NO_MAPCHANGE);
                 WritePackCell(pack, shieldRef);
                 WritePackCell(pack, false);
@@ -776,12 +776,12 @@ CreateShield(client, target, const Float:pos[3], ShieldFlags:flags, Float:Durati
         {
             if (longEnough && !(flags & Shield_DisableStopSound))
             {
-                new Float:activeTime = Duration - ((useAlt) ? gAlternateStopTime : gStopTime);
+                float activeTime = Duration - ((useAlt) ? gAlternateStopTime : gStopTime);
                 if (activeTime > 0.0)
                 {
                     if (useAlt && gAlternateStopSound[0])
                     {
-                        new Handle:pack;
+                        Handle pack;
                         CreateDataTimer(activeTime, PlaySound, pack, TIMER_FLAG_NO_MAPCHANGE);
                         WritePackCell(pack, shieldRef);
                         WritePackCell(pack, true); // Stop active sound
@@ -789,7 +789,7 @@ CreateShield(client, target, const Float:pos[3], ShieldFlags:flags, Float:Durati
                     }
                     else if (gStopSound[0])
                     {
-                        new Handle:pack;
+                        Handle pack;
                         CreateDataTimer(activeTime, PlaySound, pack, TIMER_FLAG_NO_MAPCHANGE);
                         WritePackCell(pack, shieldRef);
                         WritePackCell(pack, true); // Stop active sound
@@ -798,7 +798,7 @@ CreateShield(client, target, const Float:pos[3], ShieldFlags:flags, Float:Durati
                 }
             }
 
-            new Handle:pack;
+            Handle pack;
             gObjectTimers[client] = CreateDataTimer(Duration, ShieldExpired, pack, TIMER_FLAG_NO_MAPCHANGE);
             WritePackCell(pack, client);
         }
@@ -806,7 +806,7 @@ CreateShield(client, target, const Float:pos[3], ShieldFlags:flags, Float:Durati
         if (gRemaining[client] > 0)
             gRemaining[client]--;
 
-        new Float:time = GetConVarFloat(cvRechargeTime);
+        float time = GetConVarFloat(cvRechargeTime);
         if (time > 0.0)
         {
             m_ShieldCharged[client]=false;
@@ -822,7 +822,7 @@ CreateShield(client, target, const Float:pos[3], ShieldFlags:flags, Float:Durati
     return shield;
 }
 
-public Action:PlaySound(Handle:timer, Handle:pack)
+public Action PlaySound(Handle:timer, Handle:pack)
 {
     if (pack != INVALID_HANDLE)
     {
@@ -840,7 +840,7 @@ public Action:PlaySound(Handle:timer, Handle:pack)
                     StopSound(shield, SNDCHAN_AUTO, gAlternateActiveSound);
             }
 
-            decl String:sound[PLATFORM_MAX_PATH+1];
+            char sound[PLATFORM_MAX_PATH+1];
             ReadPackString(pack, sound, sizeof(sound));
             if (sound[0])
             {
@@ -850,7 +850,7 @@ public Action:PlaySound(Handle:timer, Handle:pack)
     }
 }
 
-public Action:ShieldExpired(Handle:timer, Handle:pack)
+public Action ShieldExpired(Handle:timer, Handle:pack)
 {
     if (pack != INVALID_HANDLE)
     {
@@ -862,7 +862,7 @@ public Action:ShieldExpired(Handle:timer, Handle:pack)
     }
 }
 
-public Action:RechargeShield(Handle:timer,any:index)
+public Action RechargeShield(Handle:timer,any:index)
 {
     m_ShieldCharged[index]=true;
     return Plugin_Stop;
@@ -931,7 +931,7 @@ public Native_UberShieldTarget(Handle:plugin,numParams)
     {
         new client = GetNativeCell(1);
 
-        new Float:duration = (numParams >= 2) ? (Float:GetNativeCell(2)) : -1.0;
+        float duration = (numParams >= 2) ? (Float:GetNativeCell(2)) : -1.0;
         if (duration < 0.0)
             duration = GetConVarFloat(cvMaxDuration);
 
@@ -951,7 +951,7 @@ public Native_UberShieldLocation(Handle:plugin,numParams)
     {
         new client = GetNativeCell(1);
 
-        new Float:duration = (numParams >= 2) ? (Float:GetNativeCell(2)) : -1.0;
+        float duration = (numParams >= 2) ? (Float:GetNativeCell(2)) : -1.0;
         if (duration < 0.0)
             duration = GetConVarFloat(cvMaxDuration);
 
@@ -972,13 +972,13 @@ public Native_UberShield(Handle:plugin,numParams)
         new client = GetNativeCell(1);
         new target = (numParams >= 2) ? GetNativeCell(2) : 0;
 
-        decl Float:pos[3];
+        float pos[3];
         if (numParams >= 3)
             GetNativeArray(3, pos, sizeof(pos));
         else
             pos[0] = pos[1] = pos[2] = 0.0;
 
-        new Float:duration = (numParams >= 4) ? (Float:GetNativeCell(4)) : -1.0;
+        float duration = (numParams >= 4) ? (Float:GetNativeCell(4)) : -1.0;
         if (duration < 0.0)
             duration = GetConVarFloat(cvMaxDuration);
 

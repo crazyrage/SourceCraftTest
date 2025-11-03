@@ -26,71 +26,71 @@
 /////////////
 /* Globals */
 
-static const String:strEyeModels[][PLATFORM_MAX_PATH] = {
+static const char strEyeModels[][PLATFORM_MAX_PATH] = {
 	"models/props_halloween/halloween_demoeye.mdl",
 	"models/props_halloween/eyeball_projectile.mdl"
 };
-static const String:strEyeShoot[][PLATFORM_MAX_PATH] = {
+static const char strEyeShoot[][PLATFORM_MAX_PATH] = {
 	"vo/halloween_eyeball/eyeball04.wav",
 	"vo/halloween_eyeball/eyeball_mad01.wav",
 	"vo/halloween_eyeball/eyeball_mad02.wav",
 	"vo/halloween_eyeball/eyeball_mad03.wav"
 };
-static const String:strEyeLaugh[][PLATFORM_MAX_PATH] = {
+static const char strEyeLaugh[][PLATFORM_MAX_PATH] = {
 	"vo/halloween_eyeball/eyeball_laugh01.wav",
 	"vo/halloween_eyeball/eyeball_laugh02.wav",
 	"vo/halloween_eyeball/eyeball_laugh03.wav",
 	"vo/halloween_eyeball/eyeball11.wav"
 };
-static const String:strEyeStun[][PLATFORM_MAX_PATH] = {
+static const char strEyeStun[][PLATFORM_MAX_PATH] = {
 	"vo/halloween_eyeball/eyeball09.wav"
 };
 
-new Handle:fwdCanPlayAsEye = INVALID_HANDLE;
-new Handle:fwdOnEyeStunned = INVALID_HANDLE;
+Handle fwdCanPlayAsEye = INVALID_HANDLE;
+Handle fwdOnEyeStunned = INVALID_HANDLE;
 
-new Handle:hHUD_Health = INVALID_HANDLE;
-new Handle:hHUD_Rage = INVALID_HANDLE;
+Handle hHUD_Health = INVALID_HANDLE;
+Handle hHUD_Rage = INVALID_HANDLE;
 
-new Handle:sm_tf2bte_version = INVALID_HANDLE;
-new Handle:sm_tf2bte_debug = INVALID_HANDLE;
-new Handle:sm_tf2bte_notify = INVALID_HANDLE;
-new Handle:sm_tf2bte_eye_health = INVALID_HANDLE;
-new Handle:sm_tf2bte_eye_health_per_player = INVALID_HANDLE;
-new Handle:sm_tf2bte_eye_stunned_duration = INVALID_HANDLE;
-new Handle:sm_tf2bte_eye_rage_multiplier = INVALID_HANDLE;
-new Handle:sm_tf2bte_eye_rage_subtraction = INVALID_HANDLE;
-new Handle:sm_tf2bte_eye_respawn = INVALID_HANDLE;
-new Handle:sm_tf2bte_hud_xpos = INVALID_HANDLE;
-new Handle:sm_tf2bte_hud_ypos = INVALID_HANDLE;
+Handle sm_tf2bte_version = INVALID_HANDLE;
+Handle sm_tf2bte_debug = INVALID_HANDLE;
+Handle sm_tf2bte_notify = INVALID_HANDLE;
+Handle sm_tf2bte_eye_health = INVALID_HANDLE;
+Handle sm_tf2bte_eye_health_per_player = INVALID_HANDLE;
+Handle sm_tf2bte_eye_stunned_duration = INVALID_HANDLE;
+Handle sm_tf2bte_eye_rage_multiplier = INVALID_HANDLE;
+Handle sm_tf2bte_eye_rage_subtraction = INVALID_HANDLE;
+Handle sm_tf2bte_eye_respawn = INVALID_HANDLE;
+Handle sm_tf2bte_hud_xpos = INVALID_HANDLE;
+Handle sm_tf2bte_hud_ypos = INVALID_HANDLE;
 
-new bool:bDebugMode = false;
-new nNotifications = 2;
-new iEyeHealth = 10000;
-new iEyeHPP = 100;
-new Float:flStunDuration = 10.0;
-new Float:flRageMult = 0.0001;
-new Float:flRageSubt = 0.01;
-new bool:bEyeRespawn = true;
-new Float:flHUDPositionX = -1.0;
-new Float:flHUDPositionY = -1.0;
+bool bDebugMode = false;
+int nNotifications = 2;
+int iEyeHealth = 10000;
+int iEyeHPP = 100;
+float flStunDuration = 10.0;
+float flRageMult = 0.0001;
+float flRageSubt = 0.01;
+bool bEyeRespawn = true;
+float flHUDPositionX = -1.0;
+float flHUDPositionY = -1.0;
 
-new bool:bLateLoaded;
-new bool:bPlayingOnEyeaduct;
+bool bLateLoaded;
+bool bPlayingOnEyeaduct;
 
-new bool:bEyeEnabled[MAXPLAYERS+1];
-new bool:bEyeStatus[MAXPLAYERS+1];
-new bool:bEyeRage[MAXPLAYERS+1];
-new Float:flEyeRage[MAXPLAYERS+1];
-new bool:bSkipUpdateCheck[MAXPLAYERS+1];
-new iOriginalTeam[MAXPLAYERS+1];
-new TFClassType:iOriginalClass[MAXPLAYERS+1];
-new Float:flOriginalMaxSpeed[MAXPLAYERS+1];
+bool bEyeEnabled[MAXPLAYERS+1];
+bool bEyeStatus[MAXPLAYERS+1];
+bool bEyeRage[MAXPLAYERS+1];
+float flEyeRage[MAXPLAYERS+1];
+bool bSkipUpdateCheck[MAXPLAYERS+1];
+int iOriginalTeam[MAXPLAYERS+1];
+int TFClassType:iOriginalClass[MAXPLAYERS+1];
+float flOriginalMaxSpeed[MAXPLAYERS+1];
 
 /////////////////
 /* Plugin info */
 
-public Plugin:myinfo = {
+public Plugin myinfo = {
 	name = "[TF2] Be The Monoculus",
 	author = "Leonardo",
 	description = "...",
@@ -149,7 +149,7 @@ public OnPluginStart()
 	sm_tf2bte_hud_ypos = CreateConVar( "sm_tf2bte_hud_ypos", "0.91", "", FCVAR_NONE, true, 0.0, true, 1.0 );
 	HookConVarChange( sm_tf2bte_hud_ypos, OnConVarChanged );
 	
-	decl String:strGameDir[8];
+	char strGameDir[8];
 	GetGameFolderName(strGameDir, sizeof(strGameDir));
 	if(!StrEqual(strGameDir, "tf", false) && !StrEqual(strGameDir, "tf_beta", false))
 		SetFailState("THIS PLUGIN IS FOR TEAM FORTRESS 2 ONLY!");
@@ -214,7 +214,7 @@ public OnPluginEnd()
 		}
 }
 
-public OnLibraryAdded( const String:strName[] )
+public OnLibraryAdded( const char strName[] )
 {
 #if defined _updater_included
 	if( strcmp( strName, "updater", nope ) == 0 )
@@ -224,7 +224,7 @@ public OnLibraryAdded( const String:strName[] )
 
 public OnMapStart()
 {
-	decl String:strMapName[20];
+	char strMapName[20];
 	GetCurrentMap( strMapName, sizeof(strMapName) );
 	bPlayingOnEyeaduct = StrEqual( strMapName, "koth_viaduct_event", false );
 	
@@ -234,7 +234,7 @@ public OnMapStart()
 	PrecacheSounds( strEyeStun, sizeof(strEyeStun) );
 }
 
-public OnEntityCreated( iEntity, const String:strClassname[] )
+public OnEntityCreated( iEntity, const char strClassname[] )
 {
 	if( StrEqual( strClassname, "trigger_capture_area", false ) )
 	{
@@ -270,7 +270,7 @@ public OnClientDisconnect( iClient )
 /////////////////
 /* Game Events */
 
-public OnPlayerActivate( Handle:hEvent, const String:strEventName[], bool:bDontBroadcast )
+public OnPlayerActivate( Handle:hEvent, const char strEventName[], bool:bDontBroadcast )
 {
 	new iClient = GetClientOfUserId( GetEventInt( hEvent, "userid" ) );
 	if( !IsValidClient(iClient) )
@@ -281,14 +281,14 @@ public OnPlayerActivate( Handle:hEvent, const String:strEventName[], bool:bDontB
 	SDKHook( iClient, SDKHook_OnTakeDamagePost, OnTakeDamagePost );
 }
 
-public OnPlayerUpdate( Handle:hEvent, const String:strEventName[], bool:bDontBroadcast )
+public OnPlayerUpdate( Handle:hEvent, const char strEventName[], bool:bDontBroadcast )
 {
 	new iClient = GetClientOfUserId( GetEventInt( hEvent, "userid" ) );
 	if( bEyeRespawn && IsValidClient(iClient) && bEyeEnabled[iClient] && !bSkipUpdateCheck[iClient] )
 		BeTheMonoculus( iClient );
 }
 
-public Action:OnPlayerDeath( Handle:hEvent, const String:strEventName[], bool:bDontBroadcast )
+public Action OnPlayerDeath( Handle:hEvent, const char strEventName[], bool:bDontBroadcast )
 {
 	new iClient = GetClientOfUserId( GetEventInt( hEvent, "userid" ) );
 	if( !IsValidClient(iClient) )
@@ -323,7 +323,7 @@ public Action:OnPlayerDeath( Handle:hEvent, const String:strEventName[], bool:bD
 	return Plugin_Continue;
 }
 
-public Action:NormalSoundHook( iClients[64], &iNumClients, String:strSample[PLATFORM_MAX_PATH], &iEntity, &iChannel, &Float:flVolume, &iLevel, &iPitch, &iFlags )
+public Action NormalSoundHook( iClients[64], &iNumClients, String:strSample[PLATFORM_MAX_PATH], &iEntity, &iChannel, &Float:flVolume, &iLevel, &iPitch, &iFlags )
 {
 	if( !IsValidClient(iEntity) || !bEyeStatus[iEntity] )
 		return Plugin_Continue;
@@ -340,7 +340,7 @@ public Action:NormalSoundHook( iClients[64], &iNumClients, String:strSample[PLAT
 	return Plugin_Continue;
 }
 
-public Action:OnTakeDamage( iVictim, &iAttacker, &iInflictor, &Float:flDamage, &iDamageType, &iWeapon, Float:flDamageForce[3], Float:flDamagePos[3], iDamageCustom )
+public Action OnTakeDamage( iVictim, &iAttacker, &iInflictor, &Float:flDamage, &iDamageType, &iWeapon, Float:flDamageForce[3], Float:flDamagePos[3], iDamageCustom )
 {
 	if( !IsValidClient( iVictim ) || !bEyeStatus[iVictim] )
 		return Plugin_Continue;
@@ -363,7 +363,7 @@ public Action:OnTakeDamage( iVictim, &iAttacker, &iInflictor, &Float:flDamage, &
 	}
 	else if( IsValidEntity(iWeapon) && ( iDamageType & DMG_CRIT ) == DMG_CRIT && flDamage >= 300.0 )
 	{
-		decl String:strWeaponClass[32];
+		char strWeaponClass[32];
 		GetEntityClassname( iWeapon, strWeaponClass, sizeof(strWeaponClass) );
 		if( strcmp( strWeaponClass, "tf_weapon_knife", false ) == 0 || strcmp( strWeaponClass, "saxxy", false ) == 0 )
 		{
@@ -398,13 +398,13 @@ public OnTakeDamagePost( iVictim, iAttacker, iInflictor, Float:flDamage, iDamage
 	}
 }
 
-public Action:OnCPTouch( iPoint, iOther )
+public Action OnCPTouch( iPoint, iOther )
 {
 	if( IsValidClient(iOther) && bEyeStatus[iOther] )
 		return Plugin_Handled;
 	return Plugin_Continue;
 }
-public Action:OnFlagTouch( iFlag, iOther )
+public Action OnFlagTouch( iFlag, iOther )
 {
 	if( IsValidClient(iOther) && bEyeStatus[iOther] )
 		return Plugin_Handled;
@@ -414,12 +414,12 @@ public Action:OnFlagTouch( iFlag, iOther )
 //////////////////
 /* CMDs & CVars */
 
-public Action:Command_ToggleEffect( iClient, nArgs )
+public Action Command_ToggleEffect( iClient, nArgs )
 {
 	if( iClient > 0 && !CheckCommandAccess( iClient, "sm_BeTheMonoculus_override", ADMFLAG_GENERIC ) )
 		return Plugin_Continue;
 	
-	decl String:strCommandName[16];
+	char strCommandName[16];
 	GetCmdArg( 0, strCommandName, sizeof(strCommandName) );
 	
 	if( nArgs == 0 && IsValidClient(iClient) ) 
@@ -436,7 +436,7 @@ public Action:Command_ToggleEffect( iClient, nArgs )
 	}
 	else if( nArgs == 1 ) 
 	{
-		decl String:strTargets[64];
+		char strTargets[64];
 		GetCmdArg( 1, strTargets, sizeof(strTargets) );
 		
 		if( IsCharNumeric(strTargets[0]) )
@@ -459,10 +459,10 @@ public Action:Command_ToggleEffect( iClient, nArgs )
 			return Plugin_Handled;
 		}
 		
-		decl String:target_name[MAX_TARGET_LENGTH];
+		char target_name[MAX_TARGET_LENGTH];
 		decl iTargets[MAXPLAYERS];
 		decl nTargets;
-		decl bool:tn_is_ml;
+		bool tn_is_ml;
 		if((nTargets = ProcessTargetString(strTargets, iClient, iTargets, MAXPLAYERS, 0, target_name, sizeof(target_name), tn_is_ml)) <= 0)
 		{
 			ReplyToTargetError( iClient, nTargets );
@@ -484,15 +484,15 @@ public Action:Command_ToggleEffect( iClient, nArgs )
 	}
 	else if( nArgs == 2 )
 	{
-		decl String:strState[2];
+		char strState[2];
 		GetCmdArg( 2, strState, sizeof(strState) );
-		new bool:bState = StringToInt( strState ) != 0;
+		bool bState = StringToInt( strState ) != 0;
 		
-		decl String:target_name[MAX_TARGET_LENGTH];
+		char target_name[MAX_TARGET_LENGTH];
 		decl iTargets[MAXPLAYERS];
 		decl nTargets;
-		decl bool:tn_is_ml;
-		decl String:strTargets[64];
+		bool tn_is_ml;
+		char strTargets[64];
 		GetCmdArg( 1, strTargets, sizeof(strTargets) );
 		if((nTargets = ProcessTargetString(strTargets, iClient, iTargets, MAXPLAYERS, 0, target_name, sizeof(target_name), tn_is_ml)) <= 0)
 		{
@@ -521,7 +521,7 @@ public Action:Command_ToggleEffect( iClient, nArgs )
 	return Plugin_Handled;
 }
 
-public Action:Command_FakeStun( iClient, nArgs )
+public Action Command_FakeStun( iClient, nArgs )
 {
 	if( !IsValidClient(iClient) || !bEyeStatus[iClient] )
 		return Plugin_Continue;
@@ -530,7 +530,7 @@ public Action:Command_FakeStun( iClient, nArgs )
 	return Plugin_Handled;
 }
 
-public Action:Command_VoiceMenu( iClient, const String:strCmdName[], nArgs )
+public Action Command_VoiceMenu( iClient, const char strCmdName[], nArgs )
 {
 	if( !IsValidClient(iClient) || !bEyeStatus[iClient] )
 		return Plugin_Continue;
@@ -545,14 +545,14 @@ public Action:Command_VoiceMenu( iClient, const String:strCmdName[], nArgs )
 	return Plugin_Handled;
 }
 
-public OnConVarChanged_PluginVersion( Handle:hConVar, const String:strOldValue[], const String:strNewValue[] )
+public OnConVarChanged_PluginVersion( Handle:hConVar, const char strOldValue[], const char strNewValue[] )
 	if( strcmp( strNewValue, PLUGIN_VERSION, false ) != 0 )
 		SetConVarString( hConVar, PLUGIN_VERSION, true, true );
 
-public OnConVarChanged( Handle:hConVar, const String:strOldValue[], const String:strNewValue[] )
+public OnConVarChanged( Handle:hConVar, const char strOldValue[], const char strNewValue[] )
 	OnConfigsExecuted();
 
-public Action:OnPlayerRunCmd( iClient, &iButtons, &iImpulse, Float:vecVelocity[3], Float:vecAngles[3], &iWeapon )
+public Action OnPlayerRunCmd( iClient, &iButtons, &iImpulse, Float:vecVelocity[3], Float:vecAngles[3], &iWeapon )
 {
 	static iLastButtons[MAXPLAYERS+1];
 	static Float:flLastAttack[MAXPLAYERS+1];
@@ -563,8 +563,8 @@ public Action:OnPlayerRunCmd( iClient, &iButtons, &iImpulse, Float:vecVelocity[3
 	
 	if( GetEntityMoveType( iClient ) == MOVETYPE_FLY )
 	{
-		new Float:flMaxSpeed = GetEntPropFloat( iClient, Prop_Data, "m_flMaxspeed" );
-		new Float:flFallVel = GetEntPropFloat( iClient, Prop_Send, "m_flFallVelocity" ) * -1.0;
+		float flMaxSpeed = GetEntPropFloat( iClient, Prop_Data, "m_flMaxspeed" );
+		float flFallVel = GetEntPropFloat( iClient, Prop_Send, "m_flFallVelocity" ) * -1.0;
 		
 		if( flMaxSpeed > 320.0 )
 			flMaxSpeed = 320.0;
@@ -590,7 +590,7 @@ public Action:OnPlayerRunCmd( iClient, &iButtons, &iImpulse, Float:vecVelocity[3
 	{
 		if( (iButtons & IN_RELOAD) == IN_RELOAD )
 		{
-			new Float:vecOrigin[3];
+			float vecOrigin[3];
 			GetClientAbsOrigin( iClient, vecOrigin );
 			
 			vecOrigin[0] = vecOrigin[0] + 2.0 * Cosine( DegToRad(vecAngles[1]) );
@@ -617,7 +617,7 @@ public Action:OnPlayerRunCmd( iClient, &iButtons, &iImpulse, Float:vecVelocity[3
 			{
 				if( GetEngineTime() >= flLastSound[iClient] )
 				{
-					decl String:strSndName[PLATFORM_MAX_PATH];
+					char strSndName[PLATFORM_MAX_PATH];
 					strcopy( strSndName, sizeof(strSndName), bEyeRage[iClient] ? strEyeShoot[ GetRandomInt( 1, sizeof(strEyeShoot)-1 ) ] : strEyeShoot[0] );
 					
 					flLastSound[iClient] = GetEngineTime() + /* GetSoundDuration( strSndName ) + */ 1.0;
@@ -646,13 +646,13 @@ ResetData( iClient )
 	bSkipUpdateCheck[iClient] = false;
 }
 
-public Action:Timer_HUD( Handle:hTimer, any:iUnusedVariable )
+public Action Timer_HUD( Handle:hTimer, any:iUnusedVariable )
 {
 	if( hHUD_Health == INVALID_HANDLE || hHUD_Rage == INVALID_HANDLE )
 		return Plugin_Stop;
 	
 	new iHealth;
-	decl String:strBuffer[128];
+	char strBuffer[128];
 	for( new i = 1; i <= MaxClients; i++ )
 		if( IsValidClient(i) && bEyeStatus[i] )
 		{
@@ -668,7 +668,7 @@ public Action:Timer_HUD( Handle:hTimer, any:iUnusedVariable )
 	return Plugin_Continue;
 }
 
-public Action:Timer_CalmDown( Handle:hTimer, any:iClient )
+public Action Timer_CalmDown( Handle:hTimer, any:iClient )
 {
 	if( !IsValidClient(iClient) || !bEyeStatus[iClient] || !bEyeRage[iClient] )
 		return Plugin_Stop;
@@ -706,7 +706,7 @@ BeTheMonoculus( iClient )
 	CreateTimer( 0.0, Timer_BeTheMonoculus, iClient );
 }
 
-public Action:Timer_BeTheMonoculus( Handle:hTimer, any:iClient )
+public Action Timer_BeTheMonoculus( Handle:hTimer, any:iClient )
 {
 	if( !IsValidClient(iClient) )
 		return Plugin_Stop;
@@ -737,7 +737,7 @@ public Action:Timer_BeTheMonoculus( Handle:hTimer, any:iClient )
 	CreateTimer( 0.0, Timer_SetBossHealth, iClient );
 	return Plugin_Stop;
 }
-public Action:Timer_SetBossHealth( Handle:hTimer, any:iClient )
+public Action Timer_SetBossHealth( Handle:hTimer, any:iClient )
 {
 	if( !IsValidClient(iClient) || !bEyeStatus[iClient] )
 		return Plugin_Stop;
@@ -843,7 +843,7 @@ bool:ShootRocket( iClient )
 	SetEntityModel( iRocket, strEyeModels[1] );
 	
 	
-	new Float:vecOrigin[3], Float:vecAngles[3], Float:vecVelocity[3], Float:flMult;
+	float vecOrigin[3], Float:vecAngles[3], Float:vecVelocity[3], Float:flMult;
 	GetClientAbsOrigin( iClient, vecOrigin );
 	GetClientEyeAngles( iClient, vecAngles );
 	
@@ -877,7 +877,7 @@ StunMonoculus( iClient, iAttacker )
 	
 	CreateTimer( flStunDuration, Timer_UnstunMonoculus, iClient );
 }
-public Action:Timer_UnstunMonoculus( Handle:hTimer, any:iClient )
+public Action Timer_UnstunMonoculus( Handle:hTimer, any:iClient )
 {
 	if( !IsValidClient(iClient) || !bEyeStatus[iClient] )
 		return Plugin_Stop;
@@ -906,12 +906,12 @@ PrintStatus( iClient )
 	}
 }
 
-AttachParticle(iEntity, const String:strParticleEffect[], const String:strAttachPoint[]="", Float:flOffsetZ=0.0, Float:flSelfDestruct=0.0)
+AttachParticle(iEntity, const char strParticleEffect[], const char strAttachPoint[]="", Float:flOffsetZ=0.0, Float:flSelfDestruct=0.0)
 {
 	new iParticle = CreateEntityByName("info_particle_system");
 	if(iParticle > MaxClients && IsValidEntity(iParticle))
 	{
-		new Float:flPos[3];
+		float flPos[3];
 		GetEntPropVector(iEntity, Prop_Send, "m_vecOrigin", flPos);
 		flPos[2] += flOffsetZ;
 		
@@ -940,7 +940,7 @@ AttachParticle(iEntity, const String:strParticleEffect[], const String:strAttach
 	
 	return 0;
 }
-public Action:Timer_DeleteParticle(Handle:hTimer, any:iRefEnt)
+public Action Timer_DeleteParticle(Handle:hTimer, any:iRefEnt)
 {
 	new iEntity = EntRefToEntIndex(iRefEnt);
 	if(iEntity > MaxClients)
@@ -961,16 +961,16 @@ public Native_IsPlayerEye( Handle:hPlugin, nParams )
 ////////////
 /* Stocks */
 
-stock Error( iFlags = ERROR_NONE, iNativeErrCode = SP_ERROR_NONE, const String:strMessage[], any:... )
+stock Error( iFlags = ERROR_NONE, iNativeErrCode = SP_ERROR_NONE, const char strMessage[], any:... )
 {
-	decl String:strBuffer[1024];
+	char strBuffer[1024];
 	VFormat( strBuffer, sizeof(strBuffer), strMessage, 4 );
 	
 	if( iFlags )
 	{
 		if( iFlags & ERROR_LOG )
 		{
-			decl String:strFile[PLATFORM_MAX_PATH];
+			char strFile[PLATFORM_MAX_PATH];
 			FormatTime( strFile, sizeof(strFile), "%Y%m%d" );
 			Format( strFile, sizeof(strFile), "TF2BTE%s", strFile );
 			BuildPath( Path_SM, strFile, sizeof(strFile), "logs/%s.log", strFile );
@@ -991,13 +991,13 @@ stock Error( iFlags = ERROR_NONE, iNativeErrCode = SP_ERROR_NONE, const String:s
 	PrintToServer( strBuffer );
 }
 
-stock PrecacheModels( const String:strModels[][], iArraySize )
+stock PrecacheModels( const char strModels[][], iArraySize )
 {
 	for( new i = 0; i < iArraySize; i++ )
 		if( PrecacheModel( strModels[i], true ) == 0 )
 			Error( ERROR_LOG, _, "Faild to precache model: %s", strModels[i] );
 }
-stock PrecacheSounds( const String:strModels[][], iArraySize )
+stock PrecacheSounds( const char strModels[][], iArraySize )
 {
 	for( new i = 0; i < iArraySize; i++ )
 		if( !PrecacheSound( strModels[i], true ) )
@@ -1008,7 +1008,7 @@ stock SetWeaponsAlpha( iClient, iAlpha )
 {
 	if( IsClientInGame(iClient) )
 	{
-		decl String:classname[64];
+		char classname[64];
 		new m_hMyWeapons = FindSendPropOffs("CBasePlayer", "m_hMyWeapons");
 		for(new i = 0, weapon; i < 47; i += 4)
 		{

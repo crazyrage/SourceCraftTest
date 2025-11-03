@@ -15,10 +15,10 @@
 // Global Definitions
 #define PLUGIN_VERSION "1.0.3"
 
-new Handle:hKV = INVALID_HANDLE;
+Handle hKV = INVALID_HANDLE;
 
 // Functions
-public Plugin:myinfo =
+public Plugin myinfo =
 {
 	name = "GiveNamedItem",
 	author = "bl4nk",
@@ -34,12 +34,12 @@ public OnPluginStart()
 
 	hKV = CreateKeyValues("TF2WeaponData");
 
-	new String:file[128];
+	char file[128];
 	BuildPath(Path_SM, file, sizeof(file), "data/tf2weapondata.txt");
 	FileToKeyValues(hKV, file);
 }
 
-public Action:Command_GiveWeapon(client, args)
+public Action Command_GiveWeapon(client, args)
 {
 	if (args < 1)
 	{
@@ -47,10 +47,10 @@ public Action:Command_GiveWeapon(client, args)
 		return Plugin_Handled;
 	}
 
-	decl String:name[65];
+	char name[65];
 	GetCmdArg(1, name, sizeof(name));
 
-	decl String:target_name[MAX_TARGET_LENGTH];
+	char target_name[MAX_TARGET_LENGTH];
 	decl target_list[MAXPLAYERS], target_count, bool:tn_is_ml;
 
 	if ((target_count = ProcessTargetString(
@@ -67,7 +67,7 @@ public Action:Command_GiveWeapon(client, args)
 		return Plugin_Handled;
 	}
 
-	decl String:weaponName[32];
+	char weaponName[32];
 	GetCmdArg(2, weaponName, sizeof(weaponName));
 
 	if (!KvJumpToKey(hKV, weaponName))

@@ -4,16 +4,16 @@
 
 #define PLUGIN_VERSION "1.1.2.5"
 
-new Handle:v_Enabled = INVALID_HANDLE;
-new Handle:v_Mode = INVALID_HANDLE;
-new Handle:v_Flag = INVALID_HANDLE;
-new Handle:v_HowHoly = INVALID_HANDLE;
-new Handle:v_ArrowType = INVALID_HANDLE;
-new Handle:v_Particle = INVALID_HANDLE;
+Handle v_Enabled = INVALID_HANDLE;
+Handle v_Mode = INVALID_HANDLE;
+Handle v_Flag = INVALID_HANDLE;
+Handle v_HowHoly = INVALID_HANDLE;
+Handle v_ArrowType = INVALID_HANDLE;
+Handle v_Particle = INVALID_HANDLE;
 
-new bool:b_PlayerEnabled[MAXPLAYERS+1] = {true, ...};
+bool b_PlayerEnabled[MAXPLAYERS+1] = {true, ...};
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
 	name = "[TF2] Holy Arrows",
 	author = "DarthNinja",
@@ -35,7 +35,7 @@ public OnPluginStart()
 	RegAdminCmd("sm_holy", OnHolyCmd, 0, "Toggles Holy Arrows on/off");
 }
 
-public Action:OnHolyCmd(client, args)
+public Action OnHolyCmd(client, args)
 {
 	if (GetConVarBool(v_Enabled))
 	{
@@ -46,7 +46,7 @@ public Action:OnHolyCmd(client, args)
 		}
 		else if (args == 1)
 		{
-			decl String:s_Arg1[32];
+			char s_Arg1[32];
 			GetCmdArg(1, s_Arg1, sizeof(s_Arg1));
 			if (StringToInt(s_Arg1) == 0)
 			{
@@ -76,7 +76,7 @@ public OnClientDisconnect(client)
 }
 
 //This gets called once per arrow
-public OnEntityCreated(entity, const String:classname[])
+public OnEntityCreated(entity, const char classname[])
 {
 	new iArrowType = GetConVarInt(v_ArrowType);
 	if (iArrowType == 1 || iArrowType == 3)
@@ -122,7 +122,7 @@ public Arrow(entity)
 		case 2:
 		{
 			//Enabled for admins
-			new String:Flags[32];
+			char Flags[32];
 			GetConVarString(v_Flag, Flags, sizeof(Flags));
 			if(IsValidAdmin(client, Flags))
 			{
@@ -137,7 +137,7 @@ public Arrow(entity)
 HolyArrow(entity)
 {
 	new iHolyness = GetConVarInt(v_HowHoly);
-	new String:sParticles[64];
+	char sParticles[64];
 	GetConVarString(v_Particle, sParticles, sizeof(sParticles));
 	for(new i=1; i <= iHolyness; i++)
 	{
@@ -146,9 +146,9 @@ HolyArrow(entity)
 	
 	// Particle dies shortly after arrow lands, so we dont need this:
 	/*
-	new Float:Time = 20.0;
+	float Time = 20.0;
 
-	new Handle:pack
+	Handle pack
 	CreateDataTimer(Time, Timer_KillParticle, pack)
 	WritePackCell(pack, client);
 	WritePackCell(pack, iParticle);
@@ -156,7 +156,7 @@ HolyArrow(entity)
 }
 
 /*
-public Action:Timer_KillParticle(Handle:timer, Handle:pack)
+public Action Timer_KillParticle(Handle:timer, Handle:pack)
 {
 	ResetPack(pack)
 	new client = ReadPackCell(pack)
@@ -173,7 +173,7 @@ public Action:Timer_KillParticle(Handle:timer, Handle:pack)
 
 //---------------------------
 
-stock bool:IsValidAdmin(client, const String:flags[])
+stock bool:IsValidAdmin(client, const char flags[])
 {
 	if(!IsClientConnected(client))
 	return false;
@@ -205,11 +205,11 @@ stock CreateParticle(iEntity, String:strParticle[], bool:bAttach = false, String
 	new iParticle = CreateEntityByName("info_particle_system");
 	if (IsValidEdict(iParticle))
 	{
-		decl Float:fPosition[3];
-		decl Float:fAngles[3];
-		decl Float:fForward[3];
-		decl Float:fRight[3];
-		decl Float:fUp[3];
+		float fPosition[3];
+		float fAngles[3];
+		float fForward[3];
+		float fRight[3];
+		float fUp[3];
 		
 		// Retrieve entity's position and angles
 		//GetClientAbsOrigin(iClient, fPosition);

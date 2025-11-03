@@ -9,12 +9,12 @@
 #define PLUGIN_VERSION "1.2"
 #define MAX_ENTITIES 2097152
 
-new Handle:g_hEnabled;
+Handle g_hEnabled;
 
-new g_iFlare[MAX_ENTITIES] = -1;
-new g_iColors[2][3] = {{255, 0, 0}, {0, 0, 255}};
+int g_iFlare[MAX_ENTITIES] = -1;
+int g_iColors[2][3] = {{255, 0, 0}, {0, 0, 255}};
 
-public Plugin:myinfo = {
+public Plugin myinfo = {
     name = "[TF2] Flare Light",
     author = "Leonardo", // based on Mecha the Slag's Ignite Light
     description = "Adds dynamic lighting to the Pyro's flares",
@@ -24,7 +24,7 @@ public Plugin:myinfo = {
 
 public OnPluginStart()
 {
-	decl String:strModName[32];
+	char strModName[32];
 	GetGameFolderName(strModName, sizeof(strModName));
 	if(!StrEqual(strModName, "tf"))
 		SetFailState("This plugin is only for Team Fortress 2.");
@@ -38,7 +38,7 @@ public OnMapStart()
 		g_iFlare[iEntity] = -1;
 }
 
-public OnEntityCreated(iEntity, const String:sClassName[])
+public OnEntityCreated(iEntity, const char sClassName[])
 {
 	if(g_hEnabled)
 		if(StrEqual("tf_projectile_flare", sClassName))
@@ -46,7 +46,7 @@ public OnEntityCreated(iEntity, const String:sClassName[])
 				CreateTimer(0.05, Timer_EntitySpawned, EntIndexToEntRef(iEntity));
 }
 
-public Action:Timer_EntitySpawned(Handle:hTimer, any:iEntRef)
+public Action Timer_EntitySpawned(Handle:hTimer, any:iEntRef)
 {
 	new iEntity = EntRefToEntIndex(iEntRef);
 	if(IsValidEntity(iEntity))
@@ -86,7 +86,7 @@ stock _:CreateLightEntity(iEntity)
 	new iLightEntity = CreateEntityByName("light_dynamic");
 	if (IsValidEntity(iLightEntity))
 	{
-		decl String:sColors[16];
+		char sColors[16];
 		Format(sColors, sizeof(sColors), "%i %i %i 50", g_iColors[iTeam-2][0], g_iColors[iTeam-2][1], g_iColors[iTeam-2][2]);
 		
 		DispatchKeyValue(iLightEntity, "inner_cone", "0");
@@ -99,11 +99,11 @@ stock _:CreateLightEntity(iEntity)
 		DispatchKeyValue(iLightEntity, "style", "5");
 		DispatchSpawn(iLightEntity);
 
-		decl Float:fOrigin[3];
+		float fOrigin[3];
 		GetEntPropVector(iEntity, Prop_Send, "m_vecOrigin", fOrigin);
 		TeleportEntity(iLightEntity, fOrigin, NULL_VECTOR, NULL_VECTOR);
 
-		decl String:strName[32];
+		char strName[32];
 		Format(strName, sizeof(strName), "target%i", iEntity);
 		DispatchKeyValue(iEntity, "targetname", strName);
 				
@@ -120,12 +120,12 @@ stock _:CreateLightEntity(iEntity)
  *              Use before spawning an entity.
  */
 #if !defined _entlimit_included
-    stock bool:IsEntLimitReached(warn=20,critical=16,client=0,const String:message[]="")
+    stock bool:IsEntLimitReached(warn=20,critical=16,client=0,const char message[]="")
     {
 	return (EntitiesAvailable(warn,critical,client,message) < warn);
     }
 
-    stock EntitiesAvailable(warn=20,critical=16,client=0,const String:message[]="")
+    stock EntitiesAvailable(warn=20,critical=16,client=0,const char message[]="")
     {
 	new max = GetMaxEntities();
 	new count = GetEntityCount();

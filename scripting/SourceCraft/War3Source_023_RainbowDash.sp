@@ -4,26 +4,26 @@
 #include "W3SIncs/War3Source_Interface"  
 //#include "W3SIncs/War3Source_Effects"
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "War3Source - Race - Rainbow Dash",
     author = "War3Source Team",
     description = "The Rainbow Dash race for War3Source."
 };
 
-new HaloSprite, XBeamSprite;
-new thisRaceID;
+int HaloSprite, XBeamSprite;
+int thisRaceID;
 
-new Float:fEvadeChance[5]={0.0,0.05,0.10,0.15,0.20};
-new Float:fSwiftASPDBuff[5]={1.0,1.04,1.08,1.12,1.15};
-new Float:abilityspeed[5]={1.0,1.15,1.23,1.32,1.40};
-new Float:rainboomradius[5]={0.0,200.0,266.0,333.0,400.0};
+float fEvadeChance[5]={0.0,0.05,0.10,0.15,0.20};
+float fSwiftASPDBuff[5]={1.0,1.04,1.08,1.12,1.15};
+float abilityspeed[5]={1.0,1.15,1.23,1.32,1.40};
+float rainboomradius[5]={0.0,200.0,266.0,333.0,400.0};
 
-new Float:LastDamageTime[MAXPLAYERSCUSTOM];
-new Handle:speedendtimer[MAXPLAYERSCUSTOM];
-new bool:inSpeed[MAXPLAYERSCUSTOM];
+float LastDamageTime[MAXPLAYERSCUSTOM];
+Handle speedendtimer[MAXPLAYERSCUSTOM];
+bool inSpeed[MAXPLAYERSCUSTOM];
 
-new SKILL_EVADE, SKILL_SWIFT, SKILL_SPEED, ULTIMATE;
+int SKILL_EVADE, SKILL_SWIFT, SKILL_SPEED, ULTIMATE;
 
 public OnWar3LoadRaceOrItemOrdered(num)
 {    
@@ -112,7 +112,7 @@ public OnAbilityCommand(client,ability,bool:pressed)
                 }
                 speedendtimer[client] = CreateTimer(6.0, EndSpeed, EntIndexToEntRef(client));
 #if defined SOURCECRAFT
-                new Float:cooldown= GetUpgradeCooldown(thisRaceID,SKILL_SPEED);
+                float cooldown= GetUpgradeCooldown(thisRaceID,SKILL_SPEED);
                 War3_CooldownMGR(client,cooldown,thisRaceID,SKILL_SPEED);
 #else
                 War3_CooldownMGR(client, 20.0, thisRaceID, SKILL_SPEED, _, _);
@@ -122,7 +122,7 @@ public OnAbilityCommand(client,ability,bool:pressed)
     }
 }
 
-public Action:EndSpeed(Handle:t, any:clientRef){
+public Action EndSpeed(Handle:t, any:clientRef){
     new client = EntRefToEntIndex(clientRef);
     
     if(GAMETF)
@@ -157,7 +157,7 @@ public OnWar3EventPostHurt(victim, attacker, Float:damage, const String:weapon[3
         else if(War3_GetRace(victim)==thisRaceID)
         {
 #if defined SOURCECRAFT
-            new Float:cooldown= GetUpgradeCooldown(thisRaceID,SKILL_SPEED) / 2.0;
+            float cooldown= GetUpgradeCooldown(thisRaceID,SKILL_SPEED) / 2.0;
             War3_CooldownMGR(victim,cooldown,thisRaceID,SKILL_SPEED);
 #else
             War3_CooldownMGR(victim, 10.0, thisRaceID, SKILL_SPEED, _, _);
@@ -182,13 +182,13 @@ public OnUltimateCommand(client, race, bool:pressed)
                 }
                 else{
 #if defined SOURCECRAFT
-                    new Float:cooldown= GetUpgradeCooldown(thisRaceID,ULTIMATE);
+                    float cooldown= GetUpgradeCooldown(thisRaceID,ULTIMATE);
                     War3_CooldownMGR(client,cooldown,thisRaceID,ULTIMATE);
 #else
                     War3_CooldownMGR(client, 20.0, thisRaceID, ULTIMATE, _, _);
 #endif
                     
-                    decl Float:start_pos[3];
+                    float start_pos[3];
                     GetClientAbsOrigin(client,start_pos);
                     
                     //TE_SetupBeamRingPoint(const Float:center[3], Float:Start_Radius, Float:End_Radius, ModelIndex, HaloIndex, StartFrame, FrameRate, Float:Life, Float:Width, Float:Amplitude, const Color[4], Speed, Flags)
@@ -207,7 +207,7 @@ public OnUltimateCommand(client, race, bool:pressed)
                     TE_SetupBeamRingPoint(start_pos,                 20.0,            rainboomradius[skill]*2,             XBeamSprite, HaloSprite,     0,         1,                 0.5,     30.0,         0.0,             {143, 0, 255,255}, 10,     0);
                     TE_SendToAll(0.17);
                 
-                    decl Float:TargetPos[3];
+                    float TargetPos[3];
                     for (new i = 1; i <= MaxClients; i++) 
                     {
                         if(ValidPlayer(i,true) && GetClientTeam(i) == GetClientTeam(client) && GetClientTeam(client) == GetApparentTeam(i)) 

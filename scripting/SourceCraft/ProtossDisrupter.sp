@@ -42,40 +42,40 @@
 #include "effect/BeamSprite"
 #include "effect/SendEffects"
 
-new const String:spawnWav[]             = "sc/pdrwht07.wav";
-new const String:deathWav[]             = "sc/pdrdth00.wav";
-new const String:disruptionHitWav[]     = "sc/DragBull.wav";
-new const String:disruptionReadyWav[]   = "sc/zhyrdy00.wav";
-new const String:disruptionExpireWav[]  = "sc/zhywht01.wav";
-new const String:nullVoidWav[]          = "sc/tveemp00.wav";    // EMP sound
+char spawnWav[]             = "sc/pdrwht07.wav";
+char deathWav[]             = "sc/pdrdth00.wav";
+char disruptionHitWav[]     = "sc/DragBull.wav";
+char disruptionReadyWav[]   = "sc/zhyrdy00.wav";
+char disruptionExpireWav[]  = "sc/zhywht01.wav";
+char nullVoidWav[]          = "sc/tveemp00.wav";    // EMP sound
 
-new const String:g_MissileAttackSound[] = "sc/pdrfir00.wav";
+char g_MissileAttackSound[] = "sc/pdrfir00.wav";
 
-new raceID, armorID, shieldsID, speedID, missileID, hallucinationID;
-new disruptionID, guardianShieldID, forceFieldID, nullVoidID;
+int raceID, armorID, shieldsID, speedID, missileID, hallucinationID;
+int disruptionID, guardianShieldID, forceFieldID, nullVoidID;
 
-new g_MissileAttackChance[]             = { 5, 10, 15, 25, 35 };
-new Float:g_MissileAttackPercent[]      = { 0.25, 0.35, 0.50, 0.60, 0.75 };
+int g_MissileAttackChance[]             = { 5, 10, 15, 25, 35 };
+float g_MissileAttackPercent[]      = { 0.25, 0.35, 0.50, 0.60, 0.75 };
 
-new g_HallucinateChance[]               = { 15, 25, 35, 50, 75 };
-new Float:g_SpeedLevels[]               = { 0.80, 0.90, 0.95, 1.00, 1.05 };
-new Float:g_DisruptionRadius[]          = { 300.0, 450.0, 650.0, 750.0, 900.0 };
-new Float:g_NullVoidRadius[]            = { 300.0, 500.0, 700.0, 1000.0, 1500.0 };
+int g_HallucinateChance[]               = { 15, 25, 35, 50, 75 };
+float g_SpeedLevels[]               = { 0.80, 0.90, 0.95, 1.00, 1.05 };
+float g_DisruptionRadius[]          = { 300.0, 450.0, 650.0, 750.0, 900.0 };
+float g_NullVoidRadius[]            = { 300.0, 500.0, 700.0, 1000.0, 1500.0 };
 
-new Float:g_InitialArmor[]              = { 0.10, 0.20, 0.30, 0.40, 0.50 };
-new Float:g_InitialShields[]            = { 0.10, 0.20, 0.30, 0.40, 0.50 };
-new Float:g_ShieldsPercent[][2]         = { {0.05, 0.10},
+float g_InitialArmor[]              = { 0.10, 0.20, 0.30, 0.40, 0.50 };
+float g_InitialShields[]            = { 0.10, 0.20, 0.30, 0.40, 0.50 };
+float g_ShieldsPercent[][2]         = { {0.05, 0.10},
                                             {0.10, 0.20},
                                             {0.15, 0.30},
                                             {0.20, 0.40},
                                             {0.25, 0.50} };
 
-new bool:m_ForceFieldInvoked[MAXPLAYERS+1];
-new bool:m_DisruptionActive[MAXPLAYERS+1];
+bool m_ForceFieldInvoked[MAXPLAYERS+1];
+bool m_DisruptionActive[MAXPLAYERS+1];
 
-new bool:m_HasBeenDisrupted[MAXPLAYERS+1][MAXPLAYERS+1];
+bool m_HasBeenDisrupted[MAXPLAYERS+1][MAXPLAYERS+1];
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Protoss Disrupter",
     author = "-=|JFH|=-Naris",
@@ -146,7 +146,7 @@ public OnSourceCraftReady()
 
     for (new level=0; level < sizeof(g_ShieldsPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "shields_percent_level_%d", level);
         GetConfigFloatArray(key, g_ShieldsPercent[level], sizeof(g_ShieldsPercent[]),
                             g_ShieldsPercent[level], raceID, shieldsID);
@@ -224,7 +224,7 @@ public OnClientDisconnect(client)
     ResetDetected(client);
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -237,7 +237,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
     return Plugin_Continue;
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
@@ -427,7 +427,7 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     new Action:returnCode = Plugin_Continue;
@@ -446,7 +446,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
         attacker_index != victim_index &&
         attacker_race == raceID)
     {
-        new Float:amount = GetUpgradeEnergy(raceID,hallucinationID);
+        float amount = GetUpgradeEnergy(raceID,hallucinationID);
         new level = GetUpgradeLevel(attacker_index,raceID,hallucinationID);
         if (Hallucinate(victim_index, attacker_index, level, amount, g_HallucinateChance))
         {
@@ -477,7 +477,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
     return returnCode;
 }
 
-public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
+public Action OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
                                   assister_index, assister_race, damage,
                                   absorbed)
 {
@@ -485,7 +485,7 @@ public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
 
     if (assister_race == raceID)
     {
-        new Float:amount = GetUpgradeEnergy(raceID,hallucinationID);
+        float amount = GetUpgradeEnergy(raceID,hallucinationID);
         new level = GetUpgradeLevel(assister_index,raceID,hallucinationID);
         if (Hallucinate(victim_index, assister_index, level, amount, g_HallucinateChance))
         {
@@ -521,7 +521,7 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
     }
 }
 
-public Action:OnPlayerRestored(client)
+public Action OnPlayerRestored(client)
 {
     ResetDetected(client);
 }
@@ -533,14 +533,14 @@ InvokeDisruption(client, level)
         if (GetRestriction(client,Restriction_NoUltimates) ||
             GetRestriction(client,Restriction_Stunned))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, disruptionID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);
         }
         else if (IsMole(client))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, disruptionID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "CantUseAsMole", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -565,7 +565,7 @@ InvokeDisruption(client, level)
     }
 }
 
-public Action:EndDisruption(Handle:timer,any:userid)
+public Action EndDisruption(Handle:timer,any:userid)
 {
     new client = GetClientOfUserId(userid);
     if (client > 0 && m_DisruptionActive[client])
@@ -622,8 +622,8 @@ bool:Disruption(client, target, damage)
         for(new x=1;x<=MaxClients;x++)
             m_HasBeenDisrupted[client][x]=false;
 
-        new Float:energy = GetEnergy(client);
-        new Float:amount = GetUpgradeRecurringEnergy(raceID,disruptionID);
+        float energy = GetEnergy(client);
+        float amount = GetUpgradeRecurringEnergy(raceID,disruptionID);
         new level=GetUpgradeLevel(client,raceID,disruptionID);
         DoDisruption(client,g_DisruptionRadius[level],damage,target,level*3, amount, energy);
         SetEnergy(client, energy);
@@ -635,7 +635,7 @@ bool:Disruption(client, target, damage)
 DoDisruption(client,Float:distance,dmg,last,count, Float:amount, &Float:energy)
 {
     new team=GetClientTeam(client);
-    new Float:lastLoc[3];
+    float lastLoc[3];
     GetEntityAbsOrigin(last,lastLoc);
 
     new target=-1;
@@ -650,9 +650,9 @@ DoDisruption(client,Float:distance,dmg,last,count, Float:amount, &Float:energy)
                 !GetImmunity(index,Immunity_HealthTaking) &&
                 !IsInvulnerable(index))
             {
-                new Float:indexLoc[3];
+                float indexLoc[3];
                 GetClientAbsOrigin(index,indexLoc);
-                new Float:check=GetVectorDistance(lastLoc,indexLoc);
+                float check=GetVectorDistance(lastLoc,indexLoc);
                 if (check < distance && TraceTargetIndex(client, index, lastLoc, indexLoc))
                 {
                     // found a candidate, whom is currently the closest
@@ -679,7 +679,7 @@ DoDisruption(client,Float:distance,dmg,last,count, Float:amount, &Float:energy)
         HurtPlayer(target, dmg, client, "sc_disruption",
                    .type=DMG_ENERGYBEAM);
 
-        new Float:targetLoc[3];
+        float targetLoc[3];
         GetClientAbsOrigin(target,targetLoc);
         targetLoc[2] += 50.0;
         lastLoc[2]   += 50.0;
@@ -702,7 +702,7 @@ DoDisruption(client,Float:distance,dmg,last,count, Float:amount, &Float:energy)
 
 NullVoid(client, level)
 {
-    decl String:upgradeName[64];
+    char upgradeName[64];
     GetUpgradeName(raceID, nullVoidID, upgradeName, sizeof(upgradeName), client);
 
     if (GetRestriction(client,Restriction_NoUltimates) ||
@@ -720,8 +720,8 @@ NullVoid(client, level)
                 TF2_RemovePlayerDisguise(client);
         }
 
-        new Float:radius = g_NullVoidRadius[level];
-        new Float:targetLoc[3];
+        float radius = g_NullVoidRadius[level];
+        float targetLoc[3];
         TraceAimPosition(client, targetLoc, true);
 
         PrepareAndEmitSoundToAll(nullVoidWav,client, .origin=targetLoc);
@@ -781,18 +781,18 @@ NullVoid(client, level)
             {
                 if (GetClientTeam(index) != team)
                 {
-                    new bool:detect = !GetImmunity(index,Immunity_Ultimates) &&
+                    bool detect = !GetImmunity(index,Immunity_Ultimates) &&
                                       IsInRange(client,index,radius);
                     if (detect)
                     {
-                        new Float:indexLoc[3];
+                        float indexLoc[3];
                         GetClientAbsOrigin(index, indexLoc);
                         detect = TraceTargetIndex(client, index, targetLoc, indexLoc);
                     }
 
                     if (detect)
                     {
-                        new bool:uncloaked = false;
+                        bool uncloaked = false;
 
                         if (GameType == tf2 &&
                             !GetImmunity(index,Immunity_Uncloaking) &&
@@ -801,7 +801,7 @@ NullVoid(client, level)
                             TF2_RemovePlayerDisguise(index);
                             TF2_RemoveCondition(client,TFCond_Cloaked);
 
-                            new Float:cloakMeter = TF2_GetCloakMeter(index);
+                            float cloakMeter = TF2_GetCloakMeter(index);
                             if (cloakMeter > 0.0 && cloakMeter <= 100.0)
                                 TF2_SetCloakMeter(index, 0.0);
 
@@ -831,19 +831,19 @@ NullVoid(client, level)
                             }
                         }
 
-                        new Float:energyDrinkMeter = TF2_GetEnergyDrinkMeter(index);
+                        float energyDrinkMeter = TF2_GetEnergyDrinkMeter(index);
                         if (energyDrinkMeter > 0.0 && energyDrinkMeter <= 100.0)
                             TF2_SetEnergyDrinkMeter(index, 0.0);
 
-                        new Float:chargeMeter = TF2_GetChargeMeter(index);
+                        float chargeMeter = TF2_GetChargeMeter(index);
                         if (chargeMeter > 0.0 && chargeMeter <= 100.0)
                             TF2_SetChargeMeter(index, 0.0);
 
-                        new Float:rageMeter = TF2_GetRageMeter(index);
+                        float rageMeter = TF2_GetRageMeter(index);
                         if (rageMeter > 0.0 && rageMeter <= 100.0)
                             TF2_SetRageMeter(index, 0.0);
 
-                        new Float:hypeMeter = TF2_GetHypeMeter(index);
+                        float hypeMeter = TF2_GetHypeMeter(index);
                         if (hypeMeter > 0.0 && hypeMeter <= 100.0)
                             TF2_SetHypeMeter(index, 0.0);
                     }
@@ -881,7 +881,7 @@ NullVoid(client, level)
 
         if (GameType == tf2)
         {
-            new Float:pos[3];
+            float pos[3];
             new maxents = GetMaxEntities();
             for (new ent = MaxClients; ent < maxents; ent++)
             {
@@ -926,7 +926,7 @@ NullVoid(client, level)
     }
 }
 
-public Action:EnableObject(Handle:timer, any:ref)
+public Action EnableObject(Handle:timer, any:ref)
 {
     new ent = EntRefToEntIndex(ref);
     if (ent > 0 && IsValidEntity(ent) && IsValidEdict(ent))
@@ -982,7 +982,7 @@ ShieldFlags:GetGuardianShieldFlags(level)
 
 GuardianShield(client, null_flux_level)
 {
-    decl String:upgradeName[64];
+    char upgradeName[64];
     GetUpgradeName(raceID, guardianShieldID, upgradeName, sizeof(upgradeName), client);
 
     if (!m_UberShieldAvailable)
@@ -1015,7 +1015,7 @@ GuardianShield(client, null_flux_level)
         }
         else if (CanInvokeUpgrade(client, raceID, guardianShieldID, false))
         {
-            new Float:duration = float(null_flux_level) * 3.0;
+            float duration = float(null_flux_level) * 3.0;
             UberShieldTarget(client, duration, GetGuardianShieldFlags(null_flux_level));
             DisplayMessage(client,Display_Ultimate,"%t", "Invoked", upgradeName);
             CreateCooldown(client, raceID, guardianShieldID);
@@ -1030,7 +1030,7 @@ ForceField(client, force_field_level)
     {
         PrepareAndEmitSoundToClient(client,deniedWav);
 
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, forceFieldID, upgradeName, sizeof(upgradeName), client);
         PrintHintText(client, "%t", "IsNotAvailable", upgradeName);
     }
@@ -1038,14 +1038,14 @@ ForceField(client, force_field_level)
     {
         if (IsMole(client))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, forceFieldID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "CantUseAsMole", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);
         }
         else if (GameType == tf2 && TF2_HasTheFlag(client))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, forceFieldID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "CantUseWithFlag", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -1053,7 +1053,7 @@ ForceField(client, force_field_level)
         else if (GetRestriction(client,Restriction_NoUltimates) ||
                  GetRestriction(client,Restriction_Stunned))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, forceFieldID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -1062,7 +1062,7 @@ ForceField(client, force_field_level)
         {
             m_ForceFieldInvoked[client] = true;
 
-            new Float:duration = float(force_field_level) + 1.0;
+            float duration = float(force_field_level) + 1.0;
             UberShieldTarget(client, duration, Shield_Immobilize |
                                                Shield_Target_Enemy |
                                                Shield_Target_Location |
@@ -1073,7 +1073,7 @@ ForceField(client, force_field_level)
     }
 }
 
-public Action:OnDeployUberShield(client, target)
+public Action OnDeployUberShield(client, target)
 {
     if (GetRace(client) == raceID)
     {
@@ -1082,7 +1082,7 @@ public Action:OnDeployUberShield(client, target)
         if (GetRestriction(client,Restriction_NoUltimates) ||
             GetRestriction(client,Restriction_Stunned))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, upgradeID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -1090,7 +1090,7 @@ public Action:OnDeployUberShield(client, target)
         }
         else if (IsMole(client))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, upgradeID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "CantUseAsMole", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -1098,7 +1098,7 @@ public Action:OnDeployUberShield(client, target)
         }
         else if (target > 0 && GameType == tf2 && TF2_HasTheFlag(target))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, upgradeID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "CantUseOnFlagCarrier", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);
@@ -1106,7 +1106,7 @@ public Action:OnDeployUberShield(client, target)
         }
         else if (target > 0 && m_HGRSourceAvailable && IsGrabbed(target))
         {
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, upgradeID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "CantUseOnSomeoneBeingHeld", upgradeName);
             PrepareAndEmitSoundToClient(client,deniedWav);

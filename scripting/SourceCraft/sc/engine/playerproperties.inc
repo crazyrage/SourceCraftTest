@@ -13,41 +13,41 @@
 
 #if defined _TRACE
     new m_BaseHealth[MAXPLAYERS+1];
-    new Float:m_BaseSpeed[MAXPLAYERS+1];
+    float m_BaseSpeed[MAXPLAYERS+1];
 
     new m_SpawnHealth[MAXPLAYERS+1];
-    new Float:m_SpawnSpeed[MAXPLAYERS+1];
+    float m_SpawnSpeed[MAXPLAYERS+1];
 #endif
 
 // Global definition
-new g_iRoundNumber = 0;
-new RoundStates:g_RoundState = Unknown;
+int g_iRoundNumber = 0;
+int RoundStates:g_RoundState = Unknown;
 
-new bool:m_IsMoving[MAXPLAYERS+1];
-new bool:m_SpeedAltered[MAXPLAYERS+1];
-new bool:m_GravityAltered[MAXPLAYERS+1];
-new bool:m_ColorAltered[MAXPLAYERS+1];
-new bool:m_WeaponsAltered[MAXPLAYERS+1];
-new bool:m_VisibilityAltered[MAXPLAYERS+1];
-new bool:m_MoveTypeAltered[MAXPLAYERS+1];
-new Handle:m_MonitorMotion[MAXPLAYERS+1];
-new Float:m_StoppedMoving[MAXPLAYERS+1];
-new Float:m_CloakTime[MAXPLAYERS+1];
-new Float:m_PartialHealthRegen[MAXPLAYERS+1]    = { 0.0, ... };
-new Float:m_PartialShieldRegen[MAXPLAYERS+1]    = { 0.0, ... };
-new bool:g_Killed[MAXPLAYERS+1]                 = { false, ... };
-new bool:g_Dead[MAXPLAYERS+1]                   = { false, ... };
-new g_InjuredBy[MAXPLAYERS+1]                   = { 0, ... };
-new g_KilledBy[MAXPLAYERS+1]                    = { 0, ... };
+bool m_IsMoving[MAXPLAYERS+1];
+bool m_SpeedAltered[MAXPLAYERS+1];
+bool m_GravityAltered[MAXPLAYERS+1];
+bool m_ColorAltered[MAXPLAYERS+1];
+bool m_WeaponsAltered[MAXPLAYERS+1];
+bool m_VisibilityAltered[MAXPLAYERS+1];
+bool m_MoveTypeAltered[MAXPLAYERS+1];
+Handle m_MonitorMotion[MAXPLAYERS+1];
+float m_StoppedMoving[MAXPLAYERS+1];
+float m_CloakTime[MAXPLAYERS+1];
+float m_PartialHealthRegen[MAXPLAYERS+1]    = { 0.0, ... };
+float m_PartialShieldRegen[MAXPLAYERS+1]    = { 0.0, ... };
+bool g_Killed[MAXPLAYERS+1]                 = { false, ... };
+bool g_Dead[MAXPLAYERS+1]                   = { false, ... };
+int g_InjuredBy[MAXPLAYERS+1]                   = { 0, ... };
+int g_KilledBy[MAXPLAYERS+1]                    = { 0, ... };
 
-new String:m_HudMessage[MAXPLAYERS+1][NAME_STRING_LENGTH];
-new Handle:m_HudSynch[6]                        = { INVALID_HANDLE, ... };
+char m_HudMessage[MAXPLAYERS+1][NAME_STRING_LENGTH];
+Handle m_HudSynch[6]                        = { INVALID_HANDLE, ... };
 
-new Handle:g_HUDTimers[MAXPLAYERS+1];
-new Handle:g_PropertyTimers[MAXPLAYERS+1]       = { INVALID_HANDLE, ... };
+Handle g_HUDTimers[MAXPLAYERS+1];
+Handle g_PropertyTimers[MAXPLAYERS+1]       = { INVALID_HANDLE, ... };
 
-new Handle:g_HintStack[MAXPLAYERS+1][HintSlot];
-new String:g_HintCache[MAXPLAYERS+1][LONG_STRING_LENGTH];
+Handle g_HintStack[MAXPLAYERS+1][HintSlot];
+char g_HintCache[MAXPLAYERS+1][LONG_STRING_LENGTH];
 
 #define ResetHUDTimer(%1)           g_HUDTimers[%1]      = INVALID_HANDLE
 #define ResetPropertyTimer(%1)      g_PropertyTimers[%1] = INVALID_HANDLE
@@ -65,7 +65,7 @@ enum HudBlocks { Block1, Block2 };
 
 //                                                        FourByThree  Widescreen
 //new const Float:HudPos[HudBlocks][HudAspect][Position]
-new const Float:HudPos[HudBlocks][HudAspect][2]    = { { {0.20, 0.80}, {0.18, 0.84} },    // Block 1
+int const Float:HudPos[HudBlocks][HudAspect][2]    = { { {0.20, 0.80}, {0.18, 0.84} },    // Block 1
                                                        { {0.64, 0.80}, {0.68, 0.87} } };  // Block 2
 
 CreateHUDTimer(client)
@@ -79,7 +79,7 @@ CreateHUDTimer(client)
 
 KillHUDTimer(client)
 {
-    new Handle:timer=g_HUDTimers[client];
+    Handle timer=g_HUDTimers[client];
     if (timer != INVALID_HANDLE)
     {
         ResetHUDTimer(client);	
@@ -110,7 +110,7 @@ CreatePropertyTimer(client)
 
 KillPropertyTimer(client)
 {
-    new Handle:timer=g_PropertyTimers[client];
+    Handle timer=g_PropertyTimers[client];
     if (timer != INVALID_HANDLE)
     {
         ResetPropertyTimer(client);	
@@ -163,14 +163,14 @@ public Action:PlayerHUD(Handle:timer, any:userid)
         if (g_RoundState >= RoundActive && g_RoundState < RoundOver &&
             IsPlayerAlive(client))
         {
-            new Float:rate = GetEnergyRate(client);
-            new Float:limit = GetEnergyLimit(client);
+            float rate = GetEnergyRate(client);
+            float limit = GetEnergyLimit(client);
             new EnergyFlags:energyFlags = NoEnergy;
 
             new race = GetRace(client);
             if (race > 0)
             {
-                new Handle:raceHandle = GetRaceHandle(race);
+                Handle raceHandle = GetRaceHandle(race);
                 energyFlags = GetRaceEnergyFlags(raceHandle);
 
                 if (rate < 0.0)
@@ -186,7 +186,7 @@ public Action:PlayerHUD(Handle:timer, any:userid)
             rate *= (GetGameMode() == MvM) ? g_fMvMEnergyFactor : g_fEnergyFactor;
 
             // Increment Player's Energy
-            new Float:energy = GetEnergy(client);
+            float energy = GetEnergy(client);
             if (rate > 0.0 && (energy < limit || limit < 0.0))
                 SetEnergy(client, energy += rate);
 
@@ -194,10 +194,10 @@ public Action:PlayerHUD(Handle:timer, any:userid)
             new Restriction:restrict  = GetRestrictionBits(client);
             new ArmorFlags:armorFlags = GetArmorFlags(client);
 
-            new bool:regenHealthOK = (IsSet(attrib, Attribute_RegenHealth) &&
+            bool regenHealthOK = (IsSet(attrib, Attribute_RegenHealth) &&
                                       !IsSet(restrict, Restriction_NoRegenHealth));
 
-            new bool:regenShieldsOK = (IsSet(armorFlags, Armor_IsShield) &&
+            bool regenShieldsOK = (IsSet(armorFlags, Armor_IsShield) &&
                                        IsSet(attrib, Attribute_RegenShield) &&
                                        !IsSet(restrict, Restriction_NoRegenShields) &&
                                        (IsSet(armorFlags, Armor_NoCheckStunned) ||
@@ -209,15 +209,15 @@ public Action:PlayerHUD(Handle:timer, any:userid)
             if (regenHealthOK || regenShieldsOK)
             {
                 // Perform Health and Shield Regeneration
-                new Handle:propData = GetPropData(client);
+                Handle propData = GetPropData(client);
                 if (propData != INVALID_HANDLE)
                 {
-                    new Float:regen=m_PartialHealthRegen[client];
-                    new Float:shields=m_PartialShieldRegen[client];
+                    float regen=m_PartialHealthRegen[client];
+                    float shields=m_PartialShieldRegen[client];
                     new numprops=GetArraySize(propData);
                     for (new x=0;x<numprops;x++)
                     {
-                        new Handle:propInfo=GetArrayCell(propData,x);
+                        Handle propInfo=GetArrayCell(propData,x);
                         if (propInfo != INVALID_HANDLE)
                         {
                             new RegenFlags:regen_flags = GetPropInfoRegenHealthFlags(propInfo);
@@ -274,14 +274,14 @@ public Action:PlayerHUD(Handle:timer, any:userid)
                     new HudAspect:ws = GetSetting(client, Display_Widescreen) ? FourByThree : WideScreen;
 
                     // Block 1
-                    new Float:x = HudPos[Block1][ws][XPos]; // 0.18
-                    new Float:y = HudPos[Block1][ws][YPos]; // 0.84
+                    float x = HudPos[Block1][ws][XPos]; // 0.18
+                    float y = HudPos[Block1][ws][YPos]; // 0.84
 
                     if (limit != 0 || energyFlags != NoEnergy)
                     {
                         SetHudTextParams(x, y, 1.0, 255, 192, 192, 255);
 
-                        new Float:accumulated = (race > 0 && (energyFlags & UsesAccumulated) != NoEnergy)
+                        float accumulated = (race > 0 && (energyFlags & UsesAccumulated) != NoEnergy)
                                                 ? GetAccumulatedEnergy(client,race) : 0.0;
                         if (accumulated > 0.0 )
                         {
@@ -412,61 +412,61 @@ public Action:PlayerProperties(Handle:timer, any:userid)
             IsPlayerAlive(client))
         {
             // Process Player's Properties (Speed, Gravity & Visibility)
-            new Float:speed=-1.0;
-            new Handle:propData=GetPropData(client); // Player's properties
+            float speed=-1.0;
+            Handle propData=GetPropData(client); // Player's properties
             if (propData != INVALID_HANDLE)
             {
-                new bool:overridePlayerVisibility=false;
-                new bool:overridePlayerGravity=false;
-                new bool:overridePlayerSpeed=false;
+                bool overridePlayerVisibility=false;
+                bool overridePlayerGravity=false;
+                bool overridePlayerSpeed=false;
 
                 new visibility=-1,r=-1,g=-1,b=-1,weaponAlpha=-1;
                 new VisibilityType:vistype=NormalVisibility;
                 new RenderMode:mode=RenderMode:-1;
                 new RenderFx:fx=RenderFx:-1;
                 new visibilityRank=-1;
-                new Float:gravity=-1.0;
-                new bool:colorWeapons=false;
-                new Float:time=0.0, Float:colorTime=0.0;
+                float gravity=-1.0;
+                bool colorWeapons=false;
+                float time=0.0, Float:colorTime=0.0;
                 new VisibilityPriority:priority=VisibilityPriorityNotSpecified;
                 new VisibilityPriority:colorPty=VisibilityPriorityNotSpecified;
                 new MoveType:mt = MOVETYPE_DEFAULT;
 
-                decl String:wepName[128];
+                char wepName[128];
                 GetClientWeapon(client, wepName, sizeof(wepName));
 
-                new bool:isStill = !m_IsMoving[client] && IsStill(client);
+                bool isStill = !m_IsMoving[client] && IsStill(client);
                 m_IsMoving[client] = false;
 
                 new size = GetArraySize(propData);
                 for(new k=0;k<size;k++)
                 {
                     // check which plugin is the highest/lowest bidder, but first, override?
-                    new Handle:propInfo             = GetArrayCell(propData,k);
-                    new Float:overridespeed         = GetPropInfoOverrideSpeed(propInfo);
-                    new Float:overridegravity       = GetPropInfoOverrideGravity(propInfo);
+                    Handle propInfo             = GetArrayCell(propData,k);
+                    float overridespeed         = GetPropInfoOverrideSpeed(propInfo);
+                    float overridegravity       = GetPropInfoOverrideGravity(propInfo);
                     new overridevisibility          = GetPropInfoOverrideVisibility(propInfo);
-                    new Float:checkSpeed            = GetPropInfoSpeed(propInfo);
-                    new Float:checkGravity          = GetPropInfoGravity(propInfo);
+                    float checkSpeed            = GetPropInfoSpeed(propInfo);
+                    float checkGravity          = GetPropInfoGravity(propInfo);
                     new checkVisibility             = GetPropInfoVisibility(propInfo);
                     new VisibilityType:type         = GetPropInfoVisibilityType(propInfo);
-                    new Float:factor1               = GetPropInfoVisibilityFactor1(propInfo);
-                    new Float:factor2               = GetPropInfoVisibilityFactor2(propInfo);
+                    float factor1               = GetPropInfoVisibilityFactor1(propInfo);
+                    float factor2               = GetPropInfoVisibilityFactor2(propInfo);
                     new RenderFx:checkFx            = GetPropInfoVisibilityFx(propInfo);
                     new RenderMode:checkMode        = GetPropInfoVisibilityMode(propInfo);
                     new checkR                      = GetPropInfoVisibilityR(propInfo);
                     new checkG                      = GetPropInfoVisibilityG(propInfo);
                     new checkB                      = GetPropInfoVisibilityB(propInfo);
                     new checkWeaponAlpha            = GetPropInfoVisibilityWeaponAlpha(propInfo);
-                    new bool:checkWeapons           = GetPropInfoVisibilityWeapons(propInfo);
+                    bool checkWeapons           = GetPropInfoVisibilityWeapons(propInfo);
                     new VisibilityPriority:checkPty = GetPropInfoVisibilityPriority(propInfo);
-                    new Float:checkTime             = GetPropInfoVisibilityTime(propInfo);
+                    float checkTime             = GetPropInfoVisibilityTime(propInfo);
                     new MoveType:checkMt            = GetPropInfoMoveType(propInfo);
 
                     #if defined _TRACE
                         new id = GetPropInfoId(propInfo);
-                        new Handle:plugin = GetPropInfoPlugin(propInfo);
-                        decl String:pluginName[CLASS_STRING_LENGTH];
+                        Handle plugin = GetPropInfoPlugin(propInfo);
+                        char pluginName[CLASS_STRING_LENGTH];
                         GetPluginFilename(plugin, pluginName, sizeof(pluginName));
                     #endif
 
@@ -541,7 +541,7 @@ public Action:PlayerProperties(Handle:timer, any:userid)
                             new checkRank = CalculateVisibility(client, wepName, isStill, checkVisibility,
                                                                 type, factor1, factor2, checkMode, checkFx);
 
-                            new bool:hasPriority = (checkPty > priority ||
+                            bool hasPriority = (checkPty > priority ||
                                                     (checkPty == priority && checkTime > time &&
                                                      priority > VisibilityPriorityNotSpecified));
 
@@ -580,7 +580,7 @@ public Action:PlayerProperties(Handle:timer, any:userid)
                         TraceCat("Color", "Check %L.%d's %s color=%d,%d,%d, weaponAlpha=%d, priority=%d, time=%f", \
                                  client,pluginName,id,checkR,checkG,checkB, weaponAlpha, priority, time);
 
-                        new bool:colorPriority = (checkPty > colorPty ||
+                        bool colorPriority = (checkPty > colorPty ||
                                                   (priority == colorPty && time < colorTime &&
                                                    priority > VisibilityPriorityNotSpecified));
 
@@ -640,10 +640,10 @@ public Action:PlayerProperties(Handle:timer, any:userid)
                         if (!TF2_IsPlayerSlowed(client) && !TF2_IsPlayerZoomed(client) &&
                             !TF2_IsPlayerCharging(client))
                         {
-                            new Float:classSpeed = TF2_GetPlayerSpeed(client);
-                            new Float:curSpeed = GetEntPropFloat(client, Prop_Send, "m_flMaxspeed");
-                            //new Float:curSpeed = GetEntDataFloat(client,FindSendPropInfo("CBasePlayer", "m_flMaxspeed"));
-                            new Float:newSpeed = classSpeed * speed;
+                            float classSpeed = TF2_GetPlayerSpeed(client);
+                            float curSpeed = GetEntPropFloat(client, Prop_Send, "m_flMaxspeed");
+                            //float curSpeed = GetEntDataFloat(client,FindSendPropInfo("CBasePlayer", "m_flMaxspeed"));
+                            float newSpeed = classSpeed * speed;
                             if (curSpeed != newSpeed)
                             {
                                 SetEntPropFloat(client, Prop_Send, "m_flMaxspeed", newSpeed);
@@ -727,27 +727,27 @@ public Action:PlayerProperties(Handle:timer, any:userid)
 
             if (GameType == tf2)
             {
-                new bool:debugSpeed = GetSetting(client, Debug_Speed);
-                new bool:debugMeters = GetSetting(client, Debug_Meters);
-                new bool:debugCondition = GetSetting(client, Debug_Condition);
+                bool debugSpeed = GetSetting(client, Debug_Speed);
+                bool debugMeters = GetSetting(client, Debug_Meters);
+                bool debugCondition = GetSetting(client, Debug_Condition);
                 if (debugCondition && !IsFakeClient(client))
                 {
                     new pcond, pcond2;
-                    decl String:condFlags[64];
+                    char condFlags[64];
                     TF2_GetPlayerConditionString(client, condFlags, sizeof(condFlags), pcond, pcond2);
 
                     if (debugSpeed)
                     {
                         new stunFlags = GetEntProp(client, Prop_Send, "m_iStunFlags");
-                        new Float:maxSpeed = GetEntPropFloat(client, Prop_Send, "m_flMaxspeed");
+                        float maxSpeed = GetEntPropFloat(client, Prop_Send, "m_flMaxspeed");
 
                         if (debugMeters)
                         {
-                            new Float:energyDrinkMeter = TF2_GetEnergyDrinkMeter(client);
-                            new Float:chargeMeter = TF2_GetChargeMeter(client);
-                            new Float:cloakMeter = TF2_GetCloakMeter(client);
-                            new Float:rageMeter = TF2_GetRageMeter(client);
-                            new Float:hypeMeter = TF2_GetHypeMeter(client);
+                            float energyDrinkMeter = TF2_GetEnergyDrinkMeter(client);
+                            float chargeMeter = TF2_GetChargeMeter(client);
+                            float cloakMeter = TF2_GetCloakMeter(client);
+                            float rageMeter = TF2_GetRageMeter(client);
+                            float hypeMeter = TF2_GetHypeMeter(client);
 
                             LogMessage("%Ns pcond=[%s]-(0x%08x:%08x) %s stun=0x%08x Speed=%4.2f:%3.0f hype=%4.2f rage=%4.2f drink=%4.2f charge=%4.2f cloak=%4.2f",
                                        client, condFlags, pcond, pcond2, (g_IsInSpawn[client] ? "InSpawn" : ""), stunFlags, speed, maxSpeed, hypeMeter, rageMeter,
@@ -770,11 +770,11 @@ public Action:PlayerProperties(Handle:timer, any:userid)
                     }
                     else if (debugMeters)
                     {
-                        new Float:energyDrinkMeter = TF2_GetEnergyDrinkMeter(client);
-                        new Float:chargeMeter = TF2_GetChargeMeter(client);
-                        new Float:cloakMeter = TF2_GetCloakMeter(client);
-                        new Float:rageMeter = TF2_GetRageMeter(client);
-                        new Float:hypeMeter = TF2_GetHypeMeter(client);
+                        float energyDrinkMeter = TF2_GetEnergyDrinkMeter(client);
+                        float chargeMeter = TF2_GetChargeMeter(client);
+                        float cloakMeter = TF2_GetCloakMeter(client);
+                        float rageMeter = TF2_GetRageMeter(client);
+                        float hypeMeter = TF2_GetHypeMeter(client);
                         LogMessage("%Ns pcond=[%s]-(0x%08x:%08x) hype=%4.2f rage=%4.2f drink=%4.2f charge=%4.2f cloak=%4.2f",
                                    client, condFlags, pcond, pcond2, hypeMeter, rageMeter, energyDrinkMeter, chargeMeter, cloakMeter);
 
@@ -790,15 +790,15 @@ public Action:PlayerProperties(Handle:timer, any:userid)
                 else if (debugSpeed && !IsFakeClient(client))
                 {
                     new stunFlags = GetEntProp(client, Prop_Send, "m_iStunFlags");
-                    new Float:maxSpeed = GetEntPropFloat(client, Prop_Send, "m_flMaxspeed");
+                    float maxSpeed = GetEntPropFloat(client, Prop_Send, "m_flMaxspeed");
 
                     if (debugMeters)
                     {
-                        new Float:energyDrinkMeter = TF2_GetEnergyDrinkMeter(client);
-                        new Float:chargeMeter = TF2_GetChargeMeter(client);
-                        new Float:cloakMeter = TF2_GetCloakMeter(client);
-                        new Float:rageMeter = TF2_GetRageMeter(client);
-                        new Float:hypeMeter = TF2_GetHypeMeter(client);
+                        float energyDrinkMeter = TF2_GetEnergyDrinkMeter(client);
+                        float chargeMeter = TF2_GetChargeMeter(client);
+                        float cloakMeter = TF2_GetCloakMeter(client);
+                        float rageMeter = TF2_GetRageMeter(client);
+                        float hypeMeter = TF2_GetHypeMeter(client);
 
                         LogMessage("%Ns stun=0x%08x Speed=%4.2f:%3.0f hype=%4.2f rage=%4.2f drink=%4.2f charge=%4.2f cloak=%4.2f",
                                    client, stunFlags, speed, maxSpeed, hypeMeter, rageMeter, energyDrinkMeter, chargeMeter, cloakMeter);
@@ -813,11 +813,11 @@ public Action:PlayerProperties(Handle:timer, any:userid)
                 }
                 else if (debugMeters && !IsFakeClient(client))
                 {
-                    new Float:energyDrinkMeter = TF2_GetEnergyDrinkMeter(client);
-                    new Float:chargeMeter = TF2_GetChargeMeter(client);
-                    new Float:cloakMeter = TF2_GetCloakMeter(client);
-                    new Float:rageMeter = TF2_GetRageMeter(client);
-                    new Float:hypeMeter = TF2_GetHypeMeter(client);
+                    float energyDrinkMeter = TF2_GetEnergyDrinkMeter(client);
+                    float chargeMeter = TF2_GetChargeMeter(client);
+                    float cloakMeter = TF2_GetCloakMeter(client);
+                    float rageMeter = TF2_GetRageMeter(client);
+                    float hypeMeter = TF2_GetHypeMeter(client);
                     LogMessage("%Ns hype=%4.2f rage=%4.2f drink=%4.2f charge=%4.2f cloak=%4.2f",
                                client, hypeMeter, rageMeter, energyDrinkMeter, chargeMeter, cloakMeter);
 
@@ -833,21 +833,21 @@ public Action:PlayerProperties(Handle:timer, any:userid)
         }
 
         // Update Hint Messages
-        new Float:time = GetEngineTime();
-        new String:buffer[LONG_STRING_LENGTH];
+        float time = GetEngineTime();
+        char buffer[LONG_STRING_LENGTH];
         for (new HintSlot:slot = HintSlot_Generic; slot < HintSlot; slot++)
         {
-            new Handle:hintSlot=g_HintStack[client][slot];
+            Handle hintSlot=g_HintStack[client][slot];
             if (hintSlot != INVALID_HANDLE)
             {
                 new size=GetArraySize(hintSlot);
                 for (new index = 0; index < size; index++)
                 {
-                    new Handle:pack = Handle:GetArrayCell(hintSlot,index);
+                    Handle pack = Handle:GetArrayCell(hintSlot,index);
                     ResetPack(pack);
 
                     // If the pack expired
-                    new Float:expiretime=ReadPackFloat(pack);
+                    float expiretime=ReadPackFloat(pack);
                     if (time > expiretime)
                     {
                         // remove it
@@ -859,7 +859,7 @@ public Action:PlayerProperties(Handle:timer, any:userid)
                     }
                     else
                     {
-                        decl String:line[LONG_STRING_LENGTH];
+                        char line[LONG_STRING_LENGTH];
                         ReadPackString(pack, line, sizeof(line));
 
                         new buflen = strlen(buffer);
@@ -900,7 +900,7 @@ bool:IsStill(client)
     TraceInto("PlayerProperties", "IsStill", "client=%d:%L", \
               client, ValidClientIndex(client));
 
-    new Float:vecVelocity[3];
+    float vecVelocity[3];
     GetEntPropVector(client, Prop_Data, "m_vecVelocity", vecVelocity);
     if (vecVelocity[0] == 0.0 && vecVelocity[1] == 0.0 && vecVelocity[2] == 0.0)
     {
@@ -1074,22 +1074,22 @@ SetVisibility(client, visibility, RenderMode:mode, RenderFx:fx,
        mode = RENDER_TRANSCOLOR;
     }
 
-    new bool:setMode = (GetEntityRenderMode(client) != mode);
+    bool setMode = (GetEntityRenderMode(client) != mode);
     if (setMode)
     {
         SetEntityRenderMode(client,mode);
         m_VisibilityAltered[client]=true;
     }
 
-    new bool:setFx = (GetEntityRenderFx(client) != fx);
+    bool setFx = (GetEntityRenderFx(client) != fx);
     if (setFx)
     {
         SetEntityRenderFx(client,fx);
         m_VisibilityAltered[client]=true;
     }
 
-    new bool:setAlpha = (GetEntityRenderAlpha(client) != visibility);
-    new bool:setColor = (GetEntityRenderRed(client) != r ||
+    bool setAlpha = (GetEntityRenderAlpha(client) != visibility);
+    bool setColor = (GetEntityRenderRed(client) != r ||
                          GetEntityRenderGreen(client) != g ||
                          GetEntityRenderBlue(client) != b);
     if (setAlpha || setColor)
@@ -1128,7 +1128,7 @@ SetVisibility(client, visibility, RenderMode:mode, RenderFx:fx,
         new weapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
         if (weapon > 0 && IsValidEdict(weapon))
         {
-            decl String:classname[CLASS_STRING_LENGTH];
+            char classname[CLASS_STRING_LENGTH];
             if (GetEdictClassname(weapon, classname, sizeof(classname)) &&
                 StrContains(classname, "weapon") == 0)
             {
@@ -1152,7 +1152,7 @@ SetVisibility(client, visibility, RenderMode:mode, RenderFx:fx,
                     GetEntityRenderBlue(weapon) != b2)
                 {
                     #if defined _TRACE
-                        decl String:netclass[CLASS_STRING_LENGTH]; netclass[0] = '\0';
+                        char netclass[CLASS_STRING_LENGTH]; netclass[0] = '\0';
                         GetEntityNetClass(weapon, netclass, sizeof(netclass));
                         TraceCat("Color","Setting %d:%L's weapon (entity=%d is a %s/%s) to color %d,%d,%d; weaponAlpha=%d", \
                                  client, ValidClientIndex(client), weapon, classname, netclass, r2, b2, g2, weaponAlpha);
@@ -1170,7 +1170,7 @@ SetVisibility(client, visibility, RenderMode:mode, RenderFx:fx,
                 weapon=GetEntDataEnt2(client,m_hMyWeapons + i);
                 if (weapon > 0 && IsValidEdict(weapon))
                 {
-                    decl String:classname[CLASS_STRING_LENGTH];
+                    char classname[CLASS_STRING_LENGTH];
                     if (GetEdictClassname(weapon, classname, sizeof(classname)) &&
                         StrContains(classname, "weapon") == 0)
                     {
@@ -1196,7 +1196,7 @@ SetVisibility(client, visibility, RenderMode:mode, RenderFx:fx,
                         }
 
                         #if defined _TRACE
-                            decl String:netclass[CLASS_STRING_LENGTH]; netclass[0] = '\0';
+                            char netclass[CLASS_STRING_LENGTH]; netclass[0] = '\0';
                             GetEntityNetClass(weapon, netclass, sizeof(netclass));
                             TraceCat("Color","Setting %d:%L's %d weapon (entity=%d is a %s/%s) to color %d,%d,%d; weaponAlpha=%d", \
                                      client, ValidClientIndex(client), i, weapon, classname, netclass, r2,g2,b2, weaponAlpha);
@@ -1205,7 +1205,7 @@ SetVisibility(client, visibility, RenderMode:mode, RenderFx:fx,
                     else
                     {
                         #if defined _TRACE
-                            decl String:netclass[CLASS_STRING_LENGTH]; netclass[0] = '\0';
+                            char netclass[CLASS_STRING_LENGTH]; netclass[0] = '\0';
                             GetEntityNetClass(weapon, netclass, sizeof(netclass));
                             TraceCat("Color","%d:%L's %d weapon (entity=%d) is a %s/%s", \
                                      client, ValidClientIndex(client), i, weapon, classname, netclass);
@@ -1235,9 +1235,9 @@ SetVisibility(client, visibility, RenderMode:mode, RenderFx:fx,
                         GetEntityRenderBlue(weapon) != b2)
                     {
                         #if defined _TRACE
-                            decl String:netclass[CLASS_STRING_LENGTH]; netclass[0] = '\0';
+                            char netclass[CLASS_STRING_LENGTH]; netclass[0] = '\0';
                             GetEntityNetClass(weapon, netclass, sizeof(netclass));
-                            decl String:classname[CLASS_STRING_LENGTH]; classname[0] = '\0';
+                            char classname[CLASS_STRING_LENGTH]; classname[0] = '\0';
                             GetEdictClassname(weapon, classname, sizeof(classname));
                             TraceCat("Color","Setting %d:%L's targe (entity=%d is a %s/%s) to color %d,%d,%d; weaponAlpha=%d", \
                                      client, ValidClientIndex(client), weapon, classname, netclass, r2, b2, g2, weaponAlpha);
@@ -1314,7 +1314,7 @@ SetWearablesVisibility(client,  const String:class[], visibility,
                 SetEntityRenderColor(ent, r,g,b,visibility);
 
                 #if defined _TRACE
-                    decl String:netclass[CLASS_STRING_LENGTH];
+                    char netclass[CLASS_STRING_LENGTH];
                     GetEntityNetClass(ent, netclass, sizeof(netclass));
                     TraceCat("Color","Setting %d:%L's item (entity=%d is a %s/%s) to color %d,%d,%d", \
                              client, ValidClientIndex(client), ent, class, netclass, r, b, g);
@@ -1388,7 +1388,7 @@ ResetVisibility(client)
         new weapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
         if (weapon > 0 && IsValidEdict(weapon))
         {
-            decl String:classname[CLASS_STRING_LENGTH];
+            char classname[CLASS_STRING_LENGTH];
             if (GetEdictClassname(weapon, classname, sizeof(classname)) &&
                 StrContains(classname, "weapon") == 0)
             {
@@ -1423,7 +1423,7 @@ ResetVisibility(client)
                 weapon=GetEntDataEnt2(client,m_hMyWeapons + i);
                 if (weapon > 0 && IsValidEdict(weapon))
                 {
-                    decl String:classname[CLASS_STRING_LENGTH];
+                    char classname[CLASS_STRING_LENGTH];
                     if (GetEdictClassname(weapon, classname, sizeof(classname)) &&
                         StrContains(classname, "weapon") == 0)
                     {
@@ -1449,7 +1449,7 @@ ResetVisibility(client)
                         }
 
                         #if defined _TRACE
-                            decl String:netclass[CLASS_STRING_LENGTH]; netclass[0] = '\0';
+                            char netclass[CLASS_STRING_LENGTH]; netclass[0] = '\0';
                             GetEntityNetClass(weapon, netclass, sizeof(netclass));
                             Trace("%d:%L's %d weapon (entity=%d) is a %s/%s", \
                                   client, ValidClientIndex(client), i, weapon, classname, netclass);
@@ -1458,7 +1458,7 @@ ResetVisibility(client)
                     else
                     {
                         #if defined _TRACE
-                            decl String:netclass[CLASS_STRING_LENGTH]; netclass[0] = '\0';
+                            char netclass[CLASS_STRING_LENGTH]; netclass[0] = '\0';
                             GetEntityNetClass(weapon, netclass, sizeof(netclass));
                             Trace("%d:%L's %d weapon (entity=%d) is a %s/%s", \
                                   client, ValidClientIndex(client), i, weapon, classname, netclass);

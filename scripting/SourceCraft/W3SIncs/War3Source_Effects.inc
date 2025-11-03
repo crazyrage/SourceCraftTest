@@ -246,7 +246,7 @@ stock ModifyEntityAddDeathTimer(const entityIndex, const Float:lifetime)
 {
     if (IsValidEdict(entityIndex))
     {
-        decl String:variantString[60];
+        char variantString[60];
         Format(variantString, sizeof(variantString), "OnUser1 !self:Kill::%f:-1", lifetime);
                 
         SetVariantString(variantString);

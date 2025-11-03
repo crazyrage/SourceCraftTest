@@ -44,7 +44,7 @@ public Action:Dissolve(Handle:timer, any:userid)
             return;
         }
 
-        new String:dname[32];
+        char dname[32];
         Format(dname, sizeof(dname), "dis_%d", client);
 
         new ent = CreateEntityByName("env_entity_dissolver");

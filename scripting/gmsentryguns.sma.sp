@@ -11,7 +11,7 @@
 #define PLUGINNAME = "Sentry guns"
 #define VERSION = "0.5.3"
 #define AUTHOR = ""
-public Plugin:myinfo = {
+public Plugin myinfo = {
     name = "Sentry guns",
     author = "-=|JFH|=-Naris",
     description = "Build sentry guns for mods other than TF2",
@@ -195,7 +195,7 @@ gets near it) also vicinity grenades with: explosions, gas, flashes and stuff co
 #include <amxmisc>
 #endif
 
-new sentry_max, sentry_cost1, sentry_cost2, sentry_cost3, sentry_team;
+int sentry_max, sentry_cost1, sentry_cost2, sentry_cost3, sentry_team;
 #define MAXSENTRIESTOTAL 20
 // ---------- Adjust below settings to your liking ---------------------------------------------------------------------------------------------------------------------------------
 //#define MAXPLAYERSENTRIES		3				// how many sentries each player can build
@@ -219,11 +219,11 @@ new sentry_max, sentry_cost1, sentry_cost2, sentry_cost3, sentry_team;
 #define BOT_NEXT_MIN			0.0				// next = after building a sentry, this specifies the time a bot will wait until considering about waittime again (seconds)
 #define BOT_NEXT_MAX			120.0
 // These are per sentry level, 1-3
-new const g_SENTRYFRAGREWARDS[3] = {300, 150, 150}		// how many $ you get if your sentry frags someone. If you built and upgraded to level 3 you would get $300 + $150 = $450. If built and upgraded all you would get $600.
-new const g_DMG[3] = {5, 10, 15}						// how much damage a bullet from a sentry does per hit
-new const Float:g_THINKFREQUENCIES[3] = {2.0, 1.0, 0.5}	// how often, in seconds, a sentry searches for targets when not locked at a target, a lower value means a sentry will lock on targets faster
-new const Float:g_HITRATIOS[3] = {0.6, 0.75, 0.85}		// how good a sentry is at hitting its target. 1.0 = always hit, 0.0 = never hit
-new const Float:g_HEALTHS[3] = {400.0, 800.0, 1600.0}	// how many HP a sentry has. Increase to make sentry sturdier
+int const g_SENTRYFRAGREWARDS[3] = {300, 150, 150}		// how many $ you get if your sentry frags someone. If you built and upgraded to level 3 you would get $300 + $150 = $450. If built and upgraded all you would get $600.
+int const g_DMG[3] = {5, 10, 15}						// how much damage a bullet from a sentry does per hit
+int const Float:g_THINKFREQUENCIES[3] = {2.0, 1.0, 0.5}	// how often, in seconds, a sentry searches for targets when not locked at a target, a lower value means a sentry will lock on targets faster
+int const Float:g_HITRATIOS[3] = {0.6, 0.75, 0.85}		// how good a sentry is at hitting its target. 1.0 = always hit, 0.0 = never hit
+int const Float:g_HEALTHS[3] = {400.0, 800.0, 1600.0}	// how many HP a sentry has. Increase to make sentry sturdier
 //new const g_COST[3] = {1000, 500, 250};					// fun has a price, first is build cost, the next two upgrade costs
 #define COST_INIT get_pcvar_num(sentry_cost1)
 #define COST_UP get_pcvar_num(sentry_cost2)
@@ -267,12 +267,12 @@ new const Float:g_HEALTHS[3] = {400.0, 800.0, 1600.0}	// how many HP a sentry ha
 //#define SENTRY_VECENT_UPGRADER_2	SENTRY_VEC_PEOPLE + UPGRADER_2
 
 GetSentryPeople(sentry, who) {
-	new Float:people[3];
+	float people[3];
 	entity_get_vector(sentry, SENTRY_VEC_PEOPLE, people);
 	return floatround(people[who]);
 }
 SetSentryPeople(sentry, who, is) {
-	new Float:people[3];
+	float people[3];
 	entity_get_vector(sentry, SENTRY_VEC_PEOPLE, people);
 	people[who] = is + 0.0;
 	entity_set_vector(sentry, SENTRY_VEC_PEOPLE, people);
@@ -363,38 +363,38 @@ enum OBJECTTYPE {
 }
 
 // Global vars below
-new g_sentriesNum = 0;
-new g_sentries[MAXSENTRIES];
-new g_playerSentries[32] = {0, ...};
-new g_playerSentriesEdicts[32][MAXSENTRIESTOTAL];
-new g_sModelIndexFireball;
-new g_msgDamage;
-new g_msgDeathMsg;
-new g_msgScoreInfo;
-new g_msgHostagePos;
-new g_msgHostageK;
-new g_MAXPLAYERS;
+int g_sentriesNum = 0;
+int g_sentries[MAXSENTRIES];
+int g_playerSentries[32] = {0, ...};
+int g_playerSentriesEdicts[32][MAXSENTRIESTOTAL];
+int g_sModelIndexFireball;
+int g_msgDamage;
+int g_msgDeathMsg;
+int g_msgScoreInfo;
+int g_msgHostagePos;
+int g_msgHostageK;
+int g_MAXPLAYERS;
 //new g_MAXENTITIES;
-new Float:g_ONEEIGHTYTHROUGHPI;
+float g_ONEEIGHTYTHROUGHPI;
 //new g_hasSentries = 0;
-new Float:g_sentryOrigins[32][3];
-new g_aimSentry[32];
-new bool:g_inBuilding[32];
-new bool:g_resetArmouryThisRound = true;
-new bool:g_hasArmouries = false;
-new Float:g_lastGameTime = 1.0; // dunno, looks like get_systime() is always 1.0 first time...
-new Float:g_gameTime;
-new Float:g_deltaTime;
-new g_sentryStatusBuffer[32][256];
-new g_sentryStatusTrigger;
-new g_selectedSentry[32] = {-1, ...};
-new g_menuId; // used to store index of menu
-new g_lastObjectiveBuild[32];
-new g_inSpyCam[32];
-new Float:g_spyCamOffset[3] = {26.0, 29.0, 26.0}; // for the three levels, just what looks good...
+float g_sentryOrigins[32][3];
+int g_aimSentry[32];
+bool g_inBuilding[32];
+bool g_resetArmouryThisRound = true;
+bool g_hasArmouries = false;
+float g_lastGameTime = 1.0; // dunno, looks like get_systime() is always 1.0 first time...
+float g_gameTime;
+float g_deltaTime;
+int g_sentryStatusBuffer[32][256];
+int g_sentryStatusTrigger;
+int g_selectedSentry[32] = {-1, ...};
+int g_menuId; // used to store index of menu
+int g_lastObjectiveBuild[32];
+int g_inSpyCam[32];
+float g_spyCamOffset[3] = {26.0, 29.0, 26.0}; // for the three levels, just what looks good...
 //Shaman: For disabling building until some time passes after the new round
-new bool:g_allowBuild; //Building, upgrading and reparing is not allowed if this is false
-new sentry_wait; //The cvar
+bool g_allowBuild; //Building, upgrading and reparing is not allowed if this is false
+int sentry_wait; //The cvar
 // Global vars above
 
 
@@ -503,13 +503,13 @@ public sentry_build(id) {
 		}
 	}
 
-	new Float:playerOrigin[3];
+	float playerOrigin[3];
 	entity_get_vector(id, EV_VEC_origin, playerOrigin);
 
-	new Float:vNewOrigin[3];
-	new Float:vTraceDirection[3];
-	new Float:vTraceEnd[3];
-	new Float:vTraceResult[3];
+	float vNewOrigin[3];
+	float vTraceDirection[3];
+	float vTraceEnd[3];
+	float vTraceResult[3];
 	velocity_by_aim(id, 64, vTraceDirection); // get a velocity in the directino player is aiming, with a multiplier of 64...
 	vTraceEnd[0] = vTraceDirection[0] + playerOrigin[0]; // find the new max end position
 	vTraceEnd[1] = vTraceDirection[1] + playerOrigin[1];
@@ -562,7 +562,7 @@ SetStatusTrigger(player, bool:onOrOff) {
 IncreaseSentryCount(id, sentryEntity) {
 	g_playerSentriesEdicts[id - 1][g_playerSentries[id - 1]] = sentryEntity;
 	g_playerSentries[id - 1] = g_playerSentries[id - 1] + 1;
-	new Float:sentryOrigin[3], iSentryOrigin[3];
+	float sentryOrigin[3], iSentryOrigin[3];
 	entity_get_vector(sentryEntity, EV_VEC_origin, sentryOrigin);
 	FVecIVec(sentryOrigin, iSentryOrigin);
 
@@ -635,14 +635,14 @@ stock bool:CreateSentryBase(Float:origin[3], creator) {
 	}
 
 	// Check that a trace from origin straight down to ground results in a distance which is the same as player height over ground?
-	new Float:hitPoint[3], Float:originDown[3];
+	float hitPoint[3], Float:originDown[3];
 	originDown = origin;
 	originDown[2] = -5000.0; // dunno the lowest possible height...
 	trace_line(0, origin, originDown, hitPoint);
-	new Float:baDistanceFromGround = vector_distance(origin, hitPoint);
+	float baDistanceFromGround = vector_distance(origin, hitPoint);
 	//client_print(creator, print_chat, "Base distance from ground: %f", baDistanceFromGround);
 
-	new Float:difference = PLAYERORIGINHEIGHT - baDistanceFromGround;
+	float difference = PLAYERORIGINHEIGHT - baDistanceFromGround;
 	if (difference < -1 * HEIGHTDIFFERENCEALLOWED || difference > HEIGHTDIFFERENCEALLOWED) {
 		//client_print(creator, print_chat, "You can't build here! %f", difference);
 		return false;
@@ -664,7 +664,7 @@ stock bool:CreateSentryBase(Float:origin[3], creator) {
 	// Set model
 	entity_set_model(entbase, "models/sentries/base.mdl"); // later set according to level
 	// Set size
-	new Float:mins[3], Float:maxs[3];
+	float mins[3], Float:maxs[3];
 	mins[0] = -16.0;
 	mins[1] = -16.0;
 	mins[2] = 0.0;
@@ -714,7 +714,7 @@ public createsentryhead(parms[2]) {
 		return;
 	}
 
-	new Float:origin[3];
+	float origin[3];
 	origin = g_sentryOrigins[creator - 1];
 
 	new ent = create_entity("func_breakable");
@@ -724,7 +724,7 @@ public createsentryhead(parms[2]) {
 		return;
 	}
 
-	new Float:mins[3], Float:maxs[3];
+	float mins[3], Float:maxs[3];
 	// Set true	size of base... if it exists!
 	// Also set sentry <-> base connections, if base still exists
 	if (is_valid_ent(entbase)) {
@@ -871,9 +871,9 @@ public server_frame() {
 sentry_pendulum(sentry, Float:deltaTime) {
 	switch (entity_get_int(sentry, SENTRY_INT_FIRE)) {
 		case SENTRY_FIREMODE_NO: {
-			 new Float:angles[3];
+			 float angles[3];
 			 entity_get_vector(sentry, EV_VEC_angles, angles);
-			 new Float:baseAngle = entity_get_float(sentry, SENTRY_FL_ANGLE);
+			 float baseAngle = entity_get_float(sentry, SENTRY_FL_ANGLE);
 			 new directions = entity_get_int(sentry, SENTRY_INT_PENDDIR);
 			 if (directions & (1<<SENTRY_DIR_CANNON)) {
 				 angles[1] -= (PENDULUM_INCREMENT * deltaTime); // PENDULUM_INCREMENT get_cvar_float("pend_inc");
@@ -897,7 +897,7 @@ sentry_pendulum(sentry, Float:deltaTime) {
 			 if (entity_get_int(sentry, SENTRY_INT_LEVEL) == SENTRY_LEVEL_3) {
 				 //new radarAngle = entity_get_byte(sentry, SENTRY_TILT_RADAR)
 				 //SENTRY_FL_RADARANGLE
-				 new Float:radarAngle = entity_get_float(sentry, SENTRY_FL_RADARANGLE);
+				 float radarAngle = entity_get_float(sentry, SENTRY_FL_RADARANGLE);
 
 				 if (directions & (1<<SENTRY_DIR_RADAR)) {
 					 radarAngle = radarAngle - RADAR_INCREMENT; // get_cvar_float("radar_increment")
@@ -922,10 +922,10 @@ sentry_pendulum(sentry, Float:deltaTime) {
 			 return;
 					 }
 		case SENTRY_FIREMODE_NUTS: {
-			   new Float:angles[3];
+			   float angles[3];
 			   entity_get_vector(sentry, EV_VEC_angles, angles);
 
-			   new Float:spinSpeed = entity_get_float(sentry, SENTRY_FL_SPINSPEED);
+			   float spinSpeed = entity_get_float(sentry, SENTRY_FL_SPINSPEED);
 			   if (entity_get_int(sentry, SENTRY_INT_PENDDIR) & (1<<SENTRY_DIR_CANNON)) {
 				   angles[1] -= (spinSpeed * deltaTime);
 				   if (angles[1] < 0.0) {
@@ -941,7 +941,7 @@ sentry_pendulum(sentry, Float:deltaTime) {
 			   // Increment speed raise
 			   entity_set_float(sentry, SENTRY_FL_SPINSPEED, (spinSpeed += random_float(1.0, 2.0)));
 
-			   new Float:maxSpin = entity_get_float(sentry, SENTRY_FL_MAXSPIN);
+			   float maxSpin = entity_get_float(sentry, SENTRY_FL_MAXSPIN);
 			   if (maxSpin == 0.0) {
 				   // Set rotation speed to explode at
 				   entity_set_float(sentry, SENTRY_FL_MAXSPIN, maxSpin = random_float(500.0, 750.0));
@@ -963,7 +963,7 @@ sentry_pendulum(sentry, Float:deltaTime) {
 // Checks the contents of eight points corresponding to the bbox around ent origin. Also does a trace from origin to each point. If anything goes wrong, report a hit.
 // TODO: high bounds should get higher, so that building in tight places not gets sentries stuck in roof... TraceCheckCollides
 bool:TraceCheckCollides(Float:origin[3], const Float:BOUNDS) {
-     new Float:traceEnds[8][3], Float:traceHit[3], hitEnt;
+     float traceEnds[8][3], Float:traceHit[3], hitEnt;
 
      // x, z, y
      traceEnds[0][0] = origin[0] - BOUNDS;
@@ -1072,7 +1072,7 @@ stock create_explosion(Float:origin_[3]) {
 
 	// Hurt ppl in vicinity
 
-	new Float:playerOrigin[3], Float:distance, Float:flDmgToDo, Float:dmgbase = DMG_EXPLOSION_TAKE + 0.0, newHealth;
+	float playerOrigin[3], Float:distance, Float:flDmgToDo, Float:dmgbase = DMG_EXPLOSION_TAKE + 0.0, newHealth;
 	for (new i = 1; i <= g_MAXPLAYERS; i++) {
 		if (!is_user_alive(i) || get_user_godmode(i))
 			continue;
@@ -1129,9 +1129,9 @@ stock genericShock(Float:hitPointOrigin[3], Float:radius, classString[], maxEnts
 
 	new entsFound = find_sphere_class(0, classString, radius, entList, maxEntsToFind, hitPointOrigin);
 
-	new Float:entOrigin[3];
-	new Float:velocity[3];
-	new Float:cOrigin[3];
+	float entOrigin[3];
+	float velocity[3];
+	float cOrigin[3];
 
 	for (new j = 0; j < entsFound; j++) {
 		switch (objecttype) {
@@ -1149,7 +1149,7 @@ stock genericShock(Float:hitPointOrigin[3], Float:radius, classString[], maxEnts
 
 		entity_get_vector(entList[j], EV_VEC_origin, entOrigin); // get_entity_origin(entList[j],entOrigin)
 
-		new Float:distanceNadePl = vector_distance(entOrigin, hitPointOrigin);
+		float distanceNadePl = vector_distance(entOrigin, hitPointOrigin);
 
 		// Stuff on ground AND below explosion are "placed" a distance above explosion Y-wise ([2]), so that they fly off ground etc.
 		if (entity_is_on_ground(entList[j]) && entOrigin[2] < hitPointOrigin[2])
@@ -1276,7 +1276,7 @@ sentry_detonate(sentry, bool:quiet, bool:isIndex) {
 
 	if (!quiet) {
 #if defined EXPLODINGSENTRIES
-		new Float:origin[3];
+		float origin[3];
 		entity_get_vector(sentry, EV_VEC_origin, origin);
 		create_explosion(origin);
 #endif
@@ -1349,7 +1349,7 @@ public sentry_think(parm[1]) {
 
 	new ent = parm[0];
 
-	new Float:sentryOrigin[3], Float:hitOrigin[3], hitent;
+	float sentryOrigin[3], Float:hitOrigin[3], hitent;
 	entity_get_vector(ent, EV_VEC_origin, sentryOrigin);
 	sentryOrigin[2] += CANNONHEIGHTFROMFEET; // Move up some, this should be the Y origin of the cannon
 
@@ -1360,7 +1360,7 @@ public sentry_think(parm[1]) {
 		new sentryLevel = entity_get_int(ent, SENTRY_INT_LEVEL);
 
 		// Is target still visible?
-		new Float:targetOrigin[3];
+		float targetOrigin[3];
 		entity_get_vector(target, EV_VEC_origin, targetOrigin);
 
 		// Adjust for ducking. This is still not 100%. :-(
@@ -1388,7 +1388,7 @@ public sentry_think(parm[1]) {
 			// Firing sound
 			emit_sound(ent, CHAN_WEAPON, "weapons/m249-1.wav", 1.0, ATTN_NORM, 0, PITCH_NORM);
 
-			new Float:hitRatio = random_float(0.0, 1.0) - g_HITRATIOS[sentryLevel]; // ie 0.5 - 0.7 = -0.2, a hit and 0.8 - 0.7 = a miss by 0.1
+			float hitRatio = random_float(0.0, 1.0) - g_HITRATIOS[sentryLevel]; // ie 0.5 - 0.7 = -0.2, a hit and 0.8 - 0.7 = a miss by 0.1
 
 			if (!get_user_godmode(target) && hitRatio <= 0.0) {
 				// Do damage to player
@@ -1405,29 +1405,29 @@ public sentry_think(parm[1]) {
 				   vRet[1] = amx_ftoc(vVector.y);
 				   vRet[2] = amx_ftoc(vVector.z);
 				   */
-				new Float:sentryAngle[3] = {0.0, 0.0, 0.0};
+				float sentryAngle[3] = {0.0, 0.0, 0.0};
 
-				new Float:x = hitOrigin[0] - sentryOrigin[0];
-				new Float:z = hitOrigin[1] - sentryOrigin[1];
-				new Float:radians = floatatan(z/x, radian);
+				float x = hitOrigin[0] - sentryOrigin[0];
+				float z = hitOrigin[1] - sentryOrigin[1];
+				float radians = floatatan(z/x, radian);
 				sentryAngle[1] = radians * g_ONEEIGHTYTHROUGHPI;
 				if (hitOrigin[0] < sentryOrigin[0])
 					sentryAngle[1] -= 180.0;
 
-				new Float:h = hitOrigin[2] - sentryOrigin[2];
-				new Float:b = vector_distance(sentryOrigin, hitOrigin);
+				float h = hitOrigin[2] - sentryOrigin[2];
+				float b = vector_distance(sentryOrigin, hitOrigin);
 				radians = floatatan(h/b, radian);
 				sentryAngle[0] = radians * g_ONEEIGHTYTHROUGHPI;
 
 				sentryAngle[0] += random_float(-10.0 * hitRatio, 10.0 * hitRatio); // aim is a little off here :-)
 				sentryAngle[1] += random_float(-10.0 * hitRatio, 10.0 * hitRatio); // aim is a little off here :-)
 				engfunc(EngFunc_MakeVectors, sentryAngle);
-				new Float:vector[3];
+				float vector[3];
 				get_global_vector(GL_v_forward, vector);
 				for (new i = 0; i < 3; i++)
 					vector[i] *= 1000;
 
-				new Float:traceEnd[3];
+				float traceEnd[3];
 				for (new i = 0; i < 3; i++)
 					traceEnd[i] = vector[i] + sentryOrigin[i];
 
@@ -1617,17 +1617,17 @@ sentry_turntotarget(ent, Float:sentryOrigin[3], target, Float:closestOrigin[3]) 
 		get_user_name(target, name, 31);
 
 		// Alter ent's angle
-		new Float:newAngle[3];
+		float newAngle[3];
 		entity_get_vector(ent, EV_VEC_angles, newAngle);
-		new Float:x = closestOrigin[0] - sentryOrigin[0];
-		new Float:z = closestOrigin[1] - sentryOrigin[1];
-		//new Float:y = closestOrigin[2] - sentryOrigin[2];
+		float x = closestOrigin[0] - sentryOrigin[0];
+		float z = closestOrigin[1] - sentryOrigin[1];
+		//float y = closestOrigin[2] - sentryOrigin[2];
 		/*
 		//newAngle[0] = floatasin(x/floatsqroot(x*x+y*y), degrees);
 		newAngle[1] = floatasin(z/floatsqroot(x*x+z*z), degrees);
 		*/
 
-		new Float:radians = floatatan(z/x, radian);
+		float radians = floatatan(z/x, radian);
 		newAngle[1] = radians * g_ONEEIGHTYTHROUGHPI;
 		if (closestOrigin[0] < sentryOrigin[0]);
 
@@ -1638,15 +1638,15 @@ sentry_turntotarget(ent, Float:sentryOrigin[3], target, Float:closestOrigin[3]) 
 		// and 0 is also about 50 degrees up. Scope = ~100 degrees
 
 		// Set tilt
-		new Float:h = closestOrigin[2] - sentryOrigin[2];
-		new Float:b = vector_distance(sentryOrigin, closestOrigin);
+		float h = closestOrigin[2] - sentryOrigin[2];
+		float b = vector_distance(sentryOrigin, closestOrigin);
 		radians = floatatan(h/b, radian);
-		new Float:degs = radians * g_ONEEIGHTYTHROUGHPI;
+		float degs = radians * g_ONEEIGHTYTHROUGHPI;
 		// Now adjust EV_BYTE_controller1
 		// Each degree corresponds to about 100/256 "bytes", = ~0,39 byte / degree (ok this is not entirely true, just tweaked for now with SENTRYTILTRADIUS)
-		new Float:RADIUS = SENTRYTILTRADIUS; // get_cvar_float("sentry_tiltradius");
-		new Float:degreeByte = RADIUS/256.0; // tweak radius later
-		new Float:tilt = 127.0 - degreeByte * degs; // 127 is center of 256... well, almost
+		float RADIUS = SENTRYTILTRADIUS; // get_cvar_float("sentry_tiltradius");
+		float degreeByte = RADIUS/256.0; // tweak radius later
+		float tilt = 127.0 - degreeByte * degs; // 127 is center of 256... well, almost
 		//client_print(GetSentryPeople(ent, OWNER), print_chat, "%d: Setting tilt to %d", ent, floatround(tilt));
 		set_pev(ent, PEV_SENTRY_TILT_TURRET, floatround(tilt)); //entity_set_byte(ent, SENTRY_TILT_TURRET, floatround(tilt));
 		entity_set_vector(ent, EV_VEC_angles, newAngle);
@@ -1668,7 +1668,7 @@ public menumain(id) {
 }
 
 AimingAtSentry(id, bool:alwaysReturn = false) {
-	//new Float:hitOrigin[3];
+	//float hitOrigin[3];
 	//new hitEnt = userviewhitpoint(id, hitOrigin);
 	new hitEnt, bodyPart;
 	//
@@ -1792,7 +1792,7 @@ public SentryRadarBlink(parm[2]) {
 	if (!is_user_connected(parm[0]) || !is_valid_ent(parm[1]))
 		return;
 
-	new Float:sentryOrigin[3];
+	float sentryOrigin[3];
 	entity_get_vector(parm[1], EV_VEC_origin, sentryOrigin);
 	//client_print(parm[0], print_chat, "Plotting closest sentry %d on radar: %f %f %f", parm[1], sentryOrigin[0], sentryOrigin[1], sentryOrigin[2]);
 	message_begin(MSG_ONE, g_msgHostagePos, {0,0,0}, parm[0]);
@@ -1831,7 +1831,7 @@ stock GetClosestSentry(id) {
 }
 
 public menumain_handle(id, key) {
-	new bool:stayInMenu = false;
+	bool stayInMenu = false;
 	switch (key) {
 		case MENUSELECT1: {
 					  // Build if still not has
@@ -1914,7 +1914,7 @@ CreateSpyCam(id, sentry) {
 	entity_set_string(spycam, EV_SZ_classname, "spycam");
 
 	// Set origin, pull up some
-	new Float:origin[3];
+	float origin[3];
 	entity_get_vector(sentry, EV_VEC_origin, origin);
 	origin[2] += g_spyCamOffset[entity_get_int(sentry, SENTRY_INT_LEVEL)];
 	entity_set_vector(spycam, EV_VEC_origin, origin);
@@ -1926,7 +1926,7 @@ CreateSpyCam(id, sentry) {
 	entity_set_int(spycam, EV_INT_renderfx, kRenderFxNone);
 
 	// Set initial angle, this is also done in server_frame
-	new Float:angles[3];
+	float angles[3];
 	entity_get_vector(sentry, EV_VEC_angles, angles);
 	entity_set_vector(spycam, EV_VEC_angles, angles);
 
@@ -2015,7 +2015,7 @@ CycleSelectedSentry(id, steps) {
 			}
 #endif
 		sentryLevel++;
-			new bool:newLevelIsOK = true, upgraderField;
+			bool newLevelIsOK = true, upgraderField;
 			switch (sentryLevel) {
 				case SENTRY_LEVEL_2: {
 							     entity_set_model(sentry, "models/sentries/sentry2.mdl");
@@ -2039,7 +2039,7 @@ CycleSelectedSentry(id, steps) {
 
 			cs_set_user_money(id, cs_get_user_money(id) - g_COST(sentryLevel));
 
-				new Float:mins[3], Float:maxs[3];
+				float mins[3], Float:maxs[3];
 				mins[0] = -16.0;
 				mins[1] = -16.0;
 				mins[2] = 0.0;
@@ -2067,7 +2067,7 @@ stock userviewhitpoint(index, Float:hitorigin[3]) {
 		log_amx("ERROR in plugin - %d is not a valid player index", index);
 		return 0;
 	}
-	new Float:origin[3], Float:pos[3], Float:v_angle[3], Float:vec[3], Float:f_dest[3];
+	float origin[3], Float:pos[3], Float:v_angle[3], Float:vec[3], Float:f_dest[3];
 
 	entity_get_vector(index, EV_VEC_origin, origin);
 	entity_get_vector(index, EV_VEC_view_ofs, pos);
@@ -2092,7 +2092,7 @@ stock entityviewhitpoint(index, Float:origin[3], Float:hitorigin[3]) {
 		log_amx("ERROR in plugin - %d is not a valid entity index", index);
 		return 0;
 	}
-	new Float:angle[3], Float:vec[3], Float:f_dest[3];
+	float angle[3], Float:vec[3], Float:f_dest[3];
 
 	//entity_get_vector(index, EV_VEC_origin, origin);
 	/*
@@ -2284,10 +2284,10 @@ public forward_traceline_post(Float:start[3], Float:end[3], noMonsters, player) 
 	}
 	if (!sentry || !base || entity_get_int(sentry, SENTRY_INT_FIRE) == SENTRY_FIREMODE_NUTS)
 		return FMRES_IGNORED;
-	new Float:health = entity_get_float(sentry, EV_FL_health);
+	float health = entity_get_float(sentry, EV_FL_health);
 	if (health <= 0)
 		return FMRES_IGNORED;
-	new Float:basehealth = entity_get_float(base, EV_FL_health);
+	float basehealth = entity_get_float(base, EV_FL_health);
 	if (basehealth <= 0)
 		return FMRES_IGNORED;
 	new team = entity_get_int(sentry, SENTRY_INT_TEAM);
@@ -2553,7 +2553,7 @@ BotBuild(bot, Float:closestTime = 0.1, Float:longestTime = 5.0) {
 		return;
 	}
 
-	new Float:ltime = random_float(closestTime, longestTime);
+	float ltime = random_float(closestTime, longestTime);
 	set_task(ltime, "sentry_build", bot);
 	//server_print("Bot task %d set to %f seconds", bot, ltime);
 
@@ -2625,7 +2625,7 @@ GetStuffInVicinity(entity, const Float:RADIUS, bool:followTeam, STUFF[]) {
 
 BotBuildRandomly(bot, Float:closestTime = 0.1, Float:longestTime = 5.0) {
 	// This function is used to stark tasks that will build sentries randomly regardless of map objectives and its targets.
-	new Float:ltime = random_float(closestTime, longestTime);
+	float ltime = random_float(closestTime, longestTime);
 		set_task(ltime, "sentry_build_randomlybybot", TASKID_BOTBUILDRANDOMLY + bot);
 
 		new tempname[32];
@@ -2705,8 +2705,8 @@ public botbuildsrandomly(parm[1]) {
 		return;
 	}
 
-	new Float:ltime = random_float(BOT_WAITTIME_MIN, BOT_WAITTIME_MAX);
-	new Float:ltime2 = ltime + random_float(BOT_NEXT_MIN, BOT_NEXT_MAX);
+	float ltime = random_float(BOT_WAITTIME_MIN, BOT_WAITTIME_MAX);
+	float ltime2 = ltime + random_float(BOT_NEXT_MIN, BOT_NEXT_MAX);
 	BotBuildRandomly(parm[0], ltime, ltime2);
 
 	set_task(ltime2, "botbuildsrandomly", 0, parm, 1);
@@ -2773,7 +2773,7 @@ public OnPluginStart()
 
 	register_forward(FM_TraceLine, "forward_traceline_post", 1);
 
-	//new bool:foundSomething = false;
+	//bool foundSomething = false;
 	if (find_ent_by_class(0, "func_bomb_target")) {
 		register_touch("func_bomb_target", "player", "playerreachedtarget");
 		register_touch("weaponbox", "player", "playertouchedweaponbox");

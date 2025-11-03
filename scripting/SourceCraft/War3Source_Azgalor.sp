@@ -14,17 +14,17 @@
 #include "effect/SendEffects"
 #endif
 
-new DamageStorm[5]={10,15,18,24,29};
-new MaximumDamage[5]={15,18,24,29,30};
-new Float:Chance[5]={0.00,0.20,0.25,0.28,0.30};
-new Float:RadiusStorm[5]={0.00,0.20,0.25,0.28,0.30};
-new Float:PitSlow[5]={0.00,0.60,0.55,0.45,0.32};
-new Float:PitMaxDistance[5]={0.00,350.0,400.0,800.0,1200.0};
-new Float:ult_delay[5]={0.0,6.5,5.0,3.5,1.95};
-new DamageFire1[5]={30,40,49,52,60};
-new DamageFire2[5]={35,46,52,60,72};
-new pithp[5]={0,10,15,20,25};
-new bool:bIsTarget[MAXPLAYERS];
+int DamageStorm[5]={10,15,18,24,29};
+int MaximumDamage[5]={15,18,24,29,30};
+float Chance[5]={0.00,0.20,0.25,0.28,0.30};
+float RadiusStorm[5]={0.00,0.20,0.25,0.28,0.30};
+float PitSlow[5]={0.00,0.60,0.55,0.45,0.32};
+float PitMaxDistance[5]={0.00,350.0,400.0,800.0,1200.0};
+float ult_delay[5]={0.0,6.5,5.0,3.5,1.95};
+int DamageFire1[5]={30,40,49,52,60};
+int DamageFire2[5]={35,46,52,60,72};
+int pithp[5]={0,10,15,20,25};
+bool bIsTarget[MAXPLAYERS];
 //WARD(Fire) BY OWNZ & PIMPINJUICE
 #define MAXWARDS 64*4
 #define WARDRADIUS 80
@@ -33,32 +33,32 @@ new bool:bIsTarget[MAXPLAYERS];
 #define WARDDAMAGE 6
 //new CurrentWardCount[MAXPLAYERS];
 //new WardStartingArr[]={0,1,1,1,2}; 
-new Float:WardLocation[MAXWARDS][3]; 
+float WardLocation[MAXWARDS][3]; 
 //new PitOwner[MAXWARDS];
-new FlameOwner[MAXWARDS];
-new Float:LastThunderClap[MAXPLAYERS];
-new CurrentFlameCount[MAXPLAYERS];
+int FlameOwner[MAXWARDS];
+float LastThunderClap[MAXPLAYERS];
+int CurrentFlameCount[MAXPLAYERS];
 
 #if defined SOURCECRAFT
-new bool:SFXEnable = true;
-new Float:ult_cooldown = 25.0;
+bool SFXEnable = true;
+float ult_cooldown = 25.0;
 #else
-new Handle:ultCooldownCvar_SPAWN;
-new Handle:ultCooldownCvar;
-new Handle:SFXCvar;
+Handle ultCooldownCvar_SPAWN;
+Handle ultCooldownCvar;
+Handle SFXCvar;
 #endif
 
-new thisRaceID, SKILL_FIRE, SKILL_PIT, SKILL_IGNITE, ULT_RIFT;
-new String:burnsnd[]="ambient/explosions/explode_4.wav";
-new String:catchsnd[]="npc/strider/fire.wav";
-new String:pitsnd[]="ambient/levels/labs/teleport_postblast_thunder1.wav";
-new String:riftsnd[]="weapons/irifle/irifle_fire2.wav";
-new String:ignitesnd[]="ambient/fire/gascan_ignite1.wav";
+int thisRaceID, SKILL_FIRE, SKILL_PIT, SKILL_IGNITE, ULT_RIFT;
+char burnsnd[]="ambient/explosions/explode_4.wav";
+char catchsnd[]="npc/strider/fire.wav";
+char pitsnd[]="ambient/levels/labs/teleport_postblast_thunder1.wav";
+char riftsnd[]="weapons/irifle/irifle_fire2.wav";
+char ignitesnd[]="ambient/fire/gascan_ignite1.wav";
 
 //temp ents
-new BeamSprite, HaloSprite, FireSprite, Explosion, HydraSprite, SimpleFire, Particle, BlackSprite, Ventilator;
+int BeamSprite, HaloSprite, FireSprite, Explosion, HydraSprite, SimpleFire, Particle, BlackSprite, Ventilator;
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "War3Source Race - Pit Lord[DotA]",
     author = "Revan",
@@ -175,7 +175,7 @@ public OnMapStart() {
 #if !defined SOURCECRAFT
 public W3CvarCooldownHandler(Handle:cvar, const String:oldValue[], const String:newValue[]) 
 { 
-    new Float:value = StringToFloat(newValue);
+    float value = StringToFloat(newValue);
     if(value>0.0)
     W3SkillCooldownOnSpawn( thisRaceID, ULT_RIFT, value );
 }
@@ -206,7 +206,7 @@ public RemoveFlames(client)
     CurrentFlameCount[client]=0;
 }
 
-public Action:Flame(Handle:timer,any:userid)
+public Action Flame(Handle:timer,any:userid)
 {
     new client;
     for(new i=0;i<MAXWARDS;i++)
@@ -230,22 +230,22 @@ public Action:Flame(Handle:timer,any:userid)
 public FlameLoop(owner,wardindex)
 {
     new ownerteam=GetClientTeam(owner);
-    new Float:start_pos[3];
-    new Float:end_pos[3];
-    new Float:tempVec1[]={0.0,0.0,WARDBELOW};
-    new Float:tempVec2[]={0.0,0.0,WARDABOVE};
+    float start_pos[3];
+    float end_pos[3];
+    float tempVec1[]={0.0,0.0,WARDBELOW};
+    float tempVec2[]={0.0,0.0,WARDABOVE};
     AddVectors(WardLocation[wardindex],tempVec1,start_pos);
     AddVectors(WardLocation[wardindex],tempVec2,end_pos);
     //TE_SetupGlowSprite(start_pos,SimpleFire,0.26,1.00,212);
     //TE_SendToAll();
-    new Float:BeamXY[3];
+    float BeamXY[3];
     for(new x=0;x<3;x++) BeamXY[x]=start_pos[x];
-    new Float:BeamZ= BeamXY[2];
+    float BeamZ= BeamXY[2];
     BeamXY[2]=0.0;
     
     
-    new Float:VictimPos[3];
-    new Float:tempZ;
+    float VictimPos[3];
+    float tempZ;
     for(new i=1;i<=MaxClients;i++)
     {
         if(ValidPlayer(i,true)&& GetClientTeam(i)!=ownerteam )
@@ -279,13 +279,13 @@ public FlameLoop(owner,wardindex)
     }
 }
 
-public Action:StopSlow( Handle:timer, any:client )
+public Action StopSlow( Handle:timer, any:client )
 {
     War3_SetBuff(client,fSlow,thisRaceID,1.0);
     if (ValidPlayer(client))
     {
         PrintToConsole(client,"[W3S] Slowdown is fading away...");
-        new Float:startpos[3];
+        float startpos[3];
         GetClientAbsOrigin(client,startpos);
         TE_SetupBeamRingPoint(startpos,120.1,20.0,BeamSprite,BeamSprite,0,15,1.20,27.0,12.0,{255,120,120,255},0,0);
 #if defined SOURCECRAFT
@@ -323,9 +323,9 @@ public OnWar3EventSpawn(client)
     if (user_race == thisRaceID)
     { 
         RemoveFlames(client);
-        new Float:iVec[3];
+        float iVec[3];
         GetClientAbsOrigin(client, Float:iVec);
-        new Float:iVec2[3];
+        float iVec2[3];
         GetClientAbsOrigin(client, Float:iVec2);
         iVec[2]+=100;
         iVec2[2]+=100;
@@ -426,8 +426,8 @@ public OnW3TakeDmgBullet(victim,attacker,Float:damage)
                     if (CanInvokeUpgrade(attacker,thisRaceID,SKILL_FIRE, .notify=false))
                     {
 #endif
-                    new Float:spos[3];
-                    new Float:epos[3];
+                    float spos[3];
+                    float epos[3];
                     GetClientAbsOrigin(victim,epos);
                     GetClientAbsOrigin(attacker,spos);
                     epos[2]+=35;
@@ -447,7 +447,7 @@ public OnW3TakeDmgBullet(victim,attacker,Float:damage)
 #endif
                     new damage1=DamageStorm[skill_level];
                     new damage2=MaximumDamage[skill_level];
-                    new Float:radius=RadiusStorm[skill_level];
+                    float radius=RadiusStorm[skill_level];
                     DoFire(attacker,victim,radius,damage1,damage2,true);
                     
                     W3FlashScreen(victim,RGBA_COLOR_RED);
@@ -488,8 +488,8 @@ public DoFire(attacker,victim,Float:radius,damage,maxdmg,bool:showmsg)
         //{
             if(War3_GetRace(attacker)==thisRaceID && War3_GetRace(victim)!=thisRaceID)
             {
-                new Float:StartPos[3];
-                new Float:EndPos[3];
+                float StartPos[3];
+                float EndPos[3];
                 
                 GetClientAbsOrigin( attacker, StartPos );
                 GetClientAbsOrigin( victim, EndPos );
@@ -553,11 +553,11 @@ public OnWar3EventDeath(victim, attacker, deathrace)
                 if (CanInvokeUpgrade(attacker,thisRaceID,SKILL_FIRE, .notify=false))
                 {
 #endif
-                new Float:Vec[3];
+                float Vec[3];
                 GetClientAbsOrigin(victim,Vec);
-                new Float:Vec2[3];
+                float Vec2[3];
                 GetClientAbsOrigin(victim,Vec2);
-                new Float:Vec3[3];
+                float Vec3[3];
                 GetClientAbsOrigin(attacker,Vec3);
                 Vec2[2]+=100;
                 Vec3[2]+=45;
@@ -613,7 +613,7 @@ public DoExplosion(magnitude,maxdmg,client,target)
     //Destination = Owner
     //Vec = Fireball
     //Origin = Victim
-    new Float:Destination[3];
+    float Destination[3];
     GetClientAbsOrigin(client,Destination);
     new AttackerTeam = GetClientTeam(client);
     TE_SetupBeamRingPoint(Destination,1.0,9000.0,HaloSprite,HaloSprite,0,15,2.8,10.0,2.0,{255,120,120,255},0,0);
@@ -630,9 +630,9 @@ public DoExplosion(magnitude,maxdmg,client,target)
             {
                 bIsTarget[i]=true;
                 CreateTimer( 0.10, Timer_DeSelect, i );
-                new Float:Vec[3];
+                float Vec[3];
                 GetClientAbsOrigin(target,Vec);
-                new Float:Origin[3];
+                float Origin[3];
                 GetClientAbsOrigin(i,Origin);
                 Vec[0] += GetRandomFloat( -150.0, 150.0 );
                 Vec[1] += GetRandomFloat( -150.0, 150.0 );
@@ -675,7 +675,7 @@ public DoExplosion(magnitude,maxdmg,client,target)
 
 public IgniteExplosion(mindmg,maxdmg,client,target)
 {
-    new Float:Destination[3];
+    float Destination[3];
     GetClientAbsOrigin(target,Destination);
     new AttackerTeam = GetClientTeam(client);
     EmitSoundToClient(client, catchsnd);
@@ -683,13 +683,13 @@ public IgniteExplosion(mindmg,maxdmg,client,target)
         {
             if(ValidPlayer(i,true)&&GetClientTeam(i)!=AttackerTeam && !bIsTarget[i])
             {
-                new Float:Vec[3];
+                float Vec[3];
                 GetClientAbsOrigin(i,Vec);
                 if(GetVectorDistance(Destination,Vec)<=110.0)
                 {
                     bIsTarget[i]=true;
                     CreateTimer( 0.10, Timer_DeSelect, i );
-                    //new Float:dir[3]={0.0,0.0,-90.0};
+                    //float dir[3]={0.0,0.0,-90.0};
                     new magdmg = GetRandomInt(mindmg,maxdmg);
                     PrintToConsole(client,"[Notice] Expulsion dealing %i damage",magdmg);
                     PrintToChat(i,"\x05Hit by Expulsion");
@@ -735,8 +735,8 @@ public OnUltimateCommand(client,race,bool:pressed)
         {
             if(War3_SkillNotInCooldown(client,thisRaceID,ULT_RIFT,true)&&!Silenced(client))
             {
-                new Float:startpos[3];
-                new Float:targetpos[3];
+                float startpos[3];
+                float targetpos[3];
                 GetClientAbsOrigin(client,startpos);
                 GetClientAbsOrigin(client,targetpos);
                 targetpos[2]+=850;
@@ -757,7 +757,7 @@ public OnUltimateCommand(client,race,bool:pressed)
                 War3_ChatMessage(client,"Rift in %f seconds.",ult_delay[skill]);
                 EmitSoundToAll(riftsnd,client);
 #if !defined SOURCECRAFT
-                new Float:ult_cooldown=GetConVarFloat(ultCooldownCvar);
+                float ult_cooldown=GetConVarFloat(ultCooldownCvar);
 #endif
                 War3_CooldownMGR(client,ult_cooldown,thisRaceID,ULT_RIFT,_,_);
             }
@@ -780,8 +780,8 @@ public OnAbilityCommand(client,ability,bool:pressed)
             {
                 if(War3_SkillNotInCooldown(client,thisRaceID,SKILL_PIT,true))
                 {
-                    new Float:startpos[3];
-                    new Float:targetpos[3];
+                    float startpos[3];
+                    float targetpos[3];
                     War3_GetAimEndPoint(client,targetpos);
                     GetClientAbsOrigin(client,startpos);
                     startpos[2]+=45;
@@ -820,13 +820,13 @@ public OnAbilityCommand(client,ability,bool:pressed)
                     EmitSoundToAll(riftsnd,client);
 
 #if defined SOURCECRAFT
-                    new Float:cooldown= GetUpgradeCooldown(thisRaceID,SKILL_PIT) / 10.0;
+                    float cooldown= GetUpgradeCooldown(thisRaceID,SKILL_PIT) / 10.0;
                     War3_CooldownMGR(client,cooldown,thisRaceID,SKILL_PIT,true,true);
 #else
                     War3_CooldownMGR(client,2.5,thisRaceID,SKILL_PIT,true,true);
 #endif
 
-                    //new Float:maxdist=PitMaxDistance[skill_level];
+                    //float maxdist=PitMaxDistance[skill_level];
                     new target = War3_GetTargetInViewCone(client,PitMaxDistance[skill_level],false,5.0);
                     if(target>0 && !W3HasImmunity(target,Immunity_Skills))
                     {
@@ -842,12 +842,12 @@ public OnAbilityCommand(client,ability,bool:pressed)
                         W3FlashScreen(target,{10,10,15,255}, 1.08, 1.3, FFADE_OUT);
                         //War3_CooldownMGR(client,12.0,thisRaceID,SKILL_PIT,_,_,_,"Pit of Malice");
 #if defined SOURCECRAFT
-                        new Float:cooldown2= GetUpgradeCooldown(thisRaceID,SKILL_PIT);
+                        float cooldown2= GetUpgradeCooldown(thisRaceID,SKILL_PIT);
                         War3_CooldownMGR(client,cooldown2,thisRaceID,SKILL_PIT,true,true);
 #else
                         War3_CooldownMGR(client,12.0,thisRaceID,SKILL_PIT,true,true);
 #endif
-                        new Float:slowmotion=PitSlow[skill_level];
+                        float slowmotion=PitSlow[skill_level];
                         War3_SetBuff(target,fSlow,thisRaceID,slowmotion);
                         CreateTimer( 6.25, StopSlow, target );
                         TE_SetupDynamicLight(targetpos,255,255,100,110,88.0,1.00,5.0);
@@ -863,7 +863,7 @@ public OnAbilityCommand(client,ability,bool:pressed)
                     else
                     {
 #if defined SOURCECRAFT
-                        //new Float:cooldown= GetUpgradeCooldown(thisRaceID,SKILL_PIT) / 10.0;
+                        //float cooldown= GetUpgradeCooldown(thisRaceID,SKILL_PIT) / 10.0;
                         War3_CooldownMGR(client,cooldown,thisRaceID,SKILL_PIT,true,true);
 #else
                         War3_CooldownMGR(client,3.0,thisRaceID,SKILL_PIT,true,true);
@@ -881,12 +881,12 @@ public OnAbilityCommand(client,ability,bool:pressed)
     }
 }
 
-public Action:Timer_Rift(Handle:timer, any:client)
+public Action Timer_Rift(Handle:timer, any:client)
 {
     new skill=War3_GetSkillLevel(client,thisRaceID,ULT_RIFT);
     if(skill>0)
     {
-        new Float:iVec[3];
+        float iVec[3];
         GetClientAbsOrigin(client,iVec);  
         War3_SpawnPlayer(client,true);
         //War3_SpawnPlayer(client,false);
@@ -922,7 +922,7 @@ public Action:Timer_Rift(Handle:timer, any:client)
     }
 }
 
-public Action:Timer_DeSelect(Handle:timer, any:client)
+public Action Timer_DeSelect(Handle:timer, any:client)
 {
     if(ValidPlayer(client,true))
     {
@@ -930,7 +930,7 @@ public Action:Timer_DeSelect(Handle:timer, any:client)
     }
 }
 
-public Action:Timer_Extinguish(Handle:timer, any:client)
+public Action Timer_Extinguish(Handle:timer, any:client)
 {
     if(ValidPlayer(client,true))
     {

@@ -40,7 +40,7 @@ stock Entity_IsValid(entity)
  * @param className		Optional: Classname of the entity
  * @return				Entity index or INVALID_ENT_REFERENCE if not matching entity was found.
  */
-stock Entity_FindByName(const String:name[], const String:className[]="")
+stock Entity_FindByName(const char name[], const char className[]="")
 {
 	if (className[0] == '\0') {
 		// Hack: Double the limit to gets none-networked entities too.
@@ -83,7 +83,7 @@ stock Entity_FindByName(const String:name[], const String:className[]="")
  * @param className		Optional: Classname of the entity
  * @return				Edict Index or INVALID_ENT_REFERENCE if no entity was found.
  */
-stock Entity_FindByHammerId(hammerId, const String:className[]="")
+stock Entity_FindByHammerId(hammerId, const char className[]="")
 {
 	if (className[0] == '\0') {
 		// Hack: Double the limit to gets none-networked entities too.
@@ -122,7 +122,7 @@ stock Entity_FindByHammerId(hammerId, const String:className[]="")
  * @return				Entity index >= 0 if found, -1 otherwise.
  */
 
-stock Entity_FindByClassName(startEntity, const String:className[])
+stock Entity_FindByClassName(startEntity, const char className[])
 {
 	return FindEntityByClassname(startEntity, className);
 }
@@ -135,9 +135,9 @@ stock Entity_FindByClassName(startEntity, const String:className[])
  * @partialMatch		If to do a partial classname check.
  * @return				True if the classname matches, false otherwise.
  */
-stock bool:Entity_ClassNameMatches(entity, const String:className[], partialMatch=false)
+stock bool:Entity_ClassNameMatches(entity, const char className[], partialMatch=false)
 {
-	decl String:entity_className[64];
+	char entity_className[64];
 	Entity_GetClassName(entity, entity_className, sizeof(entity_className));
 
 	if (partialMatch) {
@@ -154,9 +154,9 @@ stock bool:Entity_ClassNameMatches(entity, const String:className[], partialMatc
  * @param class			Name String.
  * @return				True if the name matches, false otherwise.
  */
-stock bool:Entity_NameMatches(entity, const String:name[])
+stock bool:Entity_NameMatches(entity, const char name[])
 {
-	decl String:entity_name[128];
+	char entity_name[128];
 	Entity_GetName(entity, entity_name, sizeof(entity_name));
 
 	return StrEqual(name, entity_name);
@@ -182,9 +182,9 @@ stock Entity_GetName(entity, String:buffer[], size)
  * @param name				The name you want to give.
  * @return					True on success, false otherwise.
  */
-stock Entity_SetName(entity, const String:name[], any:...)
+stock Entity_SetName(entity, const char name[], any:...)
 {
-	decl String:format[128];
+	char format[128];
 	VFormat(format, sizeof(format), name, 3);
 
 	return DispatchKeyValue(entity, "targetname", format);
@@ -212,7 +212,7 @@ stock Entity_GetClassName(entity, String:buffer[], size)
  * @param name				The name you want to give.
  * @return					True on success, false otherwise.
  */
-stock Entity_SetClassName(entity, const String:className[])
+stock Entity_SetClassName(entity, const char className[])
 {
 	return DispatchKeyValue(entity, "classname", className);
 }
@@ -237,9 +237,9 @@ stock Entity_GetTargetName(entity, String:buffer[], size)
  * @param name				The target name you want to set
  * @return					True on success, false otherwise.
  */
-stock Entity_SetTargetName(entity, const String:name[], any:...)
+stock Entity_SetTargetName(entity, const char name[], any:...)
 {
-	decl String:format[128];
+	char format[128];
 	VFormat(format, sizeof(format), name, 3);
 
 	return DispatchKeyValue(entity, "target", format);
@@ -265,9 +265,9 @@ stock Entity_GetGlobalName(entity, String:buffer[], size)
  * @param name				The global name you want to set.
  * @return					True on success, false otherwise.
  */
-stock Entity_SetGlobalName(entity, const String:name[], any:...)
+stock Entity_SetGlobalName(entity, const char name[], any:...)
 {
-	decl String:format[128];
+	char format[128];
 	VFormat(format, sizeof(format), name, 3);
 
 	return DispatchKeyValue(entity, "globalname", format);
@@ -293,9 +293,9 @@ stock Entity_GetParentName(entity, String:buffer[], size)
  * @param name				The parent name you want to set.
  * @return					True on success, false otherwise.
  */
-stock Entity_SetParentName(entity, const String:name[], any:...)
+stock Entity_SetParentName(entity, const char name[], any:...)
 {
-	decl String:format[128];
+	char format[128];
 	VFormat(format, sizeof(format), name, 3);
 
 	return DispatchKeyValue(entity, "parentname", format);
@@ -407,7 +407,7 @@ stock Entity_SetMinMaxSize(entity, Float:vecMins[3], Float:vecMaxs[3])
 		}
 	}
 
-	decl Float:m_vecMins[3], Float:m_vecMaxs[3];
+	float m_vecMins[3], Float:m_vecMaxs[3];
 	Entity_GetMinSize(entity, m_vecMins);
 	Entity_GetMaxSize(entity, m_vecMaxs);
 
@@ -418,7 +418,7 @@ stock Entity_SetMinMaxSize(entity, Float:vecMins[3], Float:vecMaxs[3])
 	Entity_SetMinSize(entity, vecMins);
 	Entity_SetMaxSize(entity, vecMaxs);
 
-	decl Float:vecSize[3];
+	float vecSize[3];
 	SubtractVectors(vecMaxs, vecMins, vecSize);
 	Entity_SetRadius(entity, GetVectorLength(vecSize) * 0.5);
 
@@ -966,7 +966,7 @@ stock Entity_GetModel(entity, String:buffer[], size)
  * @param model			Model name
  * @noreturn
  */
-stock Entity_SetModel(entity, const String:model[])
+stock Entity_SetModel(entity, const char model[])
 {
 	SetEntityModel(entity, model);
 }
@@ -1357,7 +1357,7 @@ stock Entity_SetMaxHealth(entity, value)
  */
 stock Float:Entity_GetDistanceOrigin(entity, const Float:vec[3])
 {
-	new Float:entityVec[3];
+	float entityVec[3];
 	Entity_GetAbsOrigin(entity, entityVec);
 
 	return GetVectorDistance(entityVec, vec);
@@ -1373,7 +1373,7 @@ stock Float:Entity_GetDistanceOrigin(entity, const Float:vec[3])
  */
 stock Float:Entity_GetDistance(entity, target)
 {
-	new Float:targetVec[3];
+	float targetVec[3];
 	Entity_GetAbsOrigin(target, targetVec);
 
 	return Entity_GetDistanceOrigin(entity, targetVec);
@@ -1451,9 +1451,9 @@ stock Entity_UnFreeze(entity)
  * @param				Optional: target name
  * @noreturn
  */
-stock Entity_PointAtTarget(entity, target, const String:name[]="")
+stock Entity_PointAtTarget(entity, target, const char name[]="")
 {
-	decl String:targetName[128];
+	char targetName[128];
 	Entity_GetTargetName(entity, targetName, sizeof(targetName));
 
 	if (name[0] == '\0') {
@@ -1486,9 +1486,9 @@ stock Entity_PointAtTarget(entity, target, const String:name[]="")
  * @param					Optional: target name
  * @noreturn
  */
-stock Entity_PointHurtAtTarget(entity, target, const String:name[]="")
+stock Entity_PointHurtAtTarget(entity, target, const char name[]="")
 {
-	decl String:targetName[128];
+	char targetName[128];
 	Entity_GetTargetName(entity, targetName, sizeof(targetName));
 
 	if (name[0] == '\0') {
@@ -1535,7 +1535,7 @@ stock bool:Entity_IsPlayer(entity)
  * @param ForceEdictIndex	Edict Index to use.
  * @return 					Entity Index or INVALID_ENT_REFERENCE if the slot is already in use.
  */
-stock Entity_Create(const String:className[], ForceEdictIndex=-1)
+stock Entity_Create(const char className[], ForceEdictIndex=-1)
 {
 	if (ForceEdictIndex != -1 && Entity_IsValid(ForceEdictIndex)) {
 		return INVALID_ENT_REFERENCE;
@@ -1577,7 +1577,7 @@ stock bool:Entity_Kill(kenny, killChildren=false)
  * @param className		Entity Network Class to search for.
  * @return 				Number of entities killed.
  */
-stock Entity_KillAllByClassName(const String:className[])
+stock Entity_KillAllByClassName(const char className[])
 {
 	new x = 0;
 
@@ -1692,7 +1692,7 @@ stock Entity_GetGroundEntity(entity)
  * 						want a specific weapon to be shown in the HUD kill message.
  * @return 				True on success, false otherwise.
  */
-stock bool:Entity_Hurt(entity, damage, attacker=0, damageType=DMG_GENERIC, const String:fakeClassName[]="")
+stock bool:Entity_Hurt(entity, damage, attacker=0, damageType=DMG_GENERIC, const char fakeClassName[]="")
 {
 	static point_hurt = INVALID_ENT_REFERENCE;
 
@@ -1784,7 +1784,7 @@ typedef Entity_ChangeOverTimeCallback = function bool (int &entity, float &inter
  */
 stock Entity_ChangeOverTime(entity, Float:interval=0.1, Entity_ChangeOverTimeCallback:valueCallback)
 {
-	new Handle:dataPack = CreateDataPack();
+	Handle dataPack = CreateDataPack();
 	WritePackCell(dataPack, EntIndexToEntRef(entity));
 	WritePackFloat(dataPack, interval);
 	WritePackCell(dataPack, 0);
@@ -1797,14 +1797,14 @@ stock Entity_ChangeOverTime(entity, Float:interval=0.1, Entity_ChangeOverTimeCal
 	__smlib_Timer_ChangeOverTime(INVALID_HANDLE,dataPack);
 }
 
-public Action:__smlib_Timer_ChangeOverTime(Handle:Timer, Handle:dataPack)
+public Action __smlib_Timer_ChangeOverTime(Handle:Timer, Handle:dataPack)
 {
 	new entity = EntRefToEntIndex(ReadPackCell(dataPack));
 	if(!Entity_IsValid(entity)){
 		return Plugin_Stop;
 	}
 
-	new Float:interval = ReadPackFloat(dataPack);
+	float interval = ReadPackFloat(dataPack);
 	new currentCall = ReadPackCell(dataPack);
 #if SOURCEMOD_V_MAJOR >= 1 && SOURCEMOD_V_MINOR >= 7
 	new Function:callback = ReadPackFunction(dataPack);
@@ -2064,8 +2064,8 @@ stock Entity_GetRenderColor(entity, color[4])
 	static String:prop[32];
 
 	if (!gotconfig) {
-		new Handle:gc = LoadGameConfigFile("core.games");
-		new bool:exists = GameConfGetKeyValue(gc, "m_clrRender", prop, sizeof(prop));
+		Handle gc = LoadGameConfigFile("core.games");
+		bool exists = GameConfGetKeyValue(gc, "m_clrRender", prop, sizeof(prop));
 		CloseHandle(gc);
 
 		if (!exists) {
@@ -2104,8 +2104,8 @@ stock Entity_SetRenderColor(entity, r=-1, g=-1, b=-1, a=-1)
 	static String:prop[32];
 
 	if (!gotconfig) {
-		new Handle:gc = LoadGameConfigFile("core.games");
-		new bool:exists = GameConfGetKeyValue(gc, "m_clrRender", prop, sizeof(prop));
+		Handle gc = LoadGameConfigFile("core.games");
+		bool exists = GameConfGetKeyValue(gc, "m_clrRender", prop, sizeof(prop));
 		CloseHandle(gc);
 
 		if (!exists) {
@@ -2148,7 +2148,7 @@ stock Entity_SetRenderColor(entity, r=-1, g=-1, b=-1, a=-1)
  * @param outputid		Unknown.
  * @return				True if successful, otherwise false.
  */
-stock bool:Entity_AddOutput(entity, const String:input[], activator=-1, caller=-1, outputid=0)
+stock bool:Entity_AddOutput(entity, const char input[], activator=-1, caller=-1, outputid=0)
 {
 	SetVariantString(input);
 	return AcceptEntityInput(entity, "addoutput", activator, caller, outputid);

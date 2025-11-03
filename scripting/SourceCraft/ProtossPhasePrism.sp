@@ -45,56 +45,56 @@
 #include "effect/SendEffects"
 #include "effect/FlashScreen"
 
-new const String:summonWav[]        = "sc/ppbwht00.wav";
-new const String:deathWav[]         = "sc/pshdth00.wav";
-new const String:spawnWav[]         = "sc/pbldgplc.wav";
-new const String:forgeWav[]         = "sc/pfowht00.wav";
-new const String:cannonWav[]        = "sc/phohit00.wav";
-new const String:shieldBatteryWav[] = "sc/pbaact00.wav";
+char summonWav[]        = "sc/ppbwht00.wav";
+char deathWav[]         = "sc/pshdth00.wav";
+char spawnWav[]         = "sc/pbldgplc.wav";
+char forgeWav[]         = "sc/pfowht00.wav";
+char cannonWav[]        = "sc/phohit00.wav";
+char shieldBatteryWav[] = "sc/pbaact00.wav";
 
-new Float:g_InitialShields[]    = { 0.0, 0.10, 0.25, 0.50, 0.75 };
-new Float:g_ShieldsPercent[][2] = { {0.00, 0.00},
+float g_InitialShields[]    = { 0.0, 0.10, 0.25, 0.50, 0.75 };
+float g_ShieldsPercent[][2] = { {0.00, 0.00},
                                     {0.00, 0.10},
                                     {0.00, 0.30},
                                     {0.10, 0.40},
                                     {0.20, 0.50} };
 
-new Float:g_SpeedLevels[]       = { 1.10, 1.15, 1.20, 1.25, 1.30 };
+float g_SpeedLevels[]       = { 1.10, 1.15, 1.20, 1.25, 1.30 };
 
-new Float:g_BatteryRange[]      = { 150.0, 200.0, 250.0, 350.0, 500.0 };
+float g_BatteryRange[]      = { 150.0, 200.0, 250.0, 350.0, 500.0 };
 
-new Float:g_WarpGateRate[]      = { 0.0, 8.0, 6.0, 3.0, 1.0 };
+float g_WarpGateRate[]      = { 0.0, 8.0, 6.0, 3.0, 1.0 };
 
-new Float:g_ForgeFactor[]       = { 1.0, 1.10, 1.30, 1.50, 1.80 };
+float g_ForgeFactor[]       = { 1.0, 1.10, 1.30, 1.50, 1.80 };
 
-new g_CannonChance[]            = {   0,     20,    40,    60,    90  };
-new Float:g_CannonPercent[]     = {   0.0,  0.15,  0.30,  0.40,  0.60 };
-new Float:g_CannonRange[]       = { 150.0, 200.0, 250.0, 350.0, 500.0 };
+int g_CannonChance[]            = {   0,     20,    40,    60,    90  };
+float g_CannonPercent[]     = {   0.0,  0.15,  0.30,  0.40,  0.60 };
+float g_CannonRange[]       = { 150.0, 200.0, 250.0, 350.0, 500.0 };
 
-new Float:m_BatteryEnergy[]     = { 1.0, 2.0, 3.0, 4.0, 5.0 };
-new m_BatteryUpgradeMetal[]     = { 1,   2,   3,   4,   5 };
-new m_BatteryAmmoRockets[]      = { 1,   2,   3,   4,   5 };
-new m_BatteryAmmoShells[]       = { 2,   4,   6,   8,  10 };
-new m_BatteryAmmoMetal[]        = { 1,   2,   3,   4,   5 };
-new m_BatteryRepair[]           = { 1,   2,   3,   4,   5 };
-new m_BatteryHealth[]           = { 2,   4,   6,   8,  10 };
-new m_BatteryAmmo[]             = { 1,   2,   3,   4,   5 };
+float m_BatteryEnergy[]     = { 1.0, 2.0, 3.0, 4.0, 5.0 };
+int m_BatteryUpgradeMetal[]     = { 1,   2,   3,   4,   5 };
+int m_BatteryAmmoRockets[]      = { 1,   2,   3,   4,   5 };
+int m_BatteryAmmoShells[]       = { 2,   4,   6,   8,  10 };
+int m_BatteryAmmoMetal[]        = { 1,   2,   3,   4,   5 };
+int m_BatteryRepair[]           = { 1,   2,   3,   4,   5 };
+int m_BatteryHealth[]           = { 2,   4,   6,   8,  10 };
+int m_BatteryAmmo[]             = { 1,   2,   3,   4,   5 };
 
-new g_JetpackFuel[]             = { 0, 40, 50, 70, 90 };
-new Float:g_JetpackRefuelTime[] = { 0.0, 45.0, 35.0, 25.0, 15.0 };
+int g_JetpackFuel[]             = { 0, 40, 50, 70, 90 };
+float g_JetpackRefuelTime[] = { 0.0, 45.0, 35.0, 25.0, 15.0 };
 
 
-new raceID, shieldsID, batteriesID, forgeID, warpGateID, cannonID;
-new recallID, spawnID, recallStructureID, enhancementID, jetpackID;
+int raceID, shieldsID, batteriesID, forgeID, warpGateID, cannonID;
+int recallID, spawnID, recallStructureID, enhancementID, jetpackID;
 
-new cfgMaxObjects;
-new cfgAllowSentries;
-new bool:cfgAllowTeleport;
+int cfgMaxObjects;
+int cfgAllowSentries;
+bool cfgAllowTeleport;
 
-new bool:m_HasCannon[MAXPLAYERS+1][MAXPLAYERS+1];
-new Float:m_CannonTime[MAXPLAYERS+1];
+bool m_HasCannon[MAXPLAYERS+1][MAXPLAYERS+1];
+float m_CannonTime[MAXPLAYERS+1];
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Protoss Warp/Phase Prism",
     author = "-=|JFH|=-Naris",
@@ -226,7 +226,7 @@ public OnSourceCraftReady()
 
     for (new level=0; level < sizeof(g_ShieldsPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "shields_percent_level_%d", level);
         GetConfigFloatArray(key, g_ShieldsPercent[level], sizeof(g_ShieldsPercent[]),
                             g_ShieldsPercent[level], raceID, shieldsID);
@@ -287,7 +287,7 @@ public OnSourceCraftReady()
 
         for (new level=0; level < sizeof(m_SpawnAmpRange); level++)
         {
-            decl String:key[32];
+            char key[32];
             Format(key, sizeof(key), "amp_range_level_%d", level);
             GetConfigFloatArray(key, m_SpawnAmpRange[level], sizeof(m_SpawnAmpRange[]),
                                 m_SpawnAmpRange[level], raceID, spawnID);
@@ -295,7 +295,7 @@ public OnSourceCraftReady()
 
         for (new level=0; level < sizeof(m_SpawnNodeRange); level++)
         {
-            decl String:key[32];
+            char key[32];
             Format(key, sizeof(key), "node_range_level_%d", level);
             GetConfigFloatArray(key, m_SpawnNodeRange[level], sizeof(m_SpawnNodeRange[]),
                                 m_SpawnNodeRange[level], raceID, spawnID);
@@ -303,7 +303,7 @@ public OnSourceCraftReady()
 
         for (new level=0; level < sizeof(m_SpawnNodeRegen); level++)
         {
-            decl String:key[32];
+            char key[32];
             Format(key, sizeof(key), "node_regen_level_%d", level);
             GetConfigArray(key, m_SpawnNodeRegen[level], sizeof(m_SpawnNodeRegen[]),
                            m_SpawnNodeRegen[level], raceID, spawnID);
@@ -311,7 +311,7 @@ public OnSourceCraftReady()
 
         for (new level=0; level < sizeof(m_SpawnNodeShells); level++)
         {
-            decl String:key[32];
+            char key[32];
             Format(key, sizeof(key), "node_shells_level_%d", level);
             GetConfigArray(key, m_SpawnNodeShells[level], sizeof(m_SpawnNodeShells[]),
                            m_SpawnNodeShells[level], raceID, spawnID);
@@ -390,7 +390,7 @@ public OnPlayerAuthed(client)
     m_CannonTime[client] = 0.0;
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -418,7 +418,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
     return Plugin_Continue;
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
@@ -581,7 +581,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                     }
                     else if (pressed)
                     {
-                        decl String:upgradeName[64];
+                        char upgradeName[64];
                         GetUpgradeName(raceID, jetpackID, upgradeName, sizeof(upgradeName), client);
                         PrintHintText(client,"%t", "IsNotAvailable", upgradeName);
                     }
@@ -647,7 +647,7 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     if (!from_sc && attacker_index > 0 && attacker_index != victim_index &&
@@ -660,7 +660,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
     return Plugin_Continue;
 }
 
-public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
+public Action OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
                                   assister_index, assister_race, damage,
                                   absorbed)
 {
@@ -696,14 +696,14 @@ public OnPlayerBuiltObject(Handle:event, client, obj, TFObjectType:type)
         {
             if (GetUpgradeLevel(client,raceID,forgeID) > 0)
             {
-                new Float:time = (GetEntPropFloat(obj, Prop_Send, "m_flPercentageConstructed") >= 1.0) ? 0.1 : 10.0;
+                float time = (GetEntPropFloat(obj, Prop_Send, "m_flPercentageConstructed") >= 1.0) ? 0.1 : 10.0;
                 CreateTimer(time, ForgeTimer, EntIndexToEntRef(obj), TIMER_FLAG_NO_MAPCHANGE);
             }
         }
     }
 }
 
-public Action:ForgeTimer(Handle:timer,any:ref)
+public Action ForgeTimer(Handle:timer,any:ref)
 {
     new obj = EntRefToEntIndex(ref);
     if (obj > 0 && IsValidEntity(obj) && IsValidEdict(obj))
@@ -758,7 +758,7 @@ public Action:ForgeTimer(Handle:timer,any:ref)
     return Plugin_Stop;
 }
 
-public Action:BatteryTimer(Handle:timer, any:userid)
+public Action BatteryTimer(Handle:timer, any:userid)
 {
     new client = GetClientOfUserId(userid);
     if (IsValidClientNotSpec(client) && GetRace(client) == raceID &&
@@ -773,12 +773,12 @@ public Action:BatteryTimer(Handle:timer, any:userid)
             return Plugin_Continue;
 
         new battery_level = GetUpgradeLevel(client,raceID,batteriesID);
-        new Float:battery_range=g_BatteryRange[battery_level];
+        float battery_range=g_BatteryRange[battery_level];
 
         new cannon_level = GetUpgradeLevel(client,raceID,cannonID);
-        new Float:cannon_range=g_CannonRange[cannon_level];
+        float cannon_range=g_CannonRange[cannon_level];
 
-        new Float:energy_amount = m_BatteryEnergy[battery_level];
+        float energy_amount = m_BatteryEnergy[battery_level];
         new upgrade_amount = m_BatteryUpgradeMetal[battery_level];
         new rocket_amount = m_BatteryAmmoRockets[battery_level];
         new shells_amount = m_BatteryAmmoShells[battery_level];
@@ -867,7 +867,7 @@ public Action:BatteryTimer(Handle:timer, any:userid)
 
                         // Heal/Supply/Arm teammates
 
-                        new Float:pos[3];
+                        float pos[3];
                         GetEntPropVector(ent, Prop_Send, "m_vecOrigin", pos);
 
                         new count=0;
@@ -889,7 +889,7 @@ public Action:BatteryTimer(Handle:timer, any:userid)
                                             list[count++] = index;
                                     }
 
-                                    decl Float:indexLoc[3];
+                                    float indexLoc[3];
                                     GetClientAbsOrigin(index, indexLoc);
                                     if (TraceTargetIndex(ent, index, pos, indexLoc))
                                     {
@@ -1004,8 +1004,8 @@ bool:PhaseCannon(damage, victim_index, index)
             !GetImmunity(victim_index,Immunity_Upgrades) &&
             !IsInvulnerable(victim_index))
         {
-            new Float:lastTime = m_CannonTime[index];
-            new Float:interval = GetGameTime() - lastTime;
+            float lastTime = m_CannonTime[index];
+            float interval = GetGameTime() - lastTime;
             if (lastTime == 0.0 || interval > 0.25)
             {
                 if (GetRandomInt(1,100) <= g_CannonChance[cannon_level])
@@ -1017,7 +1017,7 @@ bool:PhaseCannon(damage, victim_index, index)
                         {
                             if (interval == 0.0 || interval >= 2.0)
                             {
-                                new Float:Origin[3];
+                                float Origin[3];
                                 GetEntityAbsOrigin(victim_index, Origin);
                                 Origin[2] += 5;
 

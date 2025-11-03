@@ -39,47 +39,47 @@
 
 #define EXPLOSION_MODEL "sprites/sprite_fire01.vmt"
 
-new Handle:g_Cvar_tntAmount     = INVALID_HANDLE;
-new Handle:g_Cvar_Damage        = INVALID_HANDLE;
-new Handle:g_Cvar_Radius        = INVALID_HANDLE;
-new Handle:g_Cvar_Admins        = INVALID_HANDLE;
-new Handle:g_Cvar_Enable        = INVALID_HANDLE;
-new Handle:g_Cvar_Delay         = INVALID_HANDLE;
-new Handle:g_Cvar_Restrict      = INVALID_HANDLE;
-new Handle:g_Cvar_Mode          = INVALID_HANDLE;
-new Handle:g_Cvar_Death         = INVALID_HANDLE;
-new Handle:g_Cvar_tntDetDelay   = INVALID_HANDLE;
-new Handle:g_Cvar_PlantDelay    = INVALID_HANDLE;
-new Handle:g_Cvar_PrimeDelay    = INVALID_HANDLE;
-new Handle:g_Cvar_Announce      = INVALID_HANDLE;
-new Handle:g_Cvar_FriendlyFire  = INVALID_HANDLE;
+Handle g_Cvar_tntAmount     = INVALID_HANDLE;
+Handle g_Cvar_Damage        = INVALID_HANDLE;
+Handle g_Cvar_Radius        = INVALID_HANDLE;
+Handle g_Cvar_Admins        = INVALID_HANDLE;
+Handle g_Cvar_Enable        = INVALID_HANDLE;
+Handle g_Cvar_Delay         = INVALID_HANDLE;
+Handle g_Cvar_Restrict      = INVALID_HANDLE;
+Handle g_Cvar_Mode          = INVALID_HANDLE;
+Handle g_Cvar_Death         = INVALID_HANDLE;
+Handle g_Cvar_tntDetDelay   = INVALID_HANDLE;
+Handle g_Cvar_PlantDelay    = INVALID_HANDLE;
+Handle g_Cvar_PrimeDelay    = INVALID_HANDLE;
+Handle g_Cvar_Announce      = INVALID_HANDLE;
+Handle g_Cvar_FriendlyFire  = INVALID_HANDLE;
 
-new Handle:fwdOnTNTBombed       = INVALID_HANDLE;
+Handle fwdOnTNTBombed       = INVALID_HANDLE;
 
-new g_tntEntity[MAXPLAYERS+1][MAXTNT+1];
-new bool:g_tntPrimed[MAXPLAYERS+1][MAXTNT+1];
+int g_tntEntity[MAXPLAYERS+1][MAXTNT+1];
+bool g_tntPrimed[MAXPLAYERS+1][MAXTNT+1];
 
-new g_tntAmount[MAXPLAYERS+1];
-new bool:g_tntEnabled[MAXPLAYERS+1];
-new bool:g_can_plant[MAXPLAYERS+1];
+int g_tntAmount[MAXPLAYERS+1];
+bool g_tntEnabled[MAXPLAYERS+1];
+bool g_can_plant[MAXPLAYERS+1];
 
-new String:g_TNTModel[128];
-new String:g_plant_sound[128];
-new String:g_primed_sound[128];
-new String:g_defused_sound[128];
-new bool:g_flipAngles;
+char g_TNTModel[128];
+char g_plant_sound[128];
+char g_primed_sound[128];
+char g_defused_sound[128];
+bool g_flipAngles;
 
-new g_TNT = 0;
-new g_Explosion = 0;
+int g_TNT = 0;
+int g_Explosion = 0;
 
-new bool:g_NativeControl = false;
-new Float:g_tntPrimeDelay[MAXPLAYERS+1];
-new Float:g_tntDetDelay[MAXPLAYERS+1];
-new bool:g_tntDeath[MAXPLAYERS+1];
-new g_tntAllowed[MAXPLAYERS+1];
-new g_tntMode[MAXPLAYERS+1];
+bool g_NativeControl = false;
+float g_tntPrimeDelay[MAXPLAYERS+1];
+float g_tntDetDelay[MAXPLAYERS+1];
+bool g_tntDeath[MAXPLAYERS+1];
+int g_tntAllowed[MAXPLAYERS+1];
+int g_tntMode[MAXPLAYERS+1];
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "Remote IED or TNT",
     author = "<eVa>Dog",
@@ -195,9 +195,9 @@ public OnClientPostAdminCheck(client)
         PrintToConsole(client, "Bind a key to 'sm_plant' and the TNT will be planted where you aim your crosshairs");
         PrintToConsole(client, "Bind a key to 'sm_defuse' and defuse the TNT pack under your crosshairs");
         
-        new String:detmsg[64];
+        char detmsg[64];
         new mode = GetConVarInt(g_Cvar_Mode);
-        new Float:detDelay = GetConVarFloat(g_Cvar_tntDetDelay);
+        float detDelay = GetConVarFloat(g_Cvar_tntDetDelay);
         if (mode == 0)
             strcopy(detmsg, sizeof(detmsg), "Bind a key to 'sm_det' to explode all planted packs");
         else if (mode == 1 || mode == 3 || detDelay == 0.0)
@@ -212,7 +212,7 @@ public OnClientPostAdminCheck(client)
     }
 }
 
-public PlayerSpawnEvent(Handle:event, const String:name[], bool:dontBroadcast)
+public PlayerSpawnEvent(Handle:event, const char name[], bool:dontBroadcast)
 {
     if (g_NativeControl || GetConVarInt(g_Cvar_Enable))
     {
@@ -276,7 +276,7 @@ public PlayerSpawnEvent(Handle:event, const String:name[], bool:dontBroadcast)
             g_tntEntity[client][i] = INVALID_ENT_REFERENCE;
         }
         
-        new Float:delay = GetConVarFloat(g_Cvar_Delay);
+        float delay = GetConVarFloat(g_Cvar_Delay);
         if (delay > 0.0)
         {
             g_tntEnabled[client] = false;
@@ -290,7 +290,7 @@ public PlayerSpawnEvent(Handle:event, const String:name[], bool:dontBroadcast)
     }
 }
 
-public PlayerDeathEvent(Handle:event, const String:name[], bool:dontBroadcast)
+public PlayerDeathEvent(Handle:event, const char name[], bool:dontBroadcast)
 {
     if (g_NativeControl || GetConVarInt(g_Cvar_Enable))
     {
@@ -332,7 +332,7 @@ public PlayerDeathEvent(Handle:event, const String:name[], bool:dontBroadcast)
 
 
 
-public PlayerDisconnectEvent(Handle:event, const String:name[], bool:dontBroadcast)
+public PlayerDisconnectEvent(Handle:event, const char name[], bool:dontBroadcast)
 {
     if (g_NativeControl || GetConVarInt(g_Cvar_Enable))
     {
@@ -349,7 +349,7 @@ public PlayerDisconnectEvent(Handle:event, const String:name[], bool:dontBroadca
     }
 }
 
-public RoundStartEvent(Handle:event, const String:name[], bool:dontBroadcast)
+public RoundStartEvent(Handle:event, const char name[], bool:dontBroadcast)
 {
     if (g_NativeControl || GetConVarInt(g_Cvar_Enable))
     {
@@ -374,18 +374,18 @@ public RoundStartEvent(Handle:event, const String:name[], bool:dontBroadcast)
     }
 }
 
-public Action:SetTNT(Handle:timer, any:client)
+public Action SetTNT(Handle:timer, any:client)
 {
     g_tntEnabled[client] = true;
     g_can_plant[client] = true;
 }
 
-public Action:RemoveTNT(Handle:timer, any:ref)
+public Action RemoveTNT(Handle:timer, any:ref)
 {
     new ent = EntRefToEntIndex(ref);
     if (ent > 0 && IsValidEntity(ent))
     {
-        decl Float:tnt_pos[3];
+        float tnt_pos[3];
         GetEntPropVector(ent, Prop_Send, "m_vecOrigin", tnt_pos);
         TE_SetupEnergySplash(tnt_pos, NULL_VECTOR, true);
         TE_SendToAll(0.1);
@@ -395,7 +395,7 @@ public Action:RemoveTNT(Handle:timer, any:ref)
 }
 
 
-public Action:plant(client, args)
+public Action plant(client, args)
 {
     if (g_NativeControl || GetConVarInt(g_Cvar_Enable))
     {
@@ -438,16 +438,16 @@ public Action:plant(client, args)
                             }
                         }
 
-                        decl Float:vOrigin[3];
+                        float vOrigin[3];
                         GetClientEyePosition(client,vOrigin);
 
-                        decl Float:vAngles[3];
+                        float vAngles[3];
                         GetClientEyeAngles(client, vAngles);
 
-                        new Handle:trace = TR_TraceRayFilterEx(vOrigin, vAngles, MASK_SHOT, RayType_Infinite, TraceEntityFilterPlayer);
+                        Handle trace = TR_TraceRayFilterEx(vOrigin, vAngles, MASK_SHOT, RayType_Infinite, TraceEntityFilterPlayer);
                         if (TR_DidHit(trace))
                         {
-                            decl Float:pos[3];
+                            float pos[3];
                             TR_GetEndPosition(pos, trace);
 
                             if (GetVectorDistance(vOrigin, pos) > 200.0)
@@ -468,14 +468,14 @@ public Action:plant(client, args)
                                     SetEntityModel(ent, g_TNTModel);
                                     if (StrContains(g_TNTModel, "duke") != -1)
                                     {
-                                        decl String:skin[4];
+                                        char skin[4];
                                         Format(skin, sizeof(skin), "%d", team-2);
                                         DispatchKeyValue(ent, "skin", skin);
                                     }
 
                                     DispatchKeyValue(ent, "StartDisabled", "false");
 
-                                    decl String:string[16];
+                                    char string[16];
                                     GetConVarString(g_Cvar_Radius, string, sizeof(string));
                                     DispatchKeyValue(ent, "ExplodeRadius", string);
 
@@ -494,7 +494,7 @@ public Action:plant(client, args)
 
                                     AcceptEntityInput(ent, "DisableMotion");
 
-                                    new Float:angles[3];
+                                    float angles[3];
                                     if (pos[2] >= (vOrigin[2] - 50))
                                         angles[0] = g_flipAngles ? 0.0 : 90.0;
                                     else
@@ -506,8 +506,8 @@ public Action:plant(client, args)
                                     g_tntEntity[client][tntnumber] = ref;
                                     g_tntPrimed[client][tntnumber] = false;
 
-                                    new Float:primeDelay = g_tntPrimeDelay[client];
-                                    new Handle:tntpack = CreateDataPack();
+                                    float primeDelay = g_tntPrimeDelay[client];
+                                    Handle tntpack = CreateDataPack();
                                     WritePackCell(tntpack, client);
                                     WritePackCell(tntpack, tntnumber);
                                     WritePackCell(tntpack, ref);
@@ -557,17 +557,17 @@ public Action:plant(client, args)
     return Plugin_Handled;
 }
 
-public bool:TraceEntityFilterPlayer(entity, contentsMask)
+public bool TraceEntityFilterPlayer(entity, contentsMask)
 {
     return !entity || entity > GetMaxClients();
 } 
 
-public Action:AllowPlant(Handle:timer, any:client)
+public Action AllowPlant(Handle:timer, any:client)
 {
     g_can_plant[client] = true;
 }
 
-public Action:Prime(Handle:timer, Handle:tntpack)
+public Action Prime(Handle:timer, Handle:tntpack)
 {
     ResetPack(tntpack);
     new owner = ReadPackCell(tntpack);
@@ -578,7 +578,7 @@ public Action:Prime(Handle:timer, Handle:tntpack)
     new entity = EntRefToEntIndex(ref);
     if (entity > 0 && IsValidEntity(entity))
     {
-        new String:tntname[128];
+        char tntname[128];
         Format(tntname, sizeof(tntname), "TNT-%i", entity);
         DispatchKeyValue(entity, "targetname", tntname);
 
@@ -598,7 +598,7 @@ public Action:Prime(Handle:timer, Handle:tntpack)
         if (IsClientInGame(owner))
             PrintToChat(owner, "[SM] TNT primed");
 
-        new Float:delay = g_tntDetDelay[owner];
+        float delay = g_tntDetDelay[owner];
         if (g_tntMode[owner] >= 2 && delay > 0.0)
             CreateTimer(delay, DelayedDetonation, ref, TIMER_FLAG_NO_MAPCHANGE);
     }
@@ -606,19 +606,19 @@ public Action:Prime(Handle:timer, Handle:tntpack)
     return Plugin_Handled;
 }
 
-public Action:DelayedDetonation(Handle:timer, any:ref)
+public Action DelayedDetonation(Handle:timer, any:ref)
 {
     new entity = EntRefToEntIndex(ref);
     if (entity > 0 && IsValidEntity(entity))
         AcceptEntityInput(entity, "break");
 }
 
-public Action:Fuse(Handle:timer, any:ref)
+public Action Fuse(Handle:timer, any:ref)
 {
     new entity = EntRefToEntIndex(ref);
     if (entity > 0 && IsValidEntity(entity))
     {
-        new Float:tnt_pos[3];
+        float tnt_pos[3];
         GetEntPropVector(entity, Prop_Send, "m_vecOrigin", tnt_pos);
         TE_SetupSparks(tnt_pos, NULL_VECTOR, 2, 1);
         TE_SendToAll(0.1);
@@ -628,7 +628,7 @@ public Action:Fuse(Handle:timer, any:ref)
         return Plugin_Stop;
 }
 
-public TakeDamage(const String:output[], caller, activator, Float:delay)
+public TakeDamage(const char output[], caller, activator, Float:delay)
 {   
     for (new client = 1; client <= MaxClients; client++)
     {
@@ -648,10 +648,10 @@ public TakeDamage(const String:output[], caller, activator, Float:delay)
     }
 }
 
-public Break(const String:output[], caller, activator, Float:delay)
+public Break(const char output[], caller, activator, Float:delay)
 {
     new owner = 0;
-    new bool:primed = false;
+    bool primed = false;
     for (new client = 1; client <= MaxClients; client++)
     {
         for (new i = g_tntAllowed[client]; i > 0 ; i--)
@@ -669,14 +669,14 @@ public Break(const String:output[], caller, activator, Float:delay)
     if (!primed || owner == 0)
         return;
     
-    decl Float:tnt_pos[3];
+    float tnt_pos[3];
     GetEntPropVector(caller, Prop_Send, "m_vecOrigin", tnt_pos);
 
     PrepareModel(EXPLOSION_MODEL, g_Explosion, true);
     TE_SetupExplosion(tnt_pos, g_Explosion, 10.0, 1, 0, 600, 5000);
     TE_SendToAll();
 
-    new Float:radius = GetConVarFloat(g_Cvar_Radius);
+    float radius = GetConVarFloat(g_Cvar_Radius);
     if (radius > 0.0) // && !GetConVarBool(g_Cvar_FriendlyFire))
     {
         new team = IsClientInGame(owner) ? GetClientTeam(owner) : 0;
@@ -688,10 +688,10 @@ public Break(const String:output[], caller, activator, Float:delay)
                 {
                     if (target == owner || GetClientTeam(target) != team)
                     {
-                        new Float:targetVector[3];
+                        float targetVector[3];
                         GetClientEyePosition(target, targetVector);
                                                         
-                        new Float:distance = GetVectorDistance(targetVector, tnt_pos)
+                        float distance = GetVectorDistance(targetVector, tnt_pos)
                         if (distance <= radius && TraceTarget(caller, target, tnt_pos, targetVector))
                         {
                             PushAway(caller, target);
@@ -746,7 +746,7 @@ public Break(const String:output[], caller, activator, Float:delay)
 
         if (GetGameType() == tf2)
         {
-            decl Float:pos[3];
+            float pos[3];
             new maxents = GetMaxEntities();
             new damage = GetConVarInt(g_Cvar_Damage);
             for (new ent = MaxClients; ent < maxents; ent++)
@@ -760,7 +760,7 @@ public Break(const String:output[], caller, activator, Float:delay)
                             GetEntPropVector(ent, Prop_Send, "m_vecOrigin", pos);
                             pos[2] += 10.0; // Adjust trace position
 
-                            new Float:distance = GetVectorDistance(pos, tnt_pos);
+                            float distance = GetVectorDistance(pos, tnt_pos);
                             if (distance <= radius && TraceTarget(caller, ent, tnt_pos, pos))
                             {
                                 SetVariantInt(damage);
@@ -783,18 +783,18 @@ stock bool:TraceTarget(client, target, Float:clientLoc[3], Float:targetLoc[3])
     return (TR_GetEntityIndex() == target);
 }
 
-public bool:TraceRayDontHitSelf(entity, mask, any:data)
+public bool TraceRayDontHitSelf(entity, mask, any:data)
 {
     return (entity != data); // Check if the TraceRay hit the owning entity.
 }
 
-public Action:Explode(Handle:timer, any:target)
+public Action Explode(Handle:timer, any:target)
 {
     if (IsClientInGame(target) && IsPlayerAlive(target))
         FakeClientCommand(target, "explode");
 }
 
-public Action:defuse(client, args)
+public Action defuse(client, args)
 {
     if (g_NativeControl || GetConVarInt(g_Cvar_Enable))
     {
@@ -813,10 +813,10 @@ DefuseTNT(client, owner, tntpack)
     new entity = EntRefToEntIndex(g_tntEntity[owner][tntpack]);
     if (entity > 0)
     {
-        decl Float:tnt_pos[3];
+        float tnt_pos[3];
         GetEntPropVector(entity, Prop_Send, "m_vecOrigin", tnt_pos);
 
-        decl Float:targetVector[3];
+        float targetVector[3];
         GetClientAbsOrigin(client, targetVector);
 
         if (GetVectorDistance(targetVector, tnt_pos) > 200)
@@ -845,7 +845,7 @@ DefuseTNT(client, owner, tntpack)
     }
 }
 
-public Action:detonate(client, args)
+public Action detonate(client, args)
 {
     if (g_NativeControl || GetConVarInt(g_Cvar_Enable))
     {
@@ -888,7 +888,7 @@ public Action:detonate(client, args)
     return Plugin_Handled;
 }
 
-public Action:tnt(client, args)
+public Action tnt(client, args)
 {
     if (g_NativeControl || GetConVarInt(g_Cvar_Enable))
     {
@@ -974,13 +974,13 @@ FindTNT(client, &owner)
 // Greyscale's AntiStick code adapted
 PushAway(entity, client)
 {
-    decl Float:entityloc[3];
+    float entityloc[3];
     GetEntPropVector(entity, Prop_Send, "m_vecOrigin", entityloc);
 
-    decl Float:clientloc[3];
+    float clientloc[3];
     GetClientAbsOrigin(client, clientloc);
             
-    decl Float:vector[3];
+    float vector[3];
     MakeVectorFromPoints(entityloc, clientloc, vector);
             
     NormalizeVector(vector, vector);
@@ -991,14 +991,14 @@ PushAway(entity, client)
 }
 
 // L.Duke's Particle code
-AttachParticle(ent, Float:duration, const String:particleType[])
+AttachParticle(ent, Float:duration, const char particleType[])
 {
     new particle = CreateEntityByName("info_particle_system");
     
-    new String:tName[128];
+    char tName[128];
     if (IsValidEdict(particle))
     {
-        new Float:pos[3];
+        float pos[3];
         GetEntPropVector(ent, Prop_Send, "m_vecOrigin", pos);
         TeleportEntity(particle, pos, NULL_VECTOR, NULL_VECTOR);
         
@@ -1017,7 +1017,7 @@ AttachParticle(ent, Float:duration, const String:particleType[])
     }
 }
 
-public Action:DeleteParticles(Handle:timer, any:particleRef)
+public Action DeleteParticles(Handle:timer, any:particleRef)
 {
     if (particleRef != INVALID_ENT_REFERENCE)
     {

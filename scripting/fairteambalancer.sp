@@ -79,7 +79,7 @@ stock min( a,b ) return ( a < b  ? a :  b );
 
 
 // Plugin definitions
-public Plugin:myinfo =
+public Plugin myinfo =
 {
     name			= "Fair Team Balancer",
     author			= "MistaGee",
@@ -88,7 +88,7 @@ public Plugin:myinfo =
     url			= "http://forums.alliedmods.net"
 };
 
-new Handle:cvarEnabled		    = INVALID_HANDLE,
+Handle cvarEnabled		    = INVALID_HANDLE,
     Handle:cvarAdminsImmune	    = INVALID_HANDLE,
     Handle:cvarThreshold	    = INVALID_HANDLE,
     Handle:cvarScoreThreshold	= INVALID_HANDLE,
@@ -148,7 +148,7 @@ public OnPluginStart()
 
     RegAdminCmd( "sm_teams", Command_Teams, ADMFLAG_KICK, "Balance teams" );
 
-    decl String:theFolder[40];
+    char theFolder[40];
     GetGameFolderName( theFolder, sizeof(theFolder) );
 
     game_is_tf2 = StrEqual( theFolder, "tf" );
@@ -173,7 +173,7 @@ public OnPluginStart()
     }
 }
 
-public Action:Command_Teams( client, args )
+public Action Command_Teams( client, args )
 {
     PerformTeamCheck( true );
     return Plugin_Handled;
@@ -355,7 +355,7 @@ void:PerformTeamCheck( bool:switchImmed = false )
     }
 }
 
-public Event_PlayerDeath( Handle:event, const String:name[], bool:dontBroadcast )
+public Event_PlayerDeath( Handle:event, const char name[], bool:dontBroadcast )
 {
     // If we are disabled - exit
     if (!GetConVarBool(cvarEnabled))
@@ -453,7 +453,7 @@ void:PerformTimedSwitch( client )
     switches_pending++;
 }
 
-public Action:Timer_TeamSwitch( Handle:timer, any:client )
+public Action Timer_TeamSwitch( Handle:timer, any:client )
 {
     if( !IsClientInGame( client ) )
         return Plugin_Stop;
@@ -478,7 +478,7 @@ void:PerformSwitch( client )
 
     if( game_is_tf2 )
     {
-        new Handle:event = CreateEvent( "teamplay_teambalanced_player" );
+        Handle event = CreateEvent( "teamplay_teambalanced_player" );
         SetEventInt( event, "player", client         );
         SetEventInt( event, "team",   5 - biggerTeam );
         FireEvent( event );
@@ -487,12 +487,12 @@ void:PerformSwitch( client )
         PrintToChatAll( "[SM] %N has been switched for team balance.", client );
 }
 
-public Event_RoundOver(Handle:event,const String:name[],bool:dontBroadcast)
+public Event_RoundOver(Handle:event,const char name[],bool:dontBroadcast)
 {
     LogMessage("RoundOver(%s)", name);
 }
 
-public Event_RoundWin(Handle:event,const String:name[],bool:dontBroadcast)
+public Event_RoundWin(Handle:event,const char name[],bool:dontBroadcast)
 {
     new team  = GetEventInt(event,"team");
     new caps  = GetEventInt(event,"flagcaplimit");
@@ -502,7 +502,7 @@ public Event_RoundWin(Handle:event,const String:name[],bool:dontBroadcast)
                name, team, caps, lose, death);
 }
 
-public Event_GameWin(Handle:event,const String:name[],bool:dontBroadcast)
+public Event_GameWin(Handle:event,const char name[],bool:dontBroadcast)
 {
     new team   = GetEventInt(event,"winning_team");
     new score0 = GetEventInt(event,"blue_score");
@@ -517,7 +517,7 @@ public Event_GameWin(Handle:event,const String:name[],bool:dontBroadcast)
                name, team, score0, prev0, score1, prev1, index1, index2, index3);
 }
 
-public Event_GameOver(Handle:event,const String:name[],bool:dontBroadcast)
+public Event_GameOver(Handle:event,const char name[],bool:dontBroadcast)
 {
     LogMessage("GameOver(%s)", name);
 }

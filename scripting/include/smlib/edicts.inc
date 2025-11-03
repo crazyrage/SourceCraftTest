@@ -13,7 +13,7 @@
  * @param name			Name of the entity you want so search.
  * @return				Edict Index or INVALID_ENT_REFERENCE if no entity was found.
  */
-stock Edict_FindByName(const String:name[])
+stock Edict_FindByName(const char name[])
 {
 	new maxEntities = GetMaxEntities();
 	for (new edict=0; edict < maxEntities; edict++) {
@@ -66,8 +66,8 @@ stock Edict_FindByHammerId(hammerId)
  */
 stock Edict_GetClosest(Float:vecOrigin_center[3], bool:clientsOnly=false, ignoreEntity=-1)
 {
-	decl Float:vecOrigin_edict[3];
-	new Float:smallestDistance = 0.0;
+	float vecOrigin_edict[3];
+	float smallestDistance = 0.0;
 	new closestEdict = INVALID_ENT_REFERENCE;
 
 	new maxEntities;
@@ -95,7 +95,7 @@ stock Edict_GetClosest(Float:vecOrigin_center[3], bool:clientsOnly=false, ignore
 
 		Entity_GetAbsOrigin(edict, vecOrigin_edict);
 
-		new Float:edict_distance = GetVectorDistance(vecOrigin_center, vecOrigin_edict, true);
+		float edict_distance = GetVectorDistance(vecOrigin_center, vecOrigin_edict, true);
 
 		if (edict_distance < smallestDistance || smallestDistance == 0.0) {
 			smallestDistance = edict_distance;
@@ -115,7 +115,7 @@ stock Edict_GetClosest(Float:vecOrigin_center[3], bool:clientsOnly=false, ignore
  */
 stock Edict_GetClosestToEdict(edict, bool:clientsOnly=false)
 {
-	decl Float:vecOrigin[3];
+	float vecOrigin[3];
 
 	if (GetEntSendPropOffs(edict, "m_vecOrigin") == -1) {
 		return INVALID_ENT_REFERENCE;

@@ -4,9 +4,9 @@
 
 #define PL_VERSION "1.0"
 
-new Handle:g_Database = INVALID_HANDLE;
-new String:g_ServerIP[32];
-public Plugin:myinfo = 
+Handle g_Database = INVALID_HANDLE;
+char g_ServerIP[32];
+public Plugin myinfo = 
 {
 	name = "Item Logger",
 	author = "Geit",
@@ -19,18 +19,18 @@ public OnPluginStart()
 {
 	CreateConVar("sm_item_logger_version", PL_VERSION, "TF2 Item Logger", FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY);
 	HookEvent("item_found", Event_item_found);
-	decl String:ip[24], String:port[8];
+	char ip[24], String:port[8];
 	GetConVarString(FindConVar("ip"), ip, sizeof(ip));
 	GetConVarString(FindConVar("hostport"), port, sizeof(port));
 	Format(g_ServerIP, sizeof(g_ServerIP), "%s:%s", ip, port);
 	Database_Init();
 }
-public Action:Event_item_found(Handle:event, const String:name[], bool:dontBroadcast)
+public Action Event_item_found(Handle:event, const char name[], bool:dontBroadcast)
 {
 	new userid = GetEventInt(event, "player");
 	if (userid > 0 && DatabaseIntact() && IsClientInGame(userid))
 	{
-		decl String:item[128], String:item_esc[512], String:client_name[32], String:client_auth[32], String:client_name_esc[128], String:client_auth_esc[128], String:query[1024];
+		char item[128], String:item_esc[512], String:client_name[32], String:client_auth[32], String:client_name_esc[128], String:client_auth_esc[128], String:query[1024];
 		//Client Info
 		GetClientName(userid, client_name, sizeof(client_name));
 		GetClientAuthString(userid, client_auth, sizeof(client_auth));
@@ -60,7 +60,7 @@ public DatabaseIntact()
 	}	
 }
 
-public T_ErrorOnly(Handle:owner, Handle:result, const String:error[], any:client)
+public T_ErrorOnly(Handle:owner, Handle:result, const char error[], any:client)
 {
 	if(result == INVALID_HANDLE)
 	{
@@ -71,7 +71,7 @@ public T_ErrorOnly(Handle:owner, Handle:result, const String:error[], any:client
 stock Database_Init()
 {
 	
-	decl String:error[255];	
+	char error[255];	
 	g_Database = SQL_Connect("feedback", true, error, sizeof(error));
 	
 	if(g_Database != INVALID_HANDLE)

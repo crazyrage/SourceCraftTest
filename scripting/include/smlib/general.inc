@@ -18,7 +18,7 @@
  * @param material			Path of the material to precache.
  * @return					Returns the material index, INVALID_STRING_INDEX on error.
  */
-stock PrecacheMaterial(const String:material[])
+stock PrecacheMaterial(const char material[])
 {
 	static materialNames = INVALID_STRING_TABLE;
 
@@ -48,7 +48,7 @@ stock PrecacheMaterial(const String:material[])
  * @param material			Path of the material.
  * @return					True if it is precached, false otherwise.
  */
-stock bool:IsMaterialPrecached(const String:material[])
+stock bool:IsMaterialPrecached(const char material[])
 {
 	static materialNames = INVALID_STRING_TABLE;
 
@@ -69,7 +69,7 @@ stock bool:IsMaterialPrecached(const String:material[])
  * @param particleSystem	Name of the particle system to precache.
  * @return					Returns the particle system index, INVALID_STRING_INDEX on error.
  */
-stock PrecacheParticleSystem(const String:particleSystem[])
+stock PrecacheParticleSystem(const char particleSystem[])
 {
 	static particleEffectNames = INVALID_STRING_TABLE;
 
@@ -99,7 +99,7 @@ stock PrecacheParticleSystem(const String:particleSystem[])
  * @param material			Name of the particle system
  * @return					True if it is precached, false otherwise.
  */
-stock bool:IsParticleSystemPrecached(const String:particleSystem[])
+stock bool:IsParticleSystemPrecached(const char particleSystem[])
 {
 	static particleEffectNames = INVALID_STRING_TABLE;
 
@@ -119,7 +119,7 @@ stock bool:IsParticleSystemPrecached(const String:particleSystem[])
  * @param str			String to find.
  * @return				String index if found, INVALID_STRING_INDEX otherwise.
  */
-stock FindStringIndexByTableName(const String:table[], const String:str[])
+stock FindStringIndexByTableName(const char table[], const char str[])
 {
 	new tableIndex = INVALID_STRING_TABLE;
 	if ((tableIndex = FindStringTable("ParticleEffectNames")) == INVALID_STRING_TABLE) {
@@ -138,9 +138,9 @@ stock FindStringIndexByTableName(const String:table[], const String:str[])
  * @param str			String to find.
  * @return				String index if found, INVALID_STRING_INDEX otherwise.
  */
-stock FindStringIndex2(tableidx, const String:str[])
+stock FindStringIndex2(tableidx, const char str[])
 {
-	decl String:buf[1024];
+	char buf[1024];
 
 	new numStrings = GetStringTableNumStrings(tableidx);
 	for (new i=0; i < numStrings; i++) {
@@ -180,9 +180,9 @@ stock LongToIP(ip, String:buffer[], size)
  * @param ip			IP String
  * @return				Long IP
  */
-stock IPToLong(const String:ip[])
+stock IPToLong(const char ip[])
 {
-	decl String:pieces[4][4];
+	char pieces[4][4];
 
 	if (ExplodeString(ip, ".", pieces, sizeof(pieces), sizeof(pieces[])) != 4) {
 		return 0;

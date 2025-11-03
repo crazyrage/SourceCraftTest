@@ -6,9 +6,9 @@
  * Modified by: -=|JFH|=-Naris (Murray Wilson)
  */
 
-new const String:PLUGIN_VERSION[60] = "1.0.2.3";
+char PLUGIN_VERSION[60] = "1.0.2.3";
 
-public Plugin:myinfo = {
+public Plugin myinfo = {
 
     name = "TF2CoolRocket",
     author = "javalia",
@@ -28,11 +28,11 @@ public Plugin:myinfo = {
 #include "sdkhooks"
 //#include "stocklib"
 
-new Handle:g_cvarInduceWeaponList = INVALID_HANDLE;
-new Handle:g_cvarArrowToHead = INVALID_HANDLE;
+Handle g_cvarInduceWeaponList = INVALID_HANDLE;
+Handle g_cvarArrowToHead = INVALID_HANDLE;
 
-new g_iTarget[2048];
-new bool:g_bToHead[2048];
+int g_iTarget[2048];
+bool g_bToHead[2048];
 
 public OnPluginStart()
 {
@@ -47,12 +47,12 @@ public OnMapStart()
     AutoExecConfig();
 }
 
-public OnEntityCreated(entity, const String:classname[])
+public OnEntityCreated(entity, const char classname[])
 {
     //lets save cpu. at this will avoid long string compare compute that can execute for EVERY entitys that are created on server.
     if (StrContains(classname, "tf_projectile_", false) == 0)
     {
-        decl String:cvarstring[2048];
+        char cvarstring[2048];
         GetConVarString(g_cvarInduceWeaponList, cvarstring, sizeof(cvarstring));
 
         if (StrContains(cvarstring, classname, false) != -1)
@@ -75,7 +75,7 @@ public RocketThinkHook(entity)
     {
         new target = EntRefToEntIndex(g_iTarget[entity]);
 
-        decl Float:rocketposition[3], Float:targetpos[3], Float:vecangle[3], Float:angle[3];
+        float rocketposition[3], Float:targetpos[3], Float:vecangle[3], Float:angle[3];
         GetEntPropVector(entity, Prop_Send, "m_vecOrigin", rocketposition);
 
         //로켓포지션에서 추적 위치로 가는 벡터를 구한다
@@ -88,7 +88,7 @@ public RocketThinkHook(entity)
         MakeVectorFromPoints(rocketposition, targetpos, vecangle);
         NormalizeVector(vecangle, vecangle);
         GetVectorAngles(vecangle, angle);
-        decl Float:speed[3];
+        float speed[3];
         GetEntPropVector(entity, Prop_Data, "m_vecVelocity", speed);
         ScaleVector(vecangle, GetVectorLength(speed));
         TeleportEntity(entity, NULL_VECTOR, angle, vecangle);
@@ -118,18 +118,18 @@ findNewTarget(entity)
     if (targetcount != 0)
     {
         //make list of all valid client`s distance from rocket
-        new Float:distance[MaxClients];
+        float distance[MaxClients];
 
         for(new i = 0; i < targetcount; i++)
         {
-            new Float:entorigin[3], Float:targetorigin[3];
+            float entorigin[3], Float:targetorigin[3];
             GetEntPropVector(entity, Prop_Send, "m_vecOrigin", entorigin);
             GetClientEyePosition(targetlist[i], targetorigin);
             distance[i] = GetVectorDistance(entorigin, targetorigin);
         }
 
         //find lowest distance of that distancelist
-        new Float:lowestdistance = distance[0];
+        float lowestdistance = distance[0];
 
         for(new i = 0; i < targetcount; i++)
         {
@@ -179,8 +179,8 @@ bool:isTargetTraceable(entity, targetentref)
 {
     new target = EntRefToEntIndex(targetentref);
 
-    new bool:traceable = false;
-    new bool:targetvalid = false;
+    bool traceable = false;
+    bool targetvalid = false;
 
     //은폐를 사용중인가?
     if (TF2_IsPlayerInCondition(target, TFCond_Cloaked))
@@ -205,10 +205,10 @@ bool:isTargetTraceable(entity, targetentref)
     if (targetvalid)
     {
         //타겟까지 트레이스가 가능한가
-        decl Float:entityposition[3];
+        float entityposition[3];
         GetEntPropVector(entity, Prop_Send, "m_vecOrigin", entityposition);
 
-        decl Float:clientpos[3];
+        float clientpos[3];
         GetClientEyePosition(target, clientpos);
 
         if (!g_bToHead[entity])
@@ -216,7 +216,7 @@ bool:isTargetTraceable(entity, targetentref)
             clientpos[2] = clientpos[2] - 25.0;
         }
 
-        new Handle:traceresult = TR_TraceRayFilterEx(entityposition, clientpos, MASK_SOLID,
+        Handle traceresult = TR_TraceRayFilterEx(entityposition, clientpos, MASK_SOLID,
                                                      RayType_EndPoint, tracerayfilterdefault,
                                                      entity);
 
@@ -231,7 +231,7 @@ bool:isTargetTraceable(entity, targetentref)
 }
 
 //트레이스레이필터
-public bool:tracerayfilterdefault(entity, mask, any:data)
+public bool tracerayfilterdefault(entity, mask, any:data)
 {
     return (entity != data);
 }

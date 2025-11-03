@@ -33,62 +33,62 @@
 #include "effect/HaloSprite"
 #include "effect/SendEffects"
 
-new const String:deathWav[] = "sc/zuldth00.wav";
-new const String:evolveWav[] = "sc/zulrdy00.wav";
-new const String:cleaveWav[] = "sc/zulror00.wav";
+char deathWav[] = "sc/zuldth00.wav";
+char evolveWav[] = "sc/zulrdy00.wav";
+char cleaveWav[] = "sc/zulror00.wav";
 
-new raceID, armorID, speedID, regenerationID, meleeID, cleaveID, chargeID;
+int raceID, armorID, speedID, regenerationID, meleeID, cleaveID, chargeID;
 
-new const String:g_UberKaiserBladesSound[] = "sc/zulhit01.wav";
-new Float:g_UberKaiserBladesPercent[] = { 0.30, 0.40, 0.50, 0.60, 0.80 };
+char g_UberKaiserBladesSound[] = "sc/zulhit01.wav";
+float g_UberKaiserBladesPercent[] = { 0.30, 0.40, 0.50, 0.60, 0.80 };
 
-new const String:g_ChargeSound[] = "sc/zulror00.wav";
-new const String:g_ChargeAttackSound[][] = { "sc/zulatt00.wav" ,
+char g_ChargeSound[] = "sc/zulror00.wav";
+char g_ChargeAttackSound[][] = { "sc/zulatt00.wav" ,
                                              "sc/zulatt01.wav" ,
                                              "sc/zulatt02.wav" };
-new Float:g_ChargePercent[] = { 0.15, 0.40, 0.65, 0.85, 1.00 };
+float g_ChargePercent[] = { 0.15, 0.40, 0.65, 0.85, 1.00 };
 #include "sc/Charge"
 
-new const String:g_ArmorName[] = "Plating";
-new Float:g_InitialArmor[]     = { 0.10, 0.25, 0.50, 0.75, 1.00 };
-new Float:g_ArmorPercent[][2]  = { {0.00, 0.10},
+char g_ArmorName[] = "Plating";
+float g_InitialArmor[]     = { 0.10, 0.25, 0.50, 0.75, 1.00 };
+float g_ArmorPercent[][2]  = { {0.00, 0.10},
                                    {0.10, 0.20},
                                    {0.15, 0.30},
                                    {0.20, 0.40},
                                    {0.25, 0.50} };
 
-new Float:g_Gravity[]          = { 1.0, 2.0, 4.0, 6.0, 10.0 };
+float g_Gravity[]          = { 1.0, 2.0, 4.0, 6.0, 10.0 };
 
-//new Float:speed=g_Speed[armor_level][speed_level];
-new Float:g_Speed[][]          = { { 0.85, 0.90, 0.93, 0.97, 1.00 },
+//float speed=g_Speed[armor_level][speed_level];
+float g_Speed[][]          = { { 0.85, 0.90, 0.93, 0.97, 1.00 },
                                 { 0.80, 0.85, 0.90, 0.95, 0.99 },
                                 { 0.75, 0.80, 0.85, 0.90, 0.98 },
                                 { 0.70, 0.80, 0.85, 0.90, 0.97 },
                                 { 0.60, 0.70, 0.80, 0.90, 0.95 } };
-//new Float:g_Speed[][]        = { { 0.85, 0.88, 0.93, 0.97, 1.00 },
+//float g_Speed[][]        = { { 0.85, 0.88, 0.93, 0.97, 1.00 },
 //                                { 0.78, 0.84, 0.88, 0.93, 0.97 },
 //                                { 0.75, 0.80, 0.85, 0.90, 0.95 },
 //                                { 0.70, 0.75, 0.80, 0.85, 0.90 },
 //                                { 0.65, 0.70, 0.75, 0.80, 0.85 } };
-//new Float:g_Speed[][]        = { { 0.80, 0.85, 0.90, 0.95, 1.00 },
+//float g_Speed[][]        = { { 0.80, 0.85, 0.90, 0.95, 1.00 },
 //                                { 0.75, 0.80, 0.85, 0.90, 0.95 },
 //                                { 0.70, 0.75, 0.80, 0.85, 0.90 },
 //                                { 0.65, 0.70, 0.75, 0.80, 0.85 },
 //                                { 0.60, 0.65, 0.70, 0.75, 0.80 } };
-//new Float:g_Speed[][]        = { { 1.00, 1.05, 1.10, 1.15, 1.20 },
+//float g_Speed[][]        = { { 1.00, 1.05, 1.10, 1.15, 1.20 },
 //                                { 0.90, 1.00, 1.05, 1.10, 1.15 },
 //                                { 0.80, 0.90, 1.00, 1.05, 1.10 },
 //                                { 0.70, 0.80, 0.90, 1.00, 1.05 },
 //                                { 0.60, 0.70, 0.80, 0.90, 1.00 } };
 
-new g_RegenerationAmount[]     = { 1, 2, 3, 4, 5 };
+int g_RegenerationAmount[]     = { 1, 2, 3, 4, 5 };
 
-new g_sockItem = -1;
-new g_bootsItem = -1;
+int g_sockItem = -1;
+int g_bootsItem = -1;
 
-new bool:m_HasAttacked[MAXPLAYERS+1];
+bool m_HasAttacked[MAXPLAYERS+1];
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Unit - Zerg Ultralisk",
     author = "-=|JFH|=-Naris",
@@ -139,7 +139,7 @@ public OnSourceCraftReady()
 
     for (new level=0; level < sizeof(g_ArmorPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "armor_percent_level_%d", level);
         GetConfigFloatArray(key, g_ArmorPercent[level], sizeof(g_ArmorPercent[]),
                             g_ArmorPercent[level], raceID, armorID);
@@ -153,7 +153,7 @@ public OnSourceCraftReady()
 
     for (new level=0; level < sizeof(g_Speed); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "armor_level_%d", level);
         GetConfigFloatArray(key, g_Speed[level], sizeof(g_Speed[]),
                             g_Speed[level], raceID, speedID);
@@ -202,7 +202,7 @@ public OnClientDisconnect(client)
     KillClientTimer(client);
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -218,7 +218,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
     return Plugin_Continue;
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
@@ -325,7 +325,7 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event,victim_index,victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event,victim_index,victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     if (!from_sc && attacker_index > 0 &&
@@ -368,7 +368,7 @@ public OnPlayerDeathEvent(Handle:event,victim_index,victim_race, attacker_index,
     }
 }
 
-public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:angles[3], &weapon)
+public Action OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:angles[3], &weapon)
 {
     if (buttons & (IN_ATTACK|IN_ATTACK2))
     {
@@ -377,7 +377,7 @@ public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:ang
     return Plugin_Continue;
 }
 
-public Action:Regeneration(Handle:timer, any:userid)
+public Action Regeneration(Handle:timer, any:userid)
 {
     new client = GetClientOfUserId(userid);
     if (IsValidClientAlive(client) && GetRace(client) == raceID &&
@@ -401,7 +401,7 @@ SetupSpeedAndGravity(client, armor_level, speed_level, bool:apply=false)
 {
     TraceInto("ZergUltralisk", "SetupSpeedAndGravity");
 
-    new Float:speed=g_Speed[armor_level][speed_level];
+    float speed=g_Speed[armor_level][speed_level];
     if (speed >= 0.0 && speed != 1.0)
     {
         /* If the Player also has the Boots of Speed,
@@ -414,11 +414,11 @@ SetupSpeedAndGravity(client, armor_level, speed_level, bool:apply=false)
             speed *= 1.1;
 
         #if defined _TRACE
-            new Float:calc = speed;
+            float calc = speed;
         #endif
 
         // Make slowest base speed 200 (Heavy == 230)
-        new Float:limit = (TF2_IsPlayerSlowed(client) ? 80.0 : 200.0)
+        float limit = (TF2_IsPlayerSlowed(client) ? 80.0 : 200.0)
                           / TF2_GetClassSpeed(TF2_GetPlayerClass(client));
         if (speed < limit)
             speed = limit;
@@ -437,7 +437,7 @@ SetupSpeedAndGravity(client, armor_level, speed_level, bool:apply=false)
               client, ValidClientIndex(client), -1.0);
     }
 
-    new Float:gravity = g_Gravity[armor_level];
+    float gravity = g_Gravity[armor_level];
     if (gravity >= 0.0 && gravity != 1.0)
     {
         /* If the Player also has the Sock of the Feather,
@@ -466,7 +466,7 @@ SetupSpeedAndGravity(client, armor_level, speed_level, bool:apply=false)
 
     if (IsPlayerAlive(client))
     {
-        new Float:start[3];
+        float start[3];
         GetClientAbsOrigin(client, start);
 
         static const color[4] = { 100, 20, 100, 255 };
@@ -483,7 +483,7 @@ Cleave(client, level)
     if (GetRestriction(client,Restriction_NoUltimates) ||
         GetRestriction(client,Restriction_Stunned))
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, cleaveID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
         PrepareAndEmitSoundToClient(client,deniedWav);
@@ -503,7 +503,7 @@ Cleave(client, level)
         new lightning  = Lightning();
         new haloSprite = HaloSprite();
         static const cleaveColor[4] = {139, 69, 19, 255};
-        new Float:range = 50.0 + float(level)*50.0;
+        float range = 50.0 + float(level)*50.0;
 
         new dmg = (GameType == tf2 && (class == TFClass_Scout || class == TFClass_Spy))
                   ? GetRandomInt(1+(level*5),5+(level*10))
@@ -511,14 +511,14 @@ Cleave(client, level)
 
         PrepareAndEmitSoundToAll(cleaveWav,client);
 
-        new Float:indexLoc[3];
-        new Float:clientLoc[3];
+        float indexLoc[3];
+        float clientLoc[3];
         GetClientAbsOrigin(client, clientLoc);
         clientLoc[2] += 50.0; // Adjust trace position to the middle of the person instead of the feet.
 
         new count = 0;
-        new Float:force = float(level) * -75.0;
-        new Float:vertForce = force * -2.0;
+        float force = float(level) * -75.0;
+        float vertForce = force * -2.0;
         if (vertForce < 300.0)
             vertForce = 300.0;
 
@@ -537,7 +537,7 @@ Cleave(client, level)
                     // Knockback isn't effected by immunities & uber!
                     Push(index, indexLoc, clientLoc, force, vertForce);
 
-                    new bool:isUber = IsInvulnerable(index);
+                    bool isUber = IsInvulnerable(index);
                     if ((level >= 2 || !GetImmunity(index,Immunity_HealthTaking)) &&
                         (level >= 3 || !GetImmunity(index,Immunity_Ultimates)) &&
                         (level >= 4 || !isUber))
@@ -546,7 +546,7 @@ Cleave(client, level)
                                            0, 1, 10.0, 10.0,10.0,2,50.0,cleaveColor,255);
                         TE_SendQEffectToAll(client,index);
 
-                        new Float:Origin[3];
+                        float Origin[3];
                         GetClientAbsOrigin(index, Origin);
                         Origin[2] += 5;
 
@@ -572,7 +572,7 @@ Cleave(client, level)
         if (GetGameType() == tf2)
         {
             // Damage Structures
-            new Float:pos[3];
+            float pos[3];
             new maxents = GetMaxEntities();
             for (new ent = MaxClients; ent < maxents; ent++)
             {

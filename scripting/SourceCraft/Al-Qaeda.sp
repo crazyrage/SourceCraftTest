@@ -37,26 +37,26 @@
 #include "effect/FlashScreen"
 #include "effect/Shake"
 
-new const String:allahWav[] = "sc/allahuakbar.wav";
-new const String:kaboomWav[] = "sc/iraqi_engaging.wav";
+char allahWav[] = "sc/allahuakbar.wav";
+char kaboomWav[] = "sc/iraqi_engaging.wav";
 
-new g_ReincarnationChance[] = { 0, 9, 22, 36, 53 };
+int g_ReincarnationChance[] = { 0, 9, 22, 36, 53 };
 
-new Float:g_WrathRange[]    = { 0.0, 300.0, 450.0, 650.0, 800.0 };
+float g_WrathRange[]    = { 0.0, 300.0, 450.0, 650.0, 800.0 };
 
-new g_BomberChance[]        = {   0,    75,    60,    40, 20 };
-new g_BomberDamage[]        = {   0,    25,    50,    70, 80 };
-new g_SucideBombDamage[]    = {   0,   300,   350,   400, 500 };
-new Float:g_BomberRadius[]  = { 0.0, 100.0, 200.0, 250.0, 300.0 };
+int g_BomberChance[]        = {   0,    75,    60,    40, 20 };
+int g_BomberDamage[]        = {   0,    25,    50,    70, 80 };
+int g_SucideBombDamage[]    = {   0,   300,   350,   400, 500 };
+float g_BomberRadius[]  = { 0.0, 100.0, 200.0, 250.0, 300.0 };
 
-new cfgMaxRespawns          = 4;
+int cfgMaxRespawns          = 4;
 
-new raceID, reincarnationID, wrathID, suicideID, bomberID;
+int raceID, reincarnationID, wrathID, suicideID, bomberID;
 
-new bool:m_Suicided[MAXPLAYERS+1];
-new Float:m_BomberTime[MAXPLAYERS+1];
+bool m_Suicided[MAXPLAYERS+1];
+float m_BomberTime[MAXPLAYERS+1];
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Al-Qaeda",
     author = "-=|JFH|=-Naris (Murray Wilson)",
@@ -199,7 +199,7 @@ public OnClientDisconnect(client)
     KillClientTimer(client);
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -223,7 +223,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
         return Plugin_Continue;
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
@@ -295,7 +295,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                 else if (GetRestriction(client,Restriction_NoUltimates) ||
                          GetRestriction(client,Restriction_Stunned))
                 {
-                    decl String:upgradeName[64];
+                    char upgradeName[64];
                     GetUpgradeName(raceID, bomberID, upgradeName, sizeof(upgradeName), client);
                     DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
                     PrepareAndEmitSoundToClient(client,deniedWav);
@@ -394,7 +394,7 @@ public OnPlayerDeathEvent(Handle:event,victim_index,victim_race, attacker_index,
         {
             PrepareAndEmitSoundToClient(victim_index,deniedWav);
 
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, reincarnationID, upgradeName, sizeof(upgradeName), victim_index);
             DisplayMessage(victim_index, Display_Message, "%t", "NotAsMole", upgradeName);
             m_ReincarnationCount[victim_index] = 0;
@@ -481,7 +481,7 @@ public OnPlayerDeathEvent(Handle:event,victim_index,victim_race, attacker_index,
                     {
                         Respawn(victim_index);
 
-                        decl String:suffix[3];
+                        char suffix[3];
                         count = m_ReincarnationCount[victim_index];
                         GetNumberSuffix(count, suffix, sizeof(suffix));
 
@@ -562,7 +562,7 @@ public OnPlayerDeathEvent(Handle:event,victim_index,victim_race, attacker_index,
     }
 }
 
-public Action:MadBomber(Handle:timer,any:userid)
+public Action MadBomber(Handle:timer,any:userid)
 {
     new client = GetClientOfUserId(userid);
     if (client > 0)
@@ -570,7 +570,7 @@ public Action:MadBomber(Handle:timer,any:userid)
         new ult_level=GetUpgradeLevel(client,raceID,bomberID);
         if (ult_level > 0)
         {
-            new Float:interval = GetGameTime() - m_BomberTime[client];
+            float interval = GetGameTime() - m_BomberTime[client];
             m_BomberTime[client] = GetGameTime();
             if (interval < 0.18 || GetRandomInt(1,100)<=g_BomberChance[ult_level])
             {
@@ -586,7 +586,7 @@ public Action:MadBomber(Handle:timer,any:userid)
     return Plugin_Stop;
 }
 
-public Action:Kaboom(Handle:timer,any:userid)
+public Action Kaboom(Handle:timer,any:userid)
 {
     new client = GetClientOfUserId(userid);
     if (client > 0)
@@ -613,7 +613,7 @@ public Bomber(client,level,bool:ondeath)
     }
 }
 
-public Action:FlamingWrath(Handle:timer, any:userid)
+public Action FlamingWrath(Handle:timer, any:userid)
 {
     new client = GetClientOfUserId(userid);
     if (IsValidClientAlive(client))
@@ -626,10 +626,10 @@ public Action:FlamingWrath(Handle:timer, any:userid)
                 !(GetRestriction(client,Restriction_NoUpgrades) ||
                   GetRestriction(client,Restriction_Stunned)))
             {
-                new Float:range=g_WrathRange[flaming_wrath_level];
+                float range=g_WrathRange[flaming_wrath_level];
 
-                new Float:indexLoc[3];
-                new Float:clientLoc[3];
+                float indexLoc[3];
+                float clientLoc[3];
                 GetClientAbsOrigin(client, clientLoc);
                 clientLoc[2] += 50.0; // Adjust trace position to the middle of the person instead of the feet.
 

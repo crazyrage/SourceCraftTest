@@ -3,17 +3,17 @@
 
 #define PLUGIN_VERSION 	"1.8A"
 
-new Handle:g_enabled = INVALID_HANDLE;
-new Handle:g_info = INVALID_HANDLE;
-new Handle:g_multiplier = INVALID_HANDLE;
-new Handle:g_playermultiplier = INVALID_HANDLE;
+Handle g_enabled = INVALID_HANDLE;
+Handle g_info = INVALID_HANDLE;
+Handle g_multiplier = INVALID_HANDLE;
+Handle g_playermultiplier = INVALID_HANDLE;
 
-new Float:Damage[MAXPLAYERS+1];
+float Damage[MAXPLAYERS+1];
 
-new Handle:trieWeapons;
-new Handle:trieAmount;
+Handle trieWeapons;
+Handle trieAmount;
 
-public Plugin:myinfo =
+public Plugin myinfo =
 {
 	name = "SM Damage",
 	author = "SWAT_88, sdkhooks port by AtomicStryker",
@@ -48,7 +48,7 @@ public OnClientPutInServer(client)
 	SDKHook(client, SDKHook_OnTakeDamage, OnTakeDamage);
 }
 
-public OnEntityCreated(entity, const String:classname[])
+public OnEntityCreated(entity, const char classname[])
 {
 	if (StrEqual(classname, "infected") || StrEqual(classname, "witch"))
 	{
@@ -56,16 +56,16 @@ public OnEntityCreated(entity, const String:classname[])
 	}
 }
 
-public Action:OnTakeDamage(victim, &attacker, &inflictor, &Float:damage, &damagetype)
+public Action OnTakeDamage(victim, &attacker, &inflictor, &Float:damage, &damagetype)
 {
 	if(!GetConVarBool(g_enabled)) return Plugin_Handled; // is this thing even on?
 
-	decl String:sWeapon[32], Float:mWeapon, Float:amountWeapon;
+	char sWeapon[32], Float:mWeapon, Float:amountWeapon;
 	GetEdictClassname(inflictor, sWeapon, sizeof(sWeapon));
 	
-	new bool:changed;
-	new Float:changemulti = 1.0;
-	new Float:globalmulti = GetConVarFloat(g_multiplier);
+	bool changed;
+	float changemulti = 1.0;
+	float globalmulti = GetConVarFloat(g_multiplier);
 	
 	if(globalmulti != 1.0) //check for a global damage multiplier setting
 	{
@@ -103,10 +103,10 @@ public Action:OnTakeDamage(victim, &attacker, &inflictor, &Float:damage, &damage
 	return Plugin_Continue;
 }
 
-public Action:CmdDamageSet(client, args)
+public Action CmdDamageSet(client, args)
 {
-	decl String:player[256];
-	decl String:multiplier[20];
+	char player[256];
+	char multiplier[20];
 	
 	if(GetConVarInt(g_enabled) == 0) return Plugin_Handled;
 	
@@ -115,11 +115,11 @@ public Action:CmdDamageSet(client, args)
 		GetCmdArg(1,player,255);
 		GetCmdArg(2,multiplier,19);
 		
-		decl String:target_name[MAX_TARGET_LENGTH];
+		char target_name[MAX_TARGET_LENGTH];
 		decl target_list[MAXPLAYERS];
 		decl target_count;
-		decl bool:tn_is_ml;
-		decl String:name[256];
+		bool tn_is_ml;
+		char name[256];
 		
 		if ((target_count = ProcessTargetString(player,client,target_list, MAXPLAYERS, 0, target_name, sizeof(target_name), tn_is_ml)) <= 0)
 		{
@@ -147,10 +147,10 @@ public Action:CmdDamageSet(client, args)
 	return Plugin_Handled;
 }
 
-public Action:CmdWeaponSet(client, args)
+public Action CmdWeaponSet(client, args)
 {
-	decl String:weapon[32];
-	decl String:multiplier[20];
+	char weapon[32];
+	char multiplier[20];
 	
 	if(!GetConVarBool(g_enabled)) return Plugin_Handled;
 	
@@ -172,9 +172,9 @@ public Action:CmdWeaponSet(client, args)
 	return Plugin_Handled;
 }
 
-public Action:CmdWeaponAmountSet(client, args)
+public Action CmdWeaponAmountSet(client, args)
 {
-	decl String:weapon[32], String:amount[20];
+	char weapon[32], String:amount[20];
 	
 	if(!GetConVarBool(g_enabled)) return Plugin_Handled;
 	
@@ -194,7 +194,7 @@ public Action:CmdWeaponAmountSet(client, args)
 	return Plugin_Handled;
 }
 
-public Action:CmdClearWeaponSettings(client, args)
+public Action CmdClearWeaponSettings(client, args)
 {
 	if(!GetConVarBool(g_enabled)) return Plugin_Handled;
 	

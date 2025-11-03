@@ -27,7 +27,7 @@ enum Mode
     MvM,
 };
 
-stock const String:GameTypes[][] = 
+stock const char GameTypes[][] = 
 {
     "undetected",
     "tf2",
@@ -64,7 +64,7 @@ stock Game:GetGameType()
 {
     if (GameType == undetected)
     {
-        new String:modname[30];
+        char modname[30];
         GetGameFolderName(modname, sizeof(modname));
         if (StrEqual(modname,"tf",false)) 
             GameType=tf2;

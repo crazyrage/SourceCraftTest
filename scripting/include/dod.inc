@@ -29,10 +29,10 @@ enum DODClassType
 	DODClass_Rocketman
 };
 
-stock const String:DOD_TeamName[DODTeam][] = { "Unassigned", "Spectator", "Allies", "Axis" };
+stock const char DOD_TeamName[DODTeam][] = { "Unassigned", "Spectator", "Allies", "Axis" };
 #define DOD_GetTeamName(%1) DOD_TeamName[%1]
 
-stock const String:DOD_ClassName[][] = { "", "Rifleman", "Assault", "Support", "Sniper", "MachineGunner", "Rocketman" };
+stock const char DOD_ClassName[][] = { "", "Rifleman", "Assault", "Support", "Sniper", "MachineGunner", "Rocketman" };
 #define DOD_GetClassName(%1) DOD_ClassName[%1]
 
 /**
@@ -76,7 +76,7 @@ enum DODWeapon
 	DODWeapon_GermanRifleGrenade
 };
 
-stock const String:DOD_WeaponEntity[/*DODWeapon*/][] = {
+stock const char DOD_WeaponEntity[/*DODWeapon*/][] = {
     "",
 	"weapon_amerknife",
 	"weapon_spade",

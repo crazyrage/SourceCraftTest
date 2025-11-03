@@ -9,17 +9,17 @@
 #define CONFIG_FILE "data/projectile_replacer.cfg"
 
 // global variables
-new Handle:g_Cvar_Enabled = INVALID_HANDLE;
+Handle g_Cvar_Enabled = INVALID_HANDLE;
 
-new g_ArrayModelSize;
-new g_ClassSize = 65;
+int g_ArrayModelSize;
+int g_ClassSize = 65;
 
 // For storage, we need a multiple dimensional array, but it can't be fixed size...
 // Therefore, we have adt_arrays of adt_arrays. :/
-new Handle:g_Replacements = INVALID_HANDLE;
-new Handle:g_ReplacementClasses = INVALID_HANDLE;
+Handle g_Replacements = INVALID_HANDLE;
+Handle g_ReplacementClasses = INVALID_HANDLE;
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
 	name = "Projectile Replacer",
 	author = "Powerlord",
@@ -57,7 +57,7 @@ public OnConfigsExecuted()
 	}
 }
 
-public OnEnabledChanged(Handle:convar, const String:oldValue[], const String:newValue[])
+public OnEnabledChanged(Handle:convar, const char oldValue[], const char newValue[])
 {
 	if (GetConVarBool(convar))
 	{
@@ -69,7 +69,7 @@ public OnEnabledChanged(Handle:convar, const String:oldValue[], const String:new
 	}
 }
 
-public Action:ReloadConfig(client, args)
+public Action ReloadConfig(client, args)
 {
 	ReadConfigFile();
 	
@@ -84,10 +84,10 @@ stock ReadConfigFile()
 
 	ClearReplacementArrays();
 	
-	decl String:filePath[PLATFORM_MAX_PATH];
+	char filePath[PLATFORM_MAX_PATH];
 	BuildPath(Path_SM, filePath, sizeof(filePath), "%s", CONFIG_FILE);
 	
-	new Handle:kvProjectiles = CreateKeyValues("ProjectileReplacements");
+	Handle kvProjectiles = CreateKeyValues("ProjectileReplacements");
 
 	if (!FileToKeyValues(kvProjectiles, filePath))
 	{
@@ -103,11 +103,11 @@ stock ReadConfigFile()
 	
 	do
 	{
-		decl String:classname[g_ClassSize];
+		char classname[g_ClassSize];
 		KvGetSectionName(kvProjectiles, classname, g_ClassSize);
 		
 		// Go to the values
-		new Handle:replacements = CreateArray(g_ArrayModelSize);
+		Handle replacements = CreateArray(g_ArrayModelSize);
 		
 		if (!KvGotoFirstSubKey(kvProjectiles, false))
 		{
@@ -117,7 +117,7 @@ stock ReadConfigFile()
 		do
 		{
 			// Get the current element
-			decl String:model[PLATFORM_MAX_PATH];
+			char model[PLATFORM_MAX_PATH];
 			KvGetString(kvProjectiles, NULL_STRING, model, sizeof(model));
 			
 			if (!StrEqual(model, ""))
@@ -147,17 +147,17 @@ stock LoadModels()
 
 	for (new i = 0; i < size; i++)
 	{
-		decl String:classname[g_ClassSize];
+		char classname[g_ClassSize];
 		GetArrayString(g_ReplacementClasses, i, classname, g_ClassSize);
 		
-		new Handle:replacements;
+		Handle replacements;
 		GetTrieValue(g_Replacements, classname, replacements);
 		
 		new modelCount = GetArraySize(replacements);
 		
 		for (new j = 0; j < modelCount; j++)
 		{
-			decl String:model[PLATFORM_MAX_PATH];
+			char model[PLATFORM_MAX_PATH];
 			GetArrayString(replacements, j, model, PLATFORM_MAX_PATH);
 			
 			PrecacheModel(model);
@@ -167,7 +167,7 @@ stock LoadModels()
 	
 }
 
-public OnEntityCreated(entity, const String:classname[])
+public OnEntityCreated(entity, const char classname[])
 {
 	if (GetConVarBool(g_Cvar_Enabled))
 	{
@@ -180,14 +180,14 @@ public OnEntityCreated(entity, const String:classname[])
 
 public ProjectileSpawned(entity)
 {
-	decl String:classname[g_ClassSize];
+	char classname[g_ClassSize];
 	
 	GetEntityClassname(entity, classname, g_ClassSize);
 	
-	new Handle:replacements;
+	Handle replacements;
 	if (GetTrieValue(g_Replacements, classname, replacements))
 	{
-		decl String:model[PLATFORM_MAX_PATH];
+		char model[PLATFORM_MAX_PATH];
 		new rand = GetRandomInt(1, GetArraySize(replacements)) - 1;
 		GetArrayString(replacements, rand, model, PLATFORM_MAX_PATH);
 		SetEntityModel(entity, model);
@@ -202,10 +202,10 @@ stock ClearReplacementArrays()
 	
 	for (new i = 0; i < size; i++)
 	{
-		decl String:classname[g_ClassSize];
+		char classname[g_ClassSize];
 		GetArrayString(g_ReplacementClasses, i, classname, g_ClassSize);
 		
-		new Handle:replacements;
+		Handle replacements;
 		GetTrieValue(g_Replacements, classname, replacements);
 		
 		CloseHandle(replacements);

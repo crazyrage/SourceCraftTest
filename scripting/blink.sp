@@ -12,7 +12,7 @@
 #define	CLIENTHEIGHT	90.0
 
 //SM_Blink:
-public Action:Command_Blink(Client, Arguments)
+public Action Command_Blink(Client, Arguments)
 {
 
 	//Player:
@@ -27,7 +27,7 @@ public Action:Command_Blink(Client, Arguments)
 
 		//Retrieve Arguments:
 		decl MaxClients;
-		decl String:ArgumentName[32], String:PlayerName[32];
+		char ArgumentName[32], String:PlayerName[32];
 
 		//Initialize:
 		MaxClients = GetMaxClients();
@@ -51,7 +51,7 @@ public Action:Command_Blink(Client, Arguments)
 
 	//Declare:
 	decl Handle:TraceRay;
-	decl Float:StartOrigin[3], Float:Angles[3];
+	float StartOrigin[3], Float:Angles[3];
 
 	//Initialize:
 	GetClientEyeAngles(Client, Angles);
@@ -65,8 +65,8 @@ public Action:Command_Blink(Client, Arguments)
 	{
 
 		//Declare:
-		decl Float:Distance;
-		decl Float:PositionBuffer[3], Float:EndOrigin[3], Float:CeilingBuffer[3];
+		float Distance;
+		float PositionBuffer[3], Float:EndOrigin[3], Float:CeilingBuffer[3];
 
 		//Retrieve:
 		TR_GetEndPosition(EndOrigin, TraceRay);
@@ -99,7 +99,7 @@ public Action:Command_Blink(Client, Arguments)
 }
 
 //Information:
-public Plugin:myinfo =
+public Plugin myinfo =
 {
 
 	//Initialize:

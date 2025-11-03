@@ -8,7 +8,7 @@
 
 #define PL_VERSION "1.2.1"
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
   name = "TF Tools",
   author = "Nican132",
@@ -17,11 +17,11 @@ public Plugin:myinfo =
   url = "http://sourcemod.net/"
 };       
 
-new SentryModel[4];
-new SentryShells[4] = {0, 100, 120, 144};
-new Handle:hGameConf, Handle:OffsetSentryModel;
+int SentryModel[4];
+int SentryShells[4] = {0, 100, 120, 144};
+Handle hGameConf, Handle:OffsetSentryModel;
 
-new TF_TRoffsets[8];
+int TF_TRoffsets[8];
 #define TURRET_LEVEL 0
 #define TURRET_STATE 1
 #define TURRET_SHELLS 2
@@ -62,7 +62,7 @@ public OnMapStart(){
 	SentryModel[0] = 0;
 }
 
-public bool:AskPluginLoad(Handle:myself, bool:late, String:Error[])
+public bool AskPluginLoad(Handle:myself, bool:late, String:Error[])
 {
   // General
   CreateNative("TF_TurretLevel", SetTurretLevel);
@@ -87,7 +87,7 @@ public SetTurretLevel(Handle:plugin,argc){
 				return 4;
 		}else{
 		 	//LogMessage("D");
-		 	new String:classname[64];
+		 	char classname[64];
 			GetEntityNetClass(index, classname, 64);
 			if(!StrEqual(classname, "CObjectSentrygun"))
 				//Idiot, that is not a turret
@@ -177,11 +177,11 @@ public GetPlayerEyes(Handle:plugin,argc){
 		if(!IsClientInGame(client))
 			return false;
 			
-		new Float:vAngles[3], Float:vOrigin[3];
+		float vAngles[3], Float:vOrigin[3];
 		GetClientEyePosition(client,vOrigin);
 		GetClientEyeAngles(client, vAngles);
 		
-		new Handle:trace = TR_TraceRayFilterEx(vOrigin, vAngles, MASK_SHOT, RayType_Infinite, TraceEntityFilterSentry);
+		Handle trace = TR_TraceRayFilterEx(vOrigin, vAngles, MASK_SHOT, RayType_Infinite, TraceEntityFilterSentry);
 		
 		if(TR_DidHit(trace)){
 			return TR_GetEntityIndex(trace);
@@ -190,8 +190,8 @@ public GetPlayerEyes(Handle:plugin,argc){
 	return 0;
 }
 
-public bool:TraceEntityFilterSentry(entity, contentsMask){
- 	new String:classname[64];
+public bool TraceEntityFilterSentry(entity, contentsMask){
+ 	char classname[64];
  	GetEntityNetClass(entity, classname, 64);
  	return StrEqual(classname, "CObjectSentrygun");
 }

@@ -39,7 +39,7 @@ stock Levitation(client, Float:gravity, bool:apply=false)
 
         if (IsValidClientAlive(client))
         {
-            new Float:start[3];
+            float start[3];
             GetClientAbsOrigin(client, start);
 
             static const color[4] = { 0, 20, 100, 255 };

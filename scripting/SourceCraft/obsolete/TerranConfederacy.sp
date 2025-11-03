@@ -29,7 +29,7 @@ new g_lightningSprite;
 
 new m_Armor[MAXPLAYERS+1];
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Terran Confederacy",
     author = "-=|JFH|=-Naris",
@@ -148,7 +148,7 @@ public PlayerSpawnEvent(Handle:event,const String:name[],bool:dontBroadcast)
     new client=GetClientOfUserId(userid);
     if (client)
     {
-        new Handle:player=GetPlayerHandle(client);
+        Handle player=GetPlayerHandle(client);
         if (player != INVALID_HANDLE)
         {
             new race = GetRace(player);
@@ -170,12 +170,12 @@ public PlayerSpawnEvent(Handle:event,const String:name[],bool:dontBroadcast)
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event,victim_index,Handle:victim_player,victim_race,
+public Action OnPlayerHurtEvent(Handle:event,victim_index,Handle:victim_player,victim_race,
                                 attacker_index,Handle:attacker_player,attacker_race,
                                 assister_index,Handle:assister_player,assister_race,
                                 damage)
 {
-    new bool:changed=false;
+    bool changed=false;
 
     if (victim_race == raceID)
         changed = Armor(damage, victim_index, victim_player);
@@ -212,7 +212,7 @@ bool:Armor(damage, victim_index, Handle:victim_player)
     new armor_level = GetUpgradeLevel(victim_player,raceID,armorID);
     if (armor_level)
     {
-        new Float:from_percent,Float:to_percent;
+        float from_percent,Float:to_percent;
         switch(armor_level)
         {
             case 1:
@@ -251,7 +251,7 @@ bool:Armor(damage, victim_index, Handle:victim_player)
 
             m_Armor[victim_index] = armor - amount;
 
-            decl String:victimName[64];
+            char victimName[64];
             GetClientName(victim_index,victimName,63);
 
             DisplayMessage(victim_index,SC_DISPLAY_DEFENSE,
@@ -273,11 +273,11 @@ bool:U238Shells(Handle:event, damage, victim_index, Handle:victim_player, index,
         {
             if(GetRandomInt(1,100)<=25)
             {
-                decl String:weapon[64];
-                new bool:is_equipment=GetWeapon(event,index,weapon,sizeof(weapon));
+                char weapon[64];
+                bool is_equipment=GetWeapon(event,index,weapon,sizeof(weapon));
                 if (!IsMelee(weapon, is_equipment,index,victim_index))
                 {
-                    new Float:percent;
+                    float percent;
                     switch(u238_level)
                     {
                         case 1:
@@ -318,7 +318,7 @@ Stimpacks(client, Handle:player, level)
 {
     if (level > 0)
     {
-        new Float:speed=1.0;
+        float speed=1.0;
         switch (level)
         {
             case 1: speed=1.10;
@@ -336,7 +336,7 @@ Stimpacks(client, Handle:player, level)
             speed *= 1.1;
         }
 
-        new Float:start[3];
+        float start[3];
         GetClientAbsOrigin(client, start);
 
         new color[4] = { 255, 100, 0, 255 };

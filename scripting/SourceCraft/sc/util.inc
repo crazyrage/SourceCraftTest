@@ -22,7 +22,7 @@ stock Mod:GetGameType()
 {
     if (GameType == undetected)
     {
-        new String:modname[30];
+        char modname[30];
         GetGameFolderName(modname, sizeof(modname));
         if (StrEqual(modname,"cstrike",false))
             GameType=cstrike;
@@ -44,7 +44,7 @@ stock bool:SetupSound(const String:wav[], bool:preload=false, bool:download=fals
 {
     if (download)
     {
-        decl String:file[PLATFORM_MAX_PATH+1];
+        char file[PLATFORM_MAX_PATH+1];
         Format(file, PLATFORM_MAX_PATH, "sound/%s", wav);
 
         if(FileExists(file))

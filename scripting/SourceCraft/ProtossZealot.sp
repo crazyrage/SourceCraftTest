@@ -34,39 +34,39 @@
 #include "effect/HaloSprite"
 #include "effect/SendEffects"
 
-new const String:spawnWav[]         = "sc/pzerdy00.wav";
-new const String:deathWav[]         = "sc/pzedth00.mp3";
+char spawnWav[]         = "sc/pzerdy00.wav";
+char deathWav[]         = "sc/pzedth00.mp3";
 
-new const String:g_PsiBladesSound[] = "sc/uzefir00.wav";
+char g_PsiBladesSound[] = "sc/uzefir00.wav";
 
-new const String:g_ChargeSound[]    = "sc/pzerag00.wav";
+char g_ChargeSound[]    = "sc/pzerag00.wav";
 
-new const String:g_ChargeAttackSound[][] = { "sc/pzeatt00.wav" ,
+char g_ChargeAttackSound[][] = { "sc/pzeatt00.wav" ,
                                              "sc/pzeatt01.wav" ,
                                              "sc/pzehit00.wav" };
 
-new raceID, immunityID, legID, shieldsID, chargeID;
-new meleeID, dragoonID, immortalID, stalkerID;
+int raceID, immunityID, legID, shieldsID, chargeID;
+int meleeID, dragoonID, immortalID, stalkerID;
 
-new Float:g_ChargePercent[]         = { 0.10, 0.25, 0.50, 0.75, 1.00 };
+float g_ChargePercent[]         = { 0.10, 0.25, 0.50, 0.75, 1.00 };
 #include "sc/Charge"
 
-new Float:g_PsiBladesPercent[]      = { 0.0, 0.15, 0.30, 0.40, 0.50 };
+float g_PsiBladesPercent[]      = { 0.0, 0.15, 0.30, 0.40, 0.50 };
 
-new Float:g_SpeedLevels[]           = { -1.0, 1.05, 1.10, 1.15, 1.20 };
+float g_SpeedLevels[]           = { -1.0, 1.05, 1.10, 1.15, 1.20 };
 
-new Float:g_InitialShields[]        = { 0.0, 0.10, 0.20, 0.30, 0.40 };
-new Float:g_ShieldsPercent[][2]     = { {0.00, 0.00},
+float g_InitialShields[]        = { 0.0, 0.10, 0.20, 0.30, 0.40 };
+float g_ShieldsPercent[][2]     = { {0.00, 0.00},
                                         {0.00, 0.05},
                                         {0.02, 0.10},
                                         {0.05, 0.15},
                                         {0.08, 0.20} };
 
-new g_dragoonRace = -1;
-new g_stalkerRace = -1;
-new g_immortalRace = -1;
+int g_dragoonRace = -1;
+int g_stalkerRace = -1;
+int g_immortalRace = -1;
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Protoss Zealot",
     author = "-=|JFH|=-Naris",
@@ -121,7 +121,7 @@ public OnSourceCraftReady()
 
     for (new level=0; level < sizeof(g_ShieldsPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "shields_percent_level_%d", level);
         GetConfigFloatArray(key, g_ShieldsPercent[level], sizeof(g_ShieldsPercent[]),
                             g_ShieldsPercent[level], raceID, shieldsID);
@@ -168,7 +168,7 @@ public OnClientDisconnect(client)
     m_ChargeActive[client] = false;
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -218,7 +218,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
     }
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
@@ -402,7 +402,7 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     if (!from_sc && attacker_index > 0 &&
@@ -477,7 +477,7 @@ DoImmunity(client, level, bool:value)
 
     if (value && IsValidClientAlive(client))
     {
-        new Float:start[3];
+        float start[3];
         GetClientAbsOrigin(client, start);
 
         static const color[4] = { 0, 255, 50, 128 };
@@ -494,7 +494,7 @@ SummonDragoon(client)
 
     if (g_dragoonRace < 0)
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, dragoonID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "IsNotAvailable", upgradeName);
         LogError("***The Protoss Dragoon race is not Available!");
@@ -508,7 +508,7 @@ SummonDragoon(client)
     }
     else if (CanInvokeUpgrade(client, raceID, dragoonID))
     {
-        new Float:clientLoc[3];
+        float clientLoc[3];
         GetClientAbsOrigin(client, clientLoc);
         clientLoc[2] += 40.0; // Adjust position to the middle
 
@@ -531,7 +531,7 @@ SummonImmortal(client)
 
     if (g_immortalRace < 0)
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, immortalID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "IsNotAvailable", upgradeName);
         LogError("***The Protoss Immortal race is not Available!");
@@ -545,7 +545,7 @@ SummonImmortal(client)
     }
     else if (CanInvokeUpgrade(client, raceID, immortalID))
     {
-        new Float:clientLoc[3];
+        float clientLoc[3];
         GetClientAbsOrigin(client, clientLoc);
         clientLoc[2] += 40.0; // Adjust position to the middle
 
@@ -568,7 +568,7 @@ SummonStalker(client)
 
     if (g_stalkerRace < 0)
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, stalkerID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "IsNotAvailable", upgradeName);
         LogError("***The Protoss Stalker race is not Available!");
@@ -582,7 +582,7 @@ SummonStalker(client)
     }
     else if (CanInvokeUpgrade(client, raceID, stalkerID))
     {
-        new Float:clientLoc[3];
+        float clientLoc[3];
         GetClientAbsOrigin(client, clientLoc);
         clientLoc[2] += 40.0; // Adjust position to the middle
 

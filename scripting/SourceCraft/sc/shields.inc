@@ -86,7 +86,7 @@ stock SetupArmorAndShields(client, armor_level, shields_level, const Float:initi
     else
         m_savedArmor[client] = amount;
 
-    new bool:hasShields = (shields_level > 0);
+    bool hasShields = (shields_level > 0);
     new level = (armor_level > shields_level) ? armor_level : shields_level;
     SetArmor(client, amount, armorPercent[level],
              (hasShields) ? "Shields" : "Armor",

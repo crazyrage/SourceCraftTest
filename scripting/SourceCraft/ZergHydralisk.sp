@@ -34,33 +34,33 @@
 #include "effect/SendEffects"
 #include "effect/FlashScreen"
 
-new const String:poisonHitWav[]          = "sc/spifir00.wav";
-new const String:poisonReadyWav[]        = "sc/zhyrdy00.wav";
-new const String:poisonExpireWav[]       = "sc/zhywht01.wav";
+char poisonHitWav[]          = "sc/spifir00.wav";
+char poisonReadyWav[]        = "sc/zhyrdy00.wav";
+char poisonExpireWav[]       = "sc/zhywht01.wav";
 
-new const String:g_MissileAttackSound[]  = "sc/spooghit.wav";
-new g_MissileAttackChance[]              = { 0, 5, 15, 25, 35 };
-new Float:g_MissileAttackPercent[]       = { 0.0, 0.15, 0.30, 0.40, 0.50 };
+char g_MissileAttackSound[]  = "sc/spooghit.wav";
+int g_MissileAttackChance[]              = { 0, 5, 15, 25, 35 };
+float g_MissileAttackPercent[]       = { 0.0, 0.15, 0.30, 0.40, 0.50 };
 
-new const String:g_ArmorName[]           = "Carapace";
-new Float:g_InitialArmor[]               = { 0.0, 0.10, 0.20, 0.30, 0.40 };
-new Float:g_ArmorPercent[][2]            = { {0.00, 0.00},
+char g_ArmorName[]           = "Carapace";
+float g_InitialArmor[]               = { 0.0, 0.10, 0.20, 0.30, 0.40 };
+float g_ArmorPercent[][2]            = { {0.00, 0.00},
                                              {0.00, 0.05},
                                              {0.00, 0.10},
                                              {0.05, 0.15},
                                              {0.10, 0.20} };
 
-new Float:g_SpeedLevels[]                = { -1.0, 1.10, 1.15, 1.20, 1.25 };
-//new Float:g_SpeedLevels[]              = { -1.0, 1.20, 1.28, 1.36, 1.50 };
+float g_SpeedLevels[]                = { -1.0, 1.10, 1.15, 1.20, 1.25 };
+//float g_SpeedLevels[]              = { -1.0, 1.20, 1.28, 1.36, 1.50 };
 
-new g_lurkerRace = -1;
+int g_lurkerRace = -1;
 
-new raceID, carapaceID, regenerationID, augmentsID;
-new burrowID, missileID, spinesID, poisonID, lurkerID;
+int raceID, carapaceID, regenerationID, augmentsID;
+int burrowID, missileID, spinesID, poisonID, lurkerID;
 
-new bool:m_PoisonActive[MAXPLAYERS+1];
+bool m_PoisonActive[MAXPLAYERS+1];
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Zerg Hydralisk",
     author = "-=|JFH|=-Naris",
@@ -113,7 +113,7 @@ public OnSourceCraftReady()
 
     for (new level=0; level < sizeof(g_ArmorPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "armor_percent_level_%d", level);
         GetConfigFloatArray(key, g_ArmorPercent[level], sizeof(g_ArmorPercent[]),
                             g_ArmorPercent[level], raceID, carapaceID);
@@ -154,7 +154,7 @@ public OnClientDisconnect(client)
     m_PoisonActive[client] = false;
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -183,7 +183,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
     }
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
@@ -367,16 +367,16 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
-    new bool:handled=false;
+    bool handled=false;
 
     if (!from_sc && attacker_index > 0 &&
         attacker_index != victim_index &&
         attacker_race == raceID)
     {
-        new bool:used=false;
+        bool used=false;
         if (m_PoisonActive[attacker_index])
         {
             new poison_level=GetUpgradeLevel(attacker_index,raceID,poisonID);
@@ -433,15 +433,15 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
     return handled ? Plugin_Handled : Plugin_Continue;
 }
 
-public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
+public Action OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
                                   assister_index, assister_race, damage,
                                   absorbed)
 {
-    new bool:handled=false;
+    bool handled=false;
 
     if (assister_race == raceID)
     {
-        new bool:used=false;
+        bool used=false;
         if (m_PoisonActive[assister_index])
         {
             new poison_level=GetUpgradeLevel(assister_index,raceID,poisonID);
@@ -506,8 +506,8 @@ bool:GroovedSpines(damage, victim_index, index, level)
         !GetImmunity(victim_index,Immunity_Upgrades) &&
         !IsInvulnerable(victim_index))
     {
-        new Float:percent;
-        new Float:distance = TargetRange(index, victim_index);
+        float percent;
+        float distance = TargetRange(index, victim_index);
         if (distance > 1000.0)
         {
             if (GameType == tf2)
@@ -575,7 +575,7 @@ LurkerAspect(client)
 
     if (g_lurkerRace < 0)
     {
-        decl String:upgradeName[64];
+        char upgradeName[64];
         GetUpgradeName(raceID, lurkerID, upgradeName, sizeof(upgradeName), client);
         DisplayMessage(client, Display_Ultimate, "%t", "IsNotAvailable", upgradeName);
         LogError("***The Zerg Lurker race is not Available!");
@@ -590,7 +590,7 @@ LurkerAspect(client)
     }
     else if (CanInvokeUpgrade(client, raceID, lurkerID))
     {
-            new Float:clientLoc[3];
+            float clientLoc[3];
             GetClientAbsOrigin(client, clientLoc);
             clientLoc[2] += 40.0; // Adjust position to the middle
 
@@ -614,7 +614,7 @@ Poison(client, level)
         {
             PrepareAndEmitSoundToClient(client,deniedWav);
 
-            decl String:upgradeName[64];
+            char upgradeName[64];
             GetUpgradeName(raceID, poisonID, upgradeName, sizeof(upgradeName), client);
             DisplayMessage(client, Display_Ultimate, "%t", "Prevented", upgradeName);
         }
@@ -631,7 +631,7 @@ Poison(client, level)
     }
 }
 
-public Action:EndPoison(Handle:timer,any:userid)
+public Action EndPoison(Handle:timer,any:userid)
 {
     new client = GetClientOfUserId(userid);
     if (client > 0 && m_PoisonActive[client])

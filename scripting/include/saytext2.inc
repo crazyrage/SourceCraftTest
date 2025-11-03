@@ -11,8 +11,8 @@
 #define _saytext2_included
 
 
-stock SayText2( client_index , author_index , const String:message[] ) {
-    new Handle:buffer = StartMessageOne("SayText2", client_index);
+stock SayText2( client_index , author_index , const char message[] ) {
+    Handle buffer = StartMessageOne("SayText2", client_index);
     if (buffer != INVALID_HANDLE) {
         BfWriteByte(buffer, author_index);
         BfWriteByte(buffer, true);

@@ -14,17 +14,17 @@
 
 stock Handle:AuthTimer(Float:delay,index,Timer:func, flags=0)
 {
-    new Handle:pack;
+    Handle pack;
     AuthTimerEx(delay, index, func, pack, flags);
     return pack;
 }
 
 stock Handle:AuthTimerEx(Float:delay,index,Timer:func, &Handle:pack, flags=0)
 {
-    decl String:auth[64];
+    char auth[64];
     GetClientAuthId(index, AuthId_Steam2, auth, sizeof(auth));
 
-    new Handle:timer = CreateDataTimer(delay,func,pack, flags);
+    Handle timer = CreateDataTimer(delay,func,pack, flags);
     if (timer != INVALID_HANDLE && pack != INVALID_HANDLE)
     {
         WritePackCell(pack, index);
@@ -37,7 +37,7 @@ stock ClientOfAuthString(const String:auth[])
 {
     new index = 0;
     new max=GetMaxClients();
-    decl String:authStr[64];
+    char authStr[64];
     for (new x=1;x<=max;x++)
     {
         if (IsClientInGame(x))
@@ -59,7 +59,7 @@ stock ClientOfAuthTimer(Handle:pack)
     new old_index = 0;
     if (pack != INVALID_HANDLE)
     {
-        decl String:auth[64];
+        char auth[64];
 
         ResetPack(pack);
         index = ReadPackCell(pack);
@@ -68,7 +68,7 @@ stock ClientOfAuthTimer(Handle:pack)
 
         if (IsClientInGame(index))
         {
-            decl String:authStr[64];
+            char authStr[64];
             GetClientAuthId(index, AuthId_Steam2, authStr, sizeof(authStr));
             if (!StrEqual(auth,authStr))
                 index = 0;

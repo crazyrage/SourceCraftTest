@@ -17,7 +17,7 @@
  */
 stock Menu_AddIntItem(Handle:menu, any:value, String:display[])
 {
-	decl String:buffer[INT_MAX_DIGITS + 1];
+	char buffer[INT_MAX_DIGITS + 1];
 	IntToString(value, buffer, sizeof(buffer));
 	AddMenuItem(menu, buffer, display);
 }
@@ -32,7 +32,7 @@ stock Menu_AddIntItem(Handle:menu, any:value, String:display[])
  */
 stock any:Menu_GetIntItem(Handle:menu, any:param2)
 {
-	decl String:buffer[INT_MAX_DIGITS + 1];
+	char buffer[INT_MAX_DIGITS + 1];
 	GetMenuItem(menu, param2, buffer, sizeof(buffer));
 	return StringToInt(buffer);
 }

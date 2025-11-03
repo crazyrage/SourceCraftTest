@@ -32,10 +32,10 @@
 
 #define VERSION		    "1.2"
 
-new Handle:g_cvars[CVAR_NUM_CVARS];
-new Handle:g_timer = INVALID_HANDLE;
+Handle g_cvars[CVAR_NUM_CVARS];
+Handle g_timer = INVALID_HANDLE;
 
-public Plugin:myinfo = {
+public Plugin myinfo = {
     name = "Flare Extinguisher",
     author = "Ryan \"FLOOR_MASTER\" Mannion",
     description = "Periodically remove flares from the game",
@@ -62,7 +62,7 @@ public OnPluginStart() {
 }
 
 public OnConfigsExecuted() {
-    new Float:time = GetConVarFloat(g_cvars[CVAR_RATE]);
+    float time = GetConVarFloat(g_cvars[CVAR_RATE]);
     if (g_timer == INVALID_HANDLE && time > 0.0) {
 	g_timer = CreateTimer(time, Timer_ExtinguishFlares, _, TIMER_REPEAT);
     }
@@ -75,8 +75,8 @@ public OnPluginEnd() {
     }
 }
 
-public OnRateChange(Handle:cvar, const String:oldVal[], const String:newVal[]) {
-    new Float:time = StringToFloat(newVal);
+public OnRateChange(Handle:cvar, const char oldVal[], const char newVal[]) {
+    float time = StringToFloat(newVal);
 
     if (g_timer != INVALID_HANDLE) {
 	CloseHandle(g_timer);
@@ -89,28 +89,28 @@ public OnRateChange(Handle:cvar, const String:oldVal[], const String:newVal[]) {
     }
 }
 
-public Action:Command_ExtinguishFlares(client, args) {
+public Action Command_ExtinguishFlares(client, args) {
     ExtinguishFlares();
     ReplyToCommand(client, "[FE] Extinguishing flares");
 }
 
-public Action:Timer_ExtinguishFlares(Handle:timer) {
+public Action Timer_ExtinguishFlares(Handle:timer) {
     ExtinguishFlares();
 }
 
 stock ExtinguishFlares() {
     new ent = -1;
 
-    new Handle:flares = CreateArray();
+    Handle flares = CreateArray();
     while ((ent = FindEntityByClassname(ent, "tf_projectile_flare")) >= 0) {
 	PushArrayCell(flares, ent);
     }
     CreateTimer(2.0, Timer_ExtinguishFlares2, flares);
 }
 
-public Action:Timer_ExtinguishFlares2(Handle:timer, Handle:flares) {
+public Action Timer_ExtinguishFlares2(Handle:timer, Handle:flares) {
     new size = GetArraySize(flares);
-    decl String:class[32];
+    char class[32];
     new edict = 0;
     new count = 0;
 

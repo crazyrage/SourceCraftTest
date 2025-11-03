@@ -30,11 +30,11 @@
 
 enum command { update, remove, reset, find_controller, find_builder };
 
-new const String:controlWav[] = "sc/pteSum00.wav";
+char controlWav[] = "sc/pteSum00.wav";
 
-new Handle:m_StolenObjectList[MAXPLAYERS+1] = { INVALID_HANDLE, ... };
+Handle m_StolenObjectList[MAXPLAYERS+1] = { INVALID_HANDLE, ... };
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Upgrade - MindControl",
     author = "-=|JFH|=-Naris",
@@ -108,12 +108,12 @@ public ObjectDestroyed(Handle:event,const String:name[],bool:dontBroadcast)
     ProcessMindControlledObjects(remove, obj, index, type, INVALID_HANDLE);
 }
 
-public Action:CorrectDeathEvent(Handle:event,const String:name[],bool:dontBroadcast)
+public Action CorrectDeathEvent(Handle:event,const String:name[],bool:dontBroadcast)
 {
     new attacker = GetClientOfUserId(GetEventInt(event,"attacker"));
     if (attacker > 0)
     {
-        decl String:weapon[64];
+        char weapon[64];
         GetEventString(event, "weapon", weapon, sizeof(weapon));
 
         if (StrEqual(weapon, "obj_sentrygun"))
@@ -160,15 +160,15 @@ bool:MindControl(client, Float:range, percent, &builder, &TFExtObjectType:type, 
     new target = TraceAimTarget(client);
     if (target >= 0)
     {
-        new Float:clientLoc[3];
+        float clientLoc[3];
         GetClientAbsOrigin(client, clientLoc);
 
-        new Float:targetLoc[3];
+        float targetLoc[3];
         TR_GetEndPosition(targetLoc);
 
         if (IsPointInRange(clientLoc,targetLoc,range))
         {
-            new Float:distance=GetVectorDistance(clientLoc,targetLoc);
+            float distance=GetVectorDistance(clientLoc,targetLoc);
             if (GetRandomFloat(1.0,100.0) <= float(percent) * (1.0 - (distance / range) + 0.20))
             {
                 return replace ? ReplaceObject(client, target, builder, type)
@@ -204,7 +204,7 @@ bool:ReplaceObject(client, target, &builder=0, &TFExtObjectType:type=TFExtObject
             //Check to see if the object is still being built
             new placing = GetEntProp(target, Prop_Send, "m_bPlacing");
             new building = GetEntProp(target, Prop_Send, "m_bBuilding");
-            new Float:complete = GetEntPropFloat(target, Prop_Send, "m_flPercentageConstructed");
+            float complete = GetEntPropFloat(target, Prop_Send, "m_flPercentageConstructed");
             if (placing == 0 && building == 0 && complete >= 1.0)
             {
                 //Find the owner of the object m_hBuilder holds the client index 1 to Maxplayers
@@ -215,10 +215,10 @@ bool:ReplaceObject(client, target, &builder=0, &TFExtObjectType:type=TFExtObject
                     new team = GetClientTeam(client);
                     if (GetEntProp(target, Prop_Send, "m_iTeamNum") != team)
                     {
-                        new Float:pos[3];
+                        float pos[3];
                         GetEntPropVector(target, Prop_Send, "m_vecOrigin", pos);
 
-                        new Float:angles[3];
+                        float angles[3];
                         GetEntPropVector(target, Prop_Send, "m_angRotation", angles);
 
                         new iMaxHealth = GetEntProp(target, Prop_Data, "m_iMaxHealth");
@@ -306,7 +306,7 @@ bool:ControlObject(client, target, &builder=0, &TFExtObjectType:type=TFExtObject
             //Check to see if the object is still being built
             new placing = GetEntProp(target, Prop_Send, "m_bPlacing");
             new building = GetEntProp(target, Prop_Send, "m_bBuilding");
-            new Float:complete = GetEntPropFloat(target, Prop_Send, "m_flPercentageConstructed");
+            float complete = GetEntPropFloat(target, Prop_Send, "m_flPercentageConstructed");
             if (placing == 0 && building == 0 && complete >= 1.0)
             {
                 //Find the owner of the object m_hBuilder holds the client index 1 to Maxplayers
@@ -351,10 +351,10 @@ bool:ControlObject(client, target, &builder=0, &TFExtObjectType:type=TFExtObject
                         else
                             color[0] = 255; // Red
 
-                        new Float:clientLoc[3];
+                        float clientLoc[3];
                         GetClientAbsOrigin(client, clientLoc);
 
-                        new Float:targetLoc[3];
+                        float targetLoc[3];
                         GetEntPropVector(target, Prop_Send, "m_vecOrigin", targetLoc);
 
                         TE_SetupBeamPoints(clientLoc, targetLoc, Lightning(), HaloSprite(),
@@ -368,14 +368,14 @@ bool:ControlObject(client, target, &builder=0, &TFExtObjectType:type=TFExtObject
                                            5.0,5.0,255);
                         TE_SendEffectToAll();
 
-                        new Float:splashDir[3];
+                        float splashDir[3];
                         splashDir[0] = 0.0;
                         splashDir[1] = 0.0;
                         splashDir[2] = 100.0;
                         TE_SetupEnergySplash(targetLoc, splashDir, true);
 
                         new target_ref = EntIndexToEntRef(target);
-                        new Handle:timer = INVALID_HANDLE;
+                        Handle timer = INVALID_HANDLE;
                         if (type == TFExtObject_Sentry)
                         {
                             timer = CreateTimer(0.1, CheckSentries, target_ref,
@@ -383,7 +383,7 @@ bool:ControlObject(client, target, &builder=0, &TFExtObjectType:type=TFExtObject
                         }
 
                         // Create the Tracking Package
-                        new Handle:pack = CreateDataPack();
+                        Handle pack = CreateDataPack();
                         WritePackCell(pack, target_ref);
                         WritePackCell(pack, builder);
                         WritePackCell(pack, _:timer);
@@ -434,7 +434,7 @@ bool:ControlObject(client, target, &builder=0, &TFExtObjectType:type=TFExtObject
     return false;
 }
 
-public Action:CheckSentries(Handle:timer,any:ref)
+public Action CheckSentries(Handle:timer,any:ref)
 {
     new obj = EntRefToEntIndex(ref);
     if (obj > 0 && IsValidEdict(obj) && IsValidEntity(obj))
@@ -465,17 +465,17 @@ ProcessMindControlledObjects(command:cmd, obj=-1, builder=-1,
                 new size = GetArraySize(m_StolenObjectList[client]);
                 for (new index = 0; index < size; index++)
                 {
-                    new Handle:pack = GetArrayCell(m_StolenObjectList[client], index);
+                    Handle pack = GetArrayCell(m_StolenObjectList[client], index);
                     if (pack != INVALID_HANDLE)
                     {
                         ResetPack(pack);
                         new pack_ref = ReadPackCell(pack);
                         new pack_target = EntRefToEntIndex(pack_ref);
                         new pack_builder = ReadPackCell(pack);
-                        new Handle:pack_timer = Handle:ReadPackCell(pack);
+                        Handle pack_timer = Handle:ReadPackCell(pack);
                         new TFExtObjectType:pack_type = TFExtObjectType:ReadPackCell(pack);
 
-                        new bool:found;
+                        bool found;
                         if (obj > 0)
                             found = (obj == pack_target);
                         else if (timer != INVALID_HANDLE)
@@ -528,13 +528,13 @@ ResetMindControlledObjects(client, bool:kill)
         new size = GetArraySize(m_StolenObjectList[client]);
         for (new index = 0; index < size; index++)
         {
-            new Handle:pack = GetArrayCell(m_StolenObjectList[client], index);
+            Handle pack = GetArrayCell(m_StolenObjectList[client], index);
             if (pack != INVALID_HANDLE)
             {
                 ResetPack(pack);
                 new target = EntRefToEntIndex(ReadPackCell(pack));
                 new builder = ReadPackCell(pack);
-                new Handle:timer = Handle:ReadPackCell(pack);
+                Handle timer = Handle:ReadPackCell(pack);
                 CloseHandle(pack);
 
                 ResetObject(client, target, builder, kill);
@@ -593,12 +593,12 @@ ResetObject(client, target, builder, bool:kill)
 public Native_MindControl(Handle:plugin,numParams)
 {
     new client = GetNativeCell(1);
-    new Float:range = Float:GetNativeCell(2);
+    float range = Float:GetNativeCell(2);
     new percent = GetNativeCell(3);
     new builder = GetNativeCellRef(4);
     new TFExtObjectType:type = GetNativeCellRef(5);
-    new bool:replace = GetNativeCell(6);
-    new bool:success = MindControl(client,range,percent, builder, type, replace);
+    bool replace = GetNativeCell(6);
+    bool success = MindControl(client,range,percent, builder, type, replace);
     if (success)
     {
         SetNativeCellRef(4, builder);
@@ -613,7 +613,7 @@ public Native_ControlObject(Handle:plugin,numParams)
     new target = GetNativeCell(2);
     new builder = GetNativeCellRef(3);
     new TFExtObjectType:type = GetNativeCellRef(4);
-    new bool:success = ControlObject(client,target, builder, type);
+    bool success = ControlObject(client,target, builder, type);
     if (success)
     {
         SetNativeCellRef(3, builder);
@@ -628,7 +628,7 @@ public Native_ReplaceObject(Handle:plugin,numParams)
     new target = GetNativeCell(2);
     new builder = GetNativeCellRef(3);
     new TFExtObjectType:type = GetNativeCellRef(4);
-    new bool:success = ReplaceObject(client,target, builder, type);
+    bool success = ReplaceObject(client,target, builder, type);
     if (success)
     {
         SetNativeCellRef(3, builder);
@@ -640,6 +640,6 @@ public Native_ReplaceObject(Handle:plugin,numParams)
 public Native_ResetMindControlledObjs(Handle:plugin,numParams)
 {
     new client = GetNativeCell(1);
-    new bool:kill = bool:GetNativeCell(2);
+    bool kill = bool:GetNativeCell(2);
     ResetMindControlledObjects(client,kill);
 }

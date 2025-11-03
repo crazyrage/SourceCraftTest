@@ -25,15 +25,15 @@
 #include "sc/weapons"
 #include "sc/maxhealth"
 
-new String:errorWav[] = "sourcecraft/perror.mp3";
-new String:deniedWav[] = "sourcecraft/buzz.wav";
+char errorWav[] = "sourcecraft/perror.mp3";
+char deniedWav[] = "sourcecraft/buzz.wav";
 
 new raceID, glandsID, regenerationID, healingID, tentacleID;
 
 new g_haloSprite;
 new g_lightningSprite;
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Zerg",
     author = "-=|JFH|=-Naris",
@@ -93,7 +93,7 @@ public OnRaceSelected(client,Handle:player,oldrace,race)
     }
 }
 
-public Action:Regeneration(Handle:timer)
+public Action Regeneration(Handle:timer)
 {
     new maxplayers=GetMaxClients();
     for(new client=1;client<=maxplayers;client++)
@@ -102,7 +102,7 @@ public Action:Regeneration(Handle:timer)
         {
             if(IsPlayerAlive(client))
             {
-                new Handle:player=GetPlayerHandle(client);
+                Handle player=GetPlayerHandle(client);
                 if(player != INVALID_HANDLE && GetRace(player) == raceID)
                 {
                     new regeneration_level=GetUpgradeLevel(player,raceID,regenerationID);
@@ -118,7 +118,7 @@ public Action:Regeneration(Handle:timer)
                     if (healing_aura_level)
                     {
                         new num=healing_aura_level*5;
-                        new Float:range=1.0;
+                        float range=1.0;
                         switch(healing_aura_level)
                         {
                             case 1:
@@ -131,8 +131,8 @@ public Action:Regeneration(Handle:timer)
                                 range=800.0;
                         }
                         new count=0;
-                        new Float:indexLoc[3];
-                        new Float:clientLoc[3];
+                        float indexLoc[3];
+                        float clientLoc[3];
                         GetClientAbsOrigin(client, clientLoc);
                         new team = GetClientTeam(client);
                         for (new index=1;index<=maxplayers;index++)
@@ -140,7 +140,7 @@ public Action:Regeneration(Handle:timer)
                             if (index != client && IsClientInGame(index) &&
                                 IsPlayerAlive(index) && GetClientTeam(index) == team)
                             {
-                                new Handle:player_check=GetPlayerHandle(index);
+                                Handle player_check=GetPlayerHandle(index);
                                 if (player_check != INVALID_HANDLE)
                                 {
                                     GetClientAbsOrigin(index, indexLoc);
@@ -186,13 +186,13 @@ public OnUltimateCommand(client,Handle:player,race,bool:pressed)
     }
 }
 
-public Action:OnGrab(client, target)
+public Action OnGrab(client, target)
 {
     if (target != client && IsClientInGame(target) && IsPlayerAlive(target))
     {
         if ( GetClientTeam(client) != GetClientTeam(target))
         {
-            new Handle:player_check=GetPlayerHandle(target);
+            Handle player_check=GetPlayerHandle(target);
             if (player_check != INVALID_HANDLE)
             {
                 if (!GetImmunity(player_check,Immunity_Ultimates))
@@ -223,9 +223,9 @@ public Action:OnGrab(client, target)
     return Plugin_Stop;
 }
 
-public Action:OnDrop(client, target)
+public Action OnDrop(client, target)
 {
-    new Handle:player_check=GetPlayerHandle(target);
+    Handle player_check=GetPlayerHandle(target);
     if (player_check != INVALID_HANDLE)
     {
         SetOverrideGravity(player_check, -1.0);
@@ -249,7 +249,7 @@ public PlayerSpawnEvent(Handle:event,const String:name[],bool:dontBroadcast)
     new client=GetClientOfUserId(userid);
     if (client)
     {
-        new Handle:player=GetPlayerHandle(client);
+        Handle player=GetPlayerHandle(client);
         if (player != INVALID_HANDLE)
         {
             if (GetRace(player) == raceID)
@@ -258,16 +258,16 @@ public PlayerSpawnEvent(Handle:event,const String:name[],bool:dontBroadcast)
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event,victim_index,Handle:victim_player,victim_race,
+public Action OnPlayerHurtEvent(Handle:event,victim_index,Handle:victim_player,victim_race,
                                 attacker_index,Handle:attacker_player,attacker_race,
                                 assister_index,Handle:assister_player,assister_race,
                                 damage)
 {
-    new bool:changed=false;
+    bool changed=false;
     if (attacker_index && attacker_race == raceID && attacker_index != victim_index)
     {
-        decl String:weapon[64];
-        new bool:is_equipment=GetWeapon(event,attacker_index,weapon,sizeof(weapon));
+        char weapon[64];
+        bool is_equipment=GetWeapon(event,attacker_index,weapon,sizeof(weapon));
         if (IsMelee(weapon, is_equipment, attacker_index, victim_index))
         {
             if (AdrenalGlands(damage, victim_index, victim_player,
@@ -281,7 +281,7 @@ public Action:OnPlayerHurtEvent(Handle:event,victim_index,Handle:victim_player,v
 }
 
 
-public bool:AdrenalGlands(damage, victim_index, Handle:victim_player, index, Handle:player)
+public bool AdrenalGlands(damage, victim_index, Handle:victim_player, index, Handle:player)
 {
     new adrenal_glands_level=GetUpgradeLevel(player,raceID,glandsID);
     if (adrenal_glands_level)
@@ -289,7 +289,7 @@ public bool:AdrenalGlands(damage, victim_index, Handle:victim_player, index, Han
         if (!GetImmunity(victim_player,Immunity_HealthTake) &&
             !TF2_IsPlayerInvuln(victim_index))
         {
-            new Float:percent;
+            float percent;
             switch(adrenal_glands_level)
             {
                 case 1:
@@ -314,7 +314,7 @@ public bool:AdrenalGlands(damage, victim_index, Handle:victim_player, index, Han
 
             SetEntityHealth(victim_index,newhp);
 
-            new Float:Origin[3];
+            float Origin[3];
             GetClientAbsOrigin(victim_index, Origin);
             Origin[2] += 5;
 

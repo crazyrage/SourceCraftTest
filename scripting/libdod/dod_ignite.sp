@@ -34,7 +34,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////
 // Plugin Info
 
-public Plugin:myinfo =
+public Plugin myinfo =
 {
     name = "dod_ignite",
     author = "Daedilus/-=|JFH|=-Naris",
@@ -43,8 +43,8 @@ public Plugin:myinfo =
     url = "http://www.budznetwork.com"
 };
 
-new Handle:cvarBurnTime;
-new Float:flBurnTime[MAXENTITIES+1];
+Handle cvarBurnTime;
+float flBurnTime[MAXENTITIES+1];
 
 ///////////////////////////////////////////////////////////////////////////////////////
 // AskPluginLoad
@@ -92,17 +92,17 @@ public OnConVarChange(Handle:hHandle, String:strOldVal[], String:strNewVal[])
 ///////////////////////////////////////////////////////////////////////////////////////
 // NormalSoundHook
 
-public Action:NormalSoundHook(clients[64], &client_count, String:sample[PLATFORM_MAX_PATH],
+public Action NormalSoundHook(clients[64], &client_count, String:sample[PLATFORM_MAX_PATH],
                               &entity, &channel, &Float:volume, &level, &pitch, &flags)
 {
     if (strcmp(FIRE_SMALL_LOOP2, sample, false) == 0)
     {
-        new Float:time = flBurnTime[entity];
+        float time = flBurnTime[entity];
         if (time <= 0.0)
             time = flBurnTime[0];
         if (time > 0.0)
         {
-            new Handle:pack = CreateDataPack();
+            Handle pack = CreateDataPack();
             WritePackCell(pack,entity);
             WritePackCell(pack,channel);
             CreateTimer(time, KillSound, pack);
@@ -118,7 +118,7 @@ public Action:NormalSoundHook(clients[64], &client_count, String:sample[PLATFORM
 ///////////////////////////////////////////////////////////////////////////////////////
 // KillSound
 
-public Action:KillSound(Handle:timer, Handle:pack)
+public Action KillSound(Handle:timer, Handle:pack)
 {
     if (pack != INVALID_HANDLE)
     {
@@ -141,7 +141,7 @@ public Action:KillSound(Handle:timer, Handle:pack)
 public Native_DOD_IgniteEntity(Handle:plugin,numParams)
 {
     new entity = GetNativeCell(1);
-    new Float:time = Float:GetNativeCell(2);
+    float time = Float:GetNativeCell(2);
     flBurnTime[entity] = time;
     IgniteEntity(entity, time, bool:GetNativeCell(3),
                  Float:GetNativeCell(4), bool:GetNativeCell(5));

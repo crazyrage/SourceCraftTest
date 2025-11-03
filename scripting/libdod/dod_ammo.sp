@@ -69,7 +69,7 @@
 
 #define MAXENTITIES 2048
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "DoD Ammo",
     author = "-=|JFH|=-Naris,FeuerSturm",
@@ -80,12 +80,12 @@ public Plugin:myinfo =
 
 #define MAXWEAPONS 24
 
-new const String:g_TakenSound[]       = "object/object_taken.wav";
-new const String:g_DeniedSound[]      = "common/weapon_denyselect.wav";
-new const String:g_NeedAmmoSound[4][] = { "", "", "player/american/us_needammo2.wav", "player/german/ger_needammo2.wav" };
-new const String:g_AmmoPackModel[4][]  = { "", "", "models/ammo/ammo_us.mdl", "models/ammo/ammo_axis.mdl" };
+char g_TakenSound[]       = "object/object_taken.wav";
+char g_DeniedSound[]      = "common/weapon_denyselect.wav";
+char g_NeedAmmoSound[4][] = { "", "", "player/american/us_needammo2.wav", "player/german/ger_needammo2.wav" };
+char g_AmmoPackModel[4][]  = { "", "", "models/ammo/ammo_us.mdl", "models/ammo/ammo_axis.mdl" };
 
-new const String:g_Weapon[MAXWEAPONS][] =
+char g_Weapon[MAXWEAPONS][] =
 {
     "weapon_amerknife", "weapon_spade", "weapon_colt", "weapon_p38", "weapon_m1carbine", "weapon_c96",
     "weapon_garand", "weapon_k98", "weapon_thompson", "weapon_mp40", "weapon_bar", "weapon_mp44",
@@ -93,43 +93,43 @@ new const String:g_Weapon[MAXWEAPONS][] =
     "weapon_riflegren_us", "weapon_riflegren_ger", "weapon_frag_us", "weapon_frag_ger", "weapon_smoke_us", "weapon_smoke_ger"
 }
  
-new const g_AmmoOffs[MAXWEAPONS] =
+int const g_AmmoOffs[MAXWEAPONS] =
 {
     0, 0, 4, 8, 24, 12, 16, 20, 32, 32, 36, 32, 28, 20, 40, 44, 48, 48, 84, 88, 52, 56, 68, 72
 }
 
-new const g_AmmoAmmo[MAXWEAPONS] =
+int const g_AmmoAmmo[MAXWEAPONS] =
 {
     0, 0, 14, 16, 30, 40, 80, 60, 180, 180, 240, 180, 50, 60, 300, 250, 4, 4, 2, 2, 2, 2, 0, 0
 }
 
-new g_iAmmo;
+int g_iAmmo;
 
-new Float:g_LastAmmo[MAXPLAYERS+1]
-new bool:g_UsedAmmo[MAXPLAYERS+1]
-new g_RestockCount[MAXPLAYERS+1]
+float g_LastAmmo[MAXPLAYERS+1]
+bool g_UsedAmmo[MAXPLAYERS+1]
+int g_RestockCount[MAXPLAYERS+1]
 
-new Handle:RestockEnabled = INVALID_HANDLE
-new Handle:RestockCount = INVALID_HANDLE
-new Handle:RestockDelay = INVALID_HANDLE
-new Handle:RestockCheck = INVALID_HANDLE
+Handle RestockEnabled = INVALID_HANDLE
+Handle RestockCount = INVALID_HANDLE
+Handle RestockDelay = INVALID_HANDLE
+Handle RestockCheck = INVALID_HANDLE
 
-new Handle:AmmoPackLifetime = INVALID_HANDLE;
-new Handle:AmmoPackOnDeath = INVALID_HANDLE;
-new Handle:AmmoPackDrop = INVALID_HANDLE;
-new Handle:AmmoPackRule = INVALID_HANDLE;
+Handle AmmoPackLifetime = INVALID_HANDLE;
+Handle AmmoPackOnDeath = INVALID_HANDLE;
+Handle AmmoPackDrop = INVALID_HANDLE;
+Handle AmmoPackRule = INVALID_HANDLE;
 
-new Handle:AmmoAnnounce = INVALID_HANDLE
-new g_HasAmmoPack[MAXPLAYERS+1];
+Handle AmmoAnnounce = INVALID_HANDLE
+int g_HasAmmoPack[MAXPLAYERS+1];
 
-new g_AmmoPackOwner[MAXENTITIES+1];
-new g_AmmoPackRef[MAXENTITIES+1]        = { INVALID_ENT_REFERENCE, ... };
-new Handle:AmmoPackTimer[MAXENTITIES+1] = INVALID_HANDLE;
+int g_AmmoPackOwner[MAXENTITIES+1];
+int g_AmmoPackRef[MAXENTITIES+1]        = { INVALID_ENT_REFERENCE, ... };
+Handle AmmoPackTimer[MAXENTITIES+1] = INVALID_HANDLE;
 
-new bool:g_NativeControl = false;
-new g_NativeAmmoPack[MAXPLAYERS+1];
-new g_NativeAmmoPackRule[MAXPLAYERS+1];
-new g_NativeAmmoPackCount[MAXPLAYERS+1];
+bool g_NativeControl = false;
+int g_NativeAmmoPack[MAXPLAYERS+1];
+int g_NativeAmmoPackRule[MAXPLAYERS+1];
+int g_NativeAmmoPackCount[MAXPLAYERS+1];
 
 public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
 {
@@ -155,9 +155,9 @@ public OnPluginStart()
     AmmoAnnounce = CreateConVar("dod_ammo_announce", "1", "<1/2/0> = set announcement  -  1=only on first spawn  -  2=every spawn until it is used  -  0=no announcements", FCVAR_NONE)
     RestockCheck = CreateConVar("dod_ammo_restock_check", "1", "<1/0> = enable/disable disallowing to ammo if player has more than half of the set ammo ammo", FCVAR_NONE)
 
-    decl String:ConVarName[256]
-    decl String:ConVarValue[256]
-    decl String:ConVarDescription[256]
+    char ConVarName[256]
+    char ConVarValue[256]
+    char ConVarDescription[256]
     for(new i = 2; i < MAXWEAPONS; i++)
     {
         Format(ConVarName, sizeof(ConVarName), "dod_ammo_%s",g_Weapon[i])
@@ -201,7 +201,7 @@ public OnClientDisconnect(client)
     g_UsedAmmo[client] = false
 }
 
-public Action:OnPlayerSpawn(Handle:event, const String:name[], bool:dontBroadcast)
+public Action OnPlayerSpawn(Handle:event, const char name[], bool:dontBroadcast)
 {
     new client = GetClientOfUserId(GetEventInt(event, "userid"))
     if (IsClientInGame(client) && IsPlayerAlive(client) && GetClientTeam(client) > 1)
@@ -214,7 +214,7 @@ public Action:OnPlayerSpawn(Handle:event, const String:name[], bool:dontBroadcas
         new announce = GetConVarInt(AmmoAnnounce)
         if (announce != 0 && !g_UsedAmmo[client] && GetConVarInt(RestockEnabled) == 1)
         {
-            decl String:ammo[32];
+            char ammo[32];
             Format(ammo, sizeof(ammo), "\x04!ammo\x01");
             PrintToChat(client, "\x04[DoD Ammo] \x01%T", "AnnounceRestock", client, ammo);
             if (announce == 1)
@@ -224,7 +224,7 @@ public Action:OnPlayerSpawn(Handle:event, const String:name[], bool:dontBroadcas
     return Plugin_Continue
 }
 
-public Action:OnPlayerDeath(Handle:event, const String:name[], bool:dontBroadcast)
+public Action OnPlayerDeath(Handle:event, const char name[], bool:dontBroadcast)
 {
     new client = GetClientOfUserId(GetEventInt(event, "userid"));
     g_LastAmmo[client] = 0.0;
@@ -249,7 +249,7 @@ public Action:OnPlayerDeath(Handle:event, const String:name[], bool:dontBroadcas
         return Plugin_Continue;
     }
 
-    new Float:deathorigin[3];
+    float deathorigin[3];
     GetClientAbsOrigin(client,deathorigin);
     deathorigin[2] += 5.0;
 
@@ -257,9 +257,9 @@ public Action:OnPlayerDeath(Handle:event, const String:name[], bool:dontBroadcas
     return Plugin_Continue
 }
 
-public Action:SayAmmo(client, args)
+public Action SayAmmo(client, args)
 {
-    decl String:AmmoCmd[9]
+    char AmmoCmd[9]
     GetCmdArg(1, AmmoCmd, sizeof(AmmoCmd))
     if(strcmp(AmmoCmd, "!ammo", false) == 0)
     {
@@ -281,11 +281,11 @@ public Action:SayAmmo(client, args)
     return Plugin_Continue
 }
 
-public Action:cmdAmmo(client, args)
+public Action cmdAmmo(client, args)
 {
     if(IsClientInGame(client) && IsPlayerAlive(client))
     {
-        decl String:Weapon[32]
+        char Weapon[32]
         GetClientWeapon(client, Weapon, sizeof(Weapon))
         new WeaponID = -1
         for(new i = 0; i < MAXWEAPONS; i++)
@@ -306,7 +306,7 @@ public Action:cmdAmmo(client, args)
             }
             else
             {
-                decl String:AmmoConVar[256]
+                char AmmoConVar[256]
                 Format(AmmoConVar, sizeof(AmmoConVar), "dod_ammo_weapon_%s", Weapon) 
                 new AmmoAmmo = GetConVarInt(FindConVar(AmmoConVar))
                 if(AmmoAmmo == 0)
@@ -363,7 +363,7 @@ public Action:cmdAmmo(client, args)
     return Plugin_Handled
 }
 
-public Action:cmdAmmopack(client, args) 
+public Action cmdAmmopack(client, args) 
 {
     if (!IsClientInGame(client) || !IsPlayerAlive(client) ||
         g_HasAmmoPack[client] <= 0)
@@ -384,14 +384,14 @@ public Action:cmdAmmopack(client, args)
         return Plugin_Continue;
     }
 
-    new Float:origin[3];
+    float origin[3];
     GetClientAbsOrigin(client, origin);
     origin[2] += 55.0;
 
-    new Float:angles[3];
+    float angles[3];
     GetClientEyeAngles(client, angles);
 
-    new Float:velocity[3];
+    float velocity[3];
     GetAngleVectors(angles, velocity, NULL_VECTOR, NULL_VECTOR);
     NormalizeVector(velocity,velocity);
     ScaleVector(velocity,350.0);
@@ -422,7 +422,7 @@ CreateAmmoPack(client, const Float:origin[3],
     }
 }
 
-public Action:OnAmmoPackTouched(ammopack, client)
+public Action OnAmmoPackTouched(ammopack, client)
 {
     if (client > 0 && client <= GetMaxClients() && ammopack > 0 &&
         EntRefToEntIndex(g_AmmoPackRef[ammopack]) == ammopack &&
@@ -463,7 +463,7 @@ public Action:OnAmmoPackTouched(ammopack, client)
     return Plugin_Handled;
 }
 
-public Action:RemoveDroppedAmmoPack(Handle:timer, any:ammopack)
+public Action RemoveDroppedAmmoPack(Handle:timer, any:ammopack)
 {
     AmmoPackTimer[ammopack] = INVALID_HANDLE;
     if (EntRefToEntIndex(g_AmmoPackRef[ammopack]) == ammopack &&
@@ -478,7 +478,7 @@ public Action:RemoveDroppedAmmoPack(Handle:timer, any:ammopack)
 
 KillAmmoPackTimer(ammopack)
 {
-	new Handle:timer = AmmoPackTimer[ammopack];
+	Handle timer = AmmoPackTimer[ammopack];
 	if (timer != INVALID_HANDLE)
 	{
 		CloseHandle(AmmoPackTimer[ammopack]);
@@ -515,7 +515,7 @@ public Native_Restock(Handle:plugin, numParams)
  */
 #tryinclude <entlimit>
 #if !defined _entlimit_included
-    stock IsEntLimitReached(warn=20,critical=16,client=0,const String:message[]="")
+    stock IsEntLimitReached(warn=20,critical=16,client=0,const char message[]="")
     {
         new max = GetMaxEntities();
         new count = GetEntityCount();

@@ -37,28 +37,28 @@
 #include "effect/PurpleGlow"
 #include "effect/SendEffects"
 
-new const String:explodeWav[] = "weapons/explode5.wav";
+char explodeWav[] = "weapons/explode5.wav";
 
-new g_BuyoutChance[]        = { 0, 9, 22, 50, 63 };
-new g_JobsBankChance[]      = { 0, 7, 15, 30, 50 };
-new g_ShelteredChance[]     = { 0, 5, 10, 20, 35 };
+int g_BuyoutChance[]        = { 0, 9, 22, 50, 63 };
+int g_JobsBankChance[]      = { 0, 7, 15, 30, 50 };
+int g_ShelteredChance[]     = { 0, 5, 10, 20, 35 };
 
-new g_HookDuration[]        = { 0,    10,    20,    40,   -1  };
-new Float:g_HookCooldown[]  = { 0.0,  20.0,  15.0,  10.0, 5.0 };
-new Float:g_HookRange[]     = { 0.0, 150.0, 300.0, 450.0, 0.0 };
+int g_HookDuration[]        = { 0,    10,    20,    40,   -1  };
+float g_HookCooldown[]  = { 0.0,  20.0,  15.0,  10.0, 5.0 };
+float g_HookRange[]     = { 0.0, 150.0, 300.0, 450.0, 0.0 };
 
-new g_RopeDuration[]        = { 0,     5,    10,    20,   -1  };
-new Float:g_RopeCooldown[]  = { 0.0,  20.0,  15.0,  10.0, 0.0 };
-new Float:g_RopeRange[]     = { 0.0, 150.0, 300.0, 450.0, 0.0 };
+int g_RopeDuration[]        = { 0,     5,    10,    20,   -1  };
+float g_RopeCooldown[]  = { 0.0,  20.0,  15.0,  10.0, 0.0 };
+float g_RopeRange[]     = { 0.0, 150.0, 300.0, 450.0, 0.0 };
 
-new raceID, wageID, seniorityID, negotiationID, rulesID, hookID, ropeID;
+int raceID, wageID, seniorityID, negotiationID, rulesID, hookID, ropeID;
 
 // Reincarnation variables
-new bool:m_JobsBank[MAXPLAYERS+1];
-new bool:m_TeleportOnSpawn[MAXPLAYERS+1];
-new Float:m_SpawnLoc[MAXPLAYERS+1][3];
+bool m_JobsBank[MAXPLAYERS+1];
+bool m_TeleportOnSpawn[MAXPLAYERS+1];
+float m_SpawnLoc[MAXPLAYERS+1][3];
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - UAW",
     author = "-=|JFH|=-Naris (Murray Wilson)",
@@ -169,7 +169,7 @@ public OnClientDisconnect(client)
     KillClientTimer(client);
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -195,7 +195,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
         return Plugin_Continue;
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
@@ -267,7 +267,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                     }
                     else if (pressed)
                     {
-                        decl String:upgradeName[64];
+                        char upgradeName[64];
                         GetUpgradeName(raceID, ropeID, upgradeName, sizeof(upgradeName), client);
                         PrintHintText(client,"%t", "IsNotAvailable", upgradeName);
                     }
@@ -301,7 +301,7 @@ public OnUltimateCommand(client,race,bool:pressed,arg)
                     }
                     else if (pressed)
                     {
-                        decl String:upgradeName[64];
+                        char upgradeName[64];
                         GetUpgradeName(raceID, hookID, upgradeName, sizeof(upgradeName), client);
                         PrintHintText(client,"%t", "IsNotAvailable", upgradeName);
                     }
@@ -428,7 +428,7 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
     }
 }
 
-public Action:TeleportOnSpawn(Handle:timer,any:userid)
+public Action TeleportOnSpawn(Handle:timer,any:userid)
 {
     new client = GetClientOfUserId(userid);
     if (IsValidClientAlive(client))
@@ -440,7 +440,7 @@ public Action:TeleportOnSpawn(Handle:timer,any:userid)
     return Plugin_Stop;
 }
 
-public Action:OnXPGiven(client,&amount,bool:taken)
+public Action OnXPGiven(client,&amount,bool:taken)
 {
     if (GetRace(client)==raceID && IsPlayerAlive(client) &&
         !GetRestriction(client, Restriction_NoUpgrades) &&
@@ -462,7 +462,7 @@ public Action:OnXPGiven(client,&amount,bool:taken)
         return Plugin_Continue;
 }
 
-public Action:OnCrystalsGiven(client,&amount,bool:taken)
+public Action OnCrystalsGiven(client,&amount,bool:taken)
 {
     if (GetRace(client)==raceID && IsPlayerAlive(client) &&
         !GetRestriction(client, Restriction_NoUpgrades) &&
@@ -503,7 +503,7 @@ public SetupRope(client, level)
     }
 }
 
-public Action:OnHook(client)
+public Action OnHook(client)
 {
     if (GetRestriction(client,Restriction_NoUltimates) ||
         GetRestriction(client,Restriction_Grounded) ||
@@ -522,7 +522,7 @@ public Action:OnHook(client)
     }
 }
 
-public Action:OnRope(client)
+public Action OnRope(client)
 {
     if (GetRestriction(client,Restriction_NoUltimates) ||
         GetRestriction(client,Restriction_Grounded) ||
@@ -536,7 +536,7 @@ public Action:OnRope(client)
         return Plugin_Continue;
 }
 
-public Action:Negotiations(Handle:timer, any:userid)
+public Action Negotiations(Handle:timer, any:userid)
 {
     new client = GetClientOfUserId(userid);
     if (IsValidClientAlive(client) &&
@@ -636,7 +636,7 @@ public Action:Negotiations(Handle:timer, any:userid)
                         {
                             DisplayMessage(client,Display_Deaths, "%t", "Lockout");
 
-                            new Float:location[3];
+                            float location[3];
                             GetClientAbsOrigin(client,location);
                             TE_SetupExplosion(location, BigExplosion(), 10.0, 30, 0, 50, 20);
                             TE_SendEffectToAll();
@@ -653,7 +653,7 @@ public Action:Negotiations(Handle:timer, any:userid)
                         {
                             DisplayMessage(client,Display_Deaths, "%t", "Reduction");
 
-                            new Float:location[3];
+                            float location[3];
                             GetClientAbsOrigin(client,location);
                             TE_SetupExplosion(location, BigExplosion(), 10.0, 30, 0, 50, 20);
                             TE_SendEffectToAll();
@@ -682,7 +682,7 @@ public Action:Negotiations(Handle:timer, any:userid)
                                 DisplayMessage(client,Display_Deaths,"%t", "Buyout", amount);
                             }
 
-                            new Float:location[3];
+                            float location[3];
                             GetClientAbsOrigin(client,location);
                             TE_SetupExplosion(location, BigExplosion(), 10.0, 30, 0, 50, 20);
                             TE_SendEffectToAll();
@@ -711,7 +711,7 @@ public Action:Negotiations(Handle:timer, any:userid)
                                 DisplayMessage(client,Display_Deaths,"%t", "Bankruptcy");
                             }
 
-                            new Float:location[3];
+                            float location[3];
                             GetClientAbsOrigin(client,location);
                             TE_SetupExplosion(location, BigExplosion(), 10.0, 30, 0, 50, 20);
                             TE_SendEffectToAll();
@@ -738,7 +738,7 @@ public Action:Negotiations(Handle:timer, any:userid)
                     {
                         DisplayMessage(client,Display_Deaths, "%t", "OSHA");
 
-                        new Float:location[3];
+                        float location[3];
                         GetClientAbsOrigin(client,location);
                         TE_SetupExplosion(location, BigExplosion(), 10.0, 30, 0, 50, 20);
                         TE_SendEffectToAll();

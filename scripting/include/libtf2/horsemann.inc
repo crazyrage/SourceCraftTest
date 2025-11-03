@@ -17,7 +17,7 @@
  * @param model     Model to use for the hatman, empty string uses TF2 model
  * @return			Returns 0 if a horsemann was spawned successfully
  */
-native SpawnHorsemann(client, const String:model[]="");
+native SpawnHorsemann(client, const char model[]="");
 
 /**
  * Changes the client's model to the hatman model
@@ -26,7 +26,7 @@ native SpawnHorsemann(client, const String:model[]="");
  * @param model     Model to use for the hatman, empty string uses TF2 model
  * @return			Returns 0 if the client's model was changed to the hatman model
  *                  Returns 1 if the client's model was changes back to normal
-native SummonHorsemann(client, const String:model[]="");
+native SummonHorsemann(client, const char model[]="");
  */
 
 /**

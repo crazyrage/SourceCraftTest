@@ -39,12 +39,12 @@
 #include "effect/HaloSprite"
 #include "effect/FlashScreen"
 
-new const String:deathWav[]      = "sc/pardth00.wav";
-new const String:summonWav[]     = "sc/pdardy00.wav";
-new const String:rageReadyWav[]  = "sc/pdapss03.wav";
-new const String:rageExpireWav[] = "sc/pdawht00.wav";
+char deathWav[]      = "sc/pardth00.wav";
+char summonWav[]     = "sc/pdardy00.wav";
+char rageReadyWav[]  = "sc/pdapss03.wav";
+char rageExpireWav[] = "sc/pdawht00.wav";
 
-new const String:archonWav[][]   = { "sc/pdapss00.wav" ,
+char archonWav[][]   = { "sc/pdapss00.wav" ,
                                      "sc/pdapss01.wav" ,
                                      "sc/pdapss02.wav" ,
                                      "sc/pdayes01.wav" ,
@@ -53,27 +53,27 @@ new const String:archonWav[][]   = { "sc/pdapss00.wav" ,
                                      "sc/pdawht02.wav" ,
                                      "sc/pdawht03.wav" };
 
-new const String:g_PsiBladesSound[] = "sc/uzefir00.wav";
+char g_PsiBladesSound[] = "sc/uzefir00.wav";
 
-new raceID, shockwaveID, shieldsID, meleeID, rageID;
-new maelstormID, controlID, ultimateFeedbackID;
+int raceID, shockwaveID, shieldsID, meleeID, rageID;
+int maelstormID, controlID, ultimateFeedbackID;
 
-new g_MindControlChance[]       = { 30, 50, 70, 90, 95 };
-new Float:g_MindControlRange[]  = { 150.0, 300.0, 450.0, 650.0, 800.0 };
-new Float:g_MaelstormRange[]    = { 350.0, 400.0, 650.0, 750.0, 900.0 };
-new Float:g_PsiBladesPercent[]  = { 0.15, 0.30, 0.40, 0.50, 0.70 };
-new Float:g_ShockwavePercent[]  = { 0.30, 0.40, 0.50, 0.60, 0.80 };
+int g_MindControlChance[]       = { 30, 50, 70, 90, 95 };
+float g_MindControlRange[]  = { 150.0, 300.0, 450.0, 650.0, 800.0 };
+float g_MaelstormRange[]    = { 350.0, 400.0, 650.0, 750.0, 900.0 };
+float g_PsiBladesPercent[]  = { 0.15, 0.30, 0.40, 0.50, 0.70 };
+float g_ShockwavePercent[]  = { 0.30, 0.40, 0.50, 0.60, 0.80 };
 
-new Float:g_FeedbackRange[]     = { 350.0, 400.0, 650.0, 750.0, 900.0 };
+float g_FeedbackRange[]     = { 350.0, 400.0, 650.0, 750.0, 900.0 };
 
-new Float:g_InitialShields[]      = { 0.10, 0.25, 0.50, 0.75, 1.0 };
-new Float:g_ShieldsPercent[][2]   = { { 0.05, 0.10 },
+float g_InitialShields[]      = { 0.10, 0.25, 0.50, 0.75, 1.0 };
+float g_ShieldsPercent[][2]   = { { 0.05, 0.10 },
                                       { 0.10, 0.20 },
                                       { 0.15, 0.30 },
                                       { 0.20, 0.40 },
                                       { 0.25, 0.50 } };
 
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
     name = "SourceCraft Race - Protoss Archon",
     author = "-=|JFH|=-Naris",
@@ -133,7 +133,7 @@ public OnSourceCraftReady()
 
     for (new level=0; level < sizeof(g_ShieldsPercent); level++)
     {
-        decl String:key[32];
+        char key[32];
         Format(key, sizeof(key), "shields_percent_level_%d", level);
         GetConfigFloatArray(key, g_ShieldsPercent[level], sizeof(g_ShieldsPercent[]),
                             g_ShieldsPercent[level], raceID, shieldsID);
@@ -208,7 +208,7 @@ public OnClientDisconnect(client)
     KillClientTimer(client);
 }
 
-public Action:OnRaceDeselected(client,oldrace,newrace)
+public Action OnRaceDeselected(client,oldrace,newrace)
 {
     if (oldrace == raceID)
     {
@@ -225,7 +225,7 @@ public Action:OnRaceDeselected(client,oldrace,newrace)
     return Plugin_Continue;
 }
 
-public Action:OnRaceSelected(client,oldrace,newrace)
+public Action OnRaceSelected(client,oldrace,newrace)
 {
     if (newrace == raceID)
     {
@@ -377,7 +377,7 @@ public OnPlayerSpawnEvent(Handle:event, client, race)
     }
 }
 
-public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
+public Action OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacker_index,
                                 attacker_race, damage, absorbed, bool:from_sc)
 {
     new Action:returnCode = Plugin_Continue;
@@ -405,7 +405,7 @@ public Action:OnPlayerHurtEvent(Handle:event, victim_index, victim_race, attacke
     return returnCode;
 }
 
-public Action:OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
+public Action OnPlayerAssistEvent(Handle:event, victim_index, victim_race,
                                   assister_index, assister_race, damage,
                                   absorbed)
 {
@@ -435,7 +435,7 @@ public OnPlayerDeathEvent(Handle:event, victim_index, victim_race, attacker_inde
     }
 }
 
-public bool:PsionicShockwave(damage, victim_index, index)
+public bool PsionicShockwave(damage, victim_index, index)
 {
     if (!GetRestriction(index, Restriction_NoUpgrades) &&
         !GetRestriction(index, Restriction_Stunned) &&
@@ -452,7 +452,7 @@ public bool:PsionicShockwave(damage, victim_index, index)
                 new dmgamt = RoundFloat(float(damage)*g_ShockwavePercent[shockwave_level]);
                 if (dmgamt > 0)
                 {
-                    new Float:Origin[3];
+                    float Origin[3];
                     GetEntityAbsOrigin(victim_index, Origin);
                     Origin[2] += 5;
 
@@ -473,7 +473,7 @@ public bool:PsionicShockwave(damage, victim_index, index)
 
 public Maelstorm(client, level)
 {
-    decl String:upgradeName[64];
+    char upgradeName[64];
     GetUpgradeName(raceID, maelstormID, upgradeName, sizeof(upgradeName), client);
 
     if (GetRestriction(client,Restriction_NoUltimates) ||
@@ -491,11 +491,11 @@ public Maelstorm(client, level)
                 TF2_RemovePlayerDisguise(client);
         }
 
-        new Float:range = g_MaelstormRange[level];
+        float range = g_MaelstormRange[level];
 
         new count=0;
-        new Float:indexLoc[3];
-        new Float:clientLoc[3];
+        float indexLoc[3];
+        float clientLoc[3];
         GetClientAbsOrigin(client, clientLoc);
         clientLoc[2] += 50.0; // Adjust trace position to the middle of the person instead of the feet.
 
@@ -534,7 +534,7 @@ public Maelstorm(client, level)
                             TF2_RemovePlayerDisguise(index);
                             TF2_RemoveCondition(client,TFCond_Cloaked);
 
-                            new Float:cloakMeter = TF2_GetCloakMeter(index);
+                            float cloakMeter = TF2_GetCloakMeter(index);
                             if (cloakMeter > 0.0 && cloakMeter <= 100.0)
                                 TF2_SetCloakMeter(index, 0.0);
 
@@ -542,7 +542,7 @@ public Maelstorm(client, level)
                                            "HasUndisguised", client, upgradeName);
                         }
 
-                        new Float:meter = TF2_GetEnergyDrinkMeter(index);
+                        float meter = TF2_GetEnergyDrinkMeter(index);
                         if (meter > 0.0 && meter <= 100.0)
                             TF2_SetEnergyDrinkMeter(index, 0.0);
 
@@ -594,7 +594,7 @@ public Maelstorm(client, level)
     }
 }
 
-public Action:RecloakPlayer(Handle:timer,any:userid)
+public Action RecloakPlayer(Handle:timer,any:userid)
 {
     new client = GetClientOfUserId(userid);
     if (client > 0)
@@ -608,7 +608,7 @@ public Action:RecloakPlayer(Handle:timer,any:userid)
 
 DoMindControl(client,level)
 {
-    decl String:upgradeName[64];
+    char upgradeName[64];
     GetUpgradeName(raceID, controlID, upgradeName, sizeof(upgradeName), client);
 
     if (!m_MindControlAvailable)
@@ -652,14 +652,14 @@ DoMindControl(client,level)
     }
 }
 
-public Action:Exclaimation(Handle:timer, any:userid) // Every 3.0 seconds
+public Action Exclaimation(Handle:timer, any:userid) // Every 3.0 seconds
 {
     new client = GetClientOfUserId(userid);
     if (IsValidClientAlive(client))
     {
         if (GetRace(client) == raceID)
         {
-            new Float:vec[3];
+            float vec[3];
             GetClientEyePosition(client, vec);
             
             new num = GetRandomInt(0,sizeof(archonWav)-1);
